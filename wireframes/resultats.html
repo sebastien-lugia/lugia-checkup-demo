@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe — Page de résultats — Lugia Check-up</title>
+<style>
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f4ef;
+    --color-background-tertiary: #faf9f5;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #595959;
+    --color-text-tertiary: #888780;
+    --color-text-info: #185FA5;
+    --color-border-tertiary: rgba(0,0,0,0.15);
+    --color-border-info: #185FA5;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-serif: Georgia, "Times New Roman", serif;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+  body { margin: 0; padding: 3rem 2rem; background: var(--color-background-tertiary); color: var(--color-text-primary); font-family: var(--font-sans); font-size: 16px; line-height: 1.7; }
+  .page { max-width: 920px; margin: 0 auto; }
+  .lugia-brand { font-size: 14px; font-weight: 500; letter-spacing: 0.02em; margin: 0 0 4px 0; }
+  .lugia-tag { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .lugia-title { font-family: var(--font-serif); font-size: 26px; font-weight: 500; margin: 0 0 4px 0; }
+  .lugia-date { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 2rem; }
+  .lugia-section-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .lugia-synthesis { background: var(--color-background-secondary); border-left: 2px solid var(--color-border-info); border-radius: 0; padding: 1rem 1.25rem; margin-bottom: 2.5rem; font-family: var(--font-serif); font-size: 17px; line-height: 1.7; }
+  .lugia-synthesis em { font-style: italic; color: var(--color-text-info); }
+  .lugia-facets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 2.5rem; }
+  .lugia-facet { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .lugia-facet-name { font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+  .lugia-facet-score { display: flex; align-items: baseline; gap: 4px; margin-bottom: 10px; }
+  .lugia-facet-score-val { font-family: var(--font-serif); font-size: 34px; font-weight: 500; line-height: 1; }
+  .lugia-facet-score-total { font-size: 13px; color: var(--color-text-secondary); }
+  .lugia-facet-bar { height: 3px; background: var(--color-background-secondary); border-radius: 2px; margin-bottom: 12px; overflow: hidden; }
+  .lugia-facet-bar-fill { height: 100%; background: var(--color-text-primary); border-radius: 2px; }
+  .lugia-facet-summary { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .lugia-chantier { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 12px; }
+  .lugia-chantier-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .lugia-chantier-title { font-size: 16px; font-weight: 500; }
+  .lugia-chantier-prio { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+  .lugia-chantier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 20px; }
+  .lugia-chantier-block-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .lugia-chantier-block-text { font-size: 13px; line-height: 1.6; }
+  .lugia-nextsteps-title { font-family: var(--font-serif); font-size: 20px; font-weight: 500; margin: 2.5rem 0 1rem 0; }
+  .lugia-nextsteps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .lugia-nextstep { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; cursor: pointer; }
+  .lugia-nextstep-rec { border: 2px solid var(--color-border-info); }
+  .lugia-nextstep-badge { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .lugia-nextstep-badge-rec { color: var(--color-text-info); }
+  .lugia-nextstep-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .lugia-nextstep-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="lugia-brand">Lugia</div>
+  <div class="lugia-tag">Check-up préventif</div>
+  <h1 class="lugia-title">Votre cabinet vu par le check-up</h1>
+  <div class="lugia-date">Réalisé le 12 mai 2026</div>
+
+  <div class="lugia-section-label">Votre situation aujourd'hui</div>
+  <div class="lugia-synthesis">
+  Votre cabinet tourne, mais entièrement grâce à vous. Vous avez bâti une organisation efficace : Maiia, Doctolib, votre télésecrétariat depuis 18 mois, l'externalisation comptable. Pourtant deux zones vous fatiguent sans que vous puissiez bien les nommer : des appels et messages directs de patients que vous traitez en plus du télésecrétariat, et l'usage que vous faites de ChatGPT pour vos courriers en sachant que ce n'est pas tout à fait conforme. <em>Avant tout autre chantier, et avant d'ajouter un agent ou un nouvel outil, ce qui vous aiderait le plus est de remplacer votre usage actuel de l'IA par un environnement adapté au secret médical, qui pourra ensuite vous aider à structurer le reste — y compris la facturation électronique de septembre.</em>
+  </div>
+
+  <div class="lugia-section-label">Trois angles de votre cabinet</div>
+  <div class="lugia-facets">
+    <div class="lugia-facet">
+      <div class="lugia-facet-name">Processus et activités</div>
+      <div class="lugia-facet-score"><span class="lugia-facet-score-val">6</span><span class="lugia-facet-score-total">/ 10</span></div>
+      <div class="lugia-facet-bar"><div class="lugia-facet-bar-fill" style="width: 60%;"></div></div>
+      <div class="lugia-facet-summary">Votre prise de rendez-vous et le tunnel patient fonctionnent bien grâce à vos outils. Mais une part des demandes vous arrive en direct (appels mobile, SMS, mails), en plus du télésecrétariat. Ce flux parallèle n'est tracé nulle part.</div>
+    </div>
+    <div class="lugia-facet">
+      <div class="lugia-facet-name">Participants</div>
+      <div class="lugia-facet-score"><span class="lugia-facet-score-val">4</span><span class="lugia-facet-score-total">/ 10</span></div>
+      <div class="lugia-facet-bar"><div class="lugia-facet-bar-fill" style="width: 40%;"></div></div>
+      <div class="lugia-facet-summary">Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat travaille avec des règles que vous n'avez jamais cadrées avec eux. Si vous deviez vous arrêter une semaine, personne ne saurait précisément que faire.</div>
+    </div>
+    <div class="lugia-facet">
+      <div class="lugia-facet-name">Information</div>
+      <div class="lugia-facet-score"><span class="lugia-facet-score-val">5</span><span class="lugia-facet-score-total">/ 10</span></div>
+      <div class="lugia-facet-bar"><div class="lugia-facet-bar-fill" style="width: 50%;"></div></div>
+      <div class="lugia-facet-summary">Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais aucun patient chronique qui ne revient pas ne vous remonte d'alerte, et un résultat vu en retard reste possible — comme cela s'est produit il y a quelques mois.</div>
+    </div>
+  </div>
+
+  <div class="lugia-section-label">Trois chantiers prioritaires</div>
+
+  <div class="lugia-chantier">
+    <div class="lugia-chantier-head">
+      <div class="lugia-chantier-title">Reprendre la main sur les demandes directes</div>
+      <div class="lugia-chantier-prio">Priorité 1</div>
+    </div>
+    <div class="lugia-chantier-grid">
+      <div>
+        <div class="lugia-chantier-block-label">Ce que le check-up a vu</div>
+        <div class="lugia-chantier-block-text">Vous recevez des appels sur votre mobile, des SMS de patients réguliers et des mails directs, en plus de Doctolib et du télésecrétariat. Ces demandes ne sont tracées nulle part et représentent une charge invisible.</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce qu'il ne peut pas confirmer seul</div>
+        <div class="lugia-chantier-block-text">Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles certains patients passent par vous plutôt que par votre télésecrétariat.</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce que Lugia propose</div>
+        <div class="lugia-chantier-block-text">Cartographier ces demandes directes sur deux semaines pour en mesurer la volumétrie, puis définir avec vous une règle simple à communiquer aux patients et au télésecrétariat.</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce que vous obtenez</div>
+        <div class="lugia-chantier-block-text">Une vue claire de ces flux parallèles, une règle simple à communiquer à vos patients, et un brief précis pour votre télésecrétariat.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lugia-chantier">
+    <div class="lugia-chantier-head">
+      <div class="lugia-chantier-title">Sécuriser votre usage actuel de l'IA</div>
+      <div class="lugia-chantier-prio">Priorité 2</div>
+    </div>
+    <div class="lugia-chantier-grid">
+      <div>
+        <div class="lugia-chantier-block-label">Ce que le check-up a vu</div>
+        <div class="lugia-chantier-block-text">Vous utilisez ChatGPT pour vos courriers complexes, avec une anonymisation manuelle des extraits de dossier. Vous savez que cela ne garantit pas la conformité au secret médical.</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce qu'il ne peut pas confirmer seul</div>
+        <div class="lugia-chantier-block-text">La fréquence, le type de courriers concernés, et les autres usages éventuels (résumés de consultations, recherches médicales).</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce que Lugia propose</div>
+        <div class="lugia-chantier-block-text">Mettre à votre disposition un environnement IA conforme HDS qui couvre les mêmes usages, sans anonymisation manuelle. Transition sans changer votre façon de travailler.</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce que vous obtenez</div>
+        <div class="lugia-chantier-block-text">Un usage conforme dès le premier jour, puis à votre rythme l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, préparation à la facturation électronique de septembre).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lugia-chantier">
+    <div class="lugia-chantier-head">
+      <div class="lugia-chantier-title">Anticiper une absence prolongée</div>
+      <div class="lugia-chantier-prio">Priorité 3</div>
+    </div>
+    <div class="lugia-chantier-grid">
+      <div>
+        <div class="lugia-chantier-block-label">Ce que le check-up a vu</div>
+        <div class="lugia-chantier-block-text">Tout le fonctionnement de votre cabinet est dans votre tête. Depuis le départ de Catherine, rien n'est documenté. En cas d'arrêt de plusieurs jours, votre télésecrétariat et vos patients ne sauraient pas quoi faire.</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce qu'il ne peut pas confirmer seul</div>
+        <div class="lugia-chantier-block-text">Ce qui se passerait concrètement, qui pourrait prendre le relais sur quoi, et quels patients chroniques nécessitent une vigilance particulière.</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce que Lugia propose</div>
+        <div class="lugia-chantier-block-text">Mettre par écrit les règles essentielles de fonctionnement de votre cabinet : à qui adresser quels types de demandes, comment gérer les renouvellements, qui contacter en cas de problème technique.</div>
+      </div>
+      <div>
+        <div class="lugia-chantier-block-label">Ce que vous obtenez</div>
+        <div class="lugia-chantier-block-text">Un document simple, à jour, partageable avec votre télésecrétariat et un remplaçant éventuel. La conviction qu'en cas d'imprévu, votre cabinet ne s'arrête pas net.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="lugia-nextsteps-title">Prochaine étape ?</h2>
+  <div class="lugia-nextsteps">
+    <div class="lugia-nextstep">
+      <div class="lugia-nextstep-badge">À votre rythme</div>
+      <div class="lugia-nextstep-title">Rester en autonomie</div>
+      <div class="lugia-nextstep-desc">Reprendre les chantiers proposés seul, à votre rythme.</div>
+    </div>
+    <div class="lugia-nextstep lugia-nextstep-rec">
+      <div class="lugia-nextstep-badge lugia-nextstep-badge-rec">Recommandé</div>
+      <div class="lugia-nextstep-title">Échanger avec Lugia</div>
+      <div class="lugia-nextstep-desc">30 minutes pour reprendre ce que vous avez vu et tester l'environnement sécurisé.</div>
+    </div>
+    <div class="lugia-nextstep">
+      <div class="lugia-nextstep-badge">Plus complet</div>
+      <div class="lugia-nextstep-title">Lancer un diagnostic terrain</div>
+      <div class="lugia-nextstep-desc">Une journée d'observation sur place pour affiner les chantiers.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
