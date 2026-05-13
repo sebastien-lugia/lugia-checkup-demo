@@ -21,6 +21,112 @@ Retour utilisateur posant explicitement les 5 limites de la moyenne brute (effet
 
 ---
 
+## 2026-05-13 — Phase V1-3b : Postgres provisionné et lié à l'API — VALIDÉE
+
+Base Postgres `lugia-checkup-db` créée sur Render Free tier, variable d'environnement `DATABASE_URL` ajoutée au Web Service `lugia-checkup-api`. Test de persistance validé : une interview créée avant un cold start est retrouvée après le réveil du service. Le disque éphémère SQLite est résolu.
+
+Note pour mémoire : Render Free Postgres expire après 90 jours. Bascule en plan Starter (~7$/mois) ou rotation manuelle à prévoir avant le 11 août 2026.
+
+---
+
+## 2026-05-13 — Phase V1-5a : backend auth lien magique
+
+### Ajouté
+
+- `src/db.py` — tables `auth_token` et `session`, column `email` ajoutée à `interview` via migration `_ensure_email_column_on_interview` (idempotente, SQLite et Postgres). Helpers `create_auth_token`, `verify_auth_token` (one-time use avec marquage), `create_session`, `get_session_email`, `revoke_session`. Constantes `MAGIC_LINK_TTL_MINUTES=30`, `SESSION_TTL_DAYS=30`.
+- `backend/main.py` — endpoints auth : `POST /auth/request-link` (génère token + envoie email ou print console), `POST /auth/verify-token` (consomme token et crée session), `GET /auth/me`, `POST /auth/logout`. Middleware `get_current_user_email` via `HTTPBearer`. Tous les endpoints `/interviews/*` sont désormais protégés et filtrent par propriétaire (`_assert_user_owns_interview`). Helper `_send_magic_link_email` avec fallback console si `RESEND_API_KEY` n'est pas configuré.
+- `backend/requirements.txt` — ajout de `resend>=2.0` (SDK Python officiel pour Resend).
+
+### Endpoint public (pas d'auth)
+
+`GET /protocol` reste public car il sert juste les questions du questionnaire — pas de donnée utilisateur.
+
+### Backward compat
+
+- La colonne `email` sur `interview` est nullable. Les interviews créées avant V1-5a (et celles créées par V0 Streamlit local ou par les scripts `seed_persona.py` qui appellent `create_interview()` sans email) restent accessibles à n'importe quel user authentifié (le helper `_assert_user_owns_interview` traite `email=None` comme legacy).
+- V0 Streamlit local fonctionne toujours (utilise `src/db.py` directement, pas l'API authentifiée).
+
+### Mode dev console
+
+Si `RESEND_API_KEY` n'est pas défini, le lien magique est imprimé dans la console uvicorn au lieu d'être envoyé par email. Permet de tester V1-5a en local sans avoir configuré Resend.
+
+### Validée le 13 mai 2026
+
+Les 8 vérifications sur `/docs` sont passées : request-link, lien magique en console, verify-token, Authorize, /auth/me, POST /interviews, GET /interviews/active, test négatif après logout. Le non-envoi d'email à une adresse réelle est attendu en mode console (RESEND_API_KEY non défini). V1-5b prendra le relai pour activer l'envoi réel.
+
+---
+
+## 2026-05-13 — Phase V1-4c : page résultats Next.js
+
+### Ajouté
+
+- `web/app/resultats/page.tsx` — page résultats Next.js. Appelle `GET /interviews/{id}/report` pour récupérer toutes les données (synthèse, facettes scorées, chantiers paramétrés, prochaine étape recommandée), puis les affiche selon la structure du wireframe V0-1 iter 2 : en-tête, synthèse en serif sur fond beige clair avec barre bleue à gauche et italiques colorées sur les `<em>`, trois cartes facettes avec score + barre + résumé, trois cartes chantiers en grille 2×2 avec les 4 parties, trois cartes prochaine étape avec mise en avant de la recommandation. Suspense boundary pour le `useSearchParams`.
+- `web/app/globals.css` — règle `.lugia-synthesis em { font-style: italic; color: #185fa5; }` pour styliser les `<em>` du HTML retourné par le backend.
+
+### Composants extraits
+
+`FacetCard`, `ChantierCard`, `ChantierBlock`, `NextStepCard` sont définis localement dans le fichier de la page. Si V1.5 nécessite de les réutiliser ailleurs, ils seront extraits dans `web/components/`.
+
+### Parcours bout en bout fonctionnel
+
+Accueil → Commencer → 14 questions → Merci → Voir les résultats → page résultats complète avec les données réelles. Tout le flux V0 est désormais reproduit en Next.js + FastAPI + Postgres.
+
+### En attente de validation utilisateur avant Phase V1-5 (auth lien magique).
+
+---
+
+## 2026-05-13 — Phase V1-4b iter 2 : reprise depuis l'accueil
+
+### Modifié
+
+- `web/app/page.tsx` — au chargement de l'accueil, appel à `getActiveInterview()` pour détecter une éventuelle session in_progress en base. Si présente, deux boutons s'affichent : "Reprendre votre check-up" (primary, route vers `/checkup?interview=N`) et "Commencer un nouveau check-up" (secondary, crée une nouvelle session). Une mention discrète indique la date de création et la position dans le questionnaire (par exemple "question 7 sur 14"). Si aucune session active, seul le bouton "Commencer le check-up" est affiché, comme avant.
+
+### Motif
+
+Le bouton "Quitter et reprendre plus tard" de la page interview ramenait l'utilisateur à l'accueil mais aucun moyen visuel de reprendre la session sauvegardée n'était proposé. La V0 Streamlit avait cette logique, elle n'avait pas été portée en V1-4a. C'est désormais corrigé.
+
+### Note
+
+Si le frontend pointe vers une API distante (production), l'accueil détecte les sessions in_progress de cette API. Si le frontend tourne en local et pointe vers `localhost:8000`, l'accueil détecte les sessions in_progress du backend local. Les deux bases sont distinctes — c'est attendu.
+
+---
+
+## 2026-05-13 — Phase V1-4b : page interview avec modes A/B/C
+
+### Ajouté
+
+- `web/components/CheckupWidgets.tsx` — trois composants React typés (`ModeAWidget`, `ModeBWidget`, `ModeCWidget`) qui couvrent les trois modes d'interaction du questionnaire, plus une fonction `isAnswerComplete` qui valide selon le mode.
+- `web/app/checkup/page.tsx` — page interview complète : chargement du protocole et de l'état de l'interview, préremplissage des widgets depuis la base via `listAnswers`, navigation Précédent / Suivant / Quitter, sauvegarde de chaque réponse à chaque clic Suivant, complétion automatique de l'interview au dernier Suivant et redirection vers `/resultats`, écran "Merci" si l'utilisateur revient sur l'interview après l'avoir terminée. Barre de progression, pill de facette, gestion d'erreur réseau.
+- Suspense boundary autour du contenu de la page pour gérer le `useSearchParams` Next.js App Router.
+
+### En attente de validation utilisateur avant Phase V1-4c (page résultats).
+
+---
+
+## 2026-05-13 — Phase V1-4a : setup Next.js frontend
+
+### Ajouté
+
+- `web/package.json` — déclaration de l'app Next.js 14, React 18, TypeScript 5, Tailwind 3.4. Scripts dev, build, start, lint.
+- `web/tsconfig.json` — config TypeScript en mode strict avec alias `@/*`.
+- `web/next.config.js`, `web/postcss.config.js`, `web/tailwind.config.ts` — configurations standards Next.js + Tailwind.
+- `web/.gitignore` — exclusion node_modules, .next, .env.local.
+- `web/.env.local.example` — template pour la variable `NEXT_PUBLIC_API_URL`.
+- `web/app/layout.tsx`, `web/app/page.tsx`, `web/app/globals.css` — root layout, page d'accueil reproduisant le wireframe V0-1 iter 2 (promesse, deux cartes "attendre / garde-fous", bouton "Commencer"), styles Tailwind avec palette Lugia.
+- `web/lib/api.ts` — client API typé avec fonctions pour appeler tous les endpoints du backend FastAPI (createInterview, getActiveInterview, getProtocol, saveAnswer, getReport, etc.).
+
+### Palette Tailwind Lugia
+
+Couleurs nommées dans `tailwind.config.ts` (lugia-bg, lugia-text, lugia-accent, etc.) pour réutiliser le système chromatique du wireframe V0-1.
+
+### Note
+
+L'ancien `web/index.html` (placeholder V1-1) sera écrasé par le build Next.js. Il peut être supprimé manuellement après confirmation que Next.js fonctionne.
+
+### En attente de validation utilisateur avant Phase V1-4b.
+
+---
+
 ## 2026-05-13 — Phase V1-3a : abstraction SQLAlchemy SQLite/Postgres
 
 ### Modifié
