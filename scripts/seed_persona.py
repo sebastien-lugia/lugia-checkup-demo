@@ -206,11 +206,14 @@ ANSWERS = [
 
 def reset_database() -> None:
     """Supprime toutes les sessions, réponses, scores et chantiers existants."""
-    with db.get_connection() as conn:
-        conn.execute("DELETE FROM workstream")
-        conn.execute("DELETE FROM facet_score")
-        conn.execute("DELETE FROM answer")
-        conn.execute("DELETE FROM interview")
+    from sqlalchemy import text
+
+    db.init_db()  # garantit que les tables existent avant suppression
+    with db.get_engine().begin() as conn:
+        conn.execute(text("DELETE FROM workstream"))
+        conn.execute(text("DELETE FROM facet_score"))
+        conn.execute(text("DELETE FROM answer"))
+        conn.execute(text("DELETE FROM interview"))
     print("Sessions existantes supprimées.")
 
 

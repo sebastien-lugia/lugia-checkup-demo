@@ -50,22 +50,65 @@ Limite éditoriale acceptée pour V0 : les réponses textuelles libres sont stoc
 
 Toutes les phases V0 sont closes. V0 reste opérationnelle en local (`streamlit run app.py`). La V1 démarre maintenant en portage technique pur.
 
-## En attente de validation utilisateur — Phase V1-0
+## Phase V1-0 — Validée le 13 mai 2026
 
-Documents méta mis à jour pour le démarrage V1 :
+Tag git `v0-final` posé. `MASTER_PROMPT.md` v3.0, D-017 inscrite, ROADMAP restructuré.
 
-- `MASTER_PROMPT.md` version 3.0 (section 5 périmètre, section 6 architecture, section 11 phases V1).
-- `DECISIONS.md` D-017 inscrite (cadrage V1 portage pur).
-- `ROADMAP.md` restructuré (V0 / V1 / V1.5 / V2 / Au-delà).
-- `CHANGELOG.md` à jour.
+## Phase V1-1 — Validée le 13 mai 2026
 
-**Action requise côté utilisateur** : poser le tag git `v0-final` sur l'état actuel du dépôt (commande fournie en réponse).
+Infra déployée. `diagnostic.lugia.fr` accessible avec page placeholder. Comptes Vercel, Render, Resend opérationnels. CNAME OVH pointe vers `aed4c8d94f10e709.vercel-dns-017.com`.
 
-## Prochaine phase — V1-1 : Setup infrastructure
+## Phase V1-2a — Validée le 13 mai 2026
 
-- Comptes Vercel, Render, Resend.
-- DNS OVH avec CNAME `diagnostic.lugia.fr` vers Vercel.
-- Pipeline de déploiement automatique (push git → déploiement).
+Backend FastAPI minimal. /docs OK, /protocol OK, /report OK avec seed_persona.
+
+## Phase V1-2b — Validée le 13 mai 2026
+
+Déploiement Render OK. API publique sur l'URL Render `https://lugia-checkup-api.onrender.com`.
+
+## En attente de validation utilisateur — Phase V1-3a
+
+Refactor SQLite → abstraction SQLAlchemy. `src/db.py`, `scripts/seed_persona.py` et `scripts/dump_report.py` mis à jour. Dépendances `sqlalchemy` (et `psycopg2-binary` côté backend) ajoutées.
+
+À tester localement (dans cet ordre) :
+
+```bash
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+source .venv/bin/activate
+
+# Installer les nouvelles dépendances
+pip install -r requirements.txt
+pip install -r backend/requirements.txt
+
+# Test 1 : les scripts CLI fonctionnent
+python scripts/dump_report.py --list
+python scripts/seed_persona.py --reset
+python scripts/dump_report.py
+
+# Test 2 : V0 Streamlit fonctionne toujours
+streamlit run app.py
+# (faire un parcours rapide, vérifier que la page de résultats s'affiche)
+
+# Test 3 : backend FastAPI fonctionne toujours
+uvicorn backend.main:app --reload --port 8000
+# (ouvrir http://localhost:8000/docs et tester /interviews/{id}/report)
+```
+
+Points à valider :
+
+- Les trois tests ci-dessus passent sans erreur.
+- Les données stockées en SQLite local restent accessibles (l'existant n'est pas écrasé).
+- Le rapport produit pour Chateau est identique à avant V1-3a.
+
+Si tout est OK, pousser sur GitHub. Render redéploiera l'API automatiquement, qui continuera à utiliser SQLite (éphémère) tant que DATABASE_URL n'est pas définie.
+
+## Prochaine phase — V1-3b : provisionnement Postgres sur Render
+
+- Créer une base Postgres sur Render (Free tier).
+- Récupérer l'INTERNAL DATABASE_URL.
+- Ajouter la variable d'environnement DATABASE_URL au service Web `lugia-checkup-api`.
+- Redéployer.
+- Vérifier que les interviews persistent entre deux cold starts.
 
 ## Outil de dev disponible
 

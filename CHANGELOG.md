@@ -21,6 +21,60 @@ Retour utilisateur posant explicitement les 5 limites de la moyenne brute (effet
 
 ---
 
+## 2026-05-13 — Phase V1-3a : abstraction SQLAlchemy SQLite/Postgres
+
+### Modifié
+
+- `src/db.py` — refactor complet vers SQLAlchemy 2.0 Core. Déclaration du schéma via `MetaData` + `Table`, helpers (`create_interview`, `get_interview`, `get_answers`, `save_answer`, etc.) retournent désormais des `dict[str, Any]` (compatible avec les consommateurs qui font `row["key"]`). Détection du backend via la variable d'environnement `DATABASE_URL` : si présente et de la forme `postgres://` ou `postgresql://`, utilise Postgres ; sinon fallback sur SQLite local. La conversion `postgres://` → `postgresql://` (héritage Render) est gérée automatiquement.
+- `scripts/seed_persona.py::reset_database` — utilise `db.get_engine()` et `text()` au lieu de `db.get_connection()`.
+- `scripts/dump_report.py::_latest_interview_id` et `_list_interviews` — idem, adaptés à SQLAlchemy.
+- `requirements.txt` (racine) — ajout de `sqlalchemy>=2.0` (utilisé par V0 Streamlit local et les scripts).
+- `backend/requirements.txt` — ajout de `sqlalchemy>=2.0` et `psycopg2-binary>=2.9` (driver Postgres pour la production).
+
+### Compatibilité descendante
+
+Le schéma SQLAlchemy correspond exactement au schéma SQLite existant après V0-3b. `metadata.create_all()` est idempotent et ne touche pas aux tables existantes. Les bases SQLite locales antérieures restent utilisables sans migration.
+
+### En attente de validation utilisateur avant Phase V1-3b (provisionnement Postgres sur Render).
+
+---
+
+## 2026-05-13 — Phase V1-2a : backend FastAPI minimal
+
+### Ajouté
+
+- `backend/__init__.py`, `backend/main.py`, `backend/requirements.txt` — application FastAPI qui expose les modules `src/*` de V0 via une API REST. Endpoints : health, protocol, gestion d'interviews, sauvegarde de réponses, calcul de scores, génération de rapport. CORS permissif en V1-2 (sera restreint en V2). Documentation Swagger UI auto-générée à `/docs`.
+
+### Architecture
+
+- `backend/main.py` ajoute la racine du projet à `sys.path` pour importer `src/*`. Aucune réécriture de code métier — réutilisation intégrale de `db`, `scoring`, `templates`, `workstreams`, `questions`.
+- V0 Streamlit reste fonctionnel en parallèle (les deux applications partagent la même base SQLite locale).
+
+### En attente de validation utilisateur avant Phase V1-2b (déploiement Render).
+
+---
+
+## 2026-05-13 — Phase V1-1 : infrastructure déployée
+
+### Validé par l'utilisateur
+
+- Dépôt `lugia-checkup-demo` poussé sur GitHub (privé), incluant le tag `v0-final`.
+- Vercel connecté au repo, déploiement automatique du contenu de `web/` à chaque push sur main.
+- DNS OVH configuré : CNAME `diagnostic` → `aed4c8d94f10e709.vercel-dns-017.com` (cible Vercel spécifique au projet). HTTPS actif via Let's Encrypt automatique de Vercel.
+- `https://diagnostic.lugia.fr` accessible et affiche la page placeholder.
+- Compte Resend créé, API key stockée en sécurité (utilisation en V1-5 pour les liens magiques).
+- Compte Render créé et lié à GitHub (utilisation en V1-2b pour le backend).
+
+### Ajouté
+
+- `web/index.html` — page placeholder "Bienvenue sur la zone de test Lugia". Servie par Vercel sur `diagnostic.lugia.fr`. Inclut `<meta name="robots" content="noindex, nofollow">` pour ne pas être indexée par les moteurs de recherche.
+
+### Note technique pour le futur
+
+Si le DNS doit être reconfiguré : la cible CNAME exacte fournie par Vercel pour ce projet est `aed4c8d94f10e709.vercel-dns-017.com.`. La cible générique `cname.vercel-dns.com.` ne fonctionne plus pour les nouveaux projets Vercel — chaque projet a sa cible spécifique communiquée lors de l'ajout du domaine.
+
+---
+
 ## 2026-05-13 — Phase V1-0 : cadrage V1 portage technique pur
 
 ### Décision majeure

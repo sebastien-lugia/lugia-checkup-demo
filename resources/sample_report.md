@@ -6,38 +6,38 @@
 
 ## Session
 
-- **Interview id** : 5
+- **Interview id** : 9
 - **Date de session** : 13/05/2026
-- **Statut** : completed
+- **Statut** : in_progress
 - **Nombre de réponses** : 14
 
 ---
 
 ## Votre situation aujourd'hui
 
-Votre cabinet tourne, mais entièrement grâce à vous. Vous avez bâti une organisation efficace : votre dispositif de secrétariat mixte. Pourtant deux zones vous fatiguent sans que vous puissiez bien les nommer : des appels et messages directs de patients que vous traitez en plus de votre secrétariat, et l'usage que vous faites de ChatGPT pour vos courriers en sachant que ce n'est pas tout à fait conforme. *Avant tout autre chantier, et avant d'ajouter un agent ou un nouvel outil, ce qui vous aiderait le plus est de remplacer votre usage actuel de l'IA par un environnement adapté au secret médical, qui pourra ensuite vous aider à structurer le reste — y compris la facturation électronique de septembre.*
+Votre cabinet tourne, mais entièrement grâce à vous. Vous avez bâti une organisation efficace : Maiia et Doctolib, votre télésecrétariat depuis 18 mois. Pourtant deux zones vous fatiguent sans que vous puissiez bien les nommer : des appels et messages directs de patients que vous traitez en plus de votre télésecrétariat, et l'usage que vous faites de ChatGPT pour vos courriers en sachant que ce n'est pas tout à fait conforme. *Avant tout autre chantier, et avant d'ajouter un agent ou un nouvel outil, ce qui vous aiderait le plus est de remplacer votre usage actuel de l'IA par un environnement adapté au secret médical, qui pourra ensuite vous aider à structurer le reste — y compris la facturation électronique de septembre.*
 
 ---
 
 ## Trois angles de votre cabinet
 
-### Processus et activités — **5 / 10**
+### Processus et activités — **3 / 10**
 
-Votre prise de rendez-vous et le tunnel patient fonctionnent grâce à vos outils. Mais une part des demandes vous arrive en direct (appels mobile, SMS, mails), en plus de votre secrétariat. Ce flux parallèle n'est tracé nulle part.
+Votre prise de rendez-vous et le tunnel patient fonctionnent grâce à vos outils. Mais une part des demandes vous arrive en direct (appels mobile, SMS, mails), en plus de votre télésecrétariat. Ce flux parallèle n'est tracé nulle part.
 
-*Détail du calcul : moyenne brute des 3 contributions = 4.67 → arrondi 5. Contributions : Q04 (3), Q05 (4), Q12 (7).*
+*Détail du calcul : moyenne brute des 3 contributions = 3.33 → arrondi 3. Contributions : Q04 (3), Q05 (2), Q12 (5).*
 
-### Participants — **4 / 10**
+### Participants — **3 / 10**
 
-Le fonctionnement du cabinet n'est pas formalisé par écrit. Si vous deviez vous arrêter une semaine, votre secrétariat pourrait gérer les rendez-vous mais le reste serait compliqué.
+Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat travaille avec des règles que vous n'avez jamais cadrées avec eux. Si vous deviez vous arrêter une semaine, personne ne saurait précisément que faire.
 
-*Détail du calcul : moyenne brute des 2 contributions = 4.50 → arrondi 4. Contributions : Q03 (4), Q08 (5).*
+*Détail du calcul : moyenne brute des 3 contributions = 3.00 → arrondi 3. Contributions : Q03 (4), Q07 (3), Q08 (2).*
 
-### Information — **4 / 10**
+### Information — **3 / 10**
 
-Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais le suivi des patients chroniques se fait au cas par cas, quand vous y pensez.
+Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais aucun patient chronique qui ne revient pas ne vous remonte d'alerte, et un résultat vu en retard reste possible — comme cela s'est produit il y a quelques mois.
 
-*Détail du calcul : moyenne brute des 4 contributions = 4.25 → arrondi 4. Contributions : Q09 (6), Q10 (4), Q11 (5), Q13 (2).*
+*Détail du calcul : moyenne brute des 4 contributions = 2.75 → arrondi 3. Contributions : Q09 (4), Q10 (2), Q11 (3), Q13 (2).*
 
 ---
 
@@ -47,25 +47,25 @@ Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais le 
 
 **Ce que le check-up a vu**
 
-Vous recevez des appels sur votre mobile, des SMS de patients réguliers et des mails directs, en plus de votre plateforme de rendez-vous et du secrétariat. Ces demandes ne sont tracées nulle part et représentent une charge invisible.
+Vous recevez des appels sur votre mobile, des SMS de patients réguliers et des mails directs, en plus de Doctolib et du télésecrétariat. Ces demandes ne sont tracées nulle part et représentent une charge invisible.
 
 **Ce qu'il ne peut pas confirmer seul**
 
-Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles certains patients passent par vous plutôt que par votre secrétariat.
+Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles certains patients passent par vous plutôt que par votre télésecrétariat.
 
 **Ce que Lugia propose**
 
-Cartographier ces demandes directes sur deux semaines pour en mesurer la volumétrie, puis définir avec vous une règle simple à communiquer aux patients et à votre secrétariat.
+Cartographier ces demandes directes sur deux semaines pour en mesurer la volumétrie, puis définir avec vous une règle simple à communiquer aux patients et à votre télésecrétariat.
 
 **Ce que vous obtenez**
 
-Une vue claire de ces flux parallèles, une règle simple à communiquer à vos patients, et un brief précis pour votre secrétariat.
+Une vue claire de ces flux parallèles, une règle simple à communiquer à vos patients, et un brief précis pour votre télésecrétariat.
 
 ### Chantier 2 — Sécuriser votre usage actuel de l'IA
 
 **Ce que le check-up a vu**
 
-Vous utilisez ChatGPT pour vos tâches de rédaction, avec une anonymisation manuelle des extraits de dossier. Vous savez que cela ne garantit pas la conformité au secret médical.
+Vous utilisez ChatGPT pour vos courriers complexes et vos comptes-rendus, avec une anonymisation manuelle des extraits de dossier. Vous savez que cela ne garantit pas la conformité au secret médical.
 
 **Ce qu'il ne peut pas confirmer seul**
 
@@ -77,13 +77,13 @@ Mettre à votre disposition un environnement IA conforme HDS qui couvre les mêm
 
 **Ce que vous obtenez**
 
-Un usage conforme dès le premier jour, puis à votre rythme l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, préparation à la facturation électronique de septembre).
+Un usage conforme dès le premier jour, puis à votre rythme l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, préparation à la facturation électronique de septembre). La dictée vocale classique que vous utilisez déjà reste — ce chantier porte sur l'aide à la rédaction structurée.
 
 ### Chantier 3 — Anticiper une absence prolongée
 
 **Ce que le check-up a vu**
 
-En cas d'arrêt de plusieurs jours, votre secrétariat pourrait gérer les rendez-vous, mais le reste serait compliqué. Depuis votre installation, peu de procédures sont documentées.
+Tout le fonctionnement de votre cabinet est dans votre tête. Depuis le départ de Catherine, rien n'est documenté. En cas d'arrêt de plusieurs jours, votre télésecrétariat et vos patients ne sauraient pas quoi faire.
 
 **Ce qu'il ne peut pas confirmer seul**
 
@@ -95,7 +95,7 @@ Mettre par écrit les règles essentielles de fonctionnement de votre cabinet : 
 
 **Ce que vous obtenez**
 
-Un document simple, à jour, partageable avec votre secrétariat et un remplaçant éventuel. La conviction qu'en cas d'imprévu, votre cabinet ne s'arrête pas net.
+Un document simple, à jour, partageable avec votre télésecrétariat et un remplaçant éventuel. La conviction qu'en cas d'imprévu, votre cabinet ne s'arrête pas net.
 
 ---
 

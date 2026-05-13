@@ -46,23 +46,33 @@ def _format_date(iso_str: str) -> str:
 
 def _latest_interview_id() -> int | None:
     """Retourne l'id de l'interview la plus récente, ou None."""
-    with db.get_connection() as conn:
-        row = conn.execute(
-            "SELECT id FROM interview ORDER BY updated_at DESC LIMIT 1"
-        ).fetchone()
-    return row["id"] if row else None
+    from sqlalchemy import text
+
+    db.init_db()
+    with db.get_engine().connect() as conn:
+        result = conn.execute(
+            text("SELECT id FROM interview ORDER BY updated_at DESC LIMIT 1")
+        )
+        row = result.mappings().fetchone()
+    return int(row["id"]) if row else None
 
 
 def _list_interviews() -> None:
     """Affiche la liste des interviews avec leur id, date et statut."""
-    with db.get_connection() as conn:
-        rows = conn.execute(
-            "SELECT i.id, i.created_at, i.updated_at, i.status, i.current_question_index, "
-            "       COUNT(a.id) AS nb_answers "
-            "FROM interview i LEFT JOIN answer a ON a.interview_id = i.id "
-            "GROUP BY i.id "
-            "ORDER BY i.updated_at DESC"
-        ).fetchall()
+    from sqlalchemy import text
+
+    db.init_db()
+    with db.get_engine().connect() as conn:
+        result = conn.execute(
+            text(
+                "SELECT i.id, i.created_at, i.updated_at, i.status, i.current_question_index, "
+                "       COUNT(a.id) AS nb_answers "
+                "FROM interview i LEFT JOIN answer a ON a.interview_id = i.id "
+                "GROUP BY i.id "
+                "ORDER BY i.updated_at DESC"
+            )
+        )
+        rows = result.mappings().all()
     if not rows:
         print("Aucune interview en base.")
         return
