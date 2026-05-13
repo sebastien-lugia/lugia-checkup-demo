@@ -15,16 +15,65 @@ Tâches restantes, bugs et points à valider, ordonnés par priorité de prise e
 - **V1-5a** — Backend auth lien magique opérationnel en local. Les 8 vérifications passées. Mode console suffisant tant que Resend n'est pas configuré.
 - **V1-5b** — Envoi réel d'email via Resend. Domaine `lugia.fr` vérifié, DNS OVH posés, env vars Render configurées, code V1-5a poussé sur GitHub, test bout en bout réussi (email reçu et bien rendu).
 - **V1-5c** — Frontend auth livré et validé. Pages `/login` et `/auth`, `web/lib/auth.ts`, propagation Bearer, guard `useRequireAuth` sur les 3 pages protégées, header avec email + déconnexion.
-- **V1-6** — Déploiement frontend Vercel validé. `diagnostic.lugia.fr` sert le vrai frontend Next.js. Parcours bout en bout en prod réussi. Fix peer dep eslint ^9 commité dans le passage.
+- **V1-6** — Déploiement frontend Vercel validé. `diagnostic.lugia.fr` sert le vrai frontend Next.js.
+
+## En attente de validation utilisateur — Phase V1-8 : RGPD minimale
+
+Décision D-018 actée : socle RGPD intégré à V1 (mentions légales, confidentialité, droit à l'effacement) plutôt que différé à V2.
+
+Fichiers livrés :
+
+- `src/db.py` (+ helper `delete_user_data`)
+- `backend/main.py` (+ endpoint `DELETE /me`)
+- `web/lib/api.ts` (+ `deleteAccount()`)
+- `web/components/Footer.tsx` (nouveau, footer commun)
+- `web/components/AppHeader.tsx` (email → lien vers `/compte`)
+- `web/app/layout.tsx` (intègre Footer globalement)
+- `web/app/legal/page.tsx` (nouveau, Mentions légales)
+- `web/app/confidentialite/page.tsx` (nouveau, Politique de confidentialité)
+- `web/app/compte/page.tsx` (nouveau, Mon compte + suppression)
+
+À tester localement :
+
+```bash
+# Terminal 1 — backend
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+source .venv/bin/activate
+uvicorn backend.main:app --reload --port 8000
+
+# Terminal 2 — frontend
+cd web && npm run dev
+```
+
+1. **Backend `/docs`** — la section auth doit lister un nouvel endpoint `DELETE /me` à côté des autres.
+2. **Footer global** — ouvrir `http://localhost:3000` (redirige sur `/login`). En bas de page, footer avec `© Lugia — Sébastien Boncoeur`, liens "Mentions légales", "Confidentialité", "Contact".
+3. **Pages publiques accessibles sans login** — cliquer "Mentions légales" → tu lis la page complète sans avoir besoin de te connecter. Idem "Confidentialité".
+4. **Page /compte** — se connecter, cliquer sur ton email en haut à droite (devenu lien) → arrive sur `/compte` avec email, données stockées, encadré rouge de suppression.
+5. **Test du flux de suppression** — utiliser un email de test :
+   - Connecte-toi avec `[email protected]`, fais 2-3 questions, déconnecte.
+   - Reconnecte-toi, va sur `/compte`.
+   - Tape `SUPPRIMER` (en MAJUSCULES) dans le champ, clique "Supprimer définitivement".
+   - Tu vois l'écran "Compte supprimé." → "Retour à l'accueil" → redirige sur `/login`.
+   - Tente de te reconnecter avec ce même email : demande un nouveau lien magique → si tu cliques le lien, tu arrives sur `/` mais sans aucune interview en cours (parfait, les données sont bien supprimées).
+
+Une fois validé, push :
+
+```bash
+git add src/db.py backend/main.py web/ DECISIONS.md CHANGELOG.md TODO.md
+git commit -m "V1-8: RGPD minimale (mentions légales, confidentialité, droit à l'effacement)"
+git push
+```
+
+Vercel redéploie automatiquement le frontend (3 nouvelles pages + 2 modifs), Render le backend (nouvel endpoint).
 
 ## V1 complète
 
-Tag git `v1-final` à poser pour figer la version :
+Tag git `v1-final` à poser **après validation V1-8** :
 
 ```bash
 cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
 git pull
-git tag -a v1-final -m "V1 complète — check-up en ligne sur diagnostic.lugia.fr"
+git tag -a v1-final -m "V1 complète — check-up en ligne sur diagnostic.lugia.fr avec RGPD minimal"
 git push origin v1-final
 ```
 

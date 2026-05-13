@@ -237,6 +237,22 @@ async def auth_logout(
     return {"ok": True}
 
 
+# ---- Effacement (V1-8 — RGPD article 17) ----
+
+@app.delete("/me", tags=["auth"])
+async def delete_me(
+    email: str = Depends(get_current_user_email),
+) -> dict[str, Any]:
+    """Supprime toutes les données de l'utilisateur authentifié.
+
+    Couvre interviews, answers, facet_scores, workstreams, auth_tokens et
+    sessions (y compris la session courante). Réponse : `{ "ok": true,
+    "deleted": { <table>: <count>, ... } }`.
+    """
+    counts = db.delete_user_data(email)
+    return {"ok": True, "deleted": counts}
+
+
 # ---- Protocole ----
 
 @app.get("/protocol", tags=["protocol"])

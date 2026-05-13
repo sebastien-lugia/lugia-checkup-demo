@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -37,9 +38,13 @@ export function AppHeader() {
 
   return (
     <div className="absolute top-4 right-6 flex items-center gap-2 text-xs">
-      <span className="text-lugia-text-tertiary truncate max-w-[180px]">
+      <Link
+        href="/compte"
+        className="text-lugia-text-tertiary truncate max-w-[180px] hover:text-lugia-text-secondary"
+        title="Gérer mon compte"
+      >
         {email}
-      </span>
+      </Link>
       <span className="text-lugia-text-tertiary">·</span>
       <button
         onClick={handleLogout}

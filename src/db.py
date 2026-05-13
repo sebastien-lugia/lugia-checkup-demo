@@ -436,3 +436,86 @@ def revoke_session(session_token: str) -> None:
                 session_table.c.session_token == session_token
             )
         )
+
+
+# ---- Effacement (V1-8 — droit à l'effacement RGPD article 17) ----
+
+def delete_user_data(email: str) -> dict[str, int]:
+    """Supprime toutes les données associées à un email.
+
+    Couvre interviews, answers, facet_scores, workstreams, auth_tokens et
+    sessions. Réalisé en une transaction unique. Les FK CASCADE existent
+    sur Postgres mais SQLite ne les applique pas par défaut, donc on
+    supprime explicitement les tables filles avant les tables parentes.
+
+    Retourne un dict de compteurs par table.
+    """
+    normalized = email.strip().lower()
+    with get_engine().begin() as conn:
+        # 1. Trouver les interviews appartenant à cet email
+        result = conn.execute(
+            select(interview_table.c.id).where(
+                interview_table.c.email == normalized
+            )
+        )
+        interview_ids = [row[0] for row in result]
+
+        answers_deleted = 0
+        facet_scores_deleted = 0
+        workstreams_deleted = 0
+
+        if interview_ids:
+            # 2. Supprimer les enfants des interviews
+            r = conn.execute(
+                delete(answer_table).where(
+                    answer_table.c.interview_id.in_(interview_ids)
+                )
+            )
+            answers_deleted = r.rowcount or 0
+
+            r = conn.execute(
+                delete(facet_score_table).where(
+                    facet_score_table.c.interview_id.in_(interview_ids)
+                )
+            )
+            facet_scores_deleted = r.rowcount or 0
+
+            r = conn.execute(
+                delete(workstream_table).where(
+                    workstream_table.c.interview_id.in_(interview_ids)
+                )
+            )
+            workstreams_deleted = r.rowcount or 0
+
+        # 3. Supprimer les interviews elles-mêmes
+        r = conn.execute(
+            delete(interview_table).where(
+                interview_table.c.email == normalized
+            )
+        )
+        interviews_deleted = r.rowcount or 0
+
+        # 4. Supprimer les tokens de lien magique encore en base
+        r = conn.execute(
+            delete(auth_token_table).where(
+                auth_token_table.c.email == normalized
+            )
+        )
+        auth_tokens_deleted = r.rowcount or 0
+
+        # 5. Supprimer toutes les sessions actives
+        r = conn.execute(
+            delete(session_table).where(
+                session_table.c.email == normalized
+            )
+        )
+        sessions_deleted = r.rowcount or 0
+
+    return {
+        "interviews": interviews_deleted,
+        "answers": answers_deleted,
+        "facet_scores": facet_scores_deleted,
+        "workstreams": workstreams_deleted,
+        "auth_tokens": auth_tokens_deleted,
+        "sessions": sessions_deleted,
+    }

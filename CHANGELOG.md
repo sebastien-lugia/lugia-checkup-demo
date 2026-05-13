@@ -4,11 +4,50 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-13 — Phase V1-8 : RGPD minimale intégrée à V1
+
+### Décision
+
+D-018 actée : on intègre un socle RGPD minimum dans V1 plutôt que de le différer en V2. Sans mentions légales, sans politique de confidentialité, sans droit à l'effacement, V1-7 (test client réel face à un médecin) ne serait pas défendable.
+
+### Ajouté
+
+- `src/db.py` — helper `delete_user_data(email)` qui purge interview + answers + facet_scores + workstreams + auth_tokens + sessions associés à un email, en une seule transaction. Suppressions explicites (pas de dépendance au CASCADE qui est inopérant par défaut en SQLite).
+- `backend/main.py` — endpoint `DELETE /me` (protégé par auth) qui appelle `delete_user_data(email)` et retourne `{ok, deleted: { interviews, answers, ... }}`.
+- `web/lib/api.ts` — fonction `deleteAccount()` exposant l'endpoint.
+- `web/components/Footer.tsx` — pied de page commun (server component, sans état) avec liens vers `/legal`, `/confidentialite` et mailto contact.
+- `web/app/legal/page.tsx` — Mentions légales. Éditeur = Sébastien Boncoeur, particulier. Contact email uniquement (France, pas d'adresse postale précise). Hébergeurs détaillés (Vercel, Render, Resend, OVH). Note sur la propriété intellectuelle et la loi française.
+- `web/app/confidentialite/page.tsx` — Politique de confidentialité en 11 sections : responsable, données collectées (email + réponses + métadonnées), finalités, base légale (consentement art. 6.1.a RGPD), destinataires (sous-traitants), transferts hors UE, durées de conservation, droits utilisateur (accès, rectification, effacement, opposition, portabilité, CNIL), cookies/localStorage (mention "pas de cookies tiers"), sécurité, modifications.
+- `web/app/compte/page.tsx` — Page authentifiée : affiche l'email courant, rappelle les données stockées, propose la suppression définitive avec confirmation par saisie du mot `SUPPRIMER`. Après succès, écran "Compte supprimé" + retour login.
+
+### Modifié
+
+- `web/app/layout.tsx` — intégration du `<Footer />` au RootLayout pour qu'il apparaisse automatiquement sur toutes les pages.
+- `web/components/AppHeader.tsx` — l'email affiché en haut à droite est désormais cliquable et mène vers `/compte`. Conserve le bouton "Se déconnecter".
+
+### Hors périmètre V1-8 (différé)
+
+- DPA signés avec Vercel/Render/Resend — à régulariser avant tout contrat commercial.
+- Bandeau cookies — non requis tant qu'on n'utilise que localStorage technique.
+- Endpoint d'export de données (portabilité) — droit annoncé dans la politique de confidentialité, traité par email sur demande pour V1.
+- Relecture avocat RGPD — recommandée avant V1-7 commercial mais non bloquante pour test prospect informel.
+
+### En attente de validation utilisateur
+
+Tester localement après `npm install` (rien de nouveau côté deps) :
+
+1. Backend : `uvicorn backend.main:app --reload` → `/docs` doit afficher `DELETE /me` dans la section auth.
+2. Frontend : `npm run dev` → vérifier `/legal`, `/confidentialite` accessibles **sans** être connecté. Footer visible sur toutes les pages.
+3. Une fois connecté : cliquer l'email en haut à droite → arrive sur `/compte`. Tester la confirmation `SUPPRIMER` puis la suppression effective (utiliser un email de test).
+4. Vérifier en base via `/docs` GET `/auth/me` après suppression : doit retourner 401 (session purgée).
+
+---
+
 ## 2026-05-13 — V1 complète : check-up préventif en ligne sur diagnostic.lugia.fr
 
 L'ensemble du parcours est désormais accessible en production via `https://diagnostic.lugia.fr`. Frontend Next.js sur Vercel, backend FastAPI sur Render, Postgres provisionné, auth par lien magique avec emails Resend depuis le domaine `lugia.fr` vérifié. Le check-up reproduit à l'identique le périmètre fonctionnel V0 (14 questions, 3 modes A/B/C, 3 facettes scorées, 3 chantiers paramétrés, recommandation prochaine étape), mais accessible à distance, sans installation locale.
 
-Reste à valider V1-7 : premier test client en condition réelle. Les extensions méthodologiques (9 facettes, pyramide animée, section "Vos mots", PDF export) restent inscrites en V1.5 et V2 dans la ROADMAP.
+Note : V1 sera figée par le tag `v1-final` **après V1-8** (RGPD minimal), pas après V1-6 comme initialement prévu. Reste à valider V1-7 : premier test client en condition réelle. Les extensions méthodologiques (9 facettes, pyramide animée, section "Vos mots", PDF export) restent inscrites en V1.5 et V2 dans la ROADMAP.
 
 ---
 

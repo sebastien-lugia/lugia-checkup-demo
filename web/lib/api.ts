@@ -81,6 +81,22 @@ export async function logout(): Promise<void> {
   await request<{ ok: boolean }>("/auth/logout", { method: "POST" });
 }
 
+export type DeletedCounts = {
+  interviews: number;
+  answers: number;
+  facet_scores: number;
+  workstreams: number;
+  auth_tokens: number;
+  sessions: number;
+};
+
+export async function deleteAccount(): Promise<DeletedCounts> {
+  const res = await request<{ ok: boolean; deleted: DeletedCounts }>("/me", {
+    method: "DELETE",
+  });
+  return res.deleted;
+}
+
 // ---- Protocole ----
 
 export type Option = {

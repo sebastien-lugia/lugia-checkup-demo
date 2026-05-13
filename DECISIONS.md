@@ -6,6 +6,24 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-018 — RGPD minimale intégrée à V1, pas à V2
+
+**Date :** 2026-05-13
+
+**Décision :** Intégrer un socle RGPD minimal dès la V1 (avant le tag `v1-final` initialement prévu après V1-6), plutôt que de différer l'intégralité du sujet à V2. Périmètre retenu : mentions légales `/legal`, politique de confidentialité `/confidentialite`, footer commun, droit à l'effacement (`DELETE /me` côté API + page `/compte` côté frontend). Hors périmètre V1 : DPA signés avec sous-traitants, bandeau cookies (non requis tant qu'on n'utilise que localStorage technique), export de données (à voir si demandé). Auth permanente avec mot de passe reste différée à V2.
+
+**Pourquoi :** Un test V1-7 face à un médecin prospect impose un minimum de défendabilité. Sans mentions légales, sans politique de confidentialité, sans droit à l'effacement opérationnel, le produit n'est pas présentable en l'état à un professionnel qui regardera le footer et les CGU avant tout. Reporter à V2 reviendrait à présenter une démo "indéfendable" — risque de braquage du prospect ou de signalement CNIL si l'usage devient même informel. Le coût en temps de développement est faible (4 fichiers nouveaux + 2 modifiés côté frontend, 1 endpoint côté backend) ; le coût d'opportunité est élevé.
+
+**Conséquence :** Responsable du traitement déclaré comme **personne physique** (Sébastien Boncoeur, particulier) tant que la société n'est pas constituée. Contact RGPD : sebastien@lugia.fr. Sous-traitants mentionnés sans DPA signés (Vercel, Render, Resend) — à régulariser dans la foulée, possible avant V2. Avant tout test client en condition réelle, une relecture rapide par un avocat RGPD est conseillée (200-500€) — non bloquant pour V1-7 informel mais à prévoir avant un premier contrat commercial.
+
+**Alternatives écartées :**
+
+- Reporter intégralement à V2 — risque de braquage des prospects.
+- Niveau "avancé" (DPA, bandeau cookies, export portabilité) — coût trop élevé pour V1, plus-value marginale en pré-commercial.
+- Sous-traiter la rédaction des mentions à un avocat — différerait V1-7 de plusieurs semaines, non justifié au stade démonstrateur.
+
+---
+
 ## D-001 — Positionnement Lugia : substitution-extension
 
 **Date :** 2026-05-12
