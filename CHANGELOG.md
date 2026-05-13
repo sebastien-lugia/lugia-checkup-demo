@@ -4,6 +4,24 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-13 — V1 complète : check-up préventif en ligne sur diagnostic.lugia.fr
+
+L'ensemble du parcours est désormais accessible en production via `https://diagnostic.lugia.fr`. Frontend Next.js sur Vercel, backend FastAPI sur Render, Postgres provisionné, auth par lien magique avec emails Resend depuis le domaine `lugia.fr` vérifié. Le check-up reproduit à l'identique le périmètre fonctionnel V0 (14 questions, 3 modes A/B/C, 3 facettes scorées, 3 chantiers paramétrés, recommandation prochaine étape), mais accessible à distance, sans installation locale.
+
+Reste à valider V1-7 : premier test client en condition réelle. Les extensions méthodologiques (9 facettes, pyramide animée, section "Vos mots", PDF export) restent inscrites en V1.5 et V2 dans la ROADMAP.
+
+---
+
+## 2026-05-13 — Phase V1-6 : déploiement frontend Vercel — VALIDÉE
+
+Frontend Next.js publié sur Vercel avec Root Directory `web/`, Framework Preset Next.js, env var `NEXT_PUBLIC_API_URL` pointant sur l'API Render. Un bug de peer dependency corrigé en passant : `eslint` bumpé de `^8.57.0` à `^9.0.0` pour respecter le peer requirement de Next.js 16 (le `npm install` Vercel est strict là où le `npm install` local tolérait grâce au lockfile pré-résolu).
+
+La page placeholder de V1-1 est remplacée par le vrai frontend. `https://diagnostic.lugia.fr` redirige correctement sur `/login` si pas de session. Test bout en bout réussi : email saisi → lien magique reçu depuis `[email protected]` → clic vers `diagnostic.lugia.fr/auth?token=…` → redirection sur l'accueil connecté → check-up démarré, quitté, repris → tout est ok.
+
+V1 (portage technique de V0 sur le web) est désormais close. Tag git `v1-final` à poser.
+
+---
+
 ## 2026-05-13 — Phase V1-5c : frontend auth — VALIDÉE
 
 ### Ajouté

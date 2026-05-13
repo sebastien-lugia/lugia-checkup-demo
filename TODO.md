@@ -14,24 +14,37 @@ Tâches restantes, bugs et points à valider, ordonnés par priorité de prise e
 - **V1-4a / V1-4b / V1-4b iter 2 / V1-4c** — Frontend Next.js complet (accueil → check-up → résultats), reprise depuis l'accueil.
 - **V1-5a** — Backend auth lien magique opérationnel en local. Les 8 vérifications passées. Mode console suffisant tant que Resend n'est pas configuré.
 - **V1-5b** — Envoi réel d'email via Resend. Domaine `lugia.fr` vérifié, DNS OVH posés, env vars Render configurées, code V1-5a poussé sur GitHub, test bout en bout réussi (email reçu et bien rendu).
-- **V1-5c** — Frontend auth livré et validé. Pages `/login` et `/auth`, `web/lib/auth.ts`, propagation Bearer, guard `useRequireAuth` sur les 3 pages protégées, header avec email + déconnexion. Parcours complet vérifié.
+- **V1-5c** — Frontend auth livré et validé. Pages `/login` et `/auth`, `web/lib/auth.ts`, propagation Bearer, guard `useRequireAuth` sur les 3 pages protégées, header avec email + déconnexion.
+- **V1-6** — Déploiement frontend Vercel validé. `diagnostic.lugia.fr` sert le vrai frontend Next.js. Parcours bout en bout en prod réussi. Fix peer dep eslint ^9 commité dans le passage.
 
-## Prochaine phase — V1-6 : déploiement frontend Next.js sur Vercel
+## V1 complète
 
-Une fois V1-5c validée :
+Tag git `v1-final` à poser pour figer la version :
 
-1. Sur Vercel, projet `diagnostic-lugia-fr` (ou créer un nouveau projet) → connecter le repo GitHub.
-2. **Root Directory** : `web/`.
-3. **Framework Preset** : Next.js (auto-détecté).
-4. Variable d'env Vercel : `NEXT_PUBLIC_API_URL=https://lugia-checkup-api.onrender.com`.
-5. Déployer.
-6. Une fois prod en ligne, vérifier que `https://diagnostic.lugia.fr` ne renvoie plus la page placeholder mais bien le frontend Next.js (redirection automatique vers `/login`).
-7. Tester un parcours bout en bout en production.
-8. Remettre `FRONTEND_URL=https://diagnostic.lugia.fr` sur Render si déplacé pendant V1-5c.
+```bash
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+git pull
+git tag -a v1-final -m "V1 complète — check-up en ligne sur diagnostic.lugia.fr"
+git push origin v1-final
+```
 
-## Phase suivante — V1-7
+## Prochaine phase — V1-7 : premier test client en condition réelle
 
-Premier test client en condition réelle, bout en bout.
+Trouver un médecin généraliste prospect, lui faire passer le check-up à distance via `diagnostic.lugia.fr`, observer ce qui se passe sans intervenir. Points à observer :
+
+- Compréhension de la promesse à l'arrivée (login).
+- Friction sur l'email + lien magique (latence Resend, spams, certaines boîtes mail médicales filtrent agressivement).
+- Lecture des questions : ambiguïtés, hésitations, abandons partiels.
+- Pertinence ressentie du rapport (synthèse, scores, chantiers, prochaine étape).
+- Réaction à la recommandation "Échanger avec Lugia" en fin de rapport.
+
+À préparer avant le test :
+
+1. Choisir le prospect (Dr Chateau Saint-Mandé déjà identifié ? autre piste plus accessible ?).
+2. Email d'invitation, créneau, durée prévisionnelle (~30 min).
+3. Mode : à distance pur (pas d'observation directe) ou en visio avec partage d'écran (plus instrumenté, mais change l'expérience).
+4. Grille de debriefing post-test : compréhension, friction, surprises, attentes vis-à-vis de Lugia.
+5. Critère de succès à clarifier — probablement : parcours complet sans abandon, rapport produit, réaction comprise.
 
 ---
 
