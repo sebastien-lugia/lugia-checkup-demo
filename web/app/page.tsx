@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { AppHeader } from "@/components/AppHeader";
 import {
   createInterview,
   getActiveInterview,
   type Interview,
 } from "@/lib/api";
+import { useRequireAuth } from "@/lib/auth";
 
 function formatDate(iso: string): string {
   try {
@@ -24,12 +26,14 @@ function formatDate(iso: string): string {
 
 export default function AccueilPage() {
   const router = useRouter();
+  const isAuthReady = useRequireAuth();
   const [isWorking, setIsWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeInterview, setActiveInterview] = useState<Interview | null>(null);
   const [isLoadingActive, setIsLoadingActive] = useState(true);
 
   useEffect(() => {
+    if (!isAuthReady) return;
     (async () => {
       try {
         const active = await getActiveInterview();
@@ -40,7 +44,7 @@ export default function AccueilPage() {
         setIsLoadingActive(false);
       }
     })();
-  }, []);
+  }, [isAuthReady]);
 
   async function handleStartNew() {
     setIsWorking(true);
@@ -61,8 +65,17 @@ export default function AccueilPage() {
     router.push(`/checkup?interview=${activeInterview.id}`);
   }
 
+  if (!isAuthReady) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-sm text-lugia-text-tertiary">Chargement…</div>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 py-12">
+    <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+      <AppHeader />
       <div className="max-w-2xl w-full">
         <div className="text-sm font-medium mb-1">Lugia</div>
         <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-10">

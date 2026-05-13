@@ -4,6 +4,43 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-13 — Phase V1-5c : frontend auth — VALIDÉE
+
+### Ajouté
+
+- `web/lib/auth.ts` — helpers de session côté client : `getSessionToken`, `setSession`, `clearSession`, `hasSession`, `getSessionEmail`. Tous SSR-safe (gardes `typeof window !== "undefined"`). Hook `useRequireAuth` qui redirige vers `/login` si pas de session et retourne un booléen `ready` pour gater le rendu des pages protégées.
+- `web/app/login/page.tsx` — formulaire email simple (Lugia, max-w-md), bouton "Recevoir mon lien d'accès" qui appelle `POST /auth/request-link`. États idle / sending / sent / error. Message de confirmation après envoi avec rappel "valable 30 minutes" et possibilité de réessayer.
+- `web/app/auth/page.tsx` — page d'atterrissage du lien magique. Lit `?token=...`, purge toute session existante, appelle `POST /auth/verify-token`, stocke `session_token` et `email` en localStorage, redirige sur `/`. Gère token absent et token invalide/expiré avec lien vers `/login` pour redemander.
+- `web/components/AppHeader.tsx` — bandeau discret en haut à droite des pages protégées : email courant + lien "Se déconnecter". Best-effort sur `POST /auth/logout` (déconnexion locale même si backend injoignable).
+
+### Modifié
+
+- `web/lib/api.ts` — la fonction `request<T>` ajoute désormais automatiquement le header `Authorization: Bearer ${session_token}` quand un token est présent. Sur 401 avec token, purge la session et redirige vers `/login` (token expiré ou révoqué). Ajout des endpoints `requestMagicLink`, `verifyMagicToken`, `authMe`, `logout`.
+- `web/app/page.tsx`, `web/app/checkup/page.tsx`, `web/app/resultats/page.tsx` — chaque page protégée appelle `useRequireAuth()` en tête, gate son `useEffect` de fetch sur `isAuthReady`, et affiche `<AppHeader />` une fois le rendu autorisé.
+
+### Validation
+
+Parcours complet vérifié en local contre le backend Render distant. Redirection sur `/login` à l'ouverture, lien magique reçu, échange token → session, parcours check-up → résultats, déconnexion. Le frontend est désormais prêt pour le déploiement Vercel (V1-6).
+
+---
+
+## 2026-05-13 — Phase V1-5b : envoi réel d'email via Resend — VALIDÉE
+
+Domaine `lugia.fr` vérifié sur Resend (région Ireland eu-west-1). Trois enregistrements DNS ajoutés chez OVH : DKIM (`resend._domainkey`), MX `send` (priorité 10 vers `feedback-smtp.eu-west-1.amazonses.com`), SPF TXT sur `send`. Vérification Resend : 10 minutes après ajout des entrées.
+
+Variables d'environnement ajoutées sur Render Web Service `lugia-checkup-api` : `RESEND_API_KEY`, `RESEND_FROM_EMAIL=Lugia <[email protected]>`, `FRONTEND_URL=https://diagnostic.lugia.fr`.
+
+Code V1-5a (branche `main`) poussé sur GitHub en deux commits propres : `V1-4: frontend Next.js` et `V1-5a: backend auth lien magique`. Render a redéployé automatiquement avec installation de `resend>=2.0`.
+
+Test bout en bout validé : `POST /auth/request-link` sur l'API distante avec une vraie adresse email → email Lugia reçu en boîte de réception Gmail en quelques secondes (DKIM OK, signature visible). Sujet, design noir, mention "valable 30 minutes" et bouton "Accéder à mon check-up" rendus correctement. Le clic sur le bouton renvoie un 404 attendu (le `/auth` côté Next.js sera implémenté en V1-5c et déployé en V1-6).
+
+### Inscrit pour suite
+
+- V1-5c — frontend auth (pages `/login` et `/auth`, propagation Bearer token).
+- V1-6 — déploiement frontend Next.js sur Vercel (remplacement de la page placeholder V1-1).
+
+---
+
 ## 2026-05-13 — Conscience explicite des limites du scoring V0 et trajectoire V1+
 
 ### Ajouté

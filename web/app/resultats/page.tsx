@@ -3,7 +3,9 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+import { AppHeader } from "@/components/AppHeader";
 import { getReport, type Report, type Workstream } from "@/lib/api";
+import { useRequireAuth } from "@/lib/auth";
 
 const FACET_ORDER = ["processes", "participants", "information"] as const;
 
@@ -158,6 +160,7 @@ function NextStepCard({
 
 function ResultatsContent() {
   const router = useRouter();
+  const isAuthReady = useRequireAuth();
   const searchParams = useSearchParams();
   const interviewIdParam = searchParams.get("interview");
   const interviewId = interviewIdParam ? parseInt(interviewIdParam, 10) : null;
@@ -166,6 +169,7 @@ function ResultatsContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isAuthReady) return;
     if (!interviewId) {
       setError("Aucune interview à afficher.");
       return;
@@ -180,11 +184,20 @@ function ResultatsContent() {
         );
       }
     })();
-  }, [interviewId]);
+  }, [isAuthReady, interviewId]);
+
+  if (!isAuthReady) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-6 py-12">
+        <div className="text-sm text-lugia-text-tertiary">Chargement…</div>
+      </main>
+    );
+  }
 
   if (error) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6 py-12">
+      <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+        <AppHeader />
         <div className="max-w-xl text-center">
           <div className="text-sm font-medium mb-1">Lugia</div>
           <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-8">
@@ -215,7 +228,8 @@ function ResultatsContent() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-12">
+    <main className="min-h-screen px-6 py-12 relative">
+      <AppHeader />
       <div className="max-w-4xl mx-auto">
         {/* En-tête */}
         <div className="text-sm font-medium mb-1">Lugia</div>

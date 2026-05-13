@@ -12,6 +12,8 @@ import {
   updateCursor,
   type Protocol,
 } from "@/lib/api";
+import { useRequireAuth } from "@/lib/auth";
+import { AppHeader } from "@/components/AppHeader";
 import {
   isAnswerComplete,
   ModeAWidget,
@@ -29,6 +31,7 @@ const EMPTY_ANSWER: AnswerState = {
 
 function CheckupContent() {
   const router = useRouter();
+  const isAuthReady = useRequireAuth();
   const searchParams = useSearchParams();
   const interviewIdParam = searchParams.get("interview");
   const interviewId = interviewIdParam ? parseInt(interviewIdParam, 10) : null;
@@ -41,6 +44,7 @@ function CheckupContent() {
 
   // Chargement initial du protocole et de l'état de l'interview
   useEffect(() => {
+    if (!isAuthReady) return;
     if (!interviewId) {
       setError("Aucune session active. Retournez à l'accueil.");
       return;
@@ -59,10 +63,11 @@ function CheckupContent() {
         );
       }
     })();
-  }, [interviewId]);
+  }, [isAuthReady, interviewId]);
 
   // Préremplissage de la réponse à chaque changement de question
   useEffect(() => {
+    if (!isAuthReady) return;
     if (!interviewId || !protocol || currentIndex === null) return;
     const question = protocol.questions[currentIndex];
     if (!question) return;
@@ -85,7 +90,7 @@ function CheckupContent() {
         setAnswer(EMPTY_ANSWER);
       }
     })();
-  }, [interviewId, protocol, currentIndex]);
+  }, [isAuthReady, interviewId, protocol, currentIndex]);
 
   const handleAnswerChange = useCallback(
     (partial: Partial<AnswerState>) => {
@@ -199,10 +204,19 @@ function CheckupContent() {
     router,
   ]);
 
-  // États d'erreur ou de chargement
-  if (error) {
+  // États d'auth, d'erreur ou de chargement
+  if (!isAuthReady) {
     return (
       <main className="min-h-screen flex items-center justify-center px-6 py-12">
+        <div className="text-sm text-lugia-text-tertiary">Chargement…</div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+        <AppHeader />
         <div className="max-w-xl text-center">
           <div className="text-sm font-medium mb-1">Lugia</div>
           <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-8">
@@ -224,7 +238,8 @@ function CheckupContent() {
 
   if (!protocol || currentIndex === null) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6 py-12">
+      <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+        <AppHeader />
         <div className="text-sm text-lugia-text-tertiary">Chargement...</div>
       </main>
     );
@@ -236,7 +251,8 @@ function CheckupContent() {
   // Écran de fin "Merci"
   if (isCompleted) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6 py-12">
+      <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+        <AppHeader />
         <div className="max-w-2xl w-full">
           <div className="text-sm font-medium mb-1">Lugia</div>
           <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-8">
@@ -273,7 +289,8 @@ function CheckupContent() {
   const canSubmit = isAnswerComplete(question.mode, answer);
 
   return (
-    <main className="min-h-screen px-6 py-12">
+    <main className="min-h-screen px-6 py-12 relative">
+      <AppHeader />
       <div className="max-w-2xl mx-auto">
         <div className="text-sm font-medium mb-1">Lugia</div>
         <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-4">

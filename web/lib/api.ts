@@ -3,7 +3,13 @@
  *
  * URL configurable via NEXT_PUBLIC_API_URL (cf .env.local).
  * Fallback : http://localhost:8000.
+ *
+ * V1-5c : propagation automatique du Bearer token. Sur 401 alors qu'un
+ * token était fourni, la session est purgée et l'utilisateur est redirigé
+ * vers /login (token expiré ou révoqué).
  */
+
+import { clearSession, getSessionToken } from "./auth";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -12,13 +18,29 @@ async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const token = getSessionToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...((options.headers as Record<string, string>) || {}),
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    headers,
   });
+
+  // Token présent mais rejeté → session morte, on déconnecte et on redirige.
+  if (res.status === 401 && token) {
+    clearSession();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    throw new Error("Session expirée");
+  }
+
   if (!res.ok) {
     throw new Error(
       `${options.method || "GET"} ${path} failed: ${res.status} ${res.statusText}`
@@ -26,6 +48,37 @@ async function request<T>(
   }
   if (res.status === 204) return null as T;
   return res.json();
+}
+
+// ---- Auth ----
+
+export async function requestMagicLink(email: string): Promise<void> {
+  await request<{ ok: boolean }>("/auth/request-link", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export type VerifyMagicTokenResponse = {
+  session_token: string;
+  email: string;
+};
+
+export async function verifyMagicToken(
+  token: string
+): Promise<VerifyMagicTokenResponse> {
+  return request<VerifyMagicTokenResponse>("/auth/verify-token", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function authMe(): Promise<{ email: string }> {
+  return request<{ email: string }>("/auth/me");
+}
+
+export async function logout(): Promise<void> {
+  await request<{ ok: boolean }>("/auth/logout", { method: "POST" });
 }
 
 // ---- Protocole ----
