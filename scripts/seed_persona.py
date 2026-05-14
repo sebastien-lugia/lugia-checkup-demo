@@ -1,16 +1,25 @@
-"""Seed un parcours type Dr Chateau dans la base SQLite locale.
+"""Seed un parcours type Dr Chateau dans la base (SQLite locale ou Postgres prod).
 
 Crée une nouvelle interview, insère les 14 réponses du persona de référence
 (voir `resources/sample_answers_pchateau.md`), positionne le pointeur de
 session à la fin du questionnaire, et laisse la session en `in_progress`
 pour qu'elle soit accessible via "Reprendre votre check-up" sur l'accueil.
 
-Utilitaire de développement pour itérer sur V0-4 (scoring et restitution)
-sans rejouer le questionnaire à chaque fois.
+Depuis V1-5a, l'API exige une auth par email. L'argument `--email` rattache
+l'interview seedée à un email donné : une fois connecté avec cet email,
+l'utilisateur retrouve la session sur l'accueil.
 
-Lancement :
+Lancement local (SQLite local) :
+    python scripts/seed_persona.py --email sebastien+test@gmail.com
+    python scripts/seed_persona.py --email sebastien+test@gmail.com --reset
+
+Lancement contre Postgres prod (Render) :
+    export DATABASE_URL='postgresql://<external_url_render>'
+    python scripts/seed_persona.py --email sebastien+test@gmail.com
+
+Mode legacy V0 (sans email, anonyme) :
     python scripts/seed_persona.py
-    python scripts/seed_persona.py --reset   # supprime les sessions existantes
+    python scripts/seed_persona.py --reset
 """
 
 from __future__ import annotations
@@ -204,24 +213,38 @@ ANSWERS = [
 ]
 
 
-def reset_database() -> None:
-    """Supprime toutes les sessions, réponses, scores et chantiers existants."""
-    from sqlalchemy import text
+def reset_database(email: str | None = None) -> None:
+    """Supprime les sessions seeded.
 
+    Si `email` est fourni, ne supprime que les données rattachées à cet
+    email (sécurisé en prod). Sinon supprime tout (mode legacy V0).
+    """
     db.init_db()  # garantit que les tables existent avant suppression
+
+    if email:
+        counts = db.delete_user_data(email)
+        print(f"Données supprimées pour {email} : {counts}")
+        return
+
+    from sqlalchemy import text
     with db.get_engine().begin() as conn:
         conn.execute(text("DELETE FROM workstream"))
         conn.execute(text("DELETE FROM facet_score"))
         conn.execute(text("DELETE FROM answer"))
         conn.execute(text("DELETE FROM interview"))
-    print("Sessions existantes supprimées.")
+    print("Toutes les sessions supprimées (mode legacy).")
 
 
-def seed() -> int:
-    """Crée une interview, insère les 14 réponses du persona, retourne l'id."""
+def seed(email: str | None = None) -> int:
+    """Crée une interview, insère les 14 réponses du persona, retourne l'id.
+
+    Si `email` est fourni, l'interview est rattachée à cet email et sera
+    accessible via l'auth lien magique sur l'accueil.
+    """
     db.init_db()
-    interview_id = db.create_interview()
-    print(f"Interview créée — id={interview_id}")
+    interview_id = db.create_interview(email=email)
+    label = f" pour {email}" if email else " (anonyme legacy)"
+    print(f"Interview créée — id={interview_id}{label}")
 
     for i, ans in enumerate(ANSWERS, start=1):
         db.save_answer(
@@ -244,25 +267,42 @@ def seed() -> int:
     print(f"Pointeur de session positionné à la fin (current_question_index={total})")
     print()
     print("Pour consulter cette session :")
-    print("  1. Lancer `streamlit run app.py`")
-    print("  2. Sur l'accueil, cliquer 'Reprendre votre check-up'")
-    print("  3. Sur l'écran 'Merci', cliquer 'Voir les résultats'")
+    print("  1. Lancer le frontend (streamlit ou Next.js selon la version)")
+    print("  2. Se connecter avec l'email utilisé pour le seed (lien magique)")
+    print("  3. Sur l'accueil, cliquer 'Reprendre votre check-up'")
+    print("  4. Sur l'écran 'Merci', cliquer 'Voir les résultats'")
+    print()
+    print(f"Raccourci direct (Next.js) : /resultats?interview={interview_id}")
     return interview_id
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--email",
+        type=str,
+        default=None,
+        help=(
+            "Email auquel rattacher l'interview seedée. Permet d'y accéder "
+            "via l'auth lien magique. Si non fourni, l'interview est créée "
+            "en mode anonyme legacy (compatible V0 Streamlit)."
+        ),
+    )
+    parser.add_argument(
         "--reset",
         action="store_true",
-        help="Supprime toutes les sessions existantes avant de seed",
+        help=(
+            "Supprime les données seeded avant de re-seed. Avec --email, "
+            "ne supprime que les données de cet email (sûr en prod). "
+            "Sans --email, supprime TOUTES les sessions (mode legacy)."
+        ),
     )
     args = parser.parse_args()
 
     if args.reset:
-        reset_database()
+        reset_database(email=args.email)
 
-    seed()
+    seed(email=args.email)
 
 
 if __name__ == "__main__":

@@ -102,10 +102,17 @@ Chaque track est traité dans sa propre conversation Claude, avec le prompt d'ou
 ## Outils de dev disponibles
 
 ```bash
-python scripts/seed_persona.py            # ajoute une session pré-remplie (Chateau)
-python scripts/seed_persona.py --reset    # supprime toutes les sessions puis seed
-python scripts/dump_report.py --list      # liste les interviews en base locale
-python scripts/dump_report.py --id <N>    # dump le rapport d'une interview
+# Seed persona Chateau pour ton email, idéal pour itérer sur le rapport
+python scripts/seed_persona.py --email sebastien+test@gmail.com --reset
+
+# Idem mais contre Postgres prod
+DATABASE_URL='postgresql://...' python scripts/seed_persona.py --email sebastien+test@gmail.com --reset
+
+# Dump du rapport généré pour comparer deux versions sans navigateur
+python scripts/dump_report.py --list
+python scripts/dump_report.py --id <N>
 ```
+
+Documentation complète d'usage : `docs/seed_persona_usage.md`.
 
 Convention `+test` pour distinguer tests prospects de vraies données en prod.
