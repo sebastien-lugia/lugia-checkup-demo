@@ -4,6 +4,26 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-14 — Backend : détection de l'Origin pour les liens magiques
+
+Le backend FastAPI détecte désormais le header `Origin` de la requête `/auth/request-link` et l'utilise (s'il est dans l'allowlist) pour construire le lien magique. Plus besoin de modifier manuellement la variable `FRONTEND_URL` sur Render à chaque bascule entre tests local et prod.
+
+### Allowlist en V1.1
+
+- `http://localhost:3000` (dev local)
+- `https://diagnostic.lugia.fr` (prod)
+- `https://*.vercel.app` (previews Vercel)
+
+### Sécurité
+
+Allowlist explicite pour empêcher qu'un attaquant force le backend à envoyer un lien magique pointant vers un domaine arbitraire. Fallback systématique sur `FRONTEND_URL` env var si l'Origin n'est pas reconnu (cas curl, hors navigateur, etc.).
+
+### Modifié
+
+- `backend/main.py` — ajout import `Request`, ajout helper `_resolve_frontend_url`, constante `ALLOWED_FRONTEND_ORIGINS`, signature de `_send_magic_link_email` qui prend désormais `frontend_url` en paramètre, endpoint `/auth/request-link` qui passe `request` puis l'URL résolue.
+
+---
+
 ## 2026-05-14 — Backlog V1.1 reçu, cadre acté
 
 Première vague de retours utilisateurs reçue de Sébastien sous forme de PDF structuré (40+ retours répartis sur en-tête, page de login, accueil, questionnaire, résultats, prochaine étape). Lecture critique en session, 7 challenges proposés, 7 réponses utilisateur intégrées.

@@ -30,7 +30,7 @@ from typing import Any, Optional
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from fastapi import Depends, FastAPI, HTTPException  # noqa: E402
+from fastapi import Depends, FastAPI, HTTPException, Request  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.security import (  # noqa: E402
     HTTPAuthorizationCredentials,
@@ -108,11 +108,40 @@ def _assert_user_owns_interview(email: str, interview_id: int) -> dict[str, Any]
     return interview
 
 
-def _send_magic_link_email(to_email: str, token: str) -> None:
-    """Envoie un lien magique par email via Resend. Fallback : print console."""
-    frontend_url = os.environ.get(
+ALLOWED_FRONTEND_ORIGINS = {
+    "http://localhost:3000",
+    "https://diagnostic.lugia.fr",
+}
+
+
+def _resolve_frontend_url(request: Optional[Request]) -> str:
+    """Détermine l'URL frontend pour construire le lien magique.
+
+    - Si l'Origin de la requête correspond à un domaine autorisé (localhost,
+      prod, ou preview Vercel), utilise cette origine.
+    - Sinon, fallback sur la variable d'environnement FRONTEND_URL
+      (généralement la prod).
+
+    Permet de tester depuis n'importe quelle origine sans modifier la
+    configuration Render manuellement.
+    """
+    if request is not None:
+        origin = (request.headers.get("origin") or "").rstrip("/")
+        if origin:
+            if origin in ALLOWED_FRONTEND_ORIGINS:
+                return origin
+            # Vercel preview deployments : <hash>-<user>.vercel.app
+            if origin.endswith(".vercel.app") and origin.startswith("https://"):
+                return origin
+    return os.environ.get(
         "FRONTEND_URL", "http://localhost:3000"
     ).rstrip("/")
+
+
+def _send_magic_link_email(
+    to_email: str, token: str, frontend_url: str
+) -> None:
+    """Envoie un lien magique par email via Resend. Fallback : print console."""
     link = f"{frontend_url}/auth?token={token}"
 
     api_key = os.environ.get("RESEND_API_KEY", "").strip()
@@ -191,8 +220,14 @@ class VerifyTokenResponse(BaseModel):
 
 
 @app.post("/auth/request-link", tags=["auth"])
-async def request_magic_link(body: RequestLinkBody) -> dict[str, bool]:
+async def request_magic_link(
+    body: RequestLinkBody, request: Request
+) -> dict[str, bool]:
     """Génère un token, l'enregistre, envoie l'email (ou print console).
+
+    L'URL du lien magique est dérivée de l'Origin de la requête si celle-ci
+    figure dans la liste d'origines autorisées (localhost dev, prod, Vercel
+    preview). Sinon fallback sur la variable d'env FRONTEND_URL.
 
     Retourne toujours `{"ok": true}` (par sécurité, on ne révèle pas si
     l'email existe ou non).
@@ -201,7 +236,8 @@ async def request_magic_link(body: RequestLinkBody) -> dict[str, bool]:
     if "@" not in email or len(email) < 5:
         raise HTTPException(status_code=400, detail="Invalid email")
     token = db.create_auth_token(email)
-    _send_magic_link_email(email, token)
+    frontend_url = _resolve_frontend_url(request)
+    _send_magic_link_email(email, token, frontend_url)
     return {"ok": True}
 
 
