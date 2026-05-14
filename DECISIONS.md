@@ -6,6 +6,46 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-020 — Stratégie de génération du rapport : méthodologique enrichi puis SLM hybride
+
+**Date :** 2026-05-14
+
+**Décision :** Le moteur de génération du rapport (`src/templates.py`, `src/workstreams.py`) évolue en deux temps. En V1.1, refonte méthodologique pure : passer d'une dizaine à plus de 50 variantes par section, structure narrative renforcée (phrase choc révélatrice en synthèse, étape d'analyse explicite entre observation et proposition dans les chantiers), vulgarisation du jargon WSF en langage métier-médecin. En V1.2, ajout d'une couche SLM/LLM en surcouche, avec **fallback systématique** sur le templating en cas d'erreur, d'indisponibilité, ou de contrainte RGPD/confidentialité. Le méthodologique enrichi reste le socle, le SLM ajoute de la personnalisation contextuelle.
+
+**Pourquoi :** Les retours utilisateurs de la première vague de tests (mai 2026, backlog V1.1) pointent un défaut structurel : le rapport décrit ses propres entrées (redite de l'entretien) au lieu de produire une analyse à valeur ajoutée. Trois voies envisagées (méthodologique pure, SLM pur, hybride) ; la voie hybride avec méthodologique enrichi comme socle a été retenue pour plusieurs raisons : (a) prépare la matière first-shot que le SLM utilisera ensuite, (b) garantit une disponibilité 100% même si SLM tombe, (c) reste auditeur et explicable (utile face à un médecin qui demande pourquoi telle conclusion), (d) découple la qualité produit de la dépendance API tierce, (e) évite que le défaut "rapport peu personnalisé" soit confondu avec un défaut SLM. La discipline « méthodologie d'abord, intelligence ensuite » respecte aussi l'ordre d'apprentissage : on ne peut pas calibrer un SLM sur un questionnaire mal ficelé.
+
+**Conséquence pour V1.1 :** Refonte des templates pour atteindre 50+ variantes, refonte du questionnaire (Vague 3) pour fiabiliser les entrées avant SLM, structure narrative à 5 sections par chantier au lieu de 4 (observation → analyse → ce qui échappe → proposition → bénéfice), suppression des citations nominatives d'outils tiers (ChatGPT, Maiia, etc.), traduction du jargon WSF en langage métier. Aucun appel API tiers, aucune dépendance ajoutée, déploiement Render/Vercel inchangé.
+
+**Conséquence pour V1.2 :** Architecture d'orchestration LLM à concevoir, avec sélecteur de provider (Ollama local en dev, API cloud type Anthropic Haiku en prod). Section de chaque rapport (synthèse, analyse facette, analyse chantier) générée via prompt structuré avec quelques few-shot examples issus de V1.1. Si l'appel LLM échoue ou si une variable d'environnement `LLM_ENABLED=0` est posée, fallback automatique sur les templates V1.1 sans dégradation perceptible. Coût opérationnel estimé : ~0.005-0.015€ par rapport en prod cloud, zéro en dev local.
+
+**Conséquence architecturale plus large :** Le MacBook Pro de Sébastien équipé pour faire tourner Ollama est destiné au développement et à l'expérimentation des prompts. Pour la prod accessible à des prospects à distance via diagnostic.lugia.fr, l'inférence SLM tournera côté cloud API (option A privilégiée en V1.2). Une éventuelle bascule vers une architecture "Mac dédié serveur" ou "GPU cloud autohébergé" n'est pas exclue plus tard, mais n'est pas prioritaire.
+
+**Alternatives écartées :**
+
+- **SLM/LLM dès V1.1** — risquerait de masquer la faiblesse du questionnaire actuel par de la fluence générative. Discipline : fiabiliser le socle avant d'ajouter de l'intelligence.
+- **Templating pur sans SLM** — fonctionne mais limite la personnalisation à des combinatoires statiques, contrarie les ambitions V1.5 (pré-questionnaire psychologique, second questionnaire wow, multi-métier).
+- **SLM en remplacement total du templating** — supprime le socle reproductible et auditable, expose à 100% aux pannes externes, complique le débogage.
+
+---
+
+## D-019 — Organisation multi-tracks et multi-conversations Claude
+
+**Date :** 2026-05-13
+
+**Décision :** Le projet Lugia n'est plus traité dans une conversation Claude unique mais découpé en 4 tracks parallèles, chacun avec sa propre conversation Claude au gré des chantiers. Tracks identifiés : Démonstrateur technique (le présent repo), Communication (identité visuelle, site marketing, slides), Marché et clients (étude marché, prospects, tests V1-7+), Opérationnel (méthode, livrables clients, scoring avancé). La mémoire transversale est portée par les fichiers `.md` à la racine du repo (MASTER_PROMPT, DECISIONS, ROADMAP, CHANGELOG, TODO). Les prompts d'ouverture sont versionnés dans `meta/PROMPT_OUVERTURE_<TRACK>.md`.
+
+**Pourquoi :** Une conversation Claude saturée perd en qualité de réponse et mélange des modes mentaux incompatibles (debug technique vs rédaction marketing vs analyse prospect). La discipline documentaire déjà en place rend la séparation en plusieurs conversations soutenable sans perdre la cohérence du projet : chaque conversation lit le même socle de fichiers .md au démarrage. Cette organisation scale aussi naturellement vers V2 et au-delà, et permet à un chantier court (par exemple "rédaction page /qui-est-lugia") d'être traité dans une conversation focalisée puis close, sans polluer la conversation principale.
+
+**Conséquence :** Le repo gagne un dossier `meta/` qui rassemble les 4 prompts d'ouverture standardisés. Avant chaque nouvelle conversation Claude, le prompt correspondant est collé en premier message. Les livrables produits dans chaque conversation sont consolidés dans les fichiers .md du repo avant clôture. Quand un track grandit, un sous-dossier dédié (communication/, marche/, operations/) peut être créé avec son propre INSTRUCTIONS.md.
+
+**Alternatives écartées :**
+
+- Une seule conversation Claude pour tout — perte de finesse rapide, pollution croisée, difficile à reprendre après pause.
+- Une conversation par track sans rotation — la durée de vie d'une conversation reste limitée même au sein d'un track ; mieux vaut une conversation par chantier qu'une conversation longue par track.
+- Repos GitHub séparés (lugia-tech, lugia-business, lugia-content) — prématuré tant que le projet est en phase démonstrateur. À envisager en V2.
+
+---
+
 ## D-018 — RGPD minimale intégrée à V1, pas à V2
 
 **Date :** 2026-05-13

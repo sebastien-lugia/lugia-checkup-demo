@@ -29,9 +29,45 @@ Phases :
 
 ---
 
-## V1.5 — Extension méthodologique — APRÈS V1
+## V1.1 — Itération sur retours premiers prospects — EN COURS
 
-Tout ce qui était initialement prévu en "V1" dans la roadmap précédente glisse ici, à exécuter une fois V1 stable distant.
+Première vague de retours utilisateurs reçue en mai 2026 (cf backlog V1.1 produit par Sébastien). 40+ retours répartis sur en-tête, page de login, accueil, questionnaire, page de résultats, prochaine étape. Refonte structurée en 3 vagues :
+
+- **Vague 1 — Quick wins éditoriaux et UX** : ~12 corrections de wording, confirmation à la déconnexion, format "Autre" éditable inline. 1-2 jours.
+- **Vague 2 — Méthodologique enrichi (50+ variantes)** : refonte de `src/templates.py` et `src/workstreams.py` pour produire une analyse à valeur ajoutée et non une redite de l'entretien. Phrase choc révélatrice en synthèse, structure chantier à 5 sections (observation → analyse → ce qui échappe → proposition → bénéfice), suppression des citations nominatives d'outils tiers, vulgarisation jargon WSF en langage métier-médecin. 3-5 jours.
+- **Vague 3 — Refonte du questionnaire** : Q2/Q3/Q4/Q5/Q6/Q8/Q9/Q11 revues une par une, règles globales (4 options + autre, factualité, mise en scène de situations réelles, percutance), format Autre éditable inline. 4-7 jours.
+
+Aucun ajout de dépendance, aucun appel API tiers. Reste 100% sur Render/Vercel/Postgres existants.
+
+Voir `DECISIONS.md` D-020 pour le cadrage de fond (méthodologique enrichi comme socle avant SLM en V1.2).
+
+---
+
+## V1.2 — Intégration SLM/LLM hybride — APRÈS V1.1
+
+Ajout d'une couche d'orchestration LLM en surcouche du méthodologique enrichi de V1.1, avec fallback systématique. Cible : faire passer le rapport de "templating combinatoire 50+ variantes" à "génération contextualisée par section" (synthèse, analyse facettes, analyse chantiers).
+
+Architecture envisagée :
+
+- **Dev** : Ollama local sur MacBook Pro de Sébastien, expérimentation gratuite des prompts.
+- **Prod** : API cloud bon marché (Anthropic Haiku, Mistral Small, ou équivalent), ~0.005-0.015€/rapport.
+- **Sélecteur** : variable d'environnement `MODEL_PROVIDER` (ollama|anthropic|...) et `LLM_ENABLED` (0/1) pour basculer sans modifier le code.
+- **Fallback** : sur erreur LLM, indisponibilité, ou `LLM_ENABLED=0`, retour automatique aux templates V1.1.
+
+Travail prévu :
+- Choix du provider API cloud pour prod et signature des conditions.
+- Architecture d'orchestration côté `backend/main.py` ou nouveau module `src/llm.py`.
+- Rédaction des prompts par section avec few-shot examples issus de V1.1.
+- Tests A/B en interne sur Chateau persona refondu : rapport templated V1.1 vs rapport LLM-augmenté V1.2.
+- Mise à jour `MASTER_PROMPT.md` section 6 (architecture).
+
+Voir `DECISIONS.md` D-020.
+
+---
+
+## V1.5 — Extension méthodologique — APRÈS V1.2
+
+Tout ce qui était initialement prévu en "V1" dans la roadmap précédente glisse ici, à exécuter une fois V1.1+V1.2 stables distants.
 
 ## V2 — Montée commerciale — PLUS TARD
 
@@ -66,6 +102,14 @@ Tout ce qui était inscrit en "V1+" reste pertinent à plus long terme.
 - **Pyramide WSF interactive**, d'abord en cartes sélectionnables, puis en SVG responsive.
 - **Vues Mermaid** : vue d'ensemble, vue de fonctionnement, vue diagnostic, vue de transformation.
 - Nœuds cliquables dans les graphes Mermaid, ou fallback sidebar avec sélection.
+
+### Pré-questionnaire psychologique pour adaptation du ton
+
+- **Identification du profil émotionnel du répondant** avant le check-up principal : désespéré (à encourager), confiant à tort (à respectueusement provoquer), curieux sans urgence (à intriguer). 3-5 questions courtes en entrée. Modifie ensuite le ton de génération du rapport (paramètre de prompt en V1.2+, paramètre de sélection de templates en méthodologique). Découle d'une observation utilisateur en V1-7 : la même réponse au questionnaire ne doit pas produire le même rapport selon l'état psychologique du répondant.
+
+### Second questionnaire d'approfondissement (effet wow)
+
+- **Questionnaire d'approfondissement par chantier**, accessible après le check-up principal. Logique commerciale : 1 chantier en libre-service gratuit (effet de découverte), 3 chantiers payants (modèle commercial V2). Au-delà du contenu textuel approfondi, l'effet wow vient de la **présentation visuelle augmentée** : export PDF, dessin organisationnel du cabinet, pyramide WSF visuelle, analyse dynamique des cohérences entre facettes. À développer en environnement de test (Vercel preview deployments) avant déploiement prod.
 
 ### Restitution
 

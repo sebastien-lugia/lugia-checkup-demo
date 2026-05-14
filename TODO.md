@@ -1,122 +1,111 @@
 # TODO
 
-Tâches restantes, bugs et points à valider, ordonnés par priorité de prise en charge.
+Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court-terme. Les tâches accomplies sont remontées dans `CHANGELOG.md`.
 
 ---
 
-## Phases validées
+## V1 figée (à tagger v1-final quand prêt)
 
-- **V0-1 à V0-5** — 12-13 mai 2026. V0 figée sur tag `v0-final`.
-- **V1-0** — Tag git `v0-final`, MASTER_PROMPT v3.0, D-017, ROADMAP restructuré.
-- **V1-1** — Infra déployée. `diagnostic.lugia.fr` accessible avec page placeholder. Comptes Vercel, Render, Resend opérationnels.
-- **V1-2a / V1-2b** — Backend FastAPI minimal, déployé sur Render `https://lugia-checkup-api.onrender.com`.
-- **V1-3a / V1-3b** — Refactor SQLAlchemy, Postgres provisionné, persistance prouvée entre deux cold starts.
-- **V1-4a / V1-4b / V1-4b iter 2 / V1-4c** — Frontend Next.js complet (accueil → check-up → résultats), reprise depuis l'accueil.
-- **V1-5a** — Backend auth lien magique opérationnel en local. Les 8 vérifications passées. Mode console suffisant tant que Resend n'est pas configuré.
-- **V1-5b** — Envoi réel d'email via Resend. Domaine `lugia.fr` vérifié, DNS OVH posés, env vars Render configurées, code V1-5a poussé sur GitHub, test bout en bout réussi (email reçu et bien rendu).
-- **V1-5c** — Frontend auth livré et validé. Pages `/login` et `/auth`, `web/lib/auth.ts`, propagation Bearer, guard `useRequireAuth` sur les 3 pages protégées, header avec email + déconnexion.
-- **V1-6** — Déploiement frontend Vercel validé. `diagnostic.lugia.fr` sert le vrai frontend Next.js.
+Toutes les phases V0 et V1 sont closes :
 
-## En attente de validation utilisateur — Phase V1-8 : RGPD minimale
+- **V0** (12-13 mai 2026) — démonstrateur Streamlit local, figé sur `v0-final`.
+- **V1-0 à V1-8** (13 mai 2026) — portage technique complet sur le web + RGPD minimal.
 
-Décision D-018 actée : socle RGPD intégré à V1 (mentions légales, confidentialité, droit à l'effacement) plutôt que différé à V2.
+Le check-up est accessible en production sur `https://diagnostic.lugia.fr`.
 
-Fichiers livrés :
-
-- `src/db.py` (+ helper `delete_user_data`)
-- `backend/main.py` (+ endpoint `DELETE /me`)
-- `web/lib/api.ts` (+ `deleteAccount()`)
-- `web/components/Footer.tsx` (nouveau, footer commun)
-- `web/components/AppHeader.tsx` (email → lien vers `/compte`)
-- `web/app/layout.tsx` (intègre Footer globalement)
-- `web/app/legal/page.tsx` (nouveau, Mentions légales)
-- `web/app/confidentialite/page.tsx` (nouveau, Politique de confidentialité)
-- `web/app/compte/page.tsx` (nouveau, Mon compte + suppression)
-
-À tester localement :
-
-```bash
-# Terminal 1 — backend
-cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
-source .venv/bin/activate
-uvicorn backend.main:app --reload --port 8000
-
-# Terminal 2 — frontend
-cd web && npm run dev
-```
-
-1. **Backend `/docs`** — la section auth doit lister un nouvel endpoint `DELETE /me` à côté des autres.
-2. **Footer global** — ouvrir `http://localhost:3000` (redirige sur `/login`). En bas de page, footer avec `© Lugia — Sébastien Boncoeur`, liens "Mentions légales", "Confidentialité", "Contact".
-3. **Pages publiques accessibles sans login** — cliquer "Mentions légales" → tu lis la page complète sans avoir besoin de te connecter. Idem "Confidentialité".
-4. **Page /compte** — se connecter, cliquer sur ton email en haut à droite (devenu lien) → arrive sur `/compte` avec email, données stockées, encadré rouge de suppression.
-5. **Test du flux de suppression** — utiliser un email de test :
-   - Connecte-toi avec `[email protected]`, fais 2-3 questions, déconnecte.
-   - Reconnecte-toi, va sur `/compte`.
-   - Tape `SUPPRIMER` (en MAJUSCULES) dans le champ, clique "Supprimer définitivement".
-   - Tu vois l'écran "Compte supprimé." → "Retour à l'accueil" → redirige sur `/login`.
-   - Tente de te reconnecter avec ce même email : demande un nouveau lien magique → si tu cliques le lien, tu arrives sur `/` mais sans aucune interview en cours (parfait, les données sont bien supprimées).
-
-Une fois validé, push :
-
-```bash
-git add src/db.py backend/main.py web/ DECISIONS.md CHANGELOG.md TODO.md
-git commit -m "V1-8: RGPD minimale (mentions légales, confidentialité, droit à l'effacement)"
-git push
-```
-
-Vercel redéploie automatiquement le frontend (3 nouvelles pages + 2 modifs), Render le backend (nouvel endpoint).
-
-## V1 complète
-
-Tag git `v1-final` à poser **après validation V1-8** :
+Tag à poser quand tu veux figer cette version pré-retours :
 
 ```bash
 cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
 git pull
-git tag -a v1-final -m "V1 complète — check-up en ligne sur diagnostic.lugia.fr avec RGPD minimal"
+git tag -a v1-final -m "V1 complète — version validée le 13/05/2026 avant retours clients externes"
 git push origin v1-final
 ```
 
-## Prochaine phase — V1-7 : premier test client en condition réelle
+---
 
-Trouver un médecin généraliste prospect, lui faire passer le check-up à distance via `diagnostic.lugia.fr`, observer ce qui se passe sans intervenir. Points à observer :
+## V1.1 EN COURS — itération sur retours premiers prospects (mai 2026)
 
-- Compréhension de la promesse à l'arrivée (login).
-- Friction sur l'email + lien magique (latence Resend, spams, certaines boîtes mail médicales filtrent agressivement).
-- Lecture des questions : ambiguïtés, hésitations, abandons partiels.
-- Pertinence ressentie du rapport (synthèse, scores, chantiers, prochaine étape).
-- Réaction à la recommandation "Échanger avec Lugia" en fin de rapport.
+Premier backlog reçu de Sébastien le 14 mai 2026 (PDF complet, 40+ retours répartis sur en-tête, login, accueil, questionnaire, résultats, prochaine étape). Cadre stratégique acté en D-020 : méthodologique enrichi comme socle V1.1, SLM en surcouche V1.2.
 
-À préparer avant le test :
+Découpage en 3 vagues, traitables en parallèle :
 
-1. Choisir le prospect (Dr Chateau Saint-Mandé déjà identifié ? autre piste plus accessible ?).
-2. Email d'invitation, créneau, durée prévisionnelle (~30 min).
-3. Mode : à distance pur (pas d'observation directe) ou en visio avec partage d'écran (plus instrumenté, mais change l'expérience).
-4. Grille de debriefing post-test : compréhension, friction, surprises, attentes vis-à-vis de Lugia.
-5. Critère de succès à clarifier — probablement : parcours complet sans abandon, rapport produit, réaction comprise.
+### Vague 1 — Quick wins éditoriaux et UX (1-2 jours, autonomie utilisateur)
+
+À exécuter directement côté Sébastien (Next.js/Tailwind, wording principalement). Liste exhaustive dans le dernier message Claude de la session du 14 mai.
+
+### Vague 2 — Méthodologique enrichi 50+ variantes (3-5 jours, session collab)
+
+Refonte `src/templates.py` et `src/workstreams.py`. Sessions à prévoir :
+
+- Session de vulgarisation WSF (lecture commune des templates actuels, dictionnaire jargon → langage métier-médecin).
+- Conception des 5+ patterns de phrase choc révélatrice.
+- Intégration Q14 dans la synthèse (option A).
+- Refonte structure chantier en 5 sections.
+- Suppression des citations nominatives d'outils tiers (généralisation).
+- Refonte de l'encart Participants (cas médecin libéral solo).
+- Rendre les phrases sous chaque facette analytiques au lieu de redites.
+
+### Vague 3 — Refonte du questionnaire (4-7 jours, session collab)
+
+Revue question par question. Sessions à prévoir :
+
+- Q2 (secrétariat) : ajouter clairement le cas solo.
+- Q3 : passer en multi-choix.
+- Q4 : retirer doublon texte libre / choix.
+- Q5 : reformuler pour clarifier objectif.
+- Q6 (motivation) : passer en QCM.
+- Q8 : adoucir.
+- Q9 (présence) : reformuler en factuel.
+- Q11 : retirer doublon texte/QCM.
+- Application des règles globales : 4 options + autre, factualité, mise en scène réelle, percutance.
+- Format Autre éditable inline (UX inspirée Claude).
+- Mise à jour `resources/interview_protocol.json` + mapping `node_type`/`health_score`.
+
+### Critère de fin V1.1
+
+Une session de test avec Sébastien jouant le persona Chateau refondu produit un rapport perçu comme "analyse" et non "redite". Tag `v1.1` posable après cette validation. v1-final sera posé en amont pour figer l'état pré-retours.
+
+---
+
+## V1.2 PRÉVUE après V1.1 — intégration SLM hybride
+
+Cadrée en D-020. Architecture orchestration LLM avec fallback méthodologique systématique.
+
+À préparer avant d'attaquer :
+
+- Choix du provider API cloud pour prod (Anthropic Haiku par défaut).
+- Test exploratoire Ollama en local sur MacBook Pro pour valider la qualité des prompts.
+- Conception du module `src/llm.py` ou intégration directe dans `templates.py` avec branchement conditionnel.
+
+---
+
+## Tracks parallèles (cf. D-019)
+
+Chaque track est traité dans sa propre conversation Claude, avec le prompt d'ouverture `meta/PROMPT_OUVERTURE.md`.
+
+- **Démonstrateur technique** — cette conversation (V1.1, V1.2, V1.5, V2).
+- **Communication** — identité visuelle, page `/qui-est-lugia` (rédactionnel), site marketing `lugia.fr`, slides.
+- **Marché et clients** — V1-7 préparation (prospect Chateau identifié côté Sébastien), fiches prospects, étude de marché.
+- **Opérationnel** — méthode, scoring avancé, templates de livrables clients.
+
+---
+
+## Vigilance opérationnelle continue
+
+- **Postgres Render free tier** — expiration le **11 août 2026**. Bascule à prévoir avant cette date : plan Starter (~7$/mois) ou recréation + migration.
+- **DPA à signer** côté Vercel, Render, Resend — gratuit, ~15 min par fournisseur, à régulariser avant tout contrat commercial.
+- **Relecture juridique RGPD** — recommandée (200-500€) avant signature premier client payant.
 
 ---
 
 ## Outils de dev disponibles
 
 ```bash
-python scripts/seed_persona.py            # ajoute une session pré-remplie
+python scripts/seed_persona.py            # ajoute une session pré-remplie (Chateau)
 python scripts/seed_persona.py --reset    # supprime toutes les sessions puis seed
-python scripts/dump_report.py --list      # liste les interviews
+python scripts/dump_report.py --list      # liste les interviews en base locale
 python scripts/dump_report.py --id <N>    # dump le rapport d'une interview
 ```
 
----
-
-## Points à valider plus tard (V1.5 / V2)
-
-- Format final du rapport PDF, choix outil d'export (WeasyPrint, ReportLab).
-- Pyramide animée (V1.5).
-- Section "Vos mots" enrichie (V1.5).
-- Auth permanente avec compte + mot de passe (V2).
-- Conformité RGPD complète (V2).
-- Pricing et facturation (V2).
-
----
-
-*À nettoyer à chaque fin de phase. Les tâches accomplies sont remontées dans `CHANGELOG.md`.*
+Convention `+test` pour distinguer tests prospects de vraies données en prod.

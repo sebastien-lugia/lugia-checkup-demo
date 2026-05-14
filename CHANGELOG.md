@@ -4,6 +4,48 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-14 — Backlog V1.1 reçu, cadre acté
+
+Première vague de retours utilisateurs reçue de Sébastien sous forme de PDF structuré (40+ retours répartis sur en-tête, page de login, accueil, questionnaire, résultats, prochaine étape). Lecture critique en session, 7 challenges proposés, 7 réponses utilisateur intégrées.
+
+### Décidé
+
+- **D-020** acté : méthodologique enrichi (50+ variantes) en V1.1 comme socle, SLM hybride (Ollama dev + cloud API prod) en surcouche V1.2 avec fallback systématique sur templating. Méthodologique reste backup permanent même après SLM.
+- V1.1 structurée en 3 vagues : quick wins éditoriaux (1-2j), méthodologique enrichi (3-5j), refonte questionnaire (4-7j). Total estimé 8-14 jours de travail concentré.
+- Pré-questionnaire psychologique (3 profils répondant) déplacé en V1.5.
+- Second questionnaire d'approfondissement avec effet wow (PDF, dessin organisationnel, pyramide, analyse cohérences) déplacé en V1.5, à développer en environnement de test.
+- Modèle commercial 1-chantier-gratuit / 3-chantiers-payants déplacé en V2 (dépend Stripe).
+- v1-final reste à poser pour figer la version pré-retours.
+
+### Mis à jour
+
+- `DECISIONS.md` D-020 (nouvelle décision).
+- `ROADMAP.md` insertion V1.1, V1.2, compléments V1.5 (pré-questionnaire psychologique, second questionnaire wow).
+- `TODO.md` plan V1.1 détaillé en 3 vagues.
+
+---
+
+## 2026-05-13 — V1 close. Cap sur les 4 tracks parallèles.
+
+V1 est figée sur le tag `v1-final`. Le démonstrateur technique cesse d'être le seul chantier ; à partir de maintenant, le projet Lugia se déploie sur quatre tracks parallèles (D-019) :
+
+- **Démonstrateur technique** — V1.5 puis V2, dans ce repo.
+- **Communication** — identité visuelle, page `/qui-est-lugia`, site `lugia.fr`, slides.
+- **Marché et clients** — V1-7 et tests prospects, étude de marché, fiches prospects.
+- **Opérationnel** — méthode, scoring avancé, templates de livrables clients.
+
+Chaque track est traité dans sa propre conversation Claude, avec un prompt d'ouverture standardisé dans `meta/`. La mémoire transversale reste portée par les fichiers `.md` du repo (MASTER_PROMPT, DECISIONS, ROADMAP, CHANGELOG, TODO).
+
+Cette conversation Claude dédiée au démonstrateur, ouverte le 12 mai 2026 pour produire V0, peut maintenant être close. La suite du développement technique se fera dans une nouvelle conversation, amorcée avec `meta/PROMPT_OUVERTURE_DEMONSTRATEUR.md`.
+
+### Ajouté
+
+- `meta/PROMPT_OUVERTURE_DEMONSTRATEUR.md`, `meta/PROMPT_OUVERTURE_COMMUNICATION.md`, `meta/PROMPT_OUVERTURE_MARCHE.md`, `meta/PROMPT_OUVERTURE_OPERATIONS.md` — prompts d'ouverture pour les nouvelles conversations Claude par track.
+- `meta/README.md` — mode d'emploi de ces prompts.
+- `DECISIONS.md` D-019 — formalisation de l'organisation multi-tracks et multi-conversations.
+
+---
+
 ## 2026-05-13 — Phase V1-8 : RGPD minimale intégrée à V1
 
 ### Décision
