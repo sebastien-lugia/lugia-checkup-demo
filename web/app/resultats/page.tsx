@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/AppHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { getReport, type Report, type Workstream } from "@/lib/api";
 import { useRequireAuth } from "@/lib/auth";
 
@@ -14,9 +15,9 @@ const NEXT_STEPS: Record<
   { badge: string; title: string; desc: string }
 > = {
   autonomie: {
-    badge: "À votre rythme",
-    title: "Rester en autonomie",
-    desc: "Reprendre les chantiers proposés seul, à votre rythme.",
+    badge: "Pour explorer",
+    title: "Approfondir un chantier",
+    desc: "Un second questionnaire ciblé sur un chantier de votre choix, gratuit. Pour creuser à votre rythme.",
   },
   lugia: {
     badge: "Recommandé",
@@ -24,9 +25,9 @@ const NEXT_STEPS: Record<
     desc: "30 minutes pour reprendre ce que vous avez vu et tester l'environnement sécurisé.",
   },
   terrain: {
-    badge: "Plus complet",
+    badge: "Le plus complet",
     title: "Lancer un diagnostic terrain",
-    desc: "Une journée d'observation sur place pour affiner les chantiers.",
+    desc: "Une journée d'observation sur place pour affiner les chantiers avec Lugia.",
   },
 };
 
@@ -55,7 +56,7 @@ function FacetCard({
   if (score === null) {
     return (
       <div className="bg-lugia-bg-card border border-lugia-border rounded-xl p-5">
-        <div className="text-sm font-medium mb-2 capitalize">{label}</div>
+        <div className="text-sm font-medium mb-2">{label}</div>
         <div className="text-sm italic text-lugia-text-tertiary">
           Pas assez de données pour scorer cette facette.
         </div>
@@ -65,7 +66,7 @@ function FacetCard({
   const pct = Math.max(0, Math.min(100, score * 10));
   return (
     <div className="bg-lugia-bg-card border border-lugia-border rounded-xl p-5">
-      <div className="text-sm font-medium mb-2 capitalize">{label}</div>
+      <div className="text-sm font-medium mb-2">{label}</div>
       <div className="flex items-baseline gap-1 mb-3">
         <span className="font-serif text-[32px] font-medium leading-none">
           {score}
@@ -107,15 +108,15 @@ function ChantierCard({ chantier }: { chantier: Workstream }) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
         <ChantierBlock
-          label="Ce que le check-up a vu"
+          label="Ce que nous avons compris de vos réponses"
           text={chantier.vu}
         />
         <ChantierBlock
-          label="Ce qu'il ne peut pas confirmer seul"
+          label="Ce qui nous échappe encore"
           text={chantier.pas_confirmer}
         />
         <ChantierBlock
-          label="Ce que Lugia propose"
+          label="Ce que nous vous proposons"
           text={chantier.propose}
         />
         <ChantierBlock
@@ -199,10 +200,7 @@ function ResultatsContent() {
       <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
         <AppHeader />
         <div className="max-w-xl text-center">
-          <div className="text-sm font-medium mb-1">Lugia</div>
-          <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-8">
-            Check-up préventif
-          </div>
+          <PageHeader subtitle="Check-up préventif" mbBottom={8} />
           <p className="text-red-600 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             {error}
           </p>
@@ -232,10 +230,7 @@ function ResultatsContent() {
       <AppHeader />
       <div className="max-w-4xl mx-auto">
         {/* En-tête */}
-        <div className="text-sm font-medium mb-1">Lugia</div>
-        <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-6">
-          Check-up préventif
-        </div>
+        <PageHeader subtitle="Check-up préventif" mbBottom={6} />
         <h1 className="font-serif text-[26px] font-medium leading-snug mb-1">
           Votre cabinet vu par le check-up
         </h1>

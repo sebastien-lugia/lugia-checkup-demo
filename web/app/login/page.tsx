@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
+import { PageHeader } from "@/components/PageHeader";
 import { requestMagicLink } from "@/lib/api";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -40,10 +41,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full">
-        <div className="text-sm font-medium mb-1">Lugia</div>
-        <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-10">
-          Le check-up préventif de votre cabinet
-        </div>
+        <PageHeader mbBottom={10} />
 
         {status === "sent" ? (
           <>
@@ -51,12 +49,12 @@ export default function LoginPage() {
               Vérifiez votre boîte mail.
             </h1>
             <p className="text-base text-lugia-text-secondary leading-relaxed mb-6">
-              Si l&apos;adresse <strong>{email}</strong> est valide, vous y
+              Si l&apos;adresse <strong>{email}</strong>{" "}est valide, vous y
               recevrez dans quelques secondes un lien d&apos;accès à votre
               check-up. Il est valable 30 minutes.
             </p>
             <p className="text-sm text-lugia-text-tertiary">
-              Pas reçu ? Vérifiez aussi vos spams, ou{" "}
+              Vous n&apos;avez pas reçu le mail ? Vérifiez aussi vos spams, ou{" "}
               <button
                 onClick={handleReset}
                 className="underline underline-offset-2 hover:text-lugia-text-secondary"

@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { PageHeader } from "@/components/PageHeader";
+
 export const metadata = {
   title: "Mentions légales — Lugia",
 };
@@ -14,10 +16,7 @@ export default function MentionsLegalesPage() {
           >
             ← Retour à l&apos;accueil
           </Link>
-          <div className="text-sm font-medium mb-1">Lugia</div>
-          <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-10">
-            Le check-up préventif de votre cabinet
-          </div>
+          <PageHeader mbBottom={10} />
 
           <h1 className="font-serif text-[28px] font-medium leading-snug mb-8">
             Mentions légales

@@ -23,6 +23,9 @@ export function AppHeader() {
   }, []);
 
   async function handleLogout() {
+    if (typeof window !== "undefined" && !window.confirm("Voulez-vous vraiment vous déconnecter ?")) {
+      return;
+    }
     setIsLoggingOut(true);
     try {
       await logout();

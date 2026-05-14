@@ -20,30 +20,48 @@ function OptionRadioList({ question, answer, onChange }: WidgetProps) {
     <div className="space-y-2">
       {question.options.map((opt) => {
         const isSelected = answer.selected_option === opt.id;
+        const isOtherOption = opt.id.endsWith("_other");
         return (
-          <label
+          <div
             key={opt.id}
-            className={`block px-4 py-3 rounded-lg border cursor-pointer transition text-sm ${
+            className={`px-4 py-3 rounded-lg border transition text-sm ${
               isSelected
                 ? "border-lugia-accent bg-lugia-accent-soft"
                 : "border-lugia-border bg-lugia-bg-card hover:border-lugia-text-tertiary"
             }`}
           >
-            <input
-              type="radio"
-              name={`q_${question.id}`}
-              value={opt.id}
-              checked={isSelected}
-              onChange={() =>
-                onChange({
-                  selected_option: opt.id,
-                  selected_option_label: opt.label,
-                })
-              }
-              className="mr-3 accent-lugia-accent"
-            />
-            <span>{opt.label}</span>
-          </label>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name={`q_${question.id}`}
+                value={opt.id}
+                checked={isSelected}
+                onChange={() =>
+                  onChange({
+                    selected_option: opt.id,
+                    selected_option_label: opt.label,
+                  })
+                }
+                className="mr-3 accent-lugia-accent"
+              />
+              <span className="flex-1">{opt.label}</span>
+              {isOtherOption && !isSelected && (
+                <span className="text-lugia-text-tertiary text-xs">
+                  cliquez pour préciser
+                </span>
+              )}
+            </label>
+            {isOtherOption && isSelected && (
+              <input
+                type="text"
+                autoFocus
+                value={answer.complement_text || ""}
+                onChange={(e) => onChange({ complement_text: e.target.value })}
+                placeholder="Précisez en quelques mots..."
+                className="mt-3 w-full px-3 py-2 bg-white border border-lugia-border rounded-md text-sm focus:outline-none focus:border-lugia-accent"
+              />
+            )}
+          </div>
         );
       })}
     </div>
@@ -59,23 +77,22 @@ function ComplementInput({
   value: string;
   onChange: (v: string) => void;
 }) {
+  // Si l'option "Autre" est sélectionnée, le complément est saisi inline
+  // dans l'option elle-même (cf OptionRadioList), donc on ne propose pas
+  // de zone supplémentaire ici pour éviter le doublon.
+  if (isOtherSelected) return null;
+
   return (
     <div className="mt-4">
       <label className="block text-xs uppercase tracking-wider font-medium text-lugia-text-secondary mb-2">
-        {isOtherSelected
-          ? "Précisez votre réponse"
-          : "Un détail à ajouter (optionnel)"}
+        Un détail à ajouter (optionnel)
       </label>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={3}
         className="w-full px-3 py-2 border border-lugia-border rounded-lg text-sm resize-none focus:outline-none focus:border-lugia-accent bg-lugia-bg-card"
-        placeholder={
-          isOtherSelected
-            ? "Précisez en quelques mots..."
-            : "Un exemple récent, une précision, un détail à ajouter..."
-        }
+        placeholder="Un exemple récent, une précision, un détail à ajouter..."
       />
     </div>
   );

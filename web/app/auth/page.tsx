@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+import { PageHeader } from "@/components/PageHeader";
 import { verifyMagicToken } from "@/lib/api";
 import { clearSession, setSession } from "@/lib/auth";
 
@@ -36,10 +37,7 @@ function AuthContent() {
     return (
       <main className="min-h-screen flex items-center justify-center px-6 py-12">
         <div className="max-w-md w-full text-center">
-          <div className="text-sm font-medium mb-1">Lugia</div>
-          <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-8">
-            Check-up préventif
-          </div>
+          <PageHeader subtitle="Check-up préventif" mbBottom={8} />
           <p className="text-red-600 bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-left">
             {error}
           </p>
@@ -57,10 +55,7 @@ function AuthContent() {
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-12">
       <div className="text-center">
-        <div className="text-sm font-medium mb-1">Lugia</div>
-        <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-6">
-          Check-up préventif
-        </div>
+        <PageHeader subtitle="Check-up préventif" mbBottom={6} />
         <div className="text-sm text-lugia-text-tertiary">Connexion en cours…</div>
       </div>
     </main>

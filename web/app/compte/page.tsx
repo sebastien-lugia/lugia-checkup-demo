@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/AppHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { deleteAccount } from "@/lib/api";
 import {
   clearSession,
@@ -62,10 +63,7 @@ export default function ComptePage() {
     return (
       <main className="min-h-screen flex items-center justify-center px-6 py-12">
         <div className="max-w-md w-full">
-          <div className="text-sm font-medium mb-1">Lugia</div>
-          <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-10">
-            Check-up préventif
-          </div>
+          <PageHeader subtitle="Check-up préventif" mbBottom={10} />
           <h1 className="font-serif text-[26px] font-medium leading-snug mb-4">
             Compte supprimé.
           </h1>
@@ -93,10 +91,7 @@ export default function ComptePage() {
     <main className="min-h-screen px-6 py-12 relative">
       <AppHeader />
       <div className="max-w-2xl mx-auto">
-        <div className="text-sm font-medium mb-1">Lugia</div>
-        <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-10">
-          Check-up préventif
-        </div>
+        <PageHeader subtitle="Check-up préventif" mbBottom={10} />
 
         <h1 className="font-serif text-[28px] font-medium leading-snug mb-8">
           Mon compte

@@ -14,6 +14,7 @@ import {
 } from "@/lib/api";
 import { useRequireAuth } from "@/lib/auth";
 import { AppHeader } from "@/components/AppHeader";
+import { PageHeader } from "@/components/PageHeader";
 import {
   isAnswerComplete,
   ModeAWidget,
@@ -218,10 +219,7 @@ function CheckupContent() {
       <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
         <AppHeader />
         <div className="max-w-xl text-center">
-          <div className="text-sm font-medium mb-1">Lugia</div>
-          <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-8">
-            Check-up préventif
-          </div>
+          <PageHeader subtitle="Check-up préventif" mbBottom={8} />
           <p className="text-red-600 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             {error}
           </p>
@@ -254,10 +252,7 @@ function CheckupContent() {
       <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
         <AppHeader />
         <div className="max-w-2xl w-full">
-          <div className="text-sm font-medium mb-1">Lugia</div>
-          <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-8">
-            Check-up préventif
-          </div>
+          <PageHeader subtitle="Check-up préventif" mbBottom={8} />
           <h1 className="font-serif text-[28px] font-medium mb-6">Merci.</h1>
           <p className="text-base text-lugia-text-secondary leading-relaxed mb-8">
             Vos {totalQuestions} réponses sont enregistrées. La page de
@@ -292,10 +287,7 @@ function CheckupContent() {
     <main className="min-h-screen px-6 py-12 relative">
       <AppHeader />
       <div className="max-w-2xl mx-auto">
-        <div className="text-sm font-medium mb-1">Lugia</div>
-        <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-4">
-          Check-up préventif
-        </div>
+        <PageHeader subtitle="Check-up préventif" mbBottom={4} />
 
         {/* Progress bar */}
         <div className="h-[3px] bg-lugia-bg-soft rounded-full overflow-hidden mb-2">

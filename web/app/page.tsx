@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/AppHeader";
+import { PageHeader } from "@/components/PageHeader";
 import {
   createInterview,
   getActiveInterview,
@@ -77,16 +78,12 @@ export default function AccueilPage() {
     <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
       <AppHeader />
       <div className="max-w-2xl w-full">
-        <div className="text-sm font-medium mb-1">Lugia</div>
-        <div className="text-xs uppercase tracking-wider text-lugia-text-tertiary mb-10">
-          Le check-up préventif de votre cabinet
-        </div>
+        <PageHeader mbBottom={10} />
 
         <h1 className="font-serif text-[28px] font-medium leading-snug mb-6">
-          En moins de 30 minutes, Lugia vous aide à répondre à la question :{" "}
-          <em className="italic text-lugia-accent">
-            où en est réellement votre cabinet aujourd&apos;hui ?
-          </em>
+          Votre cabinet aussi mérite un check-up.
+          <br />
+          En moins de 30 minutes, faites le point.
         </h1>
 
         <div className="text-base text-lugia-text-secondary leading-relaxed mb-8 space-y-2">
@@ -95,11 +92,11 @@ export default function AccueilPage() {
             votre système de travail.
           </p>
           <p>
-            Il met en mots ce qui fatigue, ce qui dépend trop de
+            Il met des mots sur ce qui fatigue, ce qui dépend trop de
             l&apos;informel, et les premiers chantiers à mener.
           </p>
           <p>
-            Il prépare, si vous le souhaitez, une analyse plus approfondie
+            Si vous le souhaitez, il prépare un accompagnement plus poussé
             avec Lugia.
           </p>
         </div>
@@ -112,7 +109,7 @@ export default function AccueilPage() {
             <ul className="text-sm space-y-1 list-disc pl-5">
               <li>Une lecture claire de votre fonctionnement actuel</li>
               <li>Trois chantiers prioritaires</li>
-              <li>Une discussion possible avec Lugia ensuite</li>
+              <li>Un accompagnement possible avec Lugia ensuite</li>
             </ul>
           </div>
           <div className="bg-lugia-bg-card border border-lugia-border rounded-xl p-5">
