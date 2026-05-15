@@ -108,8 +108,12 @@ function ChantierCard({ chantier }: { chantier: Workstream }) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
         <ChantierBlock
-          label="Ce que nous avons compris de vos réponses"
+          label="Ce que nous avons compris"
           text={chantier.vu}
+        />
+        <ChantierBlock
+          label="Ce que ça révèle"
+          text={chantier.analyse}
         />
         <ChantierBlock
           label="Ce qui nous échappe encore"
@@ -118,10 +122,6 @@ function ChantierCard({ chantier }: { chantier: Workstream }) {
         <ChantierBlock
           label="Ce que nous vous proposons"
           text={chantier.propose}
-        />
-        <ChantierBlock
-          label="Ce que vous obtenez"
-          text={chantier.obtient}
         />
       </div>
     </div>

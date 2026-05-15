@@ -1,6 +1,6 @@
 {
-  "version": "1.2",
-  "last_updated": "2026-05-13",
+  "version": "1.3",
+  "last_updated": "2026-05-15",
   "total_questions": 14,
   "scored_facets": [
     "processes",
@@ -20,6 +20,13 @@
     "B": "Hybride (ouverte puis QCM)",
     "C": "Ouvert pur"
   },
+  "global_rules_v1_1": [
+    "4 options principales + une option Autre (saisie inline).",
+    "Options factuelles, ancrées dans des situations observables, sans 'beaucoup', 'souvent', 'rarement'.",
+    "Options mutuellement exclusives : chaque réponse possible doit pointer sur une et une seule option.",
+    "Mise en scène d'une situation réelle quand c'est possible (un moment, un acte, un événement vécu).",
+    "Mode B et C réservés aux questions où la réponse libre apporte un matériau verbatim irremplaçable."
+  ],
   "questions": [
     {
       "id": "q01",
@@ -36,38 +43,28 @@
           "label": "Cabinet libéral solo (un seul médecin)",
           "health_score": null,
           "node_type": "Acteur",
-          "tags": [
-            "libéral",
-            "solo"
-          ]
+          "tags": ["libéral", "solo"]
         },
         {
           "id": "q01_b",
           "label": "Cabinet de groupe (2 à 5 médecins)",
           "health_score": null,
           "node_type": "Acteur",
-          "tags": [
-            "libéral",
-            "groupe"
-          ]
+          "tags": ["libéral", "groupe"]
         },
         {
           "id": "q01_c",
           "label": "Maison de santé pluriprofessionnelle (MSP)",
           "health_score": null,
           "node_type": "Acteur",
-          "tags": [
-            "msp"
-          ]
+          "tags": ["msp"]
         },
         {
           "id": "q01_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
@@ -77,54 +74,44 @@
       "mode": "A",
       "facet": "context",
       "scored": false,
-      "topic": "Secrétariat",
+      "topic": "Prise des rendez-vous et des appels",
       "open_prompt": null,
-      "qcm_prompt": "Avez-vous un secrétariat pour la prise de rendez-vous et les appels ?",
+      "qcm_prompt": "Qui prend les rendez-vous et les appels patients dans votre cabinet ?",
       "options": [
         {
           "id": "q02_a",
-          "label": "Oui, en interne (à temps plein ou partiel)",
+          "label": "Un secrétariat interne (à temps plein ou partiel)",
           "health_score": null,
           "node_type": "Acteur",
-          "tags": [
-            "secrétariat-interne"
-          ]
+          "tags": ["secrétariat-interne"]
         },
         {
           "id": "q02_b",
-          "label": "Oui, externalisé (télésecrétariat médical)",
+          "label": "Un télésecrétariat externalisé",
           "health_score": null,
           "node_type": "Acteur",
-          "tags": [
-            "télésecrétariat-externalisé"
-          ]
+          "tags": ["télésecrétariat-externalisé"]
         },
         {
           "id": "q02_c",
-          "label": "Mixte (interne et externalisé)",
+          "label": "Un fonctionnement mixte : interne et externalisé",
           "health_score": null,
           "node_type": "Acteur",
-          "tags": [
-            "secrétariat-mixte"
-          ]
+          "tags": ["secrétariat-mixte"]
         },
         {
           "id": "q02_d",
-          "label": "Non, pas de secrétariat",
+          "label": "Moi-même (pas de secrétariat dédié)",
           "health_score": null,
           "node_type": "Acteur",
-          "tags": [
-            "sans-secrétariat"
-          ]
+          "tags": ["sans-secrétariat", "solo-autogéré"]
         },
         {
           "id": "q02_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
@@ -136,122 +123,96 @@
       "scored": true,
       "topic": "Cadre du secrétariat",
       "open_prompt": null,
-      "qcm_prompt": "Que savez-vous des règles exactes que votre secrétariat applique pour trier les appels et les demandes ?",
+      "qcm_prompt": "Comment les règles de tri des appels et des demandes sont-elles définies avec votre secrétariat ?",
       "options": [
         {
           "id": "q03_a",
-          "label": "Je connais leurs règles, on a établi un cadre clair ensemble",
+          "label": "Un cadre écrit, partagé avec le secrétariat et tenu à jour",
           "health_score": 9,
           "node_type": "Processus",
-          "tags": [
-            "cadre-explicite"
-          ]
+          "tags": ["cadre-écrit"]
         },
         {
           "id": "q03_b",
-          "label": "On a discuté il y a longtemps, mais c'est resté assez flou",
-          "health_score": 4,
-          "node_type": "Symptôme",
-          "tags": [
-            "cadre-implicite"
-          ]
+          "label": "Un cadre oral, défini au démarrage, qui n'a pas évolué depuis",
+          "health_score": 6,
+          "node_type": "Processus",
+          "tags": ["cadre-oral-figé"]
         },
         {
           "id": "q03_c",
-          "label": "Je ne sais pas précisément, je leur fais confiance",
+          "label": "Pas de cadre formel, le secrétariat décide au cas par cas",
           "health_score": 4,
           "node_type": "Symptôme",
-          "tags": [
-            "boîte-noire-confiance"
-          ]
+          "tags": ["cadre-implicite"]
         },
         {
           "id": "q03_d",
-          "label": "Je découvre régulièrement des situations qui me surprennent",
+          "label": "Je découvre régulièrement des choix de tri que je n'aurais pas faits",
           "health_score": 2,
           "node_type": "Symptôme",
-          "tags": [
-            "boîte-noire-écart"
-          ]
+          "tags": ["écart-cadre-effectif"]
         },
         {
           "id": "q03_e",
           "label": "Sans objet (pas de secrétariat)",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "sans-objet"
-          ]
+          "tags": ["sans-objet"]
         },
         {
           "id": "q03_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
     {
       "id": "q04",
       "position": 4,
-      "mode": "B",
+      "mode": "A",
       "facet": "processes",
       "scored": true,
-      "topic": "Flux entrant des demandes",
-      "open_prompt": "En une ou deux phrases, comment les patients prennent-ils rendez-vous dans votre cabinet ?",
-      "qcm_prompt": "Plus précisément, par quels canaux les demandes vous parviennent-elles ?",
+      "topic": "Canaux d'entrée des demandes",
+      "open_prompt": null,
+      "qcm_prompt": "Par quels canaux les patients vous adressent-ils leurs demandes de rendez-vous ?",
       "options": [
         {
           "id": "q04_a",
-          "label": "Uniquement par une plateforme en ligne (Doctolib ou équivalent)",
+          "label": "Un canal unique en ligne (plateforme de rendez-vous)",
           "health_score": 9,
           "node_type": "Processus",
-          "tags": [
-            "rdv-en-ligne",
-            "canal-unique"
-          ]
+          "tags": ["canal-unique-en-ligne"]
         },
         {
           "id": "q04_b",
-          "label": "Uniquement par téléphone via secrétariat ou télésecrétariat",
+          "label": "Un canal unique par téléphone (secrétariat ou télésecrétariat)",
           "health_score": 7,
           "node_type": "Processus",
-          "tags": [
-            "téléphone",
-            "canal-unique"
-          ]
+          "tags": ["canal-unique-téléphone"]
         },
         {
           "id": "q04_c",
-          "label": "Plateforme en ligne et téléphone, avec une séparation claire",
+          "label": "Plateforme en ligne et téléphone, avec une séparation claire des cas",
           "health_score": 8,
           "node_type": "Processus",
-          "tags": [
-            "multi-canal",
-            "cadré"
-          ]
+          "tags": ["multi-canal-cadré"]
         },
         {
           "id": "q04_d",
-          "label": "Plusieurs canaux dont certains me parviennent en direct (mobile, SMS, mail)",
+          "label": "Plusieurs canaux dont des canaux directs vers moi (mobile, SMS, mail)",
           "health_score": 3,
           "node_type": "Symptôme",
-          "tags": [
-            "canaux-parallèles",
-            "charge-invisible"
-          ]
+          "tags": ["canaux-parallèles", "charge-invisible"]
         },
         {
           "id": "q04_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
@@ -261,68 +222,93 @@
       "mode": "B",
       "facet": "processes",
       "scored": true,
-      "topic": "Charge administrative quotidienne",
-      "open_prompt": "En une ou deux phrases, comment se passent vos tâches administratives au quotidien (courriers, ordonnances, certificats, suivi des dossiers) ?",
-      "qcm_prompt": "Plus concrètement, à quoi ressemble votre charge administrative quotidienne ?",
+      "topic": "Charge administrative en fin de journée",
+      "open_prompt": "Pouvez-vous décrire en deux ou trois phrases ce qui vous a occupé hier soir ou ce week-end pour votre cabinet (courriers, ordonnances, certificats, suivi de dossiers) ?",
+      "qcm_prompt": "À 19h, à la fin d'une journée typique, vos courriers, ordonnances et certificats du jour…",
       "options": [
         {
           "id": "q05_a",
-          "label": "Moins d'une heure par jour",
-          "health_score": 7,
+          "label": "…sont terminés avant que je quitte le cabinet",
+          "health_score": 9,
           "node_type": "Processus",
-          "tags": [
-            "charge-très-faible"
-          ]
+          "tags": ["admin-terminé-jour-même"]
         },
         {
           "id": "q05_b",
-          "label": "Une à deux heures, principalement entre les consultations",
-          "health_score": 9,
+          "label": "…sont presque terminés, je finis quelques pièces le lendemain matin",
+          "health_score": 7,
           "node_type": "Processus",
-          "tags": [
-            "charge-saine"
-          ]
+          "tags": ["admin-reporté-lendemain"]
         },
         {
           "id": "q05_c",
-          "label": "Plus de deux heures, souvent regroupées en fin de journée",
+          "label": "…m'occupent encore une à deux heures, regroupées en fin de journée",
           "health_score": 4,
           "node_type": "Symptôme",
-          "tags": [
-            "charge-élevée"
-          ]
+          "tags": ["admin-bloc-fin-journée"]
         },
         {
           "id": "q05_d",
-          "label": "Beaucoup, je termine fréquemment chez moi le soir ou le week-end",
+          "label": "…se prolongent chez moi le soir ou le week-end",
           "health_score": 2,
           "node_type": "Symptôme",
-          "tags": [
-            "charge-débordement",
-            "vie-pro-envahissante"
-          ]
+          "tags": ["admin-débordement-domicile"]
         },
         {
           "id": "q05_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
     {
       "id": "q06",
       "position": 6,
-      "mode": "C",
+      "mode": "A",
       "facet": "motivation",
       "scored": false,
       "topic": "Pourquoi ce check-up maintenant",
-      "open_prompt": "Qu'est-ce qui vous fait faire ce check-up aujourd'hui ?",
-      "qcm_prompt": null,
-      "options": []
+      "open_prompt": null,
+      "qcm_prompt": "Qu'est-ce qui vous fait faire ce check-up aujourd'hui ?",
+      "options": [
+        {
+          "id": "q06_a",
+          "label": "La curiosité — je veux comprendre ce qu'un outil comme Lugia peut m'apporter",
+          "health_score": null,
+          "node_type": "Cause",
+          "tags": ["motivation-curiosité"]
+        },
+        {
+          "id": "q06_b",
+          "label": "Une fatigue qui dure — je sens qu'il est temps de prendre du recul",
+          "health_score": null,
+          "node_type": "Cause",
+          "tags": ["motivation-fatigue"]
+        },
+        {
+          "id": "q06_c",
+          "label": "Un événement récent qui m'a poussé à me poser des questions",
+          "health_score": null,
+          "node_type": "Cause",
+          "tags": ["motivation-déclencheur"]
+        },
+        {
+          "id": "q06_d",
+          "label": "Anticiper — je veux savoir où j'en suis avant que quelque chose ne craque",
+          "health_score": null,
+          "node_type": "Cause",
+          "tags": ["motivation-anticipation"]
+        },
+        {
+          "id": "q06_other",
+          "label": "Autre",
+          "health_score": null,
+          "node_type": null,
+          "tags": ["autre"]
+        }
+      ]
     },
     {
       "id": "q07",
@@ -339,45 +325,35 @@
           "label": "Personne, je porte seul l'organisation du cabinet",
           "health_score": 3,
           "node_type": "Symptôme",
-          "tags": [
-            "isolement-organisationnel"
-          ]
+          "tags": ["isolement-organisationnel"]
         },
         {
           "id": "q07_b",
           "label": "Un assistant médical en cabinet",
           "health_score": 8,
           "node_type": "Acteur",
-          "tags": [
-            "assistant-médical"
-          ]
+          "tags": ["assistant-médical"]
         },
         {
           "id": "q07_c",
           "label": "Un IDEL, un kinésithérapeute ou un confrère partage les locaux",
           "health_score": 6,
           "node_type": "Acteur",
-          "tags": [
-            "partage-locaux"
-          ]
+          "tags": ["partage-locaux"]
         },
         {
           "id": "q07_d",
           "label": "Un confrère médecin remplaçant régulier",
           "health_score": 7,
           "node_type": "Acteur",
-          "tags": [
-            "remplaçant-régulier"
-          ]
+          "tags": ["remplaçant-régulier"]
         },
         {
           "id": "q07_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
@@ -387,54 +363,44 @@
       "mode": "A",
       "facet": "participants",
       "scored": true,
-      "topic": "Dépendance à votre présence",
+      "topic": "Continuité en cas d'absence",
       "open_prompt": null,
-      "qcm_prompt": "Si vous deviez vous arrêter une semaine, qu'est-ce qui se passerait pour votre cabinet ?",
+      "qcm_prompt": "Quand vous prenez une semaine de congé, comment cela se passe pour votre cabinet ?",
       "options": [
         {
           "id": "q08_a",
-          "label": "Rien, j'ai préparé une procédure de continuité claire",
+          "label": "Tout continue : un dispositif de continuité connu de l'équipe prend le relais",
           "health_score": 9,
           "node_type": "Processus",
-          "tags": [
-            "continuité-préparée"
-          ]
+          "tags": ["continuité-préparée"]
         },
         {
           "id": "q08_b",
-          "label": "Mon associé ou un remplaçant peut reprendre la majorité de mes activités",
+          "label": "Un confrère ou un remplaçant assure les consultations à ma place",
           "health_score": 7,
           "node_type": "Acteur",
-          "tags": [
-            "relais-disponible"
-          ]
+          "tags": ["remplacement-consultations"]
         },
         {
           "id": "q08_c",
-          "label": "Mon secrétariat peut gérer les rendez-vous, mais le reste serait compliqué",
+          "label": "Le secrétariat tient les rendez-vous et l'accueil, le reste attend mon retour",
           "health_score": 5,
           "node_type": "Risque",
-          "tags": [
-            "continuité-partielle"
-          ]
+          "tags": ["continuité-partielle"]
         },
         {
           "id": "q08_d",
-          "label": "Personne ne saurait précisément quoi faire, le cabinet serait à l'arrêt",
-          "health_score": 2,
+          "label": "Le cabinet ferme — c'est ce que je fais en pratique",
+          "health_score": 3,
           "node_type": "Risque",
-          "tags": [
-            "point-unique-défaillance"
-          ]
+          "tags": ["fermeture-cabinet-congés"]
         },
         {
           "id": "q08_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
@@ -444,55 +410,44 @@
       "mode": "A",
       "facet": "information",
       "scored": true,
-      "topic": "Outils numériques utilisés",
+      "topic": "Nombre d'outils numériques utilisés",
       "open_prompt": null,
-      "qcm_prompt": "Quels outils numériques utilisez-vous pour le suivi de vos patients ?",
+      "qcm_prompt": "Combien d'outils numériques différents utilisez-vous pour gérer un dossier patient complet (prise de rendez-vous, consultation, ordonnance, courrier) ?",
       "options": [
         {
           "id": "q09_a",
-          "label": "Un logiciel métier complet (Maiia, Weda, Hellodoc, autre) avec une plateforme de rendez-vous bien intégrée",
+          "label": "Un seul outil pour tout (RDV, dossier, ordonnance, courrier)",
           "health_score": 9,
           "node_type": "Outil",
-          "tags": [
-            "stack-intégré"
-          ]
+          "tags": ["outil-unique"]
         },
         {
           "id": "q09_b",
-          "label": "Un logiciel métier seul, sans plateforme de rendez-vous en ligne",
-          "health_score": 6,
+          "label": "Deux outils, sans double saisie : un pour les RDV, un pour le dossier patient",
+          "health_score": 7,
           "node_type": "Outil",
-          "tags": [
-            "stack-partiel"
-          ]
+          "tags": ["deux-outils-sans-double-saisie"]
         },
         {
           "id": "q09_c",
-          "label": "Plusieurs outils mais avec une intégration partielle entre eux",
-          "health_score": 5,
-          "node_type": "Outil",
-          "tags": [
-            "intégration-partielle"
-          ]
+          "label": "Trois à cinq outils, avec une double saisie ponctuelle",
+          "health_score": 4,
+          "node_type": "Symptôme",
+          "tags": ["trois-à-cinq-outils", "double-saisie-ponctuelle"]
         },
         {
           "id": "q09_d",
-          "label": "Beaucoup d'outils en parallèle, avec de la double saisie résiduelle",
-          "health_score": 4,
+          "label": "Plus de cinq outils, avec des informations à saisir à plusieurs endroits",
+          "health_score": 2,
           "node_type": "Symptôme",
-          "tags": [
-            "empilement-outils",
-            "double-saisie"
-          ]
+          "tags": ["empilement-outils", "double-saisie-récurrente"]
         },
         {
           "id": "q09_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
@@ -511,103 +466,82 @@
           "label": "Mon logiciel métier m'alerte automatiquement",
           "health_score": 9,
           "node_type": "Outil",
-          "tags": [
-            "alerte-automatique"
-          ]
+          "tags": ["alerte-automatique"]
         },
         {
           "id": "q10_b",
-          "label": "Mon assistant médical ou mon secrétariat tient à jour une liste de patients à relancer",
+          "label": "Un membre de l'équipe tient à jour une liste de patients à relancer",
           "health_score": 7,
           "node_type": "Processus",
-          "tags": [
-            "relance-humaine"
-          ]
+          "tags": ["relance-humaine"]
         },
         {
           "id": "q10_c",
           "label": "Je m'en rends compte au cas par cas, quand j'y pense",
           "health_score": 4,
           "node_type": "Symptôme",
-          "tags": [
-            "suivi-réactif"
-          ]
+          "tags": ["suivi-réactif"]
         },
         {
           "id": "q10_d",
           "label": "Je ne le sais pas, sauf si le patient revient de lui-même",
           "health_score": 2,
           "node_type": "Symptôme",
-          "tags": [
-            "suivi-absent",
-            "perte-de-vue"
-          ]
+          "tags": ["suivi-absent", "perte-de-vue"]
         },
         {
           "id": "q10_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
     {
       "id": "q11",
       "position": 11,
-      "mode": "B",
+      "mode": "A",
       "facet": "information",
       "scored": true,
-      "topic": "Circulation des résultats d'examens",
-      "open_prompt": "Comment êtes-vous sûr qu'un résultat d'examen important ne vous échappe pas ?",
-      "qcm_prompt": "Plus concrètement, comment se passe le tri et le suivi des résultats ?",
+      "topic": "Tri des résultats d'examens",
+      "open_prompt": null,
+      "qcm_prompt": "Comment êtes-vous alerté quand un résultat d'examen important arrive pour un patient ?",
       "options": [
         {
           "id": "q11_a",
-          "label": "J'ai mis en place un tri à plusieurs niveaux et un suivi des résultats critiques",
+          "label": "Mon logiciel signale automatiquement les résultats critiques",
           "health_score": 9,
-          "node_type": "Processus",
-          "tags": [
-            "tri-multi-niveaux"
-          ]
+          "node_type": "Outil",
+          "tags": ["alerte-automatique-résultats"]
         },
         {
           "id": "q11_b",
-          "label": "Mon secrétariat ou mon assistant fait un premier tri et signale les résultats urgents",
+          "label": "Un membre de l'équipe trie les résultats avant que je les voie",
           "health_score": 7,
           "node_type": "Processus",
-          "tags": [
-            "tri-délégué"
-          ]
+          "tags": ["tri-délégué"]
         },
         {
           "id": "q11_c",
-          "label": "Je vérifie moi-même au fil de l'eau, sans système formel",
+          "label": "Je consulte la boîte de résultats moi-même, plusieurs fois par jour",
           "health_score": 5,
-          "node_type": "Symptôme",
-          "tags": [
-            "tri-personnel"
-          ]
+          "node_type": "Processus",
+          "tags": ["tri-personnel-régulier"]
         },
         {
           "id": "q11_d",
-          "label": "Il y a déjà eu un retard, je sais que cela peut arriver",
+          "label": "Je consulte au fil de l'eau, sans rythme précis",
           "health_score": 3,
-          "node_type": "Risque",
-          "tags": [
-            "incident-passé"
-          ]
+          "node_type": "Symptôme",
+          "tags": ["tri-personnel-fil-de-l-eau"]
         },
         {
           "id": "q11_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
@@ -626,45 +560,35 @@
           "label": "Régulièrement, avec des règles claires sur qui en bénéficie et dans quels cas",
           "health_score": 8,
           "node_type": "Processus",
-          "tags": [
-            "téléconsultation-cadrée"
-          ]
+          "tags": ["téléconsultation-cadrée"]
         },
         {
           "id": "q12_b",
           "label": "Régulièrement, à la demande des patients, sans règle particulière",
           "health_score": 5,
           "node_type": "Symptôme",
-          "tags": [
-            "téléconsultation-non-cadrée"
-          ]
+          "tags": ["téléconsultation-non-cadrée"]
         },
         {
           "id": "q12_c",
           "label": "Rarement, sur des cas exceptionnels",
           "health_score": 7,
           "node_type": "Processus",
-          "tags": [
-            "téléconsultation-ponctuelle"
-          ]
+          "tags": ["téléconsultation-ponctuelle"]
         },
         {
           "id": "q12_d",
           "label": "Jamais",
           "health_score": 6,
           "node_type": "Processus",
-          "tags": [
-            "pas-de-téléconsultation"
-          ]
+          "tags": ["pas-de-téléconsultation"]
         },
         {
           "id": "q12_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },
@@ -683,46 +607,35 @@
           "label": "Non, je n'utilise pas d'IA générative (j'utilise éventuellement une dictée vocale classique)",
           "health_score": 7,
           "node_type": "Processus",
-          "tags": [
-            "pas-d-ia-générative"
-          ]
+          "tags": ["pas-d-ia-générative"]
         },
         {
           "id": "q13_b",
           "label": "Oui, avec un outil dédié et conforme au secret médical (hébergement HDS)",
           "health_score": 9,
           "node_type": "Outil",
-          "tags": [
-            "ia-conforme"
-          ]
+          "tags": ["ia-conforme"]
         },
         {
           "id": "q13_c",
-          "label": "Oui, j'utilise ChatGPT ou similaire, en faisant attention à l'anonymisation",
+          "label": "Oui, j'utilise une IA grand public, en faisant attention à l'anonymisation",
           "health_score": 3,
           "node_type": "Risque",
-          "tags": [
-            "ia-grand-public-vigilance"
-          ]
+          "tags": ["ia-grand-public-vigilance"]
         },
         {
           "id": "q13_d",
-          "label": "Oui, j'utilise ChatGPT ou similaire et je sais que ce n'est pas tout à fait conforme",
+          "label": "Oui, j'utilise une IA grand public et je sais que ce n'est pas tout à fait conforme",
           "health_score": 2,
           "node_type": "Risque",
-          "tags": [
-            "ia-grand-public-non-conforme",
-            "culpabilité-usage"
-          ]
+          "tags": ["ia-grand-public-non-conforme"]
         },
         {
           "id": "q13_other",
           "label": "Autre",
           "health_score": null,
           "node_type": null,
-          "tags": [
-            "autre"
-          ]
+          "tags": ["autre"]
         }
       ]
     },

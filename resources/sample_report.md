@@ -2,12 +2,12 @@
 
 > Rapport produit par le démonstrateur Lugia Check-up à partir d'une session du persona de référence (`resources/sample_answers_pchateau.md`).
 > Généré par `scripts/dump_report.py` qui applique les modules V0-4 (`src/scoring`, `src/templates`, `src/workstreams`) à la session pré-remplie par `scripts/seed_persona.py`.
-> Date de génération : 13/05/2026.
+> Date de génération : 15/05/2026.
 
 ## Session
 
-- **Interview id** : 9
-- **Date de session** : 13/05/2026
+- **Interview id** : 20
+- **Date de session** : 15/05/2026
 - **Statut** : in_progress
 - **Nombre de réponses** : 14
 
@@ -15,29 +15,29 @@
 
 ## Votre situation aujourd'hui
 
-Votre cabinet tourne, mais entièrement grâce à vous. Vous avez bâti une organisation efficace : Maiia et Doctolib, votre télésecrétariat depuis 18 mois. Pourtant deux zones vous fatiguent sans que vous puissiez bien les nommer : des appels et messages directs de patients que vous traitez en plus de votre télésecrétariat, et l'usage que vous faites de ChatGPT pour vos courriers en sachant que ce n'est pas tout à fait conforme. *Avant tout autre chantier, et avant d'ajouter un agent ou un nouvel outil, ce qui vous aiderait le plus est de remplacer votre usage actuel de l'IA par un environnement adapté au secret médical, qui pourra ensuite vous aider à structurer le reste — y compris la facturation électronique de septembre.*
+Votre cabinet tourne. Vous en êtes seul aux commandes. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Deux zones demandent encore de l'attention : des appels et messages directs de patients que vous traitez en plus de votre télésecrétariat, et l'usage que vous faites d'un outil d'IA grand public pour vos courriers, en sachant que ce n'est pas une vraie garantie de secret médical. *Avant tout autre chantier, et avant d'ajouter un outil de plus, ce qui vous aiderait le plus est de remplacer votre usage actuel de l'IA par un environnement conforme au secret médical, qui pourra ensuite vous aider à structurer le reste — y compris la facturation électronique de septembre.*
 
 ---
 
 ## Trois angles de votre cabinet
 
-### Processus et activités — **3 / 10**
+### Parcours patient — **3 / 10**
 
-Votre prise de rendez-vous et le tunnel patient fonctionnent grâce à vos outils. Mais une part des demandes vous arrive en direct (appels mobile, SMS, mails), en plus de votre télésecrétariat. Ce flux parallèle n'est tracé nulle part.
+Votre prise de rendez-vous et le parcours de vos patients sont bien outillés. Mais une part des demandes vous arrive en direct (appels mobile, SMS, mails), en plus de votre télésecrétariat. Ces demandes ne sont pas tracées.
 
 *Détail du calcul : moyenne brute des 3 contributions = 3.33 → arrondi 3. Contributions : Q04 (3), Q05 (2), Q12 (5).*
 
-### Participants — **3 / 10**
+### Équipe et secrétariat — **3 / 10**
 
-Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat travaille avec des règles que vous n'avez jamais cadrées avec eux. Si vous deviez vous arrêter une semaine, personne ne saurait précisément que faire.
+Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat travaille avec des règles que vous n'avez jamais cadrées avec eux. Pendant vos congés, le cabinet ferme — c'est la solution que vous avez retenue, faute d'un dispositif préparé en amont.
 
-*Détail du calcul : moyenne brute des 3 contributions = 3.00 → arrondi 3. Contributions : Q03 (4), Q07 (3), Q08 (2).*
+*Détail du calcul : moyenne brute des 3 contributions = 3.33 → arrondi 3. Contributions : Q03 (4), Q07 (3), Q08 (3).*
 
-### Information — **3 / 10**
+### Outils et dossiers — **3 / 10**
 
-Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais aucun patient chronique qui ne revient pas ne vous remonte d'alerte, et un résultat vu en retard reste possible — comme cela s'est produit il y a quelques mois.
+Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais aucun signal ne vous remonte quand un patient chronique cesse de revenir.
 
-*Détail du calcul : moyenne brute des 4 contributions = 2.75 → arrondi 3. Contributions : Q09 (4), Q10 (2), Q11 (3), Q13 (2).*
+*Détail du calcul : moyenne brute des 4 contributions = 2.75 → arrondi 3. Contributions : Q09 (2), Q10 (2), Q11 (5), Q13 (2).*
 
 ---
 
@@ -45,57 +45,57 @@ Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais auc
 
 ### Chantier 1 — Reprendre la main sur les demandes directes
 
-**Ce que le check-up a vu**
+**Ce que nous avons compris**
 
-Vous recevez des appels sur votre mobile, des SMS de patients réguliers et des mails directs, en plus de Doctolib et du télésecrétariat. Ces demandes ne sont tracées nulle part et représentent une charge invisible.
+Vous recevez des appels sur votre mobile, SMS de patients réguliers et mails directs, en plus de votre plateforme de rendez-vous et du télésecrétariat. Ces demandes ne sont pas tracées et représentent une charge invisible.
 
-**Ce qu'il ne peut pas confirmer seul**
+**Ce que ça révèle**
+
+Ce mélange de canaux protège votre lien direct avec certains patients de longue date, mais il vous oblige à porter mentalement un suivi que personne d'autre ne peut prendre. Plus le temps passe, plus le coût est concentré sur vous.
+
+**Ce qui nous échappe encore**
 
 Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles certains patients passent par vous plutôt que par votre télésecrétariat.
 
-**Ce que Lugia propose**
+**Ce que nous vous proposons**
 
-Cartographier ces demandes directes sur deux semaines pour en mesurer la volumétrie, puis définir avec vous une règle simple à communiquer aux patients et à votre télésecrétariat.
-
-**Ce que vous obtenez**
-
-Une vue claire de ces flux parallèles, une règle simple à communiquer à vos patients, et un brief précis pour votre télésecrétariat.
+Recenser ces demandes sur deux semaines pour mesurer combien elles représentent, puis définir avec vous une règle simple à communiquer aux patients et à votre télésecrétariat. À la clé : une vision claire de ces demandes, une règle simple à communiquer à vos patients, et des consignes claires pour votre télésecrétariat.
 
 ### Chantier 2 — Sécuriser votre usage actuel de l'IA
 
-**Ce que le check-up a vu**
+**Ce que nous avons compris**
 
-Vous utilisez ChatGPT pour vos courriers complexes et vos comptes-rendus, avec une anonymisation manuelle des extraits de dossier. Vous savez que cela ne garantit pas la conformité au secret médical.
+Vous utilisez un outil d'IA grand public pour vos courriers complexes et vos comptes-rendus, en retirant à la main les informations identifiantes. Vous savez que ce n'est pas une vraie garantie de secret médical.
 
-**Ce qu'il ne peut pas confirmer seul**
+**Ce que ça révèle**
+
+Votre besoin de rédiger des courriers structurés est réel et l'outil grand public y répond. Le risque n'est pas dans le besoin, il est dans le canal. Tant que la donnée transite par un outil non conçu pour le secret médical, vous portez seul la responsabilité de l'anonymisation.
+
+**Ce qui nous échappe encore**
 
 La fréquence, le type de courriers concernés, et les autres usages éventuels (résumés de consultations, recherches médicales).
 
-**Ce que Lugia propose**
+**Ce que nous vous proposons**
 
-Mettre à votre disposition un environnement IA conforme HDS qui couvre les mêmes usages, sans anonymisation manuelle. Transition sans changer votre façon de travailler.
-
-**Ce que vous obtenez**
-
-Un usage conforme dès le premier jour, puis à votre rythme l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, préparation à la facturation électronique de septembre). La dictée vocale classique que vous utilisez déjà reste — ce chantier porte sur l'aide à la rédaction structurée.
+Vous donner accès à un environnement IA conforme au secret médical qui couvre les mêmes usages, sans avoir à anonymiser à la main. La transition se fait sans changer votre façon de travailler. Un usage compatible avec le secret médical dès le premier jour, puis à votre rythme l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, préparation à la facturation électronique de septembre). Votre logiciel de dictée actuel reste — ce chantier porte uniquement sur l'aide à la rédaction structurée.
 
 ### Chantier 3 — Anticiper une absence prolongée
 
-**Ce que le check-up a vu**
+**Ce que nous avons compris**
 
-Tout le fonctionnement de votre cabinet est dans votre tête. Depuis le départ de Catherine, rien n'est documenté. En cas d'arrêt de plusieurs jours, votre télésecrétariat et vos patients ne sauraient pas quoi faire.
+Tout le fonctionnement de votre cabinet repose sur votre mémoire. Depuis le départ de Catherine, rien n'est écrit. En cas d'arrêt de plusieurs jours, votre télésecrétariat et vos patients auraient du mal à savoir quoi faire.
 
-**Ce qu'il ne peut pas confirmer seul**
+**Ce que ça révèle**
+
+Votre cabinet repose aujourd'hui sur votre seule mémoire. Aussi solide soit-elle, elle n'est pas transmissible. Un imprévu de plus de quelques jours expose vos patients à une rupture de service que personne d'autre ne peut absorber.
+
+**Ce qui nous échappe encore**
 
 Ce qui se passerait concrètement, qui pourrait prendre le relais sur quoi, et quels patients chroniques nécessitent une vigilance particulière.
 
-**Ce que Lugia propose**
+**Ce que nous vous proposons**
 
-Mettre par écrit les règles essentielles de fonctionnement de votre cabinet : à qui adresser quels types de demandes, comment gérer les renouvellements, qui contacter en cas de problème technique.
-
-**Ce que vous obtenez**
-
-Un document simple, à jour, partageable avec votre télésecrétariat et un remplaçant éventuel. La conviction qu'en cas d'imprévu, votre cabinet ne s'arrête pas net.
+Mettre par écrit les règles essentielles de fonctionnement de votre cabinet : à qui adresser quels types de demandes, comment gérer les renouvellements, qui contacter en cas de problème technique. Vous repartez avec un document simple, à jour, partageable avec votre télésecrétariat et un remplaçant éventuel. L'assurance qu'en cas d'imprévu, votre cabinet ne s'arrête pas net.
 
 ---
 

@@ -226,10 +226,10 @@ export type Workstream = {
   key: string;
   title: string;
   priority: number;
-  vu: string;
-  pas_confirmer: string;
-  propose: string;
-  obtient: string;
+  vu: string;          // Ce que nous avons compris de vos réponses
+  analyse: string;     // Ce que ça révèle (V1.1 lite)
+  pas_confirmer: string; // Ce qui nous échappe encore
+  propose: string;     // Ce que nous vous proposons (proposition + bénéfice fusionnés)
 };
 
 export type Report = {

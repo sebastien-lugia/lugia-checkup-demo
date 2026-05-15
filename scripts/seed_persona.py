@@ -9,6 +9,8 @@ Depuis V1-5a, l'API exige une auth par email. L'argument `--email` rattache
 l'interview seedée à un email donné : une fois connecté avec cet email,
 l'utilisateur retrouve la session sur l'accueil.
 
+Aligné sur le protocole V1.1 (refonte Vague 3, voir D-021).
+
 Lancement local (SQLite local) :
     python scripts/seed_persona.py --email sebastien+test@gmail.com
     python scripts/seed_persona.py --email sebastien+test@gmail.com --reset
@@ -48,7 +50,7 @@ ANSWERS = [
         "question_id": "q02",
         "mode": "A",
         "selected_option": "q02_b",
-        "selected_option_label": "Oui, externalisé (télésecrétariat médical)",
+        "selected_option_label": "Un télésecrétariat externalisé",
         "free_text": None,
         "complement_text": "Depuis 18 mois, après le départ de Catherine qui était en interne pendant 8 ans.",
     },
@@ -56,34 +58,35 @@ ANSWERS = [
         "question_id": "q03",
         "mode": "A",
         "selected_option": "q03_c",
-        "selected_option_label": "Je ne sais pas précisément, je leur fais confiance",
+        "selected_option_label": "Pas de cadre formel, le secrétariat décide au cas par cas",
         "free_text": None,
-        "complement_text": "Je leur ai brièvement expliqué mon fonctionnement au démarrage, on en est resté là. Quelques RDV mal orientés de temps en temps, rien d'alarmant.",
+        "complement_text": (
+            "Je leur ai brièvement expliqué mon fonctionnement au démarrage, on en est resté "
+            "là. Quelques RDV mal orientés de temps en temps, rien d'alarmant."
+        ),
     },
     {
         "question_id": "q04",
-        "mode": "B",
+        "mode": "A",
         "selected_option": "q04_d",
-        "selected_option_label": "Plusieurs canaux dont certains me parviennent en direct (mobile, SMS, mail)",
-        "free_text": (
-            "Principalement Doctolib pour la majorité des nouveaux RDV, et le télésecrétariat "
-            "pour les appels téléphoniques. J'ai aussi quelques patients qui me sollicitent en "
-            "direct par mail ou SMS, plutôt des suivis longs avec qui j'ai une relation établie."
-        ),
+        "selected_option_label": "Plusieurs canaux dont des canaux directs vers moi (mobile, SMS, mail)",
+        "free_text": None,
         "complement_text": (
-            "Je sais que ce n'est pas idéal mais je ne veux pas couper le lien avec ceux qui "
-            "m'écrivent depuis des années."
+            "Principalement Doctolib pour les nouveaux RDV et le télésecrétariat pour les "
+            "appels. Quelques patients de longue date me sollicitent encore en direct par mail "
+            "ou SMS — je ne veux pas couper le lien avec eux."
         ),
     },
     {
         "question_id": "q05",
         "mode": "B",
         "selected_option": "q05_d",
-        "selected_option_label": "Beaucoup, je termine fréquemment chez moi le soir ou le week-end",
+        "selected_option_label": "…se prolongent chez moi le soir ou le week-end",
         "free_text": (
-            "Je traite ce que je peux entre les consultations — les courriers via Lifen pour les "
-            "spécialistes, les ordonnances en consultation. Le reste, les renouvellements, "
-            "certains résultats, je m'en occupe le soir."
+            "Hier soir, j'ai traité une vingtaine de courriers spécialistes via mon outil "
+            "d'envoi, quelques renouvellements d'ordonnances longues et trois résultats "
+            "biologiques que je n'avais pas eu le temps de regarder dans la journée. Le "
+            "week-end, j'avance souvent sur les comptes-rendus de visites à domicile."
         ),
         "complement_text": (
             "Pas tous les soirs, mais souvent. Je le fais parce que ça ne se voit pas le "
@@ -92,17 +95,15 @@ ANSWERS = [
     },
     {
         "question_id": "q06",
-        "mode": "C",
-        "selected_option": None,
-        "selected_option_label": None,
-        "free_text": (
-            "Un confrère m'a parlé de Lugia il y a quelques semaines. J'avais besoin de prendre "
-            "un peu de recul sur mon organisation, dans un contexte familial qui me pousse à me "
-            "poser des questions sans rentrer dans les détails. Et je m'intéresse depuis "
-            "longtemps à l'IA pour le cabinet — je voulais comprendre où j'en suis avant "
-            "d'ajouter un outil de plus."
+        "mode": "A",
+        "selected_option": "q06_c",
+        "selected_option_label": "Un événement récent qui m'a poussé à me poser des questions",
+        "free_text": None,
+        "complement_text": (
+            "Un confrère m'a parlé de Lugia il y a quelques semaines, dans un contexte familial "
+            "qui me pousse à prendre du recul sur mon organisation. Et je m'intéresse depuis "
+            "longtemps à l'IA pour le cabinet."
         ),
-        "complement_text": None,
     },
     {
         "question_id": "q07",
@@ -119,25 +120,25 @@ ANSWERS = [
         "question_id": "q08",
         "mode": "A",
         "selected_option": "q08_d",
-        "selected_option_label": "Personne ne saurait précisément quoi faire, le cabinet serait à l'arrêt",
+        "selected_option_label": "Le cabinet ferme — c'est ce que je fais en pratique",
         "free_text": None,
         "complement_text": (
-            "C'est probablement le point le plus inconfortable de ma situation actuelle. Une "
-            "semaine d'arrêt et tout s'arrête. Je n'ai jamais vraiment fait l'expérience d'un "
-            "arrêt long."
+            "Je n'ai jamais vraiment fait l'expérience d'un arrêt long. Pour mes congés je "
+            "préviens en amont et je ferme. Une semaine d'arrêt non planifié, je ne sais pas "
+            "comment je gérerais."
         ),
     },
     {
         "question_id": "q09",
         "mode": "A",
         "selected_option": "q09_d",
-        "selected_option_label": "Beaucoup d'outils en parallèle, avec de la double saisie résiduelle",
+        "selected_option_label": "Plus de cinq outils, avec des informations à saisir à plusieurs endroits",
         "free_text": None,
         "complement_text": (
-            "Maiia comme logiciel métier, Doctolib pour les RDV, Lifen pour les courriers "
-            "spécialistes, MSSanté/Mailiz pour la messagerie sécurisée, Mon Sisra, Mediadict "
-            "pour la dictée. Tout fonctionne mais entre Doctolib et Maiia il y a encore de la "
-            "double saisie pour les nouveaux patients."
+            "Un logiciel métier, une plateforme de rendez-vous, un outil d'envoi de courriers "
+            "aux spécialistes, une messagerie sécurisée, une dictée vocale, un dossier "
+            "régional. Tout fonctionne mais il reste de la double saisie pour les nouveaux "
+            "patients."
         ),
     },
     {
@@ -153,19 +154,15 @@ ANSWERS = [
     },
     {
         "question_id": "q11",
-        "mode": "B",
-        "selected_option": "q11_d",
-        "selected_option_label": "Il y a déjà eu un retard, je sais que cela peut arriver",
-        "free_text": (
-            "Les résultats arrivent dans Maiia et dans Mailiz, je les traite en général le soir "
-            "ou pendant les pauses. Mon télésecrétariat ne fait pas de pré-tri sur ce flux. J'ai "
-            "eu un retard il y a six mois sur un résultat biologique modérément urgent que j'ai "
-            "vu quatre jours après — sans conséquence pour la patiente, mais cet épisode m'a "
-            "marqué."
-        ),
+        "mode": "A",
+        "selected_option": "q11_c",
+        "selected_option_label": "Je consulte la boîte de résultats moi-même, plusieurs fois par jour",
+        "free_text": None,
         "complement_text": (
-            "Depuis, je vérifie deux fois par jour. Mais ce n'est pas un système, c'est une "
-            "vigilance personnelle qui repose sur moi seul."
+            "Je vérifie deux fois par jour depuis qu'un résultat biologique modérément urgent "
+            "m'avait échappé quatre jours il y a six mois. Sans conséquence pour la patiente, "
+            "mais l'épisode m'a marqué. C'est une vigilance personnelle qui repose sur moi "
+            "seul."
         ),
     },
     {
@@ -183,18 +180,17 @@ ANSWERS = [
         "question_id": "q13",
         "mode": "B",
         "selected_option": "q13_d",
-        "selected_option_label": "Oui, j'utilise ChatGPT ou similaire et je sais que ce n'est pas tout à fait conforme",
+        "selected_option_label": "Oui, j'utilise une IA grand public et je sais que ce n'est pas tout à fait conforme",
         "free_text": (
-            "Oui, j'utilise ChatGPT depuis six mois pour mes courriers complexes — typiquement "
-            "les courriers de synthèse pour les spécialistes ou les comptes-rendus de visite à "
-            "domicile. Je fais attention : je remplace les données identifiantes par des codes "
-            "avant de coller le contexte. Mais je sais que ce n'est pas une garantie suffisante."
+            "Oui, je l'utilise depuis six mois pour mes courriers complexes — typiquement les "
+            "courriers de synthèse pour les spécialistes ou les comptes-rendus de visite à "
+            "domicile. Je remplace les données identifiantes par des codes avant de coller le "
+            "contexte. Mais je sais que ce n'est pas une garantie suffisante."
         ),
         "complement_text": (
             "C'est l'usage qui me met le plus mal à l'aise dans mon organisation actuelle. La "
             "dictée vocale classique existe, je l'utilise pour mes comptes-rendus standards, "
-            "mais ce que je cherche avec ChatGPT c'est l'aide à la rédaction structurée — et ça "
-            "la dictée ne le fait pas."
+            "mais ce que je cherche en plus, c'est l'aide à la rédaction structurée."
         ),
     },
     {

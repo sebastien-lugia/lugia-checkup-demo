@@ -1,12 +1,26 @@
 """Génération des chantiers personnalisés selon les réponses.
 
 Implémente les templates documentés dans `resources/workstream_templates.md`.
-Trois chantiers prédéfinis en V0, déclenchés par des triggers sur les réponses,
-instanciés avec substitution de placeholders à partir des données de session.
+Trois chantiers prédéfinis, déclenchés par des triggers sur les réponses,
+instanciés avec substitution de placeholders.
 
-V0 : les trois chantiers sont systématiquement affichés. Si les triggers sont
-satisfaits, version standard (correctrice). Sinon, version préventive
-(formulation atténuée).
+V0 : structure à 4 sections (vu, pas_confirmer, propose, obtient).
+
+V1.1 lite : restructuration en 4 sections avec ajout d'une étape "analyse"
+explicite, et fusion de "propose" + "obtient" en une seule section finale
+(la proposition se termine par le bénéfice). Vulgarisation du jargon WSF
+et suppression des citations nominatives d'outils.
+
+Schéma de sortie V1.1 :
+    {
+        "key": str,
+        "title": str,
+        "priority": int,
+        "vu": str,            # Ce que nous avons compris
+        "analyse": str,       # Ce que ça révèle
+        "pas_confirmer": str, # Ce qui nous échappe encore
+        "propose": str,       # Ce que nous vous proposons (proposition + bénéfice fusionnés)
+    }
 """
 
 from __future__ import annotations
@@ -29,33 +43,33 @@ def _free_text(answers: list[Any], qid: str):
 
 
 def _has_classical_dictation(answers: list[Any]) -> bool:
-    """Vrai si l'utilisateur a mentionné une dictée vocale classique dans Q09."""
+    """Vrai si l'utilisateur a mentionné une dictée vocale classique en Q09."""
     text = templates._complement(answers, "q09")
     if not text:
         return False
-    for keyword in ("Mediadict", "Dragon", "dictée vocale", "dictée"):
+    for keyword in ("Mediadict", "Dragon", "Whispr", "dictée vocale", "dictée"):
         if keyword in text:
             return True
     return False
 
 
 def _canaux_paralleles_phrase() -> str:
-    """Formulation fixe des canaux parallèles quand Q04=q04_d."""
-    return "appels sur votre mobile, des SMS de patients réguliers et des mails directs"
+    """Formulation factuelle des canaux directs (Q04=q04_d)."""
+    return "appels sur votre mobile, SMS de patients réguliers et mails directs"
 
 
-def _flux_principal(answers: list[Any]) -> str:
-    """Outil principal de prise de rendez-vous, extrait de Q04 free_text."""
+def _flux_principal_categorie(answers: list[Any]) -> str:
+    """Catégorie générique de l'outil principal de prise de rendez-vous."""
     text = _free_text(answers, "q04")
     if text:
-        for tool in templates.KNOWN_TOOLS:
+        for tool, category in templates.TOOL_CATEGORIES.items():
             if tool in text:
-                return tool
+                return f"votre {category}"
     return "votre plateforme de rendez-vous"
 
 
 def _usage_ia_decrit(answers: list[Any]) -> str:
-    """Décrit l'usage IA mentionné dans Q13 free_text."""
+    """Décrit l'usage IA mentionné en Q13 free_text, sans citer la marque."""
     text = _free_text(answers, "q13")
     if not text:
         return "vos courriers complexes"
@@ -84,56 +98,62 @@ def chantier_demandes_directes(answers: list[Any]) -> dict[str, Any]:
         title = "Reprendre la main sur les demandes directes"
         if q04 == "q04_d":
             canaux = _canaux_paralleles_phrase()
-            flux = _flux_principal(answers)
+            flux = _flux_principal_categorie(answers)
             vu = (
                 f"Vous recevez des {canaux}, en plus de {flux} et {sec_du}. "
-                f"Ces demandes ne sont tracées nulle part et représentent une charge invisible."
+                f"Ces demandes ne sont pas tracées et représentent une charge invisible."
+            )
+            analyse = (
+                f"Ce mélange de canaux protège votre lien direct avec certains patients de longue date, "
+                f"mais il vous oblige à porter mentalement un suivi que personne d'autre ne peut prendre. "
+                f"Plus le temps passe, plus le coût est concentré sur vous."
             )
             pas_confirmer = (
                 f"Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles "
                 f"certains patients passent par vous plutôt que par {sec_label}."
             )
             propose = (
-                f"Cartographier ces demandes directes sur deux semaines pour en mesurer la volumétrie, "
-                f"puis définir avec vous une règle simple à communiquer aux patients et à {sec_label}."
-            )
-            obtient = (
-                f"Une vue claire de ces flux parallèles, une règle simple à communiquer à vos patients, "
-                f"et un brief précis pour {sec_label}."
+                f"Recenser ces demandes sur deux semaines pour mesurer combien elles représentent, "
+                f"puis définir avec vous une règle simple à communiquer aux patients et à {sec_label}. "
+                f"À la clé : une vision claire de ces demandes, une règle simple à communiquer "
+                f"à vos patients, et des consignes claires pour {sec_label}."
             )
         else:  # q05 == "q05_d" sans q04 == "q04_d"
             vu = (
                 "Votre charge administrative déborde le soir et le week-end. "
                 "Vous compensez ce qui ne se voit pas la journée."
             )
+            analyse = (
+                "Cette compensation tient parce que vous l'assumez, mais elle masque la vraie "
+                "volumétrie de votre charge. Sans repère mesuré, il est difficile de savoir "
+                "ce qu'il faudrait alléger en priorité."
+            )
             pas_confirmer = (
                 "La répartition exacte de votre charge sur la semaine et les sources principales "
                 "de cette charge invisible."
             )
             propose = (
-                "Observer deux semaines de fonctionnement pour identifier les leviers de "
-                "réduction de la charge administrative quotidienne."
-            )
-            obtient = (
-                "Une cartographie de votre temps administratif et trois à cinq leviers concrets "
-                "de réduction priorisés."
+                "Observer deux semaines de fonctionnement pour identifier les pistes d'allègement "
+                "de la charge administrative quotidienne. Vous repartez avec un relevé de votre "
+                "temps administratif et trois à cinq pistes concrètes priorisées."
             )
     else:
-        title = "Cartographier les sources de votre charge"
+        title = "Garder un œil sur ce qui prend votre temps"
         vu = (
-            "Le check-up n'a pas identifié de flux parallèle critique. Une cartographie "
-            "préventive de vos sources de charge permettrait de l'anticiper si elle "
-            "augmentait."
+            "Le check-up n'a pas détecté de surcharge particulière. "
+            "Un état des lieux régulier de ce qui vous prend du temps "
+            "permettrait de l'anticiper si elle s'aggravait."
+        )
+        analyse = (
+            "Aujourd'hui vous tenez la charge sans repère mesuré. Si elle augmente lentement, "
+            "vous risquez de vous en rendre compte une fois fatigué plutôt qu'en amont."
         )
         pas_confirmer = (
-            "La distribution exacte de vos tâches administratives sur la semaine."
+            "La répartition exacte de vos tâches administratives sur la semaine."
         )
         propose = (
-            "Une observation rapide pour identifier les leviers d'optimisation, "
-            "sans changer votre organisation actuelle."
-        )
-        obtient = (
-            "Une vue d'ensemble préventive et un plan de suivi léger."
+            "Une observation rapide pour identifier des pistes d'allègement, sans changer votre "
+            "organisation actuelle. Vous repartez avec une vue d'ensemble et un plan de suivi léger."
         )
 
     return {
@@ -141,9 +161,9 @@ def chantier_demandes_directes(answers: list[Any]) -> dict[str, Any]:
         "title": title,
         "priority": 1,
         "vu": vu,
+        "analyse": analyse,
         "pas_confirmer": pas_confirmer,
         "propose": propose,
-        "obtient": obtient,
     }
 
 
@@ -159,51 +179,59 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
 
         if q13 == "q13_d":
             vu = (
-                f"Vous utilisez ChatGPT pour {usage}, avec une anonymisation manuelle "
-                f"des extraits de dossier. Vous savez que cela ne garantit pas la "
-                f"conformité au secret médical."
+                f"Vous utilisez un outil d'IA grand public pour {usage}, en retirant à la main "
+                f"les informations identifiantes. Vous savez que ce n'est pas une vraie garantie "
+                f"de secret médical."
             )
         else:  # q13_c
             vu = (
-                f"Vous utilisez ChatGPT pour {usage}, en faisant attention à l'anonymisation. "
-                f"Vous restez conscient des limites de cette pratique."
+                f"Vous utilisez un outil d'IA grand public pour {usage}, en faisant attention à "
+                f"l'anonymisation. Vous restez conscient des limites de cette pratique."
             )
 
+        analyse = (
+            "Votre besoin de rédiger des courriers structurés est réel et l'outil grand public "
+            "y répond. Le risque n'est pas dans le besoin, il est dans le canal. Tant que la "
+            "donnée transite par un outil non conçu pour le secret médical, vous portez seul "
+            "la responsabilité de l'anonymisation."
+        )
         pas_confirmer = (
             "La fréquence, le type de courriers concernés, et les autres usages éventuels "
             "(résumés de consultations, recherches médicales)."
         )
-        propose = (
-            "Mettre à votre disposition un environnement IA conforme HDS qui couvre les mêmes "
-            "usages, sans anonymisation manuelle. Transition sans changer votre façon de travailler."
-        )
-        obtient = (
-            "Un usage conforme dès le premier jour, puis à votre rythme l'ouverture à d'autres "
-            "tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, "
-            "préparation à la facturation électronique de septembre)."
-        )
+
+        propose_parts = [
+            "Vous donner accès à un environnement IA conforme au secret médical qui couvre "
+            "les mêmes usages, sans avoir à anonymiser à la main. La transition se fait sans "
+            "changer votre façon de travailler. "
+            "Un usage compatible avec le secret médical dès le premier jour, puis à votre rythme "
+            "l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, "
+            "suivi de patients chroniques, préparation à la facturation électronique de septembre)."
+        ]
         if _has_classical_dictation(answers):
-            obtient += (
-                " La dictée vocale classique que vous utilisez déjà reste — ce chantier porte "
-                "sur l'aide à la rédaction structurée."
+            propose_parts.append(
+                "Votre logiciel de dictée actuel reste — ce chantier porte uniquement sur "
+                "l'aide à la rédaction structurée."
             )
+        propose = " ".join(propose_parts)
     else:
         title = "Préparer un usage maîtrisé de l'IA"
         vu = (
             "Vous n'utilisez pas d'IA générative aujourd'hui. C'est un bon point de départ pour "
-            "découvrir un environnement maîtrisé avant que l'usage ne se diffuse de manière "
-            "informelle."
+            "découvrir un environnement maîtrisé avant que l'usage ne se diffuse de manière informelle."
+        )
+        analyse = (
+            "L'IA arrivera dans votre cabinet d'une manière ou d'une autre. Mieux vaut découvrir "
+            "un cadre conforme avant que les premiers usages se mettent en place sans filet."
         )
         pas_confirmer = (
-            "Vos besoins réels en matière de rédaction assistée, qui n'ont pas encore été "
-            "explorés."
+            "Vos besoins réels en matière de rédaction assistée, qui n'ont pas encore été explorés."
         )
         propose = (
-            "Vous présenter un environnement IA conforme HDS, et identifier ensemble deux ou "
-            "trois tâches concrètes où il pourrait vous faire gagner du temps."
-        )
-        obtient = (
-            "Un cadre clair pour adopter l'IA progressivement, sans risque de conformité."
+            "Vous présenter un environnement IA conforme au secret médical, et identifier ensemble "
+            "deux ou trois tâches concrètes où il pourrait vous faire gagner du temps. "
+            "Vous repartez avec un cadre clair pour adopter l'IA progressivement, sans risque pour "
+            "le secret médical."
         )
 
     return {
@@ -211,9 +239,9 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
         "title": title,
         "priority": 2,
         "vu": vu,
+        "analyse": analyse,
         "pas_confirmer": pas_confirmer,
         "propose": propose,
-        "obtient": obtient,
     }
 
 
@@ -239,16 +267,21 @@ def chantier_absence(answers: list[Any]) -> dict[str, Any]:
 
         if q08 == "q08_d":
             vu = (
-                f"Tout le fonctionnement de votre cabinet est dans votre tête. "
-                f"{depuis}, rien n'est documenté. En cas d'arrêt de plusieurs jours, "
-                f"{sec_label} et vos patients ne sauraient pas quoi faire."
+                f"Tout le fonctionnement de votre cabinet repose sur votre mémoire. "
+                f"{depuis}, rien n'est écrit. En cas d'arrêt de plusieurs jours, "
+                f"{sec_label} et vos patients auraient du mal à savoir quoi faire."
             )
         else:  # q08_c
             vu = (
                 f"En cas d'arrêt de plusieurs jours, {sec_label} pourrait gérer les rendez-vous, "
-                f"mais le reste serait compliqué. {depuis}, peu de procédures sont documentées."
+                f"mais le reste serait compliqué. {depuis}, peu de procédures sont écrites."
             )
 
+        analyse = (
+            "Votre cabinet repose aujourd'hui sur votre seule mémoire. Aussi solide soit-elle, "
+            "elle n'est pas transmissible. Un imprévu de plus de quelques jours expose vos "
+            "patients à une rupture de service que personne d'autre ne peut absorber."
+        )
         pas_confirmer = (
             "Ce qui se passerait concrètement, qui pourrait prendre le relais sur quoi, "
             "et quels patients chroniques nécessitent une vigilance particulière."
@@ -256,27 +289,28 @@ def chantier_absence(answers: list[Any]) -> dict[str, Any]:
         propose = (
             "Mettre par écrit les règles essentielles de fonctionnement de votre cabinet : "
             "à qui adresser quels types de demandes, comment gérer les renouvellements, "
-            "qui contacter en cas de problème technique."
-        )
-        obtient = (
-            f"Un document simple, à jour, partageable avec {sec_label} et un remplaçant éventuel. "
-            "La conviction qu'en cas d'imprévu, votre cabinet ne s'arrête pas net."
+            "qui contacter en cas de problème technique. "
+            f"Vous repartez avec un document simple, à jour, partageable avec {sec_label} "
+            f"et un remplaçant éventuel. L'assurance qu'en cas d'imprévu, votre cabinet "
+            f"ne s'arrête pas net."
         )
     else:
-        title = "Formaliser la continuité déjà construite"
+        title = "Compléter ce qui est déjà prévu pour vos absences"
         vu = (
-            "Vous avez déjà des éléments de continuité organisationnelle. Le chantier consiste "
-            "à les formaliser pour qu'ils soient encore plus solides en cas d'imprévu."
+            "Vous avez déjà quelques règles écrites pour le fonctionnement du cabinet sans vous. "
+            "Le chantier consiste à les compléter pour mieux tenir un imprévu."
+        )
+        analyse = (
+            "Plus solide que la moyenne, mais probablement perfectible sur les cas extrêmes "
+            "(absence longue, arrêt imprévu). Un examen rapide permettrait de combler les "
+            "angles morts encore présents."
         )
         pas_confirmer = (
-            "Le niveau exact de complétude de votre dispositif actuel."
+            "Ce qui est déjà couvert et ce qui ne l'est pas encore."
         )
         propose = (
-            "Auditer rapidement votre dispositif de continuité existant et compléter les zones "
-            "non encore couvertes."
-        )
-        obtient = (
-            "Une assurance renforcée que votre cabinet survit à un imprévu."
+            "Faire un point rapide sur ce qui est en place et compléter ce qui manque. "
+            "Vous repartez avec l'assurance que votre cabinet tient même si vous devez vous absenter."
         )
 
     return {
@@ -284,9 +318,9 @@ def chantier_absence(answers: list[Any]) -> dict[str, Any]:
         "title": title,
         "priority": 3,
         "vu": vu,
+        "analyse": analyse,
         "pas_confirmer": pas_confirmer,
         "propose": propose,
-        "obtient": obtient,
     }
 
 

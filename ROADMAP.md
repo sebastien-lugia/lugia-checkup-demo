@@ -35,7 +35,7 @@ Première vague de retours utilisateurs reçue en mai 2026 (cf backlog V1.1 prod
 
 - **Vague 1 — Quick wins éditoriaux et UX** : ~12 corrections de wording, confirmation à la déconnexion, format "Autre" éditable inline. 1-2 jours.
 - **Vague 2 — Méthodologique enrichi (50+ variantes)** : refonte de `src/templates.py` et `src/workstreams.py` pour produire une analyse à valeur ajoutée et non une redite de l'entretien. Phrase choc révélatrice en synthèse, structure chantier à 5 sections (observation → analyse → ce qui échappe → proposition → bénéfice), suppression des citations nominatives d'outils tiers, vulgarisation jargon WSF en langage métier-médecin. 3-5 jours.
-- **Vague 3 — Refonte du questionnaire** : Q2/Q3/Q4/Q5/Q6/Q8/Q9/Q11 revues une par une, règles globales (4 options + autre, factualité, mise en scène de situations réelles, percutance), format Autre éditable inline. 4-7 jours.
+- **Vague 3 — Refonte du questionnaire** : LIVRÉE 2026-05-15 (D-021). 8 questions refondues, règles globales inscrites, distribution de modes passée de 8 A / 4 B / 2 C à 11 A / 2 B / 1 C. Reste validation utilisateur avant tag `v1.1`.
 
 Aucun ajout de dépendance, aucun appel API tiers. Reste 100% sur Render/Vercel/Postgres existants.
 

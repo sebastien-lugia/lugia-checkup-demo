@@ -46,25 +46,34 @@ Refonte `src/templates.py` et `src/workstreams.py`. Sessions à prévoir :
 - Refonte de l'encart Participants (cas médecin libéral solo).
 - Rendre les phrases sous chaque facette analytiques au lieu de redites.
 
-### Vague 3 — Refonte du questionnaire (4-7 jours, session collab)
+### Vague 3 — Refonte du questionnaire — LIVRÉE 2026-05-15
 
-Revue question par question. Sessions à prévoir :
+Travail journalisé dans `CHANGELOG.md` (2026-05-15) et `DECISIONS.md` D-021.
 
-- Q2 (secrétariat) : ajouter clairement le cas solo.
-- Q3 : passer en multi-choix.
-- Q4 : retirer doublon texte libre / choix.
-- Q5 : reformuler pour clarifier objectif.
-- Q6 (motivation) : passer en QCM.
-- Q8 : adoucir.
-- Q9 (présence) : reformuler en factuel.
-- Q11 : retirer doublon texte/QCM.
-- Application des règles globales : 4 options + autre, factualité, mise en scène réelle, percutance.
-- Format Autre éditable inline (UX inspirée Claude).
-- Mise à jour `resources/interview_protocol.json` + mapping `node_type`/`health_score`.
+- ✅ Règles globales V1.1 inscrites dans `interview_protocol.md` section 1 (4 options + Autre, factualité, exclusivité, mise en scène, mode B/C parcimonieux).
+- ✅ Q02 — cas solo explicite ("Moi-même (pas de secrétariat dédié)").
+- ✅ Q03 — 4 options exclusives (réécriture, pas de multi-sélection).
+- ✅ Q04 — passage Mode B → Mode A (doublon supprimé).
+- ✅ Q05 — open_prompt refondu sur "hier soir / ce week-end", QCM mis en scène à 19h.
+- ✅ Q06 — passage Mode C → Mode A (4 typologies de motivation).
+- ✅ Q08 — reformulation factuelle non anxiogène, libellé q08_d adouci.
+- ✅ Q09 — axe factuel "nombre d'outils + double saisie", paliers chiffrés, marques supprimées.
+- ✅ Q11 — passage Mode B → Mode A, options exclusives.
+- ✅ Format Autre éditable inline : déjà livré Vague 1 dans `CheckupWidgets.tsx`.
+- ✅ Oracle Chateau aligné V1.1 (`sample_answers_pchateau.md` v2.0, `scripts/seed_persona.py`).
+- ✅ Adaptation `src/templates.py` (phrases Q08_d et Q11_d réécrites pour matcher la nouvelle sémantique).
+- ✅ Vérifications : cohérence JSON/MD, scores Chateau conformes (3,33 / 3,33 / 2,75), aucun ID hardcodé orphelin.
+
+### Validation utilisateur attendue avant tag `v1.1`
+
+1. Test local : `python scripts/seed_persona.py --email sebastien+test@gmail.com --reset` puis `python scripts/dump_report.py --list` et relecture du sample_report généré.
+2. Test parcours : `npm run dev` → vérifier Q06 en QCM, Q04/Q11 en QCM pur, Autre inline partout, scores corrects sur la page de résultats.
+3. Push GitHub → redéploiement automatique Render et Vercel → test à distance sur diagnostic.lugia.fr.
+4. Si le rapport est perçu comme "analyse" et non "redite", tag `v1.1` posable.
 
 ### Critère de fin V1.1
 
-Une session de test avec Sébastien jouant le persona Chateau refondu produit un rapport perçu comme "analyse" et non "redite". Tag `v1.1` posable après cette validation. v1-final sera posé en amont pour figer l'état pré-retours.
+Une session de test avec Sébastien jouant le persona Chateau refondu produit un rapport perçu comme "analyse" et non "redite". Tag `v1.1` posable après cette validation. v1-final reste à poser en amont pour figer l'état pré-retours.
 
 ---
 

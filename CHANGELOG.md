@@ -4,6 +4,136 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-15 — V1.1 Vague 3 : refonte du questionnaire (Q2 à Q11 + règles globales)
+
+Refonte des 8 questions ciblées par le backlog utilisateur (Q02 à Q11 hors Q07/Q10/Q12 jugées OK) et inscription des règles globales V1.1 dans `resources/interview_protocol.md`. Aucune nouvelle dépendance, aucun changement de schéma BDD.
+
+### Règles globales V1.1 ajoutées
+
+1. 4 options principales + 1 option Autre (saisie inline, déjà livrée Vague 1).
+2. Options factuelles, ancrées dans des situations observables.
+3. Options mutuellement exclusives.
+4. Mise en scène d'une situation réelle quand c'est possible.
+5. Mode B et C parcimonieux — réservés aux questions où la réponse libre apporte un matériau verbatim irremplaçable.
+
+Exception assumée : Q01 conserve 3 options principales + Autre (typologie close solo/groupe/MSP).
+
+### Changements par question
+
+- **Q02** — libellés normalisés, ajout du cas **"Moi-même (pas de secrétariat dédié)"** pour le libéral solo qui gère ses RDV.
+- **Q03** — axe unique "niveau de cadrage explicite des règles". 4 options exclusives (cadre écrit / cadre oral figé / pas de cadre formel / écart régulier entre cadre et pratique). Pas de multi-sélection (D-021).
+- **Q04** — passage **Mode B → Mode A**. La réponse libre faisait doublon avec le QCM.
+- **Q05** — reste Mode B mais open_prompt refondu : récit concret de "hier soir / ce week-end". Le QCM met en scène 19h en fin de journée, options factuelles graduées.
+- **Q06** — passage **Mode C → Mode A**. 4 typologies de motivation : curiosité IA, fatigue accumulée, événement déclencheur, anticipation.
+- **Q08** — reformulation factuelle non anxiogène : "Quand vous prenez une semaine de congé…" au lieu de "Si vous deviez vous arrêter une semaine…". Option q08_d "Le cabinet ferme — c'est ce que je fais en pratique" (santé 3 au lieu de 2).
+- **Q09** — axe factuel "nombre d'outils + double saisie" au lieu de "niveau d'intégration". 4 paliers chiffrés (un / deux sans double saisie / trois à cinq / plus de cinq). Suppression de toutes les marques nominales.
+- **Q11** — passage **Mode B → Mode A**. Options centrées sur l'organisation actuelle, exclusives ; l'incident passé n'est plus dans le QCM mais peut figurer en complément libre.
+
+Q13 jugée OK ; mineure : généralisation "ChatGPT ou similaire" → "IA grand public" dans les libellés (cohérence Vague 2 lite).
+
+### Distribution de modes V1.1
+
+Avant : 8 A / 4 B / 2 C. Après : **11 A / 2 B / 1 C**. L'alternance se dégrade volontairement au profit de la cohérence factuelle. Mode B conservé sur Q05 et Q13 (matériau verbatim utile), Mode C conservé sur Q14 uniquement.
+
+### Adaptation du moteur de rapport
+
+- `src/templates.py` : phrases sur Q08_d et Q11_d réécrites pour matcher la nouvelle sémantique. Q08_d ne dit plus "personne ne saurait" mais "Pendant vos congés, le cabinet ferme — c'est la solution que vous avez retenue". Q11_d ne dit plus "comme cela s'est produit il y a quelques mois" (incident inventé) mais "le tri des résultats se fait au fil de l'eau, sans rythme garanti".
+
+### Oracle Chateau V1.1
+
+- `resources/sample_answers_pchateau.md` réécrit en v2.0 : 4 réponses ajustées (Q06 q06_c, Q08 q08_d nouveau sens, Q09 q09_d nouveau palier, Q11 q11_c au lieu de q11_d).
+- Scores attendus : **Processus 3,33 ; Participants 3,33 ; Information 2,75**. Information et Processus stables vs V1.0 par recalibrage (Q09 baisse de 4 à 2, Q11 monte de 3 à 5, équilibre). Participants remonte légèrement (Q08 passe de 2 à 3).
+- `scripts/seed_persona.py` aligné : labels, free_text, complément réécrits, suppression de toute mention nominale ChatGPT/Maiia/Doctolib/Lifen/Mailiz dans la base seedée.
+
+### Modifié
+
+- `resources/interview_protocol.json` v1.3 — refonte 8 questions + section `global_rules_v1_1`.
+- `resources/interview_protocol.md` v1.3 — règles globales, nouvelle distribution, nouveau tableau Chateau.
+- `resources/sample_answers_pchateau.md` v2.0.
+- `scripts/seed_persona.py` — labels et compléments alignés.
+- `scripts/dump_report.py` — structure de chantier alignée sur Vague 2 lite (4 sections : compris / révèle / échappe / proposons). Régression Vague 2 lite rattrapée pendant Vague 3 (le script lisait encore le champ `obtient` supprimé).
+- `src/templates.py` — phrases Q08_d et Q11_d corrigées.
+- `DECISIONS.md` — D-021 ajoutée (refonte questionnaire V1.1 Vague 3 + dérogation au principe d'alternance).
+
+### Vérifications passées
+
+- `python -m src.questions` (cohérence JSON ↔ MD) : OK, 14 questions.
+- Harness stdlib : tous les IDs choisis par Chateau existent, scores facettes conformes (3,33 / 3,33 / 2,75), aucune marque nominale dans les labels.
+- Audit IDs hardcodés dans `src/templates.py` et `src/workstreams.py` : tous valides, aucune référence morte.
+- Syntaxe Python OK sur templates, workstreams, scoring, seed_persona, dump_report.
+
+### En attente de validation utilisateur
+
+À tester localement par Sébastien (le sandbox Linux n'a pas accès au venv macOS) :
+
+1. `python scripts/seed_persona.py --email sebastien+test@gmail.com --reset` → réseed Chateau V1.1 dans SQLite local.
+2. `python scripts/dump_report.py --list` puis `--id <N>` → relire le sample_report généré et vérifier qu'aucune phrase ne mentionne d'incident inventé sur Q11, ni de scénario anxiogène sur Q08.
+3. `npm run dev` côté web/, parcourir le questionnaire : vérifier que Q06 affiche bien un QCM (et non un textarea) et que l'option Autre se saisit inline partout.
+4. Vérifier que les scores affichés sur la page de résultats correspondent à 3,33 / 3,33 / 2,75 (ou aux arrondis qu'utilise le scoring).
+5. Si tout est conforme, push GitHub → Render et Vercel redéploient.
+
+---
+
+## 2026-05-15 — V1.1 Vague 2 lite : nettoyage structurel du moteur de rapport
+
+Refonte de `src/templates.py` et `src/workstreams.py` pour produire un rapport plus directement utilisable par un médecin, sans modifier le questionnaire (Vague 3 reste à venir).
+
+### Vulgarisation du langage
+
+Approche : réécriture contextuelle de chaque passage jargonneux, pas substitution mot-à-mot. Le sens prime sur le terme.
+
+Exemples : "flux parallèle critique" → "demandes en direct qui s'empilent" (ou "surcharge particulière" selon contexte), "cartographier" → "recenser" / "lister", "leviers d'optimisation" → "pistes d'allègement", "conformité HDS" → "conforme au secret médical", "anonymisation manuelle" → "anonymiser à la main", "dispositif de continuité" disparaît au profit de "ce qui est prévu pour vos absences".
+
+Ton ajusté : factuel non-dramatique, jamais accusateur. Suite à retour utilisateur sur premières réécritures trop sèches.
+
+### Suppression des citations nominatives d'outils
+
+Nouvelle constante `TOOL_CATEGORIES` qui mappe les marques détectées (Maiia, Doctolib, Lifen, etc.) vers des catégories génériques (logiciel métier, plateforme de rendez-vous, outil d'envoi de courriers, etc.). `derive_outils_principaux` retourne désormais "votre logiciel métier et votre plateforme de rendez-vous" au lieu de "Maiia et Doctolib". Idem pour ChatGPT → "outil d'IA grand public".
+
+Les marques restent détectées en interne pour adapter les phrases, mais ne sont jamais imprimées dans le rapport.
+
+### Refonte de la structure des chantiers
+
+4 sections au lieu de 4, mais réaffectées : la section "Ce que vous obtenez" est fusionnée dans "Ce que nous vous proposons" (la proposition se termine par le bénéfice attendu), libérant un slot pour la nouvelle section "Ce que ça révèle".
+
+| Position | Avant V1.1 | Après V1.1 lite |
+|---|---|---|
+| 1 | Ce que le check-up a vu | Ce que nous avons compris |
+| 2 | Ce qu'il ne peut pas confirmer seul | **Ce que ça révèle** (nouveau) |
+| 3 | Ce que Lugia propose | Ce qui nous échappe encore |
+| 4 | Ce que vous obtenez | Ce que nous vous proposons (avec bénéfice intégré) |
+
+Côté backend, chaque chantier expose maintenant les champs `vu`, `analyse`, `pas_confirmer`, `propose` (l'ancien `obtient` est fusionné dans `propose`).
+
+### Refonte de la synthèse
+
+- "Vous avez bâti une organisation efficace : ..." (formulation incohérente pour un médecin solo) supprimée. Remplacée par "Au quotidien, vous vous appuyez sur ..." (factuel, sans jugement).
+- Ouverture adaptée au type de cabinet : solo libéral porte tout → "Vous en êtes seul aux commandes" (factuel, pas accusateur). Cabinet de groupe avec tout passe par le médecin → "tout finit par passer par vous".
+- Recommandation italique conservée, vocabulaire vulgarisé ("environnement conforme au secret médical" au lieu de "conforme HDS").
+
+### Q14 reportée en V1.2
+
+Tentative d'intégration de la Q14 ("ce que vous aimeriez approfondir") via heuristique textuelle pure rejetée — trop fragile, risque de produire un non-sens. Q14 attend le SLM en V1.2 (note ajoutée à D-020).
+
+### Modifié
+
+- `src/templates.py` — refonte complète.
+- `src/workstreams.py` — refonte complète, structure 4 sections avec analyse.
+- `web/lib/api.ts` — type `Workstream` mis à jour (champ `analyse` ajouté, `obtient` supprimé, `propose` enrichi).
+- `web/app/resultats/page.tsx` — `ChantierCard` affiche les 4 nouvelles sections.
+- `DECISIONS.md` D-020 — note explicite du report de Q14.
+
+### En attente de validation utilisateur
+
+Tester sur diagnostic.lugia.fr ou en local (via seed_persona). Vérifier que :
+
+1. La synthèse ne mentionne plus "Maiia", "Doctolib", "ChatGPT", "organisation efficace".
+2. Les 3 cartes facettes "Parcours patient" / "Équipe et secrétariat" / "Outils et dossiers" affichent des descriptions non-jargonneuses.
+3. Chaque carte chantier affiche 4 sections dans l'ordre : "Ce que nous avons compris" → "Ce que ça révèle" → "Ce qui nous échappe encore" → "Ce que nous vous proposons" (avec bénéfice à la fin).
+4. Le ton est factuel et respectueux, jamais accusateur.
+
+---
+
 ## 2026-05-14 — Backend : détection de l'Origin pour les liens magiques
 
 Le backend FastAPI détecte désormais le header `Origin` de la requête `/auth/request-link` et l'utilise (s'il est dans l'allowlist) pour construire le lien magique. Plus besoin de modifier manuellement la variable `FRONTEND_URL` sur Render à chaque bascule entre tests local et prod.

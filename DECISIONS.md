@@ -6,6 +6,33 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-021 — Refonte questionnaire V1.1 (Vague 3) : règles globales + dérogation à l'alternance
+
+**Date :** 2026-05-15
+
+**Décision :** Le questionnaire V1.1 est refondu (Q02 à Q11 hors Q07/Q10/Q12) selon cinq règles globales nouvelles, inscrites dans `resources/interview_protocol.md` section 1. Quatre options principales plus une option Autre (saisie inline), options factuelles ancrées dans des situations observables, options mutuellement exclusives, mise en scène d'une situation réelle quand c'est possible, et restriction des modes B et C aux questions où la réponse libre apporte un matériau verbatim irremplaçable. Trois questions changent de mode : Q04 et Q11 passent de Mode B à Mode A (doublon constaté entre réponse libre et QCM), Q06 passe de Mode C à Mode A (motivation traitable par QCM). Q01 conserve trois options principales en exception assumée (typologie close solo/groupe/MSP). La distribution de modes passe de 8 A / 4 B / 2 C en V1.0 à 11 A / 2 B / 1 C en V1.1.
+
+**Pourquoi :** Premiers retours utilisateurs (mai 2026, backlog V1.1 Sébastien) sur trois questions : (a) les options de Q03 n'étaient pas exclusives, (b) la réponse libre de Q04 et Q11 faisait doublon avec le QCM, (c) plusieurs options reposaient sur des termes émotion-dépendants ("beaucoup", "souvent") qui dégradaient la reproductibilité de la lecture. Trois voies envisagées :
+
+- Refonte mineure préservant tous les modes — rejetée : ne résolvait pas le doublon de Q04/Q11 ni la non-exclusivité de Q03.
+- Passage en multi-sélection sur Q03 — rejeté : décision structurelle imposant migration BDD (`answer.option_id` actuellement scalaire), surcharge frontend (checkboxes), complication du scoring moyenne brute (pondération par nombre d'options ?), pour un bénéfice marginal puisqu'une réécriture exclusive des options résout le même besoin sans casser le schéma.
+- Refonte structurelle avec règles globales — retenue : résout le doublon, l'exclusivité et la factualité en une passe, sans toucher au schéma BDD ni au moteur de scoring. Permet une trajectoire stable vers V1.2 (le questionnaire fiabilisé devient un meilleur substrat pour le SLM, voir D-020).
+
+Le coût payé en compensation est la dégradation de l'alternance des modes (8 A / 4 B / 2 C → 11 A / 2 B / 1 C). Cette perte d'engagement par alternance est jugée acceptable parce que la cohérence factuelle des options apporte un gain perçu plus grand : le médecin se reconnaît mieux dans un libellé observable que dans un mode varié. Les retours V1.1 confirmeront ou infirmeront ce trade-off.
+
+**Conséquence pour V1.1 :** `resources/interview_protocol.json` v1.3 réécrit pour les 8 questions concernées + ajout de la clé `global_rules_v1_1` (lisible mais non exploitée par le code, sert de documentation contractuelle). `resources/interview_protocol.md` v1.3 mis à jour avec la section "Règles globales V1.1", la nouvelle distribution et le nouveau tableau Chateau. `resources/sample_answers_pchateau.md` v2.0 réécrit avec quatre changements de réponse (Q06 q06_c, Q08 q08_d nouvelle sémantique, Q09 q09_d nouveau palier factuel, Q11 q11_c au lieu de q11_d). `scripts/seed_persona.py` aligné. `src/templates.py` corrigé sur Q08_d (suppression de la phrase "personne ne saurait", remplacée par "le cabinet ferme — solution retenue") et Q11_d (suppression de l'incident inventé "il y a quelques mois", remplacée par "tri au fil de l'eau, sans rythme garanti"). Aucun changement de schéma BDD, aucun ajout de dépendance, déploiement Render/Vercel inchangé.
+
+**Conséquence pour V1.2 :** Le matériau verbatim de Q05 (récit concret du soir/weekend), Q13 (contexte d'usage IA) et Q14 (aspiration finale) reste le substrat principal de la couche SLM. La refonte V1.1 a précisément concentré le mode B/C sur ces trois questions, ce qui simplifie l'écriture des prompts SLM ultérieurs.
+
+**Alternatives écartées :**
+
+- *Passage en multi-sélection sur Q03* : décision structurelle disproportionnée pour un gain marginal — voir ci-dessus.
+- *Conservation stricte de l'alternance A/B/C en V1.0* : impossible sans réintroduire les doublons libre/QCM que le backlog identifie comme un défaut structurel. La règle d'alternance reste un objectif souhaitable mais elle n'est pas un invariant non négociable.
+- *Refonte complète du questionnaire (réécriture from scratch)* : trop coûteuse et peu justifiée — la structure V1.0 est saine sur 6 questions sur 14, seules 8 questions méritaient une refonte.
+- *Multi-sélection ailleurs (Q07, Q12, Q13)* : non demandée par le backlog, prématurée.
+
+---
+
 ## D-020 — Stratégie de génération du rapport : méthodologique enrichi puis SLM hybride
 
 **Date :** 2026-05-14
@@ -19,6 +46,8 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 **Conséquence pour V1.2 :** Architecture d'orchestration LLM à concevoir, avec sélecteur de provider (Ollama local en dev, API cloud type Anthropic Haiku en prod). Section de chaque rapport (synthèse, analyse facette, analyse chantier) générée via prompt structuré avec quelques few-shot examples issus de V1.1. Si l'appel LLM échoue ou si une variable d'environnement `LLM_ENABLED=0` est posée, fallback automatique sur les templates V1.1 sans dégradation perceptible. Coût opérationnel estimé : ~0.005-0.015€ par rapport en prod cloud, zéro en dev local.
 
 **Conséquence architecturale plus large :** Le MacBook Pro de Sébastien équipé pour faire tourner Ollama est destiné au développement et à l'expérimentation des prompts. Pour la prod accessible à des prospects à distance via diagnostic.lugia.fr, l'inférence SLM tournera côté cloud API (option A privilégiée en V1.2). Une éventuelle bascule vers une architecture "Mac dédié serveur" ou "GPU cloud autohébergé" n'est pas exclue plus tard, mais n'est pas prioritaire.
+
+**Note V1.1 — Q14 reportée à V1.2 :** En audit de Vague 2 lite (mai 2026), tentative d'intégrer la Q14 ("ce que vous aimeriez approfondir") dans la synthèse via heuristique textuelle pure (citation de la première phrase tronquée, blacklist de génériques). Approche rejetée : trop fragile, risque de produire un non-sens en conclusion du rapport. Décision : Q14 dort en base le temps de V1.1, sera traitée par le SLM en V1.2 (qui saura reformuler ou ignorer selon la qualité de la réponse). Les free_text Q14 deviendront un matériau-test idéal pour calibrer les prompts du SLM.
 
 **Alternatives écartées :**
 
