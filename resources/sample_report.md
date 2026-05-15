@@ -6,7 +6,7 @@
 
 ## Session
 
-- **Interview id** : 20
+- **Interview id** : 21
 - **Date de session** : 15/05/2026
 - **Statut** : in_progress
 - **Nombre de réponses** : 14
@@ -15,7 +15,7 @@
 
 ## Votre situation aujourd'hui
 
-Votre cabinet tourne. Vous en êtes seul aux commandes. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Deux zones demandent encore de l'attention : des appels et messages directs de patients que vous traitez en plus de votre télésecrétariat, et l'usage que vous faites d'un outil d'IA grand public pour vos courriers, en sachant que ce n'est pas une vraie garantie de secret médical. *Avant tout autre chantier, et avant d'ajouter un outil de plus, ce qui vous aiderait le plus est de remplacer votre usage actuel de l'IA par un environnement conforme au secret médical, qui pourra ensuite vous aider à structurer le reste — y compris la facturation électronique de septembre.*
+Votre cabinet tient — mais il tient surtout par votre effort personnel, plus que par les dispositifs qui l'entourent. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Deux points méritent d'être regardés en priorité : des appels et messages directs de patients que vous traitez en plus de votre télésecrétariat, et l'usage que vous faites d'un outil d'IA grand public pour vos courriers, en sachant que ce n'est pas une vraie garantie de secret médical. *Le geste qui pèse le plus aujourd'hui est de remplacer votre usage actuel de l'IA par un environnement conforme au secret médical. Une fois ce socle posé, le reste s'organise plus naturellement.*
 
 ---
 
@@ -29,9 +29,9 @@ Votre prise de rendez-vous et le parcours de vos patients sont bien outillés. M
 
 ### Équipe et secrétariat — **3 / 10**
 
-Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat travaille avec des règles que vous n'avez jamais cadrées avec eux. Pendant vos congés, le cabinet ferme — c'est la solution que vous avez retenue, faute d'un dispositif préparé en amont.
+Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat fonctionne sans cadre formel — chaque cas est tranché au moment où il se présente. Pendant vos congés, le cabinet ferme — c'est la solution que vous avez retenue, faute d'un dispositif préparé en amont.
 
-*Détail du calcul : moyenne brute des 3 contributions = 3.33 → arrondi 3. Contributions : Q03 (4), Q07 (3), Q08 (3).*
+*Détail du calcul : moyenne brute des 3 contributions = 3.00 → arrondi 3. Contributions : Q03 (3), Q07 (3), Q08 (3).*
 
 ### Outils et dossiers — **3 / 10**
 
@@ -51,7 +51,7 @@ Vous recevez des appels sur votre mobile, SMS de patients réguliers et mails di
 
 **Ce que ça révèle**
 
-Ce mélange de canaux protège votre lien direct avec certains patients de longue date, mais il vous oblige à porter mentalement un suivi que personne d'autre ne peut prendre. Plus le temps passe, plus le coût est concentré sur vous.
+Ces demandes directes restent invisibles à votre télésecrétariat : vous portez seul le suivi mental, et le coût s'accumule à mesure que les canaux se multiplient.
 
 **Ce qui nous échappe encore**
 
@@ -69,7 +69,7 @@ Vous utilisez un outil d'IA grand public pour vos courriers complexes et vos com
 
 **Ce que ça révèle**
 
-Votre besoin de rédiger des courriers structurés est réel et l'outil grand public y répond. Le risque n'est pas dans le besoin, il est dans le canal. Tant que la donnée transite par un outil non conçu pour le secret médical, vous portez seul la responsabilité de l'anonymisation.
+Le besoin est légitime, le canal ne l'est pas. Tant que vous passez par un outil grand public, l'anonymisation manuelle reste à votre seule charge.
 
 **Ce qui nous échappe encore**
 
@@ -77,7 +77,7 @@ La fréquence, le type de courriers concernés, et les autres usages éventuels 
 
 **Ce que nous vous proposons**
 
-Vous donner accès à un environnement IA conforme au secret médical qui couvre les mêmes usages, sans avoir à anonymiser à la main. La transition se fait sans changer votre façon de travailler. Un usage compatible avec le secret médical dès le premier jour, puis à votre rythme l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, préparation à la facturation électronique de septembre). Votre logiciel de dictée actuel reste — ce chantier porte uniquement sur l'aide à la rédaction structurée.
+Vous donner accès à un environnement IA conforme au secret médical qui couvre les mêmes usages, sans avoir à anonymiser à la main. La transition se fait sans changer votre façon de travailler. Un usage compatible avec le secret médical dès le premier jour, puis à votre rythme l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, préparation des comptes-rendus structurés). Votre logiciel de dictée actuel reste — ce chantier porte uniquement sur l'aide à la rédaction structurée.
 
 ### Chantier 3 — Anticiper une absence prolongée
 
@@ -87,7 +87,7 @@ Tout le fonctionnement de votre cabinet repose sur votre mémoire. Depuis le dé
 
 **Ce que ça révèle**
 
-Votre cabinet repose aujourd'hui sur votre seule mémoire. Aussi solide soit-elle, elle n'est pas transmissible. Un imprévu de plus de quelques jours expose vos patients à une rupture de service que personne d'autre ne peut absorber.
+Le fonctionnement actuel tient tant que vous êtes présent. Quelques règles écrites sur les cas courants (renouvellements, urgences, contacts critiques) permettent d'absorber une absence courte sans rupture.
 
 **Ce qui nous échappe encore**
 

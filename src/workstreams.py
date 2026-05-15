@@ -104,9 +104,8 @@ def chantier_demandes_directes(answers: list[Any]) -> dict[str, Any]:
                 f"Ces demandes ne sont pas tracées et représentent une charge invisible."
             )
             analyse = (
-                f"Ce mélange de canaux protège votre lien direct avec certains patients de longue date, "
-                f"mais il vous oblige à porter mentalement un suivi que personne d'autre ne peut prendre. "
-                f"Plus le temps passe, plus le coût est concentré sur vous."
+                f"Ces demandes directes restent invisibles à {sec_label} : vous portez seul "
+                f"le suivi mental, et le coût s'accumule à mesure que les canaux se multiplient."
             )
             pas_confirmer = (
                 f"Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles "
@@ -190,10 +189,8 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
             )
 
         analyse = (
-            "Votre besoin de rédiger des courriers structurés est réel et l'outil grand public "
-            "y répond. Le risque n'est pas dans le besoin, il est dans le canal. Tant que la "
-            "donnée transite par un outil non conçu pour le secret médical, vous portez seul "
-            "la responsabilité de l'anonymisation."
+            "Le besoin est légitime, le canal ne l'est pas. Tant que vous passez par un outil "
+            "grand public, l'anonymisation manuelle reste à votre seule charge."
         )
         pas_confirmer = (
             "La fréquence, le type de courriers concernés, et les autres usages éventuels "
@@ -206,7 +203,7 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
             "changer votre façon de travailler. "
             "Un usage compatible avec le secret médical dès le premier jour, puis à votre rythme "
             "l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, "
-            "suivi de patients chroniques, préparation à la facturation électronique de septembre)."
+            "suivi de patients chroniques, préparation des comptes-rendus structurés)."
         ]
         if _has_classical_dictation(answers):
             propose_parts.append(
@@ -221,8 +218,8 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
             "découvrir un environnement maîtrisé avant que l'usage ne se diffuse de manière informelle."
         )
         analyse = (
-            "L'IA arrivera dans votre cabinet d'une manière ou d'une autre. Mieux vaut découvrir "
-            "un cadre conforme avant que les premiers usages se mettent en place sans filet."
+            "L'IA générative se diffuse rapidement dans les cabinets. Découvrir un environnement "
+            "conforme dès maintenant évite d'avoir à recadrer des usages déjà installés."
         )
         pas_confirmer = (
             "Vos besoins réels en matière de rédaction assistée, qui n'ont pas encore été explorés."
@@ -278,9 +275,9 @@ def chantier_absence(answers: list[Any]) -> dict[str, Any]:
             )
 
         analyse = (
-            "Votre cabinet repose aujourd'hui sur votre seule mémoire. Aussi solide soit-elle, "
-            "elle n'est pas transmissible. Un imprévu de plus de quelques jours expose vos "
-            "patients à une rupture de service que personne d'autre ne peut absorber."
+            "Le fonctionnement actuel tient tant que vous êtes présent. Quelques règles écrites "
+            "sur les cas courants (renouvellements, urgences, contacts critiques) permettent "
+            "d'absorber une absence courte sans rupture."
         )
         pas_confirmer = (
             "Ce qui se passerait concrètement, qui pourrait prendre le relais sur quoi, "

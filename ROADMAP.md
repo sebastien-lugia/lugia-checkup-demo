@@ -61,6 +61,23 @@ Travail prévu :
 - Tests A/B en interne sur Chateau persona refondu : rapport templated V1.1 vs rapport LLM-augmenté V1.2.
 - Mise à jour `MASTER_PROMPT.md` section 6 (architecture).
 
+### Génération dynamique des options de QCM
+
+Demande utilisateur V1.1 Vague 3.1 : pour certaines questions (notamment Q10 suivi des chroniques, Q11 tri des résultats), les options actuelles supposent une équipe ; un médecin solo se reconnaît mal dans "Un membre de l'équipe trie les résultats". En V1.2, le LLM réécrit ces options à la volée à partir des réponses précédentes (Q01 type de cabinet, Q02 secrétariat, Q07 équipe étendue), pour ne proposer que des libellés cohérents avec le profil du répondant.
+
+Architecture envisagée :
+
+- Une étape de "personnalisation initiale" en début de questionnaire (après Q01/Q02), qui prépare les options dynamiques de Q07 à Q11. Cette étape peut prendre 10 à 30 secondes côté API cloud, voire plus côté Ollama local.
+- Pendant ce temps de calcul, **écran d'attente non vide** : un paragraphe explicatif Lugia présente la méthode et le sens du check-up (substitution-extension, analyse du système et non des personnes, garde-fous secret médical). L'attente devient une porte d'entrée pédagogique au lieu d'un frottement.
+- Fallback systématique sur les options statiques V1.1 si l'appel LLM échoue ou si `LLM_ENABLED=0`.
+- Les libellés statiques V1.1 restent l'oracle de référence — toute option dynamique générée doit converger sémantiquement vers l'une des 4 options statiques (pour préserver la justifiabilité mathématique du scoring, voir D-013).
+
+### Enjeux temporels sectoriels datés
+
+V1.1 avait introduit `derive_enjeu_temporel` (supprimée Vague 3.1) qui injectait, dans la recommandation italique, *« y compris la facturation électronique de septembre »* quand la date de bascule (1ᵉʳ septembre 2026) était à moins de 200 jours. L'idée mérite d'être généralisée en V1.2+ : un mécanisme `temporal_concerns.json` listant les échéances réglementaires ou sectorielles datées (facturation électronique B2B/B2C, généralisation MSSanté, mise à jour HDS, échéances ROSP, etc.). À chaque génération de rapport, les échéances actives (à moins de N jours) sont injectées dans la recommandation ou dans une carte dédiée "À surveiller dans les prochains mois".
+
+Bénéfice attendu : montrer au répondant que le questionnaire connaît son calendrier métier, et l'ancrer dans une actualité concrète plutôt que dans une analyse purement organisationnelle. Liste à enrichir au contact des prospects et avec les retours terrain V1-7+.
+
 Voir `DECISIONS.md` D-020.
 
 ---

@@ -4,6 +4,85 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-15 — V1.1 Vague 3.1 : second passage sur questionnaire et ton du rapport
+
+Itération sur les 8 retours utilisateur post-Vague 3 (Q03 hors axe, Q05 trop direct, format hétérogène, Q10 inadapté solo, Q11 peu pro, synthèse pas analytique, ton des analyses trop direct, mention facturation électronique oubliée). Aucune nouvelle dépendance, aucun changement de schéma BDD.
+
+### Questionnaire (interview_protocol v1.4)
+
+- **Format "mot-clé — détail" homogène** appliqué à Q02, Q03, Q04, Q05, Q06, Q07, Q08, Q09, Q10, Q11, Q12, Q13. Q01 conserve son format court (typologie close). Inscrit dans `global_rules_v1_1` comme 6ᵉ règle.
+- **Q03 axe réaligné** sur le seul niveau de cadrage explicite : cadre écrit et appliqué (9), cadre oral (6), cadre écrit peu suivi (4), pas de cadre formel (3). L'option Vague 3 "découvertes surprenantes" (hors axe) disparaît du QCM.
+- **Q05 reformulée** : free_text orienté tâches récurrentes hors temps de travail (au lieu de "hier soir" direct) ; frontière q05_c (bloc fin de journée au cabinet) vs q05_d (à la maison) désormais nette.
+- **Q06_c reformatée** : "Un événement récent — j'ai eu besoin de prendre du recul sur mon organisation".
+- **Q08 libellés homogénéisés** : "Tout continue — un dispositif…", "Un confrère assure — …", "Continuité partielle — …", "Fermeture — …".
+- **Q10_b neutralisé** pour rester valide pour un médecin solo : "Liste de relance — je la tiens à jour (seul ou avec mon équipe)".
+- **Q11 libellés professionnels** : "Alerte automatique — …", "Tri délégué — …", "Vérification régulière — …", "Vérification opportuniste — …".
+
+### Synthèse "Votre situation aujourd'hui" — refonte
+
+`src/templates.py::build_synthesis` est précédée d'une nouvelle phrase analytique `build_phrase_choc(answers)` qui sélectionne parmi quatre patterns selon le profil du répondant : effort personnel concentré, organisation informelle avec outils multiples, IA grand public au cœur du fonctionnement, ou équilibre tenu sur plusieurs points sensibles. La synthèse ne commence plus par une description ("Votre cabinet tourne. Vous en êtes seul aux commandes.") mais par une lecture du système ("Votre cabinet tient — mais il tient surtout par votre effort personnel, plus que par les dispositifs qui l'entourent.").
+
+La mention de la facturation électronique de septembre est supprimée (`derive_enjeu_temporel` retirée). La recommandation italique est reformulée plus directe : "Le geste qui pèse le plus aujourd'hui est de…" au lieu de "La première chose qui vous aiderait est de prendre une vue d'ensemble…".
+
+### Ton des analyses — adouci
+
+`src/workstreams.py::chantier_ia` analyse : "L'IA arrivera dans votre cabinet d'une manière ou d'une autre" → reformulé en "L'IA générative est en train de devenir un outil courant pour beaucoup de professionnels de santé. Aborder le sujet maintenant, dans un cadre maîtrisé, permet de choisir vos usages plutôt que de les subir…".
+
+`src/workstreams.py::chantier_absence` analyse : "Votre cabinet repose aujourd'hui sur votre seule mémoire. Aussi solide soit-elle, elle n'est pas transmissible. Un imprévu de plus de quelques jours expose vos patients à une rupture de service…" → reformulé en "Le fonctionnement actuel tient tant que vous êtes présent. Quelques règles écrites sur les cas courants (renouvellements, urgences, contacts critiques) permettent d'absorber une absence courte sans rupture."
+
+### Vague 3.1b — compactage des analyses
+
+Retour utilisateur immédiat sur Vague 3.1 : "trop de storytelling, reste concis et concret". Quatre analyses raccourcies à 2 phrases maximum, sans introduction générale type "Beaucoup de cabinets fonctionnent ainsi" :
+
+- `chantier_flux` Q04+Q05 : 3 sub-phrases → 1 phrase factuelle.
+- `chantier_ia` triggered : 3 phrases → 2 phrases ("Le besoin est légitime, le canal ne l'est pas.").
+- `chantier_ia` non-triggered : 2 phrases longues → 2 phrases courtes.
+- `chantier_absence` triggered : 3 phrases avec énumération → 2 phrases concrètes.
+
+Mention "facturation électronique de septembre" dans le chantier IA supprimée et remplacée par "préparation des comptes-rendus structurés".
+
+### Adaptation des templates aux nouveaux IDs
+
+- Phrase Q03 dans `build_participants_summary` (templates.py) : trois branches selon q03_b (cadre oral), q03_c (cadre écrit peu suivi), q03_d (pas de cadre formel) — sémantique nouvelle de l'axe homogène.
+- Phrase Q11_d : "le tri des résultats se fait sans rythme défini, ce qui peut laisser passer un signal" (au lieu de "au fil de l'eau, sans rythme garanti").
+
+### Oracle Chateau v2.1
+
+`resources/sample_answers_pchateau.md` v2.1 : Chateau passe Q03 de q03_c (santé 4) à q03_d "Pas de cadre formel — chaque cas est tranché au moment où il se présente" (santé 3). Scores facettes : Processus 3,33 (idem), **Participants 3,00** (vs 3,33 en Vague 3), Information 2,75 (idem). `scripts/seed_persona.py` aligné automatiquement avec les nouveaux libellés via reconstruction du bloc `ANSWERS`.
+
+### ROADMAP V1.2+ — deux notes ajoutées
+
+1. **Génération dynamique des options de QCM** selon Q01/Q02/Q07 (notamment Q10/Q11 adaptés au médecin solo) en V1.2. Pendant le temps de calcul LLM, un écran d'attente affichera un paragraphe explicatif Lugia (méthode, substitution-extension, garde-fous secret médical) — l'attente devient pédagogique. Fallback systématique sur les libellés statiques V1.1.
+
+2. **Enjeux temporels sectoriels datés** (généralisation de `derive_enjeu_temporel` supprimée Vague 3.1) : `temporal_concerns.json` à V1.2+ qui injecte dans la recommandation ou dans une carte dédiée les échéances réglementaires actives (facturation électronique B2B/B2C, MSSanté, HDS, ROSP, etc.). Montre au répondant que le questionnaire connaît son calendrier métier.
+
+### Modifié
+
+- `resources/interview_protocol.json` v1.4 — 12 questions reformatées, Q03 axe homogénéisé, 6ᵉ règle globale ajoutée.
+- `resources/interview_protocol.md` v1.4 — notes Vague 3.1, tableau Chateau mis à jour, calculs indicatifs revus.
+- `resources/sample_answers_pchateau.md` v2.1 — Q03 q03_d, scores recalculés.
+- `scripts/seed_persona.py` — labels et compléments alignés sur v1.4 du JSON.
+- `src/templates.py` — `build_phrase_choc` ajoutée, `build_synthesis` refondue, `derive_enjeu_temporel` supprimée, phrases Q03 et Q11_d adaptées.
+- `src/workstreams.py` — analyses IA et absence adoucies, mention facturation supprimée.
+- `ROADMAP.md` — section "Génération dynamique des options de QCM" ajoutée en V1.2.
+
+### Vérifications passées
+
+- `python -m src.questions` : JSON et MD cohérents, 14 questions.
+- Harness stdlib : scores Chateau conformes (Processus 3,33 / Participants 3,00 / Information 2,75), tous IDs choisis existants.
+- IDs hardcodés `src/templates.py` et `src/workstreams.py` : tous valides.
+- Audit ton hors docstrings/TOOL_CATEGORIES : aucune fuite (facturation, "L'IA arrivera", "pas transmissible", marques nominales).
+- Syntaxe Python OK sur templates, workstreams, scoring, seed_persona, dump_report.
+
+### À tester localement avant push
+
+1. `python scripts/seed_persona.py --email sebastien+test@gmail.com --reset` (en venv local).
+2. `python scripts/dump_report.py --list` puis `--id <N>` → relire `resources/sample_report.md` régénéré. Vérifier : pas de mention "facturation électronique", pas de "L'IA arrivera", pas de "votre seule mémoire pas transmissible", première phrase de synthèse analytique et non descriptive.
+3. `npm run dev` côté web/ → parcourir le questionnaire : Q06 en QCM, Q08 et Q11 avec libellés "mot-clé — détail", Q10_b compatible solo, scores 3,33 / 3,00 / 2,75.
+4. Push GitHub → Render/Vercel redéploient.
+
+---
+
 ## 2026-05-15 — V1.1 Vague 3 : refonte du questionnaire (Q2 à Q11 + règles globales)
 
 Refonte des 8 questions ciblées par le backlog utilisateur (Q02 à Q11 hors Q07/Q10/Q12 jugées OK) et inscription des règles globales V1.1 dans `resources/interview_protocol.md`. Aucune nouvelle dépendance, aucun changement de schéma BDD.

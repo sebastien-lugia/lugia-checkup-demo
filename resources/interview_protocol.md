@@ -2,9 +2,11 @@
 
 Protocole du questionnaire du démonstrateur Lugia Check-up. Quatorze questions structurées qui couvrent les trois facettes WSF retenues en V0 (Processus & Activités, Participants, Information), avec deux questions de qualification en ouverture, une question de motivation au milieu, et une question de clôture.
 
-> Version 1.3 — 15 mai 2026 — Refonte V1.1 Vague 3.
+> Version 1.4 — 15 mai 2026 — Refonte V1.1 Vague 3.1.
 
 > **Source de vérité technique :** `resources/interview_protocol.json`. Ce `.md` est la documentation humaine — toute évolution structurelle doit être faite dans le JSON et répercutée ici manuellement. Un test de cohérence (`src/questions.py::check_md_json_consistency`) vérifie au démarrage que les IDs de question et le compte sont alignés.
+
+> **Note v1.4 :** Vague 3.1 — six retours utilisateur intégrés. Q03 réalignée sur un axe unique homogène "niveau de cadrage" (écrit appliqué / oral / écrit peu suivi / pas de cadre). Q05 reformulée (free_text sur les tâches récurrentes hors temps de travail, frontière q05_c cabinet vs q05_d domicile clarifiée). Q06_c, Q08_a reformatés au format "mot-clé — détail". Q10_b neutralisé pour le solo. Q11 reformulé en libellés professionnels avec format "mot-clé — détail". Format "mot-clé — détail" appliqué de manière homogène partout où c'est naturel. Voir `CHANGELOG.md` 2026-05-15 V1.1 Vague 3.1.
 
 > **Note v1.3 :** refonte Vague 3 — Q2 à Q11 réécrites pour répondre aux règles globales V1.1 (factualité, exclusivité, mise en scène, 4 options + Autre). Q4, Q6 et Q11 changent de mode (B/C → A) pour supprimer le doublon entre la réponse libre et le QCM, ou parce que la motivation se traite mieux en QCM. Voir `DECISIONS.md` D-021.
 
@@ -83,7 +85,7 @@ Mode A · Contexte · non scoré. Qui prend les RDV et les appels patients. Refo
 
 ### Q03 — Cadre du secrétariat
 
-Mode A · Participants · scoré. Refonte V1.1 : les options portent désormais un axe unique — **le niveau de cadrage explicite des règles de tri**. Quatre niveaux factuels et mutuellement exclusifs : cadre écrit tenu à jour (9), cadre oral figé (6), pas de cadre formel (4), écart régulier entre cadre et pratique (2). L'option "Sans objet" est conservée pour les cabinets sans secrétariat.
+Mode A · Participants · scoré. Refonte Vague 3.1 sur un axe unique homogène — **le niveau de cadrage explicite des règles de tri**. Quatre paliers exclusifs : cadre écrit ET appliqué (9), cadre oral défini au démarrage (6), cadre écrit mais peu suivi dans les faits (4), pas de cadre formel (3). L'option "Sans objet" est conservée pour les cabinets sans secrétariat. L'option Vague 3 "découvertes surprenantes" (q03_d) disparaît du QCM : hors axe, elle pouvait coexister avec un cadre formel. Le complément libre récupère ce cas si besoin.
 
 ### Q04 — Canaux d'entrée des demandes
 
@@ -91,11 +93,11 @@ Mode A · Processus · scoré. Refonte V1.1 : **passage de Mode B à Mode A**. L
 
 ### Q05 — Charge administrative en fin de journée
 
-Mode B · Processus · scoré. Refonte V1.1 : la question reste en Mode B mais l'open_prompt explore désormais un angle complémentaire au QCM — **un récit concret de ce qui a occupé hier soir ou ce week-end**. Le QCM met en scène une situation précise (19h, fin de journée), avec quatre options factuelles graduées entre "terminé avant de partir" et "se prolonge à la maison".
+Mode B · Processus · scoré. Vague 3.1 : free_text reformulé sur les tâches récurrentes que le médecin n'arrive pas toujours à finir pendant son temps de travail (moins direct que "hier soir"). QCM clarifié sur l'axe "où aboutissent ces tâches" — au fil de l'eau, lendemain matin, bloc fin de journée au cabinet, ou domicile/week-end. La frontière q05_c (au cabinet) vs q05_d (à la maison) est désormais nette.
 
 ### Q06 — Pourquoi ce check-up maintenant
 
-Mode A · Motivation · non scoré. Refonte V1.1 : **passage de Mode C à Mode A**. Quatre typologies de motivation observées dans les premiers tests utilisateur : curiosité IA, fatigue accumulée, événement déclencheur récent, anticipation. Complément libre optionnel pour les nuances. Cf D-021.
+Mode A · Motivation · non scoré. Refonte Vague 3 : **passage de Mode C à Mode A** (4 typologies). Vague 3.1 : q06_c reformatée au format "mot-clé — détail" pour homogénéité avec les autres options.
 
 ### Q07 — Équipe étendue du cabinet
 
@@ -103,19 +105,19 @@ Mode A · Participants · scoré. Inchangée depuis V1.0.
 
 ### Q08 — Continuité en cas d'absence
 
-Mode A · Participants · scoré. Refonte V1.1 : reformulation factuelle non anxiogène. La question hypothétique "Si vous deviez vous arrêter une semaine, qu'est-ce qui se passerait ?" devient la question vécue **"Quand vous prenez une semaine de congé, comment cela se passe pour votre cabinet ?"**. Les options sont calibrées en conséquence : option d'origine "le cabinet serait à l'arrêt" devient "le cabinet ferme — c'est ce que je fais en pratique" (santé 3 au lieu de 2, plus juste pour un solo qui ferme proprement pendant ses congés sans pour autant être en pathologie).
+Mode A · Participants · scoré. Refonte Vague 3 (question vécue au lieu d'hypothétique). Vague 3.1 : libellés des 4 options reformatés au format "mot-clé — détail" (Tout continue, Un confrère assure, Continuité partielle, Fermeture).
 
 ### Q09 — Nombre d'outils numériques
 
-Mode A · Information · scoré. Refonte V1.1 : l'axe d'origine ("niveau d'intégration") jugé trop subjectif est remplacé par un axe factuel — **le nombre d'outils et la présence ou non de double saisie**. Quatre paliers chiffrés (un seul outil, deux outils, trois à cinq, plus de cinq). Les libellés ne citent plus aucune marque (Maiia, Weda, etc.) pour rester cohérents avec le ton du rapport (V1.1 Vague 2 lite).
+Mode A · Information · scoré. Refonte Vague 3 : axe factuel "nombre d'outils + double saisie" en 4 paliers chiffrés. Vague 3.1 : libellés reformatés au format "mot-clé — détail". Aucune marque nominale.
 
 ### Q10 — Suivi des patients chroniques
 
-Mode A · Information · scoré. Inchangée depuis V1.0. Jugée OK par l'utilisateur en backlog Vague 3.
+Mode A · Information · scoré. Vague 3.1 : libellés reformatés "mot-clé — détail". Q10_b neutralisé pour rester valide quand le médecin est solo ("Liste de relance — je la tiens à jour (seul ou avec mon équipe)"). Une génération dynamique selon Q02/Q07 est inscrite en V1.2.
 
 ### Q11 — Tri des résultats d'examens
 
-Mode A · Information · scoré. Refonte V1.1 : **passage de Mode B à Mode A**. La réponse libre faisait doublon avec le QCM et les options n'étaient pas exclusives (l'option "incident passé" pouvait coexister avec "je vérifie au fil de l'eau"). Les options sont désormais centrées sur **l'organisation actuelle du tri**, exclusives et factuelles. Un éventuel incident passé peut figurer en complément libre.
+Mode A · Information · scoré. Vague 3.1 reformule les quatre options en libellés professionnels au format "mot-clé — détail" : alerte automatique, tri délégué, vérification régulière, vérification opportuniste. Toujours exclusives, toujours centrées sur l'organisation actuelle du tri.
 
 ### Q12 — Téléconsultation
 
@@ -139,7 +141,7 @@ Pour calibration. La session V1.1 du persona doit produire les scores documenté
 |---|---|---|---|---|
 | 1 | Q01 | `q01_a` (solo) | A | Contexte |
 | 2 | Q02 | `q02_b` (télésecrétariat externalisé) | A | Contexte |
-| 3 | Q03 | `q03_c` (pas de cadre formel) | A | Participants |
+| 3 | Q03 | `q03_d` (pas de cadre formel) | A | Participants |
 | 4 | Q04 | `q04_d` (canaux parallèles directs) | A | Processus |
 | 5 | Q05 | `q05_d` (débordement domicile) | B | Processus |
 | 6 | Q06 | `q06_c` (événement déclencheur) | A | Motivation |
@@ -155,7 +157,7 @@ Pour calibration. La session V1.1 du persona doit produire les scores documenté
 Calcul indicatif V1.1 (à confronter au scoring effectif) :
 
 - Processus : Q04 (3) + Q05 (2) + Q12 (5) = **moyenne 3,33** (inchangé vs V1.0).
-- Participants : Q03 (4) + Q07 (3) + Q08 (3) = **moyenne 3,33** (vs 3,00 en V1.0 — Q08 reformulée passe de santé 2 à santé 3).
+- Participants : Q03 (3) + Q07 (3) + Q08 (3) = **moyenne 3,00** (vs 3,33 en Vague 3 — Q03 nouvelle option q03_d santé 3 au lieu de santé 4 sur l'axe cadrage homogénéisé).
 - Information : Q09 (2) + Q10 (2) + Q11 (5) + Q13 (2) = **moyenne 2,75** (inchangé vs V1.0 — Q09 baisse de 4 à 2, Q11 monte de 3 à 5, équilibre).
 
 ---

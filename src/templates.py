@@ -16,7 +16,6 @@ V1.2+ : génération contextuelle par SLM/LLM (voir DECISIONS.md D-020).
 from __future__ import annotations
 
 import re
-from datetime import date
 from typing import Any, Optional
 
 from src import db
@@ -149,17 +148,6 @@ def derive_externalisations(answers: list[Any]) -> Optional[str]:
     return None
 
 
-def derive_enjeu_temporel() -> str:
-    """Retourne la mention de l'enjeu facturation électronique si pertinent.
-
-    Ne s'affiche que si la date de bascule est dans moins de 200 jours.
-    Sinon, la mention est omise pour ne pas être hors sujet.
-    """
-    today = date.today()
-    target = date(2026, 9, 1)
-    if today < target and (target - today).days < 200:
-        return " — y compris la facturation électronique de septembre"
-    return ""
 
 
 # ---- Phrases descriptives pour la synthèse ----
@@ -190,33 +178,75 @@ def description_usage_ia(answers: list[Any]) -> Optional[str]:
 
 # ---- Synthèse complète ----
 
+def build_phrase_choc(answers: list[Any]) -> str:
+    """Première phrase analytique de la synthèse — pose une lecture du cabinet,
+    pas une description.
+
+    Logique : on identifie le profil saillant (effort personnel concentré,
+    organisation informelle, accumulation d'outils, IA non conforme) et on
+    sélectionne la phrase la plus juste. Le ton reste factuel et accompagnant,
+    jamais accusateur.
+    """
+    porte_seul = _selected_option(answers, "q07") == "q07_a"
+    canaux_directs = _selected_option(answers, "q04") == "q04_d"
+    debordement_admin = _selected_option(answers, "q05") == "q05_d"
+    ferme_conges = _selected_option(answers, "q08") == "q08_d"
+    ia_non_conf = _selected_option(answers, "q13") in ("q13_c", "q13_d")
+    outils_empiles = _selected_option(answers, "q09") == "q09_d"
+    cadre_absent = _selected_option(answers, "q03") in ("q03_c", "q03_d")
+
+    # Profil 1 : effort personnel concentré (le médecin porte le système)
+    signals_effort = sum([porte_seul, canaux_directs, debordement_admin, ferme_conges])
+    if signals_effort >= 3:
+        return (
+            "Votre cabinet tient — mais il tient surtout par votre effort personnel, "
+            "plus que par les dispositifs qui l'entourent."
+        )
+
+    # Profil 2 : organisation informelle + outils nombreux
+    if cadre_absent and outils_empiles:
+        return (
+            "Votre cabinet fonctionne au quotidien, mais sur une organisation principalement "
+            "informelle, répartie entre plusieurs outils qui ne sont pas vraiment connectés."
+        )
+
+    # Profil 3 : IA grand public au cœur du fonctionnement
+    if ia_non_conf and (outils_empiles or debordement_admin):
+        return (
+            "Votre cabinet a déjà intégré l'IA pour gagner du temps utile — c'est une avancée, "
+            "qu'il reste à sécuriser pour qu'elle dure."
+        )
+
+    # Profil 4 : effort personnel modéré
+    if signals_effort >= 2:
+        return (
+            "Votre cabinet tourne. Quelques points portent un poids plus lourd que d'autres "
+            "et méritent d'être regardés ensemble."
+        )
+
+    # Profil par défaut
+    return (
+        "Votre cabinet présente un équilibre tenu sur plusieurs points sensibles "
+        "qui méritent une attention coordonnée."
+    )
+
+
 def build_synthesis(answers: list[Any]) -> str:
     """Compose la synthèse de la page de résultats.
 
     Retourne un fragment HTML. Le dernier passage est entouré de
     `<em>...</em>` pour rendre l'italique coloré côté CSS.
 
-    V1.1 lite : "organisation efficace" supprimée (formulation incohérente
-    quand le médecin est solo), reformulations factuelles non-dramatiques.
-    Q14 reportée à V1.2 (cf D-020).
+    V1.1 Vague 3.1 : ajout d'une phrase choc analytique en tête (build_phrase_choc),
+    suppression de la mention facturation électronique de septembre,
+    recommandation italique reformulée plus directe.
     """
+    phrase_choc = build_phrase_choc(answers)
+
     outils = derive_outils_principaux(answers)
     externalisations = derive_externalisations(answers)
     description_1 = description_demandes_directes(answers)
     description_2 = description_usage_ia(answers)
-    enjeu = derive_enjeu_temporel()
-
-    # Ouverture — factuelle, ni alarmiste ni minimaliste
-    porte_seul = _selected_option(answers, "q08") in ("q08_c", "q08_d") or \
-                 _selected_option(answers, "q07") == "q07_a"
-    is_solo = _selected_option(answers, "q01") == "q01_a"
-
-    if porte_seul and is_solo:
-        opening = "Votre cabinet tourne. Vous en êtes seul aux commandes."
-    elif porte_seul:
-        opening = "Votre cabinet tourne, et tout finit par passer par vous."
-    else:
-        opening = "Votre cabinet tourne, avec quelques zones à clarifier."
 
     # Ce qui tient au quotidien (factuel, sans jugement positif/négatif)
     org_items: list[str] = []
@@ -233,32 +263,35 @@ def build_synthesis(answers: list[Any]) -> str:
     descriptions = [d for d in (description_1, description_2) if d]
     if len(descriptions) >= 2:
         zone = (
-            " Deux zones demandent encore de l'attention : "
+            " Deux points méritent d'être regardés en priorité : "
             f"{descriptions[0]}, et {descriptions[1]}."
         )
     elif len(descriptions) == 1:
-        zone = f" Une zone demande encore de l'attention : {descriptions[0]}."
+        zone = f" Un point mérite d'être regardé en priorité : {descriptions[0]}."
     else:
         zone = ""
 
-    # Recommandation Lugia (italique)
+    # Recommandation Lugia (italique) — sans mention facturation électronique
     if description_2:
         recommandation = (
-            " <em>Avant tout autre chantier, et avant d'ajouter un outil de plus, "
-            "ce qui vous aiderait le plus est de remplacer votre usage actuel de l'IA par un "
-            f"environnement conforme au secret médical, qui pourra ensuite vous aider à "
-            f"structurer le reste{enjeu}.</em>"
+            " <em>Le geste qui pèse le plus aujourd'hui est de remplacer votre usage actuel "
+            "de l'IA par un environnement conforme au secret médical. Une fois ce socle posé, "
+            "le reste s'organise plus naturellement.</em>"
+        )
+    elif descriptions:
+        recommandation = (
+            " <em>Une heure avec Lugia suffit à reprendre ces points avec vous et décider "
+            "ensemble par lequel commencer, sans engagement ni jugement.</em>"
         )
     else:
         recommandation = (
-            " <em>La première chose qui vous aiderait est de prendre une vue d'ensemble de "
-            f"votre fonctionnement, pour décider à votre rythme par où commencer{enjeu}.</em>"
+            " <em>Une heure avec Lugia peut vous aider à confirmer cette lecture et identifier "
+            "le premier geste qui simplifiera votre semaine.</em>"
         )
 
-    return opening + organisation + zone + recommandation
+    return phrase_choc + organisation + zone + recommandation
 
 
-# ---- Résumés par facette ----
 
 def build_processes_summary(answers: list[Any]) -> str:
     """Compose le résumé qualitatif de la facette Parcours patient."""
@@ -302,12 +335,22 @@ def build_participants_summary(answers: list[Any]) -> str:
     else:
         parts.append("Le fonctionnement du cabinet n'est pas formalisé par écrit.")
 
-    # Règles non cadrées avec le secrétariat (Q03)
+    # Niveau de cadrage du secrétariat (Q03 — axe homogène V1.1 Vague 3.1)
     q03 = _selected_option(answers, "q03")
-    if q03 in ("q03_c", "q03_d"):
+    if q03 == "q03_d":
         sec = derive_secretariat_label(answers).capitalize()
         parts.append(
-            f"{sec} travaille avec des règles que vous n'avez jamais cadrées avec eux."
+            f"{sec} fonctionne sans cadre formel — chaque cas est tranché au moment où il se présente."
+        )
+    elif q03 == "q03_c":
+        sec = derive_secretariat_label(answers).capitalize()
+        parts.append(
+            f"{sec} dispose de règles écrites qui ne sont pas appliquées au quotidien."
+        )
+    elif q03 == "q03_b":
+        sec = derive_secretariat_label(answers).capitalize()
+        parts.append(
+            f"{sec} travaille avec un cadre oral défini au démarrage, jamais formalisé depuis."
         )
 
     # Que se passe-t-il en cas d'absence prolongée (Q08)
@@ -347,7 +390,7 @@ def build_information_summary(answers: list[Any]) -> str:
 
     if _selected_option(answers, "q11") == "q11_d":
         points.append(
-            "le tri des résultats se fait au fil de l'eau, sans rythme garanti"
+            "le tri des résultats se fait sans rythme défini, ce qui peut laisser passer un signal"
         )
 
     if points:

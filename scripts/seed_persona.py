@@ -39,171 +39,181 @@ from src import db  # noqa: E402  (import après sys.path manipulation)
 
 ANSWERS = [
     {
-        "question_id": "q01",
-        "mode": "A",
-        "selected_option": "q01_a",
-        "selected_option_label": "Cabinet libéral solo (un seul médecin)",
+        "question_id": 'q01',
+        "mode": 'A',
+        "selected_option": 'q01_a',
+        "selected_option_label": 'Cabinet libéral solo (un seul médecin)',
         "free_text": None,
         "complement_text": None,
     },
     {
-        "question_id": "q02",
-        "mode": "A",
-        "selected_option": "q02_b",
-        "selected_option_label": "Un télésecrétariat externalisé",
+        "question_id": 'q02',
+        "mode": 'A',
+        "selected_option": 'q02_b',
+        "selected_option_label": (
+        'Télésecrétariat externalisé — un prestataire prend les appels et la prise '
+        'de rendez-vous'
+    ),
         "free_text": None,
-        "complement_text": "Depuis 18 mois, après le départ de Catherine qui était en interne pendant 8 ans.",
+        "complement_text": 'Depuis 18 mois, après le départ de Catherine qui était en interne pendant 8 ans.',
     },
     {
-        "question_id": "q03",
-        "mode": "A",
-        "selected_option": "q03_c",
-        "selected_option_label": "Pas de cadre formel, le secrétariat décide au cas par cas",
-        "free_text": None,
-        "complement_text": (
-            "Je leur ai brièvement expliqué mon fonctionnement au démarrage, on en est resté "
-            "là. Quelques RDV mal orientés de temps en temps, rien d'alarmant."
-        ),
-    },
-    {
-        "question_id": "q04",
-        "mode": "A",
-        "selected_option": "q04_d",
-        "selected_option_label": "Plusieurs canaux dont des canaux directs vers moi (mobile, SMS, mail)",
+        "question_id": 'q03',
+        "mode": 'A',
+        "selected_option": 'q03_d',
+        "selected_option_label": 'Pas de cadre formel — chaque cas est tranché au moment où il se présente',
         "free_text": None,
         "complement_text": (
-            "Principalement Doctolib pour les nouveaux RDV et le télésecrétariat pour les "
-            "appels. Quelques patients de longue date me sollicitent encore en direct par mail "
-            "ou SMS — je ne veux pas couper le lien avec eux."
-        ),
+        'Je leur ai brièvement expliqué mon fonctionnement au démarrage, on en est '
+        "resté là. Quelques RDV mal orientés de temps en temps, rien d'alarmant."
+    ),
     },
     {
-        "question_id": "q05",
-        "mode": "B",
-        "selected_option": "q05_d",
-        "selected_option_label": "…se prolongent chez moi le soir ou le week-end",
+        "question_id": 'q04',
+        "mode": 'A',
+        "selected_option": 'q04_d',
+        "selected_option_label": 'Plusieurs canaux dont des canaux directs vers moi — appels mobile, SMS, mails',
+        "free_text": None,
+        "complement_text": (
+        'Principalement la plateforme en ligne pour les nouveaux rendez-vous et le '
+        'télésecrétariat pour les appels. Quelques patients de longue date me '
+        'sollicitent encore en direct par mail ou SMS — je ne veux pas couper le '
+        'lien avec eux.'
+    ),
+    },
+    {
+        "question_id": 'q05',
+        "mode": 'B',
+        "selected_option": 'q05_d',
+        "selected_option_label": 'Finies à la maison — le soir ou le week-end, sur des plages personnelles',
         "free_text": (
-            "Hier soir, j'ai traité une vingtaine de courriers spécialistes via mon outil "
-            "d'envoi, quelques renouvellements d'ordonnances longues et trois résultats "
-            "biologiques que je n'avais pas eu le temps de regarder dans la journée. Le "
-            "week-end, j'avance souvent sur les comptes-rendus de visites à domicile."
-        ),
+        'Les courriers de synthèse pour les spécialistes, les renouvellements '
+        "d'ordonnances longues, les comptes-rendus de visite à domicile. Je n'arrive "
+        'pas toujours à les finir entre deux consultations, et certains finissent '
+        'invariablement le soir.'
+    ),
         "complement_text": (
-            "Pas tous les soirs, mais souvent. Je le fais parce que ça ne se voit pas le "
-            "lendemain et que ça reste tenable pour moi."
-        ),
+        'Pas tous les soirs, mais souvent. Je le fais parce que ça ne se voit pas le '
+        'lendemain et que ça reste tenable pour moi.'
+    ),
     },
     {
-        "question_id": "q06",
-        "mode": "A",
-        "selected_option": "q06_c",
-        "selected_option_label": "Un événement récent qui m'a poussé à me poser des questions",
+        "question_id": 'q06',
+        "mode": 'A',
+        "selected_option": 'q06_c',
+        "selected_option_label": "Un événement récent — j'ai eu besoin de prendre du recul sur mon organisation",
         "free_text": None,
         "complement_text": (
-            "Un confrère m'a parlé de Lugia il y a quelques semaines, dans un contexte familial "
-            "qui me pousse à prendre du recul sur mon organisation. Et je m'intéresse depuis "
-            "longtemps à l'IA pour le cabinet."
-        ),
+        "Un confrère m'a parlé de Lugia il y a quelques semaines, dans un contexte "
+        'familial qui me pousse à prendre du recul sur mon organisation. Et je '
+        "m'intéresse depuis longtemps à l'IA pour le cabinet."
+    ),
     },
     {
-        "question_id": "q07",
-        "mode": "A",
-        "selected_option": "q07_a",
-        "selected_option_label": "Personne, je porte seul l'organisation du cabinet",
+        "question_id": 'q07',
+        "mode": 'A',
+        "selected_option": 'q07_a',
+        "selected_option_label": "Seul — je porte l'organisation du cabinet sans renfort régulier",
         "free_text": None,
         "complement_text": (
-            "Externalisations comptable et télésecrétariat à côté, mais rien dans le quotidien "
-            "du cabinet lui-même."
-        ),
+        'Externalisations comptable et télésecrétariat à côté, mais rien dans le '
+        'quotidien du cabinet lui-même.'
+    ),
     },
     {
-        "question_id": "q08",
-        "mode": "A",
-        "selected_option": "q08_d",
-        "selected_option_label": "Le cabinet ferme — c'est ce que je fais en pratique",
+        "question_id": 'q08',
+        "mode": 'A',
+        "selected_option": 'q08_d',
+        "selected_option_label": (
+        "Fermeture — le cabinet ferme pendant mes congés, c'est ce que je fais en "
+        'pratique'
+    ),
         "free_text": None,
         "complement_text": (
-            "Je n'ai jamais vraiment fait l'expérience d'un arrêt long. Pour mes congés je "
-            "préviens en amont et je ferme. Une semaine d'arrêt non planifié, je ne sais pas "
-            "comment je gérerais."
-        ),
+        "Je n'ai jamais vraiment fait l'expérience d'un arrêt long. Pour mes congés "
+        "je préviens en amont et je ferme. Une semaine d'arrêt non planifié, je ne "
+        'sais pas comment je gérerais.'
+    ),
     },
     {
-        "question_id": "q09",
-        "mode": "A",
-        "selected_option": "q09_d",
-        "selected_option_label": "Plus de cinq outils, avec des informations à saisir à plusieurs endroits",
+        "question_id": 'q09',
+        "mode": 'A',
+        "selected_option": 'q09_d',
+        "selected_option_label": 'Plus de cinq outils — informations à saisir à plusieurs endroits',
         "free_text": None,
         "complement_text": (
-            "Un logiciel métier, une plateforme de rendez-vous, un outil d'envoi de courriers "
-            "aux spécialistes, une messagerie sécurisée, une dictée vocale, un dossier "
-            "régional. Tout fonctionne mais il reste de la double saisie pour les nouveaux "
-            "patients."
-        ),
+        "Un logiciel métier, une plateforme de rendez-vous, un outil d'envoi de "
+        'courriers aux spécialistes, une messagerie sécurisée, une dictée vocale, un '
+        'dossier régional. Tout fonctionne mais il reste de la double saisie pour '
+        'les nouveaux patients.'
+    ),
     },
     {
-        "question_id": "q10",
-        "mode": "A",
-        "selected_option": "q10_d",
-        "selected_option_label": "Je ne le sais pas, sauf si le patient revient de lui-même",
+        "question_id": 'q10',
+        "mode": 'A',
+        "selected_option": 'q10_d',
+        "selected_option_label": 'Pas de système — sauf si le patient revient de lui-même',
+        "free_text": None,
+        "complement_text": "C'est un point que j'avais identifié mais que je n'ai jamais vraiment adressé.",
+    },
+    {
+        "question_id": 'q11',
+        "mode": 'A',
+        "selected_option": 'q11_c',
+        "selected_option_label": (
+        'Vérification régulière — je consulte la boîte de résultats à heures fixes '
+        'plusieurs fois par jour'
+    ),
         "free_text": None,
         "complement_text": (
-            "C'est un point que j'avais identifié mais que je n'ai jamais vraiment adressé. "
-            "Ils reviennent quand ils reviennent — ou ne reviennent pas."
-        ),
+        "Je vérifie deux fois par jour depuis qu'un résultat biologique modérément "
+        "urgent m'avait échappé quatre jours il y a six mois. Sans conséquence pour "
+        "la patiente, mais l'épisode m'a marqué. C'est une vigilance personnelle qui "
+        'repose sur moi seul.'
+    ),
     },
     {
-        "question_id": "q11",
-        "mode": "A",
-        "selected_option": "q11_c",
-        "selected_option_label": "Je consulte la boîte de résultats moi-même, plusieurs fois par jour",
+        "question_id": 'q12',
+        "mode": 'A',
+        "selected_option": 'q12_b',
+        "selected_option_label": 'Régulière à la demande — sans règle particulière, au cas par cas',
         "free_text": None,
         "complement_text": (
-            "Je vérifie deux fois par jour depuis qu'un résultat biologique modérément urgent "
-            "m'avait échappé quatre jours il y a six mois. Sans conséquence pour la patiente, "
-            "mais l'épisode m'a marqué. C'est une vigilance personnelle qui repose sur moi "
-            "seul."
-        ),
+        "3 à 5 par semaine. Je l'accepte quand un patient demande si le motif me "
+        "paraît compatible. Pas de règle écrite ni d'horaire réservé."
+    ),
     },
     {
-        "question_id": "q12",
-        "mode": "A",
-        "selected_option": "q12_b",
-        "selected_option_label": "Régulièrement, à la demande des patients, sans règle particulière",
-        "free_text": None,
-        "complement_text": (
-            "3 à 5 par semaine. Je l'accepte quand un patient demande si le motif me paraît "
-            "compatible. Pas de règle écrite ni d'horaire réservé."
-        ),
-    },
-    {
-        "question_id": "q13",
-        "mode": "B",
-        "selected_option": "q13_d",
-        "selected_option_label": "Oui, j'utilise une IA grand public et je sais que ce n'est pas tout à fait conforme",
+        "question_id": 'q13',
+        "mode": 'B',
+        "selected_option": 'q13_d',
+        "selected_option_label": "IA grand public sans illusion — je sais que ce n'est pas tout à fait conforme",
         "free_text": (
-            "Oui, je l'utilise depuis six mois pour mes courriers complexes — typiquement les "
-            "courriers de synthèse pour les spécialistes ou les comptes-rendus de visite à "
-            "domicile. Je remplace les données identifiantes par des codes avant de coller le "
-            "contexte. Mais je sais que ce n'est pas une garantie suffisante."
-        ),
+        "Oui, je l'utilise depuis six mois pour mes courriers complexes — "
+        'typiquement les courriers de synthèse pour les spécialistes ou les '
+        'comptes-rendus de visite à domicile. Je remplace les données identifiantes '
+        "par des codes avant de coller le contexte. Mais je sais que ce n'est pas "
+        'une garantie suffisante.'
+    ),
         "complement_text": (
-            "C'est l'usage qui me met le plus mal à l'aise dans mon organisation actuelle. La "
-            "dictée vocale classique existe, je l'utilise pour mes comptes-rendus standards, "
-            "mais ce que je cherche en plus, c'est l'aide à la rédaction structurée."
-        ),
+        "C'est l'usage qui me met le plus mal à l'aise dans mon organisation "
+        "actuelle. La dictée vocale classique existe, je l'utilise pour mes "
+        "comptes-rendus standards, mais ce que je cherche en plus, c'est l'aide à la "
+        'rédaction structurée.'
+    ),
     },
     {
-        "question_id": "q14",
-        "mode": "C",
+        "question_id": 'q14',
+        "mode": 'C',
         "selected_option": None,
         "selected_option_label": None,
         "free_text": (
-            "Gagner du temps utile. Pas du temps de productivité — du temps libre pour mes "
-            "proches, surtout en ce moment. Et idéalement sans avoir à apprendre un nouvel "
-            "outil. Ce qui m'aiderait vraiment, c'est un environnement qui prendrait en charge "
-            "ce que je fais déjà — y compris l'IA — mais de manière propre et conforme."
-        ),
+        'Gagner du temps utile. Pas du temps de productivité — du temps libre pour '
+        'mes proches, surtout en ce moment. Et idéalement sans avoir à apprendre un '
+        "nouvel outil. Ce qui m'aiderait vraiment, c'est un environnement qui "
+        "prendrait en charge ce que je fais déjà — y compris l'IA — mais de manière "
+        'propre et conforme.'
+    ),
         "complement_text": None,
     },
 ]
