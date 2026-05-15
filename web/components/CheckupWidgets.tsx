@@ -102,11 +102,23 @@ export function ModeAWidget(props: WidgetProps) {
   const { question, answer, onChange } = props;
   const isOther = answer.selected_option?.endsWith("_other") ?? false;
 
+  const qcmPrompt = question.qcm_prompt || "";
+  const hasNote = qcmPrompt.includes(" Note :");
+  const [mainPrompt, notePrompt] = hasNote
+    ? qcmPrompt.split(" Note :", 2)
+    : [qcmPrompt, ""];
+
   return (
     <div>
-      <p className="font-serif text-[22px] font-medium leading-snug mb-6">
-        {question.qcm_prompt}
+      <p className="font-serif text-[22px] font-medium leading-snug mb-2">
+        {mainPrompt.trim()}
       </p>
+      {hasNote && (
+        <div className="text-xs text-lugia-text-tertiary mb-6 leading-relaxed">
+          Note : {notePrompt.trim()}
+        </div>
+      )}
+      {!hasNote && <div className="mb-4" />}
       <OptionRadioList {...props} />
       <ComplementInput
         isOtherSelected={isOther}

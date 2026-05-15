@@ -155,6 +155,8 @@ Tout ce qui était inscrit en "V1+" reste pertinent à plus long terme.
 
 ### Affinage des questions
 
+- **Question dédiée aux imprévus opérationnels (axe 2 Lugia)** : au-delà de l'absence planifiée (Q08), sonder la capacité du cabinet à absorber les surcharges ponctuelles non planifiées — annulation jour J, panne d'outil, pic de demande, urgence soudaine. Identifié comme gap V1.1 (cf TODO et `MASTER_PROMPT.md` section 2). À traiter avant V1.5.
+- **Question d'auto-priorisation médecin** : *"Si vous pouviez changer une seule chose demain, ce serait quoi ?"* avant la sortie de la synthèse Lugia. Permet de confronter la priorité ressentie du médecin à la priorisation calculée par le rapport. Axe 3 Lugia (savoir par quel problème commencer) renforcé.
 - **Refinement des formulations métier au contact des premiers clients** : la V0 fixe une base raisonnable, mais chaque entretien réel doit alimenter une révision continue du wording.
 - **Affinage de Q09 (dépendance à votre présence)** : formulation plus précise sur ce qu'est "se mettre à l'arrêt", typologie des arrêts (planifié court, planifié long, imprévu).
 - **Approfondissement du canal principal de rendez-vous** : la V0 a supprimé l'ancienne Q05 sur le canal dominant car redondante avec Q04 (flux entrant). Une question plus distinctive sur la profondeur de l'usage du canal principal (pourcentage des RDV qui y passent, satisfaction, friction) pourrait être réintroduite en V1 avec un angle complémentaire à Q04.

@@ -6,7 +6,7 @@
 
 ## Session
 
-- **Interview id** : 21
+- **Interview id** : 24
 - **Date de session** : 15/05/2026
 - **Statut** : in_progress
 - **Nombre de réponses** : 14
@@ -15,7 +15,7 @@
 
 ## Votre situation aujourd'hui
 
-Votre cabinet tient — mais il tient surtout par votre effort personnel, plus que par les dispositifs qui l'entourent. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Deux points méritent d'être regardés en priorité : des appels et messages directs de patients que vous traitez en plus de votre télésecrétariat, et l'usage que vous faites d'un outil d'IA grand public pour vos courriers, en sachant que ce n'est pas une vraie garantie de secret médical. *Le geste qui pèse le plus aujourd'hui est de remplacer votre usage actuel de l'IA par un environnement conforme au secret médical. Une fois ce socle posé, le reste s'organise plus naturellement.*
+Peu de cabinets tiennent autant sur une seule personne que le vôtre. C'est ce qui le fait tourner aujourd'hui — et ce qui rend le moindre imprévu coûteux demain. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Deux points méritent d'être regardés en priorité : des appels et messages directs de patients que vous traitez en plus de votre télésecrétariat, et l'usage que vous faites d'un outil d'IA grand public pour vos courriers, en sachant que ce n'est pas une vraie garantie de secret médical. *Le geste qui pèse le plus aujourd'hui est de remplacer votre usage actuel de l'IA par un environnement conforme au secret médical. Une fois ce socle posé, le reste s'organise plus naturellement.*
 
 ---
 
@@ -69,7 +69,7 @@ Vous utilisez un outil d'IA grand public pour vos courriers complexes et vos com
 
 **Ce que ça révèle**
 
-Le besoin est légitime, le canal ne l'est pas. Tant que vous passez par un outil grand public, l'anonymisation manuelle reste à votre seule charge.
+Le besoin de rédaction structurée est légitime, le canal ne l'est pas. Au-delà de la charge d'anonymisation manuelle qui repose sur vous, vous êtes exposé à trois risques cumulés : violation du secret médical (article 226-13 du Code pénal), non-conformité RGPD avec hébergement non HDS, et engagement de votre responsabilité civile professionnelle en cas d'incident.
 
 **Ce qui nous échappe encore**
 
@@ -107,8 +107,8 @@ Mettre par écrit les règles essentielles de fonctionnement de votre cabinet : 
 
 Autres options :
 
-- *Rester en autonomie* : Reprendre les chantiers proposés seul, à votre rythme.
-- *Lancer un diagnostic terrain* : Une journée d'observation sur place pour affiner les chantiers.
+- *Approfondir un chantier* : Un second questionnaire ciblé sur un chantier de votre choix, gratuit. Pour creuser à votre rythme.
+- *Lancer un diagnostic terrain* : Une journée d'observation sur place pour affiner les chantiers avec Lugia.
 
 ---
 

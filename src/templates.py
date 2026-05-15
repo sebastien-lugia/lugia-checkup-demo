@@ -179,13 +179,11 @@ def description_usage_ia(answers: list[Any]) -> Optional[str]:
 # ---- Synthèse complète ----
 
 def build_phrase_choc(answers: list[Any]) -> str:
-    """Première phrase analytique de la synthèse — pose une lecture du cabinet,
-    pas une description.
+    """Première phrase de la synthèse — style MBTI : une affirmation forte qui claque.
 
-    Logique : on identifie le profil saillant (effort personnel concentré,
-    organisation informelle, accumulation d'outils, IA non conforme) et on
-    sélectionne la phrase la plus juste. Le ton reste factuel et accompagnant,
-    jamais accusateur.
+    Peut être flatteuse, montrer un point de douleur saillant, ou les deux à la fois.
+    Le ton respecte le professionnel ; il met en valeur ce qui est vrai sans complaisance
+    ni dramatisation.
     """
     porte_seul = _selected_option(answers, "q07") == "q07_a"
     canaux_directs = _selected_option(answers, "q04") == "q04_d"
@@ -195,40 +193,116 @@ def build_phrase_choc(answers: list[Any]) -> str:
     outils_empiles = _selected_option(answers, "q09") == "q09_d"
     cadre_absent = _selected_option(answers, "q03") in ("q03_c", "q03_d")
 
-    # Profil 1 : effort personnel concentré (le médecin porte le système)
     signals_effort = sum([porte_seul, canaux_directs, debordement_admin, ferme_conges])
+
+    # Profil 1 — cabinet tenu sur la seule personne du médecin (Chateau-type)
     if signals_effort >= 3:
         return (
-            "Votre cabinet tient — mais il tient surtout par votre effort personnel, "
-            "plus que par les dispositifs qui l'entourent."
+            "Peu de cabinets tiennent autant sur une seule personne que le vôtre. "
+            "C'est ce qui le fait tourner aujourd'hui — et ce qui rend le moindre imprévu "
+            "coûteux demain."
         )
 
-    # Profil 2 : organisation informelle + outils nombreux
-    if cadre_absent and outils_empiles:
+    # Profil 2 — IA grand public + outils empilés
+    if ia_non_conf and outils_empiles:
         return (
-            "Votre cabinet fonctionne au quotidien, mais sur une organisation principalement "
-            "informelle, répartie entre plusieurs outils qui ne sont pas vraiment connectés."
+            "Votre cabinet a déjà intégré l'IA dans son quotidien — vous êtes en avance "
+            "sur beaucoup de confrères. Reste maintenant à sécuriser ce gain pour qu'il "
+            "dure, sans porter seul le risque juridique."
         )
 
-    # Profil 3 : IA grand public au cœur du fonctionnement
-    if ia_non_conf and (outils_empiles or debordement_admin):
+    # Profil 3 — organisation efficace mais débordement administratif
+    if debordement_admin and not outils_empiles:
         return (
-            "Votre cabinet a déjà intégré l'IA pour gagner du temps utile — c'est une avancée, "
-            "qu'il reste à sécuriser pour qu'elle dure."
+            "Votre cabinet est plus structuré que la moyenne — sauf sur un point : "
+            "votre temps personnel sert encore de variable d'ajustement."
         )
 
-    # Profil 4 : effort personnel modéré
+    # Profil 4 — cadre largement informel
+    if cadre_absent:
+        return (
+            "Votre cabinet fonctionne sur une organisation principalement implicite. "
+            "Tout repose sur ce que chacun sait sans que rien ne soit écrit — c'est "
+            "tenable tant que personne ne change de poste, ou de jour."
+        )
+
+    # Profil 5 — effort personnel modéré, signaux dispersés
     if signals_effort >= 2:
         return (
-            "Votre cabinet tourne. Quelques points portent un poids plus lourd que d'autres "
-            "et méritent d'être regardés ensemble."
+            "Votre cabinet tourne, mais sur deux ou trois points qui pèsent davantage "
+            "que les autres et qui méritent d'être regardés ensemble."
         )
 
-    # Profil par défaut
+    # Profil par défaut — équilibre tenu
     return (
-        "Votre cabinet présente un équilibre tenu sur plusieurs points sensibles "
-        "qui méritent une attention coordonnée."
+        "Votre cabinet présente un équilibre tenu sur plusieurs points sensibles. "
+        "Les fragilités sont précises, repérables, et toutes solubles — le plus dur "
+        "est de décider par laquelle commencer."
     )
+
+
+def build_synthesis(answers: list[Any]) -> str:
+    """Compose la synthèse de la page de résultats.
+
+    Retourne un fragment HTML. Le dernier passage est entouré de
+    `<em>...</em>` pour rendre l'italique coloré côté CSS.
+
+    V1.1 Vague 3.1d : phrase choc style MBTI en tête, recommandation italique
+    réintroduit la thèse Lugia "vue d'ensemble avant chantier".
+    """
+    phrase_choc = build_phrase_choc(answers)
+
+    outils = derive_outils_principaux(answers)
+    externalisations = derive_externalisations(answers)
+    description_1 = description_demandes_directes(answers)
+    description_2 = description_usage_ia(answers)
+
+    # Ce qui tient au quotidien
+    org_items: list[str] = []
+    if outils:
+        org_items.append(outils)
+    if externalisations:
+        org_items.append(externalisations)
+    if org_items:
+        organisation = " Au quotidien, vous vous appuyez sur " + ", ".join(org_items) + "."
+    else:
+        organisation = ""
+
+    # Ce qui demande attention
+    descriptions = [d for d in (description_1, description_2) if d]
+    if len(descriptions) >= 2:
+        zone = (
+            " Deux points méritent d'être regardés en priorité : "
+            f"{descriptions[0]}, et {descriptions[1]}."
+        )
+    elif len(descriptions) == 1:
+        zone = f" Un point mérite d'être regardé en priorité : {descriptions[0]}."
+    else:
+        zone = ""
+
+    # Recommandation Lugia (italique) — thèse "vision claire avant chantier"
+    if description_2:
+        recommandation = (
+            " <em>Avant d'engager un chantier précis, Lugia commence par poser une vue "
+            "d'ensemble de votre organisation — c'est là que les vrais leviers apparaissent. "
+            "Pour vous, le geste qui pèse ensuite le plus est de remplacer votre usage actuel "
+            "de l'IA par un environnement conforme au secret médical.</em>"
+        )
+    elif descriptions:
+        recommandation = (
+            " <em>Avant d'engager un chantier précis, Lugia commence par poser une vue "
+            "d'ensemble de votre organisation. Une heure suffit à confirmer cette lecture "
+            "et décider ensemble par lequel commencer.</em>"
+        )
+    else:
+        recommandation = (
+            " <em>Lugia commence toujours par poser une vue d'ensemble de votre organisation. "
+            "Une heure suffit à confirmer cette lecture et identifier le premier geste qui "
+            "simplifiera votre semaine.</em>"
+        )
+
+    return phrase_choc + organisation + zone + recommandation
+
 
 
 def build_synthesis(answers: list[Any]) -> str:

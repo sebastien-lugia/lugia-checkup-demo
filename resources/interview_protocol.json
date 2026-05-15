@@ -1,5 +1,5 @@
 {
-  "version": "1.4",
+  "version": "1.5",
   "last_updated": "2026-05-15",
   "total_questions": 14,
   "scored_facets": [
@@ -118,7 +118,7 @@
         },
         {
           "id": "q02_d",
-          "label": "Aucun — je gère moi-même les rendez-vous et les appels",
+          "label": "Personne — je gère moi-même les rendez-vous et les appels",
           "health_score": null,
           "node_type": "Acteur",
           "tags": [
@@ -268,7 +268,7 @@
       "facet": "processes",
       "scored": true,
       "topic": "Charge administrative récurrente",
-      "open_prompt": "Y a-t-il des tâches administratives récurrentes (courriers, ordonnances, certificats, suivi de dossiers) que vous n'arrivez pas toujours à finir pendant votre temps de travail ? Si oui, lesquelles vous prennent le plus souvent ?",
+      "open_prompt": "Y a-t-il des tâches administratives récurrentes que vous n'arrivez pas toujours à finir sur vos heures de travail prévues ? Si oui, lesquelles vous prennent le plus de temps ? Note : courriers, ordonnances, certificats, suivi de dossiers.",
       "qcm_prompt": "Dans une semaine ordinaire, où aboutissent ces tâches administratives qui n'ont pas été faites entre deux patients ?",
       "options": [
         {
@@ -497,7 +497,7 @@
       "scored": true,
       "topic": "Nombre d'outils numériques utilisés",
       "open_prompt": null,
-      "qcm_prompt": "Combien d'outils numériques différents utilisez-vous pour gérer un dossier patient complet (prise de rendez-vous, consultation, ordonnance, courrier) ?",
+      "qcm_prompt": "Combien d'outils numériques différents utilisez-vous pour gérer un dossier patient complet ? Note : prise de rendez-vous, consultation, ordonnance, courrier.",
       "options": [
         {
           "id": "q09_a",
@@ -618,7 +618,7 @@
       "options": [
         {
           "id": "q11_a",
-          "label": "Alerte automatique — mon outil signale immédiatement les résultats critiques",
+          "label": "Signalement automatique — mon logiciel met en évidence les résultats critiques sans intervention de ma part",
           "health_score": 9,
           "node_type": "Outil",
           "tags": [
@@ -636,7 +636,7 @@
         },
         {
           "id": "q11_c",
-          "label": "Vérification régulière — je consulte la boîte de résultats à heures fixes plusieurs fois par jour",
+          "label": "Vérification régulière — je consulte les résultats à heures fixes plusieurs fois par jour",
           "health_score": 5,
           "node_type": "Processus",
           "tags": [
@@ -645,7 +645,7 @@
         },
         {
           "id": "q11_d",
-          "label": "Vérification opportuniste — je consulte quand j'ai un moment, sans rythme défini",
+          "label": "Vérification opportuniste — je consulte les résultats quand j'ai un moment, sans rythme défini",
           "health_score": 3,
           "node_type": "Symptôme",
           "tags": [
@@ -759,7 +759,7 @@
         },
         {
           "id": "q13_d",
-          "label": "IA grand public sans illusion — je sais que ce n'est pas tout à fait conforme",
+          "label": "IA grand public, en connaissance de cause — je sais que ce n'est pas tout à fait conforme",
           "health_score": 2,
           "node_type": "Risque",
           "tags": [

@@ -2,7 +2,7 @@
 
 > Session de référence (oracle) du persona Dr Philippe Chateau pour le démonstrateur Lugia Check-up.
 >
-> Version 2.1 — 15 mai 2026 — Refonte V1.1 Vague 3.1 (format mot-clé — détail homogène, Q03 axe cadrage réaligné, Q10 neutralisé pour solo, Q11 reformulé pro, ton des analyses adouci).
+> Version 2.2 — 15 mai 2026 — V1.1 Vague 3.1d : Q02_d (Personne au lieu de Aucun), Q11_a/c/d (Signalement automatique, résultats sans 'boîte'), Q13_d (en connaissance de cause).
 >
 > La session est générée à partir du contexte du persona (`persona_medecin_pchateau.md`) sans passage réel par l'application. Elle sert d'oracle de calibration et de seed `scripts/seed_persona.py`. Un test joué dans l'application doit reproduire ces réponses à l'identique.
 
@@ -94,7 +94,7 @@ Q03 passe de santé 4 (q03_c "pas de cadre formel" en Vague 3) à santé 3 (q03_
 - **Complément** : "C'est un point que j'avais identifié mais que je n'ai jamais vraiment adressé."
 
 ### Q11 — Tri des résultats d'examens
-- **Mode** : A · **Choix** : `q11_c` — *Vérification régulière — je consulte la boîte de résultats à heures fixes plusieurs fois par jour*
+- **Mode** : A · **Choix** : `q11_c` — *Vérification régulière — je consulte les résultats à heures fixes plusieurs fois par jour*
 - **Complément** : "Je vérifie deux fois par jour depuis qu'un résultat biologique modérément urgent m'avait échappé quatre jours il y a six mois. Sans conséquence pour la patiente, mais l'épisode m'a marqué. C'est une vigilance personnelle qui repose sur moi seul."
 
 ### Q12 — Téléconsultation
@@ -104,7 +104,7 @@ Q03 passe de santé 4 (q03_c "pas de cadre formel" en Vague 3) à santé 3 (q03_
 ### Q13 — Usage de l'IA générative
 - **Mode** : B
 - **Réponse libre initiale** : "Oui, je l'utilise depuis six mois pour mes courriers complexes — typiquement les courriers de synthèse pour les spécialistes ou les comptes-rendus de visite à domicile. Je remplace les données identifiantes par des codes avant de coller le contexte. Mais je sais que ce n'est pas une garantie suffisante."
-- **Choix** : `q13_d` — *IA grand public sans illusion — je sais que ce n'est pas tout à fait conforme*
+- **Choix** : `q13_d` — *IA grand public, en connaissance de cause — je sais que ce n'est pas tout à fait conforme*
 - **Complément** : "C'est l'usage qui me met le plus mal à l'aise dans mon organisation actuelle. La dictée vocale classique existe, je l'utilise pour mes comptes-rendus standards, mais ce que je cherche en plus, c'est l'aide à la rédaction structurée."
 
 ### Q14 — Ce qui vous aiderait le plus

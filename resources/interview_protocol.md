@@ -2,9 +2,11 @@
 
 Protocole du questionnaire du démonstrateur Lugia Check-up. Quatorze questions structurées qui couvrent les trois facettes WSF retenues en V0 (Processus & Activités, Participants, Information), avec deux questions de qualification en ouverture, une question de motivation au milieu, et une question de clôture.
 
-> Version 1.4 — 15 mai 2026 — Refonte V1.1 Vague 3.1.
+> Version 1.5 — 15 mai 2026 — V1.1 Vague 3.1d.
 
 > **Source de vérité technique :** `resources/interview_protocol.json`. Ce `.md` est la documentation humaine — toute évolution structurelle doit être faite dans le JSON et répercutée ici manuellement. Un test de cohérence (`src/questions.py::check_md_json_consistency`) vérifie au démarrage que les IDs de question et le compte sont alignés.
+
+> **Note v1.5 :** Vague 3.1d — six retours utilisateur sur le rendu : Q02_d "Aucun" → "Personne". Q05 open_prompt raccourci avec note séparée "courriers, ordonnances, certificats, suivi de dossiers" + reformulation "plus de temps" et "heures de travail prévues". Q09 qcm_prompt raccourci avec note séparée. Q11 libellés affinés : "Signalement automatique" au lieu de "Alerte automatique", "résultats" au lieu de "boîte de résultats". Q13_d : "IA grand public, en connaissance de cause" (plus pro que "sans illusion"). Le frontend `ModeAWidget` split désormais sur " Note :" comme `ModeBWidget` pour afficher la note en typographie atténuée sous le qcm_prompt.
 
 > **Note v1.4 :** Vague 3.1 — six retours utilisateur intégrés. Q03 réalignée sur un axe unique homogène "niveau de cadrage" (écrit appliqué / oral / écrit peu suivi / pas de cadre). Q05 reformulée (free_text sur les tâches récurrentes hors temps de travail, frontière q05_c cabinet vs q05_d domicile clarifiée). Q06_c, Q08_a reformatés au format "mot-clé — détail". Q10_b neutralisé pour le solo. Q11 reformulé en libellés professionnels avec format "mot-clé — détail". Format "mot-clé — détail" appliqué de manière homogène partout où c'est naturel. Voir `CHANGELOG.md` 2026-05-15 V1.1 Vague 3.1.
 

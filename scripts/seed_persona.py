@@ -161,8 +161,8 @@ ANSWERS = [
         "mode": 'A',
         "selected_option": 'q11_c',
         "selected_option_label": (
-        'Vérification régulière — je consulte la boîte de résultats à heures fixes '
-        'plusieurs fois par jour'
+        'Vérification régulière — je consulte les résultats à heures fixes plusieurs '
+        'fois par jour'
     ),
         "free_text": None,
         "complement_text": (
@@ -187,7 +187,10 @@ ANSWERS = [
         "question_id": 'q13',
         "mode": 'B',
         "selected_option": 'q13_d',
-        "selected_option_label": "IA grand public sans illusion — je sais que ce n'est pas tout à fait conforme",
+        "selected_option_label": (
+        "IA grand public, en connaissance de cause — je sais que ce n'est pas tout à "
+        'fait conforme'
+    ),
         "free_text": (
         "Oui, je l'utilise depuis six mois pour mes courriers complexes — "
         'typiquement les courriers de synthèse pour les spécialistes ou les '

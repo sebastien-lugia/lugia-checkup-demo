@@ -172,6 +172,8 @@ def generate_markdown(interview_id: int) -> str:
     # ---- Chantiers ----
     lines.append("## Trois chantiers prioritaires")
     lines.append("")
+    lines.append("Les trois chantiers ci-dessous servent une même ambition : vous donner une vision complète de votre cabinet pour comprendre l'origine des contraintes que vous vivez, savoir par où commencer, absorber les imprévus et anticiper les fragilités encore gérables. Le check-up pose la vue d'ensemble ; les chantiers sont la première marche vers une interface où votre organisation, physique et numérique, tient ensemble dans un cadre protégé et sécurisé.")
+    lines.append("")
     for ch in chantiers:
         lines.append(f"### Chantier {ch['priority']} — {ch['title']}")
         lines.append("")
@@ -197,10 +199,13 @@ def generate_markdown(interview_id: int) -> str:
     # ---- Prochaine étape ----
     lines.append("## Prochaine étape recommandée")
     lines.append("")
+    # V1.1 Vague 3.1c : les 3 options sont toutes des accompagnements Lugia.
+    # Aligné sur web/app/resultats/page.tsx (clés et wordings identiques).
     next_steps = {
         "autonomie": (
-            "Rester en autonomie",
-            "Reprendre les chantiers proposés seul, à votre rythme.",
+            "Approfondir un chantier",
+            "Un second questionnaire ciblé sur un chantier de votre choix, gratuit. "
+            "Pour creuser à votre rythme.",
         ),
         "lugia": (
             "Échanger avec Lugia",
@@ -208,7 +213,7 @@ def generate_markdown(interview_id: int) -> str:
         ),
         "terrain": (
             "Lancer un diagnostic terrain",
-            "Une journée d'observation sur place pour affiner les chantiers.",
+            "Une journée d'observation sur place pour affiner les chantiers avec Lugia.",
         ),
     }
     rec_title, rec_desc = next_steps[recommended]

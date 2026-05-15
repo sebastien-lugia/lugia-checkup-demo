@@ -39,6 +39,98 @@ Retour utilisateur immédiat sur Vague 3.1 : "trop de storytelling, reste concis
 - `chantier_ia` non-triggered : 2 phrases longues → 2 phrases courtes.
 - `chantier_absence` triggered : 3 phrases avec énumération → 2 phrases concrètes.
 
+### Vague 3.1f — philosophie Lugia ancrée dans la mémoire produit et dans le rapport
+
+Sébastien précise la philosophie attendue du check-up : les médecins n'ont jamais une vision complète de leur organisation, et Lugia doit les amener à voir quatre choses à la fois — comprendre les causes racines des contraintes et leurs interdépendances, faire face aux imprévus et surcharges ponctuelles, savoir par quel problème commencer, anticiper les fragilités encore gérables. Vision long terme : intégrer dans une seule interface protégée et sécurisée l'ensemble de l'organisation du cabinet, physique et numérique.
+
+**Mémoire produit (`MASTER_PROMPT.md`) :**
+
+- Section 2 enrichie d'un sous-bloc "Ce que le check-up doit faire vivre au répondant" listant les 4 axes. Toute formulation du rapport doit servir au moins l'un d'eux.
+- Section 3 enrichie d'un sous-bloc "Vision long terme" qui formalise l'ambition V2+ d'intégration physique/numérique. Toute communication produit (rapport, marketing, slides) doit faire entendre cette vision.
+
+**Rapport (`scripts/dump_report.py` et `web/app/resultats/page.tsx`) :**
+
+Intro avant les 3 chantiers refondue. Ne dit plus "vue d'ensemble + efficacité opérationnelle + environnement sécurisé" (séquence opérationnelle pure) mais articule les 4 axes et termine sur la vision intégration : *"Les trois chantiers ci-dessous servent une même ambition : vous donner une vision complète de votre cabinet pour comprendre l'origine des contraintes que vous vivez, savoir par où commencer, absorber les imprévus et anticiper les fragilités encore gérables. Le check-up pose la vue d'ensemble ; les chantiers sont la première marche vers une interface où votre organisation, physique et numérique, tient ensemble dans un cadre protégé et sécurisé."*
+
+### Modifié (Vague 3.1f)
+
+- `MASTER_PROMPT.md` — sections 2 et 3 enrichies.
+- `scripts/dump_report.py` — intro chantiers refondue.
+- `web/app/resultats/page.tsx` — intro chantiers refondue.
+
+### Vague 3.1e — analyse IA recadrée + intro parcours Lugia
+
+Deux retours après test local Vague 3.1d :
+
+**Analyse chantier IA** — la formulation polyfactorielle ("trois risques cumulés : violation du secret médical (article 226-13 du Code pénal), non-conformité RGPD avec hébergement non HDS, et engagement de votre responsabilité civile professionnelle…") sonnait comme une gradation accusatrice. Refondue en cadre métier factuel : *"Le besoin de rédaction structurée est légitime, le canal ne l'est pas. Aujourd'hui, c'est votre vigilance qui tient seule l'ensemble du cadre dans lequel ces échanges circulent : secret médical, RGPD, hébergement de santé (HDS), couverture par votre responsabilité civile professionnelle. C'est un poids que l'outil pourrait porter à votre place."* Les références métier sont conservées (secret médical, RGPD, HDS, RCP), mais cadrées comme un poids actuellement porté seul plutôt qu'une accusation de risque.
+
+**Intro parcours Lugia** — les 3 chantiers étaient lus comme des pistes indépendantes ; la valeur ajoutée Lugia (mise à plat de l'organisation puis accompagnement structuré) n'apparaissait pas. Paragraphe d'intro ajouté avant "Trois chantiers prioritaires" dans le rapport MD (`scripts/dump_report.py`) et dans la page de résultats Next.js (`web/app/resultats/page.tsx`) : *"Les trois chantiers ci-dessous s'inscrivent dans une même démarche Lugia : poser une vue d'ensemble de votre cabinet, avancer pas à pas sur des leviers d'efficacité opérationnelle, puis installer un environnement sécurisé qui prend en charge ce que vous faites déjà — y compris l'IA — sans rupture pour votre quotidien."* Posé en miroir de la recommandation italique de la synthèse, qui ouvre déjà sur la thèse "vue d'ensemble avant chantier".
+
+### Modifié (Vague 3.1e)
+
+- `src/workstreams.py` — analyse `chantier_ia` triggered recadrée.
+- `scripts/dump_report.py` — intro parcours Lugia avant la section Chantiers.
+- `web/app/resultats/page.tsx` — intro parcours Lugia avant la grille des chantiers.
+
+### Vague 3.1d — passe sur 10 retours après test local
+
+Validé en local par Sébastien avec backend uvicorn + frontend Next.js localhost. Dix retours portant sur le questionnaire, la synthèse, et le ton des analyses.
+
+**Questionnaire (JSON v1.5) :**
+
+- **Q02_d** : "Aucun — je gère moi-même les rendez-vous et les appels" → "Personne — …".
+- **Q05** open_prompt raccourci : sortie des exemples "(courriers, ordonnances, certificats, suivi de dossiers)" en note séparée. Reformulé "à finir pendant votre temps de travail" → "à finir sur vos heures de travail prévues", "lesquelles vous prennent le plus souvent" → "lesquelles vous prennent le plus de temps".
+- **Q09** qcm_prompt raccourci : "(prise de rendez-vous, consultation, ordonnance, courrier)" sorti en note séparée.
+- **Q11_a** : "Alerte automatique — mon outil signale immédiatement les résultats critiques" → "Signalement automatique — mon logiciel met en évidence les résultats critiques sans intervention de ma part" (plus métier, moins techno-jargonnant).
+- **Q11_c et Q11_d** : "boîte de résultats" → "résultats" simplement.
+- **Q13_d** : "IA grand public sans illusion — …" → "IA grand public, en connaissance de cause — …" (plus pro, moins gauche).
+
+**Frontend `web/components/CheckupWidgets.tsx` :**
+
+`ModeAWidget` adapté pour splitter `qcm_prompt` sur " Note :" comme le fait déjà `ModeBWidget` sur `open_prompt`. La note s'affiche en typographie atténuée sous le prompt principal. Permet de garder les détails utiles sans alourdir la question.
+
+**Synthèse "Votre situation aujourd'hui" — phrase choc style MBTI :**
+
+`build_phrase_choc` refondue pour produire une affirmation forte qui pose le diagnostic dès la première ligne, sur le modèle des conclusions MBTI. Cinq patterns selon profil :
+
+1. Cabinet tenu par une seule personne (effort_signals ≥ 3) : *"Peu de cabinets tiennent autant sur une seule personne que le vôtre. C'est ce qui le fait tourner aujourd'hui — et ce qui rend le moindre imprévu coûteux demain."*
+2. IA grand public + outils empilés : *"Votre cabinet a déjà intégré l'IA dans son quotidien — vous êtes en avance sur beaucoup de confrères. Reste maintenant à sécuriser ce gain pour qu'il dure, sans porter seul le risque juridique."*
+3. Organisation structurée mais débordement admin : *"Votre cabinet est plus structuré que la moyenne — sauf sur un point : votre temps personnel sert encore de variable d'ajustement."*
+4. Cadre largement informel : *"Votre cabinet fonctionne sur une organisation principalement implicite. Tout repose sur ce que chacun sait sans que rien ne soit écrit — c'est tenable tant que personne ne change de poste, ou de jour."*
+5. Défaut : *"Votre cabinet présente un équilibre tenu sur plusieurs points sensibles. Les fragilités sont précises, repérables, et toutes solubles — le plus dur est de décider par laquelle commencer."*
+
+**Recommandation italique — thèse Lugia réintégrée :**
+
+La phrase de fin de synthèse rouvre désormais sur la thèse de différenciation Lugia : *"Avant d'engager un chantier précis, Lugia commence par poser une vue d'ensemble de votre organisation — c'est là que les vrais leviers apparaissent."* Avait disparu dans la passe 3.1.
+
+**Analyse du chantier IA — polyfactorielle :**
+
+`chantier_ia` triggered. L'analyse précédente ("Le besoin est légitime, le canal ne l'est pas. Tant que vous passez par un outil grand public, l'anonymisation manuelle reste à votre seule charge.") ne mentionnait que la surcharge personnelle. Refonte intégrant les risques juridiques : *"Le besoin de rédaction structurée est légitime, le canal ne l'est pas. Au-delà de la charge d'anonymisation manuelle qui repose sur vous, vous êtes exposé à trois risques cumulés : violation du secret médical (article 226-13 du Code pénal), non-conformité RGPD avec hébergement non HDS, et engagement de votre responsabilité civile professionnelle en cas d'incident."*
+
+**Chantier absence non-triggered — surpromesse retirée :**
+
+"Vous repartez avec l'assurance que votre cabinet tient même si vous devez vous absenter." → "Vous repartez avec un cadre prêt à être enrichi au fil de l'eau, qui réduit le risque de rupture lors d'une absence imprévue." Plus mesuré, plus juste.
+
+### Modifié (Vague 3.1d)
+
+- `resources/interview_protocol.json` v1.5 — Q02_d, Q05, Q09, Q11, Q13_d.
+- `resources/interview_protocol.md` v1.5 — note Vague 3.1d.
+- `resources/sample_answers_pchateau.md` v2.2 — labels alignés.
+- `scripts/seed_persona.py` — labels alignés.
+- `src/templates.py` — `build_phrase_choc` refondue style MBTI, `build_synthesis` réintègre la thèse Lugia.
+- `src/workstreams.py` — analyse IA polyfactorielle (risques juridiques) + chantier absence non-triggered mesuré.
+- `web/components/CheckupWidgets.tsx` — `ModeAWidget` splitte sur " Note :".
+
+### Vague 3.1c — alignement "Prochaine étape recommandée" entre rapport MD et frontend
+
+Backlog initial point Prochaine étape n°1 ("On se tire une balle dans le pied avec l'option Rester en autonomie") : le frontend Next.js avait déjà été refondu en Vague 1 (la clé `autonomie` affiche désormais "Approfondir un chantier — un second questionnaire ciblé gratuit"), mais `scripts/dump_report.py` était resté désynchronisé et imprimait encore "Rester en autonomie — Reprendre les chantiers proposés seul, à votre rythme". Aligné sur le wording frontend. Les trois options sont désormais toutes des accompagnements Lugia :
+
+- **Approfondir un chantier** — second questionnaire ciblé, gratuit, à son rythme.
+- **Échanger avec Lugia** — 30 minutes, badge "Recommandé" par défaut.
+- **Lancer un diagnostic terrain** — une journée sur place avec Lugia.
+
+La clé interne `autonomie` reste pour ne pas casser l'API entre backend et frontend (renommage propre à reporter en V1.2 quand on touchera au routage).
+
 Mention "facturation électronique de septembre" dans le chantier IA supprimée et remplacée par "préparation des comptes-rendus structurés".
 
 ### Adaptation des templates aux nouveaux IDs

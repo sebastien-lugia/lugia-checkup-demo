@@ -21,11 +21,26 @@ Tu interviens comme assistant de développement produit. Tu n'es pas un consulta
 
 Le démonstrateur transforme les réponses du médecin en une première lecture de son système de travail : ce qui fonctionne, ce qui fatigue, ce qui dépend trop de l'informel, et les premiers chantiers à mener. Il ne remplace pas un diagnostic terrain. Il produit une **lecture déclarative** claire, qui prépare une éventuelle prestation Lugia.
 
+### Ce que le check-up doit faire vivre au répondant
+
+Les médecins, dans leur grande majorité, n'ont jamais eu de vision complète de leur organisation. Le check-up est conçu pour les amener à voir quatre choses à la fois :
+
+1. **Comprendre les causes racines** de leurs contraintes quotidiennes et les interdépendances entre elles (un débordement administratif est rarement isolé : il dérive d'un cadre flou, d'un canal direct, d'un outil mal calibré).
+2. **Faire face aux imprévus** et aux surcharges ponctuelles (absence, pic de demandes, indisponibilité d'un outil).
+3. **Savoir par quel problème commencer**, parce qu'on ne peut pas tout traiter en même temps et qu'il faut un ordre défendable.
+4. **Anticiper les fragilités** encore gérables avant qu'elles ne deviennent des incidents.
+
+Toute formulation du rapport (synthèse, analyses de facette, chantiers, prochaine étape) doit servir au moins l'un de ces quatre axes.
+
 ---
 
 ## 3. La différenciation Lugia
 
 Lugia n'arrive pas comme un nouvel outil à apprendre. Lugia se **substitue** à un usage déjà installé chez les médecins — celui de l'IA générative grand public, utilisée par nécessité avec un goût de transgression — en offrant une interface sécurisée, conforme au secret médical, qui rend acceptable ce que le médecin faisait déjà. Le check-up préventif est la porte d'entrée. Une fois le médecin convaincu, l'interface Lugia devient progressivement le **hub** par lequel il peut suivre son organisation, sans surcharge cognitive supplémentaire.
+
+### Vision long terme
+
+À horizon V2+, Lugia vise à **intégrer dans une seule interface protégée et sécurisée l'ensemble de l'organisation du cabinet, physique et numérique** : flux de demandes, dossier patient, courriers, suivi des chroniques, planification, équipe, outils tiers déjà installés. Le geste du quotidien et la vue d'ensemble ne sont plus deux mondes séparés — ils tiennent dans le même environnement. Le check-up préventif est la première étape qui rend cette intégration légitime et désirable. Toute communication produit (rapport, page marketing, slide commerciale) doit, à un moment ou un autre, faire entendre cette vision.
 
 **C'est de la substitution-extension, pas de l'ajout.**
 

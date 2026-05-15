@@ -189,8 +189,11 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
             )
 
         analyse = (
-            "Le besoin est légitime, le canal ne l'est pas. Tant que vous passez par un outil "
-            "grand public, l'anonymisation manuelle reste à votre seule charge."
+            "Le besoin de rédaction structurée est légitime, le canal ne l'est pas. "
+            "Aujourd'hui, c'est votre vigilance qui tient seule l'ensemble du cadre dans "
+            "lequel ces échanges circulent : secret médical, RGPD, hébergement de santé "
+            "(HDS), couverture par votre responsabilité civile professionnelle. C'est un "
+            "poids que l'outil pourrait porter à votre place."
         )
         pas_confirmer = (
             "La fréquence, le type de courriers concernés, et les autres usages éventuels "
@@ -307,7 +310,8 @@ def chantier_absence(answers: list[Any]) -> dict[str, Any]:
         )
         propose = (
             "Faire un point rapide sur ce qui est en place et compléter ce qui manque. "
-            "Vous repartez avec l'assurance que votre cabinet tient même si vous devez vous absenter."
+            "Vous repartez avec un cadre prêt à être enrichi au fil de l'eau, qui réduit "
+            "le risque de rupture lors d'une absence imprévue."
         )
 
     return {
