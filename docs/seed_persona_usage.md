@@ -49,6 +49,14 @@ L'URL externe Postgres se trouve dans **Render Dashboard → base `lugia-checkup
 
 ---
 
+## ⚠️ Prérequis : lancer les serveurs AVANT le seed
+
+Le script `seed_persona.py` ne fait que remplir la base de données. Il **ne démarre aucun serveur web**. Si tu lances seulement le seed et que tu ouvres `http://localhost:3000`, ton navigateur affichera une erreur de connexion — c'est normal, rien n'écoute sur ce port.
+
+L'ordre correct est : **(1) démarrer les serveurs, puis (2) lancer le seed, puis (3) ouvrir le navigateur**.
+
+---
+
 ## Workflow type — TEST en local
 
 Setup recommandé pour itérer sur le moteur de rapport sans toucher la prod.
@@ -157,3 +165,17 @@ Bénéfices :
 - `scripts/dump_report.py` — exporte un rapport au format Markdown depuis une interview en base. Utile pour comparer rapidement deux versions du rendu sans aller dans le navigateur.
 - `resources/sample_answers_pchateau.md` — documentation des 14 réponses Chateau, source de vérité conceptuelle.
 - `DECISIONS.md` D-018 (RGPD), D-019 (multi-tracks), D-020 (méthodologique + SLM).
+
+
+---
+
+## Dépannage rapide
+
+| Symptôme | Cause probable | Fix |
+|---|---|---|
+| `http://localhost:3000` → "Safari ne peut pas se connecter" | Le frontend Next.js n'est pas lancé | Lance `npm run dev` dans `web/` |
+| Le frontend tourne mais les requêtes vers `/auth/request-link` partent vers Render | `web/.env.local` pointe encore sur la prod | Mets `NEXT_PUBLIC_API_URL=http://localhost:8000` et redémarre `npm run dev` |
+| Le frontend tape sur localhost:8000 mais reçoit "Failed to fetch" | Le backend `uvicorn` n'est pas lancé | Lance `uvicorn backend.main:app --reload --port 8000` |
+| Seed lancé en local mais "Interview not found" en parcourant l'app | Le seed a écrit en SQLite local mais le frontend tape sur Render Postgres | Cohérence d'environnement : seed et requêtes doivent viser la même base |
+| Login en local mais email pointe vers `diagnostic.lugia.fr` | Mode console désactivé OU `RESEND_API_KEY` exporté dans le shell | Soit on lit le lien dans la console uvicorn, soit on l'accepte comme tel et on substitue manuellement `localhost:3000` dans l'URL |
+| `[email protected]` ne reçoit rien sur Gmail | Mode console — le lien est dans la console uvicorn, pas envoyé par email | Vérifier la console uvicorn pour le lien magique |
