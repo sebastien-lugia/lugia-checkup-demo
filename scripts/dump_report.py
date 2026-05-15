@@ -146,7 +146,6 @@ def generate_markdown(interview_id: int) -> str:
         score_data = facet_scores.get(facet_key)
         if score_data:
             score = score_data["score"]
-            raw = score_data["raw_mean"]
             contribs = score_data["contributions"]
             n = len(contribs)
             lines.append(f"### {label} — **{score} / 10**")
@@ -157,8 +156,7 @@ def generate_markdown(interview_id: int) -> str:
                 f"{c['question_id'].upper()} ({c['health_score']})" for c in contribs
             )
             lines.append(
-                f"*Détail du calcul : moyenne brute des {n} contributions = "
-                f"{raw:.2f} → arrondi {score}. Contributions : {details}.*"
+                f"*Calculé à partir de {n} réponses — {details}.*"
             )
             lines.append("")
         else:

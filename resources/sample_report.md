@@ -6,16 +6,16 @@
 
 ## Session
 
-- **Interview id** : 24
+- **Interview id** : 27
 - **Date de session** : 15/05/2026
-- **Statut** : in_progress
+- **Statut** : completed
 - **Nombre de réponses** : 14
 
 ---
 
 ## Votre situation aujourd'hui
 
-Peu de cabinets tiennent autant sur une seule personne que le vôtre. C'est ce qui le fait tourner aujourd'hui — et ce qui rend le moindre imprévu coûteux demain. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Deux points méritent d'être regardés en priorité : des appels et messages directs de patients que vous traitez en plus de votre télésecrétariat, et l'usage que vous faites d'un outil d'IA grand public pour vos courriers, en sachant que ce n'est pas une vraie garantie de secret médical. *Le geste qui pèse le plus aujourd'hui est de remplacer votre usage actuel de l'IA par un environnement conforme au secret médical. Une fois ce socle posé, le reste s'organise plus naturellement.*
+Rares sont les cabinets qui tiennent autant sur une seule personne que le vôtre. Ce qui le fait tourner aujourd'hui est exactement ce qui le fragilise au moindre imprévu. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Votre débordement administratif tient à un double facteur : des canaux directs qui multiplient les sollicitations, et un cadre flou qui empêche votre secrétariat de les absorber. *Avant d'engager un chantier précis, Lugia commence par poser une vue d'ensemble de votre organisation — c'est là que les vrais leviers apparaissent. Pour vous, le geste qui pèse ensuite le plus est de remplacer votre usage actuel de l'IA par un environnement conforme au secret médical.*
 
 ---
 
@@ -25,23 +25,25 @@ Peu de cabinets tiennent autant sur une seule personne que le vôtre. C'est ce q
 
 Votre prise de rendez-vous et le parcours de vos patients sont bien outillés. Mais une part des demandes vous arrive en direct (appels mobile, SMS, mails), en plus de votre télésecrétariat. Ces demandes ne sont pas tracées.
 
-*Détail du calcul : moyenne brute des 3 contributions = 3.33 → arrondi 3. Contributions : Q04 (3), Q05 (2), Q12 (5).*
+*Calculé à partir de 3 réponses — Q04 (3), Q05 (2), Q12 (5).*
 
 ### Équipe et secrétariat — **3 / 10**
 
-Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat fonctionne sans cadre formel — chaque cas est tranché au moment où il se présente. Pendant vos congés, le cabinet ferme — c'est la solution que vous avez retenue, faute d'un dispositif préparé en amont.
+Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat fonctionne sans cadre formel — chaque cas est tranché au moment où il se présente. Vos congés se passent bien, mais une absence imprévue de plusieurs jours serait difficile à absorber.
 
-*Détail du calcul : moyenne brute des 3 contributions = 3.00 → arrondi 3. Contributions : Q03 (3), Q07 (3), Q08 (3).*
+*Calculé à partir de 3 réponses — Q03 (3), Q07 (3), Q08 (4).*
 
 ### Outils et dossiers — **3 / 10**
 
 Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais aucun signal ne vous remonte quand un patient chronique cesse de revenir.
 
-*Détail du calcul : moyenne brute des 4 contributions = 2.75 → arrondi 3. Contributions : Q09 (2), Q10 (2), Q11 (5), Q13 (2).*
+*Calculé à partir de 4 réponses — Q09 (2), Q10 (2), Q11 (5), Q13 (2).*
 
 ---
 
 ## Trois chantiers prioritaires
+
+Les trois chantiers ci-dessous servent une même ambition : vous donner une **vision complète** de votre cabinet pour comprendre l'origine des contraintes que vous vivez, savoir par où commencer, absorber les imprévus et **anticiper les fragilités** encore gérables. Le check-up pose la vue d'ensemble ; les chantiers sont la première marche vers une **interface où votre organisation**, physique et numérique, tient ensemble dans un cadre protégé et sécurisé.
 
 ### Chantier 1 — Reprendre la main sur les demandes directes
 
@@ -69,7 +71,7 @@ Vous utilisez un outil d'IA grand public pour vos courriers complexes et vos com
 
 **Ce que ça révèle**
 
-Le besoin de rédaction structurée est légitime, le canal ne l'est pas. Au-delà de la charge d'anonymisation manuelle qui repose sur vous, vous êtes exposé à trois risques cumulés : violation du secret médical (article 226-13 du Code pénal), non-conformité RGPD avec hébergement non HDS, et engagement de votre responsabilité civile professionnelle en cas d'incident.
+Le besoin est légitime, le canal ne l'est pas. Aujourd'hui votre vigilance tient seule un cadre exigeant — secret médical, RGPD, hébergement de santé, responsabilité civile professionnelle — qu'un outil dédié pourrait porter à votre place.
 
 **Ce qui nous échappe encore**
 
@@ -77,13 +79,13 @@ La fréquence, le type de courriers concernés, et les autres usages éventuels 
 
 **Ce que nous vous proposons**
 
-Vous donner accès à un environnement IA conforme au secret médical qui couvre les mêmes usages, sans avoir à anonymiser à la main. La transition se fait sans changer votre façon de travailler. Un usage compatible avec le secret médical dès le premier jour, puis à votre rythme l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, suivi de patients chroniques, préparation des comptes-rendus structurés). Votre logiciel de dictée actuel reste — ce chantier porte uniquement sur l'aide à la rédaction structurée.
+Vous donner accès à un environnement IA conforme au secret médical pour les mêmes usages, sans anonymisation à la main. À votre rythme, ouverture à d'autres tâches utiles : préparation de courriers aux spécialistes, suivi de patients chroniques, comptes-rendus structurés. Votre logiciel de dictée actuel reste — ce chantier porte uniquement sur l'aide à la rédaction structurée.
 
 ### Chantier 3 — Anticiper une absence prolongée
 
 **Ce que nous avons compris**
 
-Tout le fonctionnement de votre cabinet repose sur votre mémoire. Depuis le départ de Catherine, rien n'est écrit. En cas d'arrêt de plusieurs jours, votre télésecrétariat et vos patients auraient du mal à savoir quoi faire.
+En cas d'arrêt de plusieurs jours, votre télésecrétariat pourrait gérer les rendez-vous, mais le reste serait compliqué. Depuis le départ de Catherine, peu de procédures sont écrites.
 
 **Ce que ça révèle**
 

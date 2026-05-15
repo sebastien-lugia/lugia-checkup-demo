@@ -241,6 +241,66 @@ def build_phrase_choc(answers: list[Any]) -> str:
 
 
 
+def build_chaine_causale(answers: list[Any]) -> Optional[str]:
+    """Détecte une chaîne causale saillante et la nomme.
+
+    Retourne None si aucune chaîne ne s'applique. Sinon retourne une phrase qui
+    relie deux ou trois constats par un lien de cause à conséquence. Pile l'axe 1
+    Lugia ("comprendre les causes racines et les interdépendances").
+    """
+    q01 = _selected_option(answers, "q01")
+    q03 = _selected_option(answers, "q03")
+    q04 = _selected_option(answers, "q04")
+    q05 = _selected_option(answers, "q05")
+    q07 = _selected_option(answers, "q07")
+    q08 = _selected_option(answers, "q08")
+    q09 = _selected_option(answers, "q09")
+    q10 = _selected_option(answers, "q10")
+    q11 = _selected_option(answers, "q11")
+    q13 = _selected_option(answers, "q13")
+
+    # Chaîne 1 — Débordement admin causé par canaux directs + cadre flou
+    if q05 == "q05_d" and q04 == "q04_d" and q03 in ("q03_c", "q03_d"):
+        return (
+            "Votre débordement administratif tient à un double facteur : des canaux directs "
+            "qui multiplient les sollicitations, et un cadre flou qui empêche votre secrétariat "
+            "de les absorber."
+        )
+
+    # Chaîne 2 — Fragilité continuité causée par solo + isolement + pas de dispositif
+    if q08 in ("q08_c", "q08_d") and q07 == "q07_a" and q01 == "q01_a":
+        return (
+            "La fragilité de continuité que vous décrivez n'est pas isolée : elle découle de "
+            "votre fonctionnement en solo, sans renfort régulier ni dispositif partagé pour "
+            "vos absences."
+        )
+
+    # Chaîne 3 — Usage IA grand public causé par besoin réel + stack peu intégré
+    if q13 in ("q13_c", "q13_d") and q09 == "q09_d":
+        return (
+            "Votre usage de l'IA grand public n'est pas un défaut isolé : c'est un besoin de "
+            "rédaction structurée auquel vos outils actuels, nombreux et peu intégrés, ne "
+            "savent pas répondre. Le canal grand public comble ce manque, faute d'alternative."
+        )
+
+    # Chaîne 4 — Perte de vue des chroniques causée par solo + pas d'alerte
+    if q10 == "q10_d" and q07 == "q07_a":
+        return (
+            "Le suivi de vos patients chroniques repose entièrement sur leur initiative — "
+            "parce que vous portez seul l'organisation, et que vos outils n'envoient pas d'alerte."
+        )
+
+    # Chaîne 5 — Tri opportuniste des résultats causé par isolement + pas d'alerte
+    if q11 == "q11_d" and q07 == "q07_a":
+        return (
+            "Le tri opportuniste des résultats que vous décrivez est moins un choix qu'une "
+            "conséquence : seul à porter la vigilance, sans système d'alerte ni délégation."
+        )
+
+    return None
+
+
+
 def build_synthesis(answers: list[Any]) -> str:
     """Compose la synthèse de la page de résultats.
 
@@ -269,16 +329,22 @@ def build_synthesis(answers: list[Any]) -> str:
         organisation = ""
 
     # Ce qui demande attention
-    descriptions = [d for d in (description_1, description_2) if d]
-    if len(descriptions) >= 2:
-        zone = (
-            " Deux points méritent d'être regardés en priorité : "
-            f"{descriptions[0]}, et {descriptions[1]}."
-        )
-    elif len(descriptions) == 1:
-        zone = f" Un point mérite d'être regardé en priorité : {descriptions[0]}."
+    # V1.1 Vague 3.1j : si une chaîne causale s'applique, on la nomme à la place
+    # d'une simple énumération. Pile l'axe 1 Lugia "causes racines et interdépendances".
+    chaine = build_chaine_causale(answers)
+    if chaine:
+        zone = " " + chaine
     else:
-        zone = ""
+        descriptions = [d for d in (description_1, description_2) if d]
+        if len(descriptions) >= 2:
+            zone = (
+                " Deux points méritent d'être regardés en priorité : "
+                f"{descriptions[0]}, et {descriptions[1]}."
+            )
+        elif len(descriptions) == 1:
+            zone = f" Un point mérite d'être regardé en priorité : {descriptions[0]}."
+        else:
+            zone = ""
 
     # Recommandation Lugia (italique) — thèse "vision claire avant chantier"
     if description_2:
@@ -365,16 +431,19 @@ def build_participants_summary(answers: list[Any]) -> str:
             f"{sec} travaille avec un cadre oral défini au démarrage, jamais formalisé depuis."
         )
 
-    # Que se passe-t-il en cas d'absence prolongée (Q08)
+    # Q08 — résilience aux absences (sémantique Vague 3.1j : planifié + imprévu)
     q08 = _selected_option(answers, "q08")
     if q08 == "q08_d":
         parts.append(
-            "Pendant vos congés, le cabinet ferme — c'est l'organisation que vous avez retenue."
+            "Aucun dispositif n'est prévu pour vos absences, planifiées ou non — le cabinet ferme dans les deux cas."
         )
     elif q08 == "q08_c":
         parts.append(
-            "Pendant vos absences, votre secrétariat tient les rendez-vous et l'accueil ; "
-            "le reste attend votre retour."
+            "Vos congés se passent bien, mais une absence imprévue de plusieurs jours serait difficile à absorber."
+        )
+    elif q08 == "q08_b":
+        parts.append(
+            "Un confrère ou un remplaçant prend le relais en cas d'absence, planifiée comme imprévue."
         )
 
     return " ".join(parts) if parts else "Pas assez de données pour résumer cette facette."

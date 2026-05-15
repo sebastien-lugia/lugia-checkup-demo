@@ -123,16 +123,15 @@ ANSWERS = [
     {
         "question_id": 'q08',
         "mode": 'A',
-        "selected_option": 'q08_d',
+        "selected_option": 'q08_c',
         "selected_option_label": (
-        "Fermeture — le cabinet ferme pendant mes congés, c'est ce que je fais en "
-        'pratique'
+        "Préparé pour les congés, fragile pour l'imprévu — je sais fermer pour mes "
+        'congés, je ne sais pas comment je gérerais une absence soudaine'
     ),
         "free_text": None,
         "complement_text": (
-        "Je n'ai jamais vraiment fait l'expérience d'un arrêt long. Pour mes congés "
-        "je préviens en amont et je ferme. Une semaine d'arrêt non planifié, je ne "
-        'sais pas comment je gérerais.'
+        "Pour mes congés je préviens en amont et je ferme, c'est gérable. Mais une "
+        "semaine d'arrêt non planifié, je ne sais pas comment je gérerais."
     ),
     },
     {

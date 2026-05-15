@@ -2,7 +2,7 @@
 
 > Session de référence (oracle) du persona Dr Philippe Chateau pour le démonstrateur Lugia Check-up.
 >
-> Version 2.3 — 15 mai 2026 — V1.1 Vague 3.1g : Q06_b refondue (pas de doublon 'recul'), Q07 simplifiée (seul/assistant/confrère associé/confrère remplaçant), Q05/Q09 'Par exemple :'.
+> Version 2.4 — 15 mai 2026 — V1.1 Vague 3.1j : Q08 refondue (planifié + imprévu en une question). Chateau passe q08_d → q08_c (santé 4). Participants 3,00 → 3,33.
 >
 > La session est générée à partir du contexte du persona (`persona_medecin_pchateau.md`) sans passage réel par l'application. Elle sert d'oracle de calibration et de seed `scripts/seed_persona.py`. Un test joué dans l'application doit reproduire ces réponses à l'identique.
 
@@ -30,7 +30,7 @@
 | 5 | Q05 | B | Processus | `q05_d` | 2 |
 | 6 | Q06 | A | Motivation | `q06_c` | — |
 | 7 | Q07 | A | Participants | `q07_a` | 3 |
-| 8 | Q08 | A | Participants | `q08_d` | 3 |
+| 8 | Q08 | A | Participants | `q08_c` | 4 |
 | 9 | Q09 | A | Information | `q09_d` | 2 |
 | 10 | Q10 | A | Information | `q10_d` | 2 |
 | 11 | Q11 | A | Information | `q11_c` | 5 |
@@ -40,11 +40,11 @@
 
 ### Scores bruts attendus par facette (moyenne)
 
-| Facette | Questions | Détail | Moyenne V1.1 Vague 3.1 |
+| Facette | Questions | Détail | Score sur 10 |
 |---|---|---|---|
-| Processus & activités | Q04, Q05, Q12 | (3 + 2 + 5) / 3 | **3,33** |
-| Participants | Q03, Q07, Q08 | (3 + 3 + 3) / 3 | **3,00** |
-| Information | Q09, Q10, Q11, Q13 | (2 + 2 + 5 + 2) / 4 | **2,75** |
+| Processus & activités | Q04, Q05, Q12 | 3 + 2 + 5 | **3** |
+| Participants | Q03, Q07, Q08 | 3 + 3 + 4 | **3** |
+| Information | Q09, Q10, Q11, Q13 | 2 + 2 + 5 + 2 | **3** |
 
 Q03 passe de santé 4 (q03_c "pas de cadre formel" en Vague 3) à santé 3 (q03_d "pas de cadre formel — chaque cas est tranché au moment où il se présente" en Vague 3.1) ; Participants baisse de 3,33 à 3,00. Cohérent avec l'axe homogénéisé "niveau de cadrage", qui place le sans-cadre tout en bas.
 
@@ -81,9 +81,9 @@ Q03 passe de santé 4 (q03_c "pas de cadre formel" en Vague 3) à santé 3 (q03_
 - **Mode** : A · **Choix** : `q07_a` — *Seul — je porte l'organisation du cabinet sans renfort régulier*
 - **Complément** : "Externalisations comptable et télésecrétariat à côté, mais rien dans le quotidien du cabinet lui-même."
 
-### Q08 — Continuité en cas d'absence
-- **Mode** : A · **Choix** : `q08_d` — *Fermeture — le cabinet ferme pendant mes congés, c'est ce que je fais en pratique*
-- **Complément** : "Je n'ai jamais vraiment fait l'expérience d'un arrêt long. Pour mes congés je préviens en amont et je ferme. Une semaine d'arrêt non planifié, je ne sais pas comment je gérerais."
+### Q08 — Résilience aux absences (planifiées et imprévues)
+- **Mode** : A · **Choix** : `q08_c` — *Préparé pour les congés, fragile pour l'imprévu — je sais fermer pour mes congés, je ne sais pas comment je gérerais une absence soudaine*
+- **Complément** : "Pour mes congés je préviens en amont et je ferme, c'est gérable. Mais une semaine d'arrêt non planifié, je ne sais pas comment je gérerais."
 
 ### Q09 — Nombre d'outils numériques
 - **Mode** : A · **Choix** : `q09_d` — *Plus de cinq outils — informations à saisir à plusieurs endroits*

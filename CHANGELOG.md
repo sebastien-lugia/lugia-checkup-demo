@@ -39,6 +39,54 @@ Retour utilisateur immédiat sur Vague 3.1 : "trop de storytelling, reste concis
 - `chantier_ia` non-triggered : 2 phrases longues → 2 phrases courtes.
 - `chantier_absence` triggered : 3 phrases avec énumération → 2 phrases concrètes.
 
+### Vague 3.1j — gap axe 2 (imprévus) et chaîne causale en synthèse
+
+Suite de l'audit du parcours vs les 4 axes Lugia (cf MASTER_PROMPT section 2 et TODO session dédiée).
+
+**Q08 refondue : planifié + imprévu en une seule question :**
+
+Le gap axe 2 (imprévus et surcharges ponctuelles) identifié en audit. Q08 captait seulement les congés planifiés ("Quand vous prenez une semaine de congé"). Reformulée pour couvrir les deux dimensions :
+
+| ID | Label | Santé |
+|---|---|---|
+| q08_a | Tout continue — un dispositif est prêt, planifié ou non | 9 |
+| q08_b | Couvert dans les deux cas — un confrère ou un remplaçant prend le relais quelle que soit l'absence | 7 |
+| q08_c | Préparé pour les congés, fragile pour l'imprévu | 4 |
+| q08_d | Pas de dispositif — le cabinet ferme dans tous les cas | 2 |
+
+Le palier intermédiaire q08_c est le plus juste pour la majorité des médecins solo qui gèrent leurs congés en fermant mais ne savent pas absorber une absence imprévue. Pour Chateau, le complément libre l'exprimait déjà ("Une semaine d'arrêt non planifié, je ne sais pas comment je gérerais") — il passe maintenant explicitement sur q08_c. Score Participants 3,00 → 3,33.
+
+**`build_chaine_causale(answers)` — axe 1 Lugia nommé :**
+
+Nouvelle fonction dans `src/templates.py` qui détecte cinq chaînes causales saillantes selon les combinaisons de réponses, et nomme une interdépendance plutôt que d'aligner deux symptômes :
+
+| Trigger | Chaîne nommée |
+|---|---|
+| q05_d + q04_d + q03_c/d | Débordement admin ← canaux directs + cadre flou |
+| q08_c/d + q07_a + q01_a | Fragilité continuité ← solo + isolement + absence dispositif |
+| q13_c/d + q09_d | Usage IA grand public ← besoin réel + stack peu intégré |
+| q10_d + q07_a | Perte de vue chroniques ← isolement + pas d'alerte |
+| q11_d + q07_a | Tri opportuniste résultats ← isolement + pas d'alerte |
+
+`build_synthesis` intègre la chaîne quand elle s'applique, à la place du bloc *"Deux points méritent d'être regardés en priorité : X et Y"*. Pile l'axe 1 Lugia ("comprendre les causes racines et les interdépendances"). Fallback systématique sur l'ancienne énumération si aucune chaîne ne déclenche.
+
+**Adaptation `build_participants_summary` :**
+
+Phrase Q08 adaptée à la nouvelle sémantique. Trois branches (q08_b, q08_c, q08_d) avec wordings cohérents avec la dimension imprévue.
+
+### Modifié (Vague 3.1j)
+
+- `resources/interview_protocol.json` v1.7 — Q08 refondue (qcm_prompt + 4 options).
+- `resources/interview_protocol.md` v1.6 — tableau Chateau et descriptions Q08.
+- `resources/sample_answers_pchateau.md` v2.4 — Chateau passe q08_c.
+- `scripts/seed_persona.py` — Chateau Q08 = q08_c, complément libre adapté.
+- `src/templates.py` — `build_chaine_causale` ajoutée, `build_synthesis` intègre la chaîne, phrase Q08 dans `build_participants_summary` mise à jour.
+
+### Reste ouvert (V1.5+)
+
+- Question imprévus opérationnels plus larges (au-delà de l'absence : annulation jour J, panne d'outil, pic de demande). Inscrit ROADMAP V1.5+.
+- Question d'auto-priorisation médecin (axe 3 Lugia). Inscrit ROADMAP V1.5+.
+
 ### Vague 3.1i — quatre corrections après nouveau test prod
 
 Quatre retours après second test prod avec un nouveau profil utilisateur.

@@ -1,5 +1,5 @@
 {
-  "version": "1.6",
+  "version": "1.7",
   "last_updated": "2026-05-15",
   "total_questions": 14,
   "scored_facets": [
@@ -440,42 +440,43 @@
       "scored": true,
       "topic": "Continuité en cas d'absence",
       "open_prompt": null,
-      "qcm_prompt": "Quand vous prenez une semaine de congé, comment cela se passe pour votre cabinet ?",
+      "qcm_prompt": "Imaginez que vous deviez vous absenter — pour des congés prévus ou un imprévu de plusieurs jours. Comment cela se passe pour votre cabinet ?",
       "options": [
         {
           "id": "q08_a",
-          "label": "Tout continue — un dispositif de continuité connu de l'équipe prend le relais",
+          "label": "Tout continue — un dispositif est prêt, planifié ou non",
           "health_score": 9,
           "node_type": "Processus",
           "tags": [
-            "continuité-préparée"
+            "continuité-complète"
           ]
         },
         {
           "id": "q08_b",
-          "label": "Un confrère assure — un remplaçant régulier prend les consultations à ma place",
+          "label": "Couvert dans les deux cas — un confrère ou un remplaçant prend le relais quelle que soit l'absence",
           "health_score": 7,
           "node_type": "Acteur",
           "tags": [
-            "remplacement-consultations"
+            "remplacement-toutes-absences"
           ]
         },
         {
           "id": "q08_c",
-          "label": "Continuité partielle — le secrétariat tient les rendez-vous, le reste attend mon retour",
-          "health_score": 5,
+          "label": "Préparé pour les congés, fragile pour l'imprévu — je sais fermer pour mes congés, je ne sais pas comment je gérerais une absence soudaine",
+          "health_score": 4,
           "node_type": "Risque",
           "tags": [
-            "continuité-partielle"
+            "planifié-couvert",
+            "imprévu-fragile"
           ]
         },
         {
           "id": "q08_d",
-          "label": "Fermeture — le cabinet ferme pendant mes congés, c'est ce que je fais en pratique",
-          "health_score": 3,
+          "label": "Pas de dispositif — le cabinet ferme dans tous les cas",
+          "health_score": 2,
           "node_type": "Risque",
           "tags": [
-            "fermeture-cabinet-congés"
+            "fermeture-systematique"
           ]
         },
         {

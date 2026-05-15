@@ -2,7 +2,7 @@
 
 Protocole du questionnaire du démonstrateur Lugia Check-up. Quatorze questions structurées qui couvrent les trois facettes WSF retenues en V0 (Processus & Activités, Participants, Information), avec deux questions de qualification en ouverture, une question de motivation au milieu, et une question de clôture.
 
-> Version 1.5 — 15 mai 2026 — V1.1 Vague 3.1d.
+> Version 1.6 — 15 mai 2026 — V1.1 Vague 3.1j (Q08 planifié + imprévu, chaîne causale en synthèse).
 
 > **Source de vérité technique :** `resources/interview_protocol.json`. Ce `.md` est la documentation humaine — toute évolution structurelle doit être faite dans le JSON et répercutée ici manuellement. Un test de cohérence (`src/questions.py::check_md_json_consistency`) vérifie au démarrage que les IDs de question et le compte sont alignés.
 
@@ -107,7 +107,7 @@ Mode A · Participants · scoré. Inchangée depuis V1.0.
 
 ### Q08 — Continuité en cas d'absence
 
-Mode A · Participants · scoré. Refonte Vague 3 (question vécue au lieu d'hypothétique). Vague 3.1 : libellés des 4 options reformatés au format "mot-clé — détail" (Tout continue, Un confrère assure, Continuité partielle, Fermeture).
+Mode A · Participants · scoré. Refonte Vague 3.1j : la question capte désormais les deux dimensions (congés planifiés ET absence imprévue de plusieurs jours) en 4 options graduées. Le palier intermédiaire 'préparé pour le planifié, fragile pour l'imprévu' (q08_c) capte le profil le plus courant chez les médecins solo. Comble le gap axe 2 Lugia (imprévus et surcharges ponctuelles) identifié en audit V1.1.
 
 ### Q09 — Nombre d'outils numériques
 
@@ -148,7 +148,7 @@ Pour calibration. La session V1.1 du persona doit produire les scores documenté
 | 5 | Q05 | `q05_d` (débordement domicile) | B | Processus |
 | 6 | Q06 | `q06_c` (événement déclencheur) | A | Motivation |
 | 7 | Q07 | `q07_a` (porte seul) | A | Participants |
-| 8 | Q08 | `q08_d` (cabinet ferme pendant les congés) | A | Participants |
+| 8 | Q08 | `q08_c` (préparé planifié, fragile imprévu) | A | Participants |
 | 9 | Q09 | `q09_d` (plus de cinq outils, double saisie) | A | Information |
 | 10 | Q10 | `q10_d` (perte de vue des chroniques) | A | Information |
 | 11 | Q11 | `q11_c` (consulte plusieurs fois par jour) | A | Information |
@@ -158,9 +158,11 @@ Pour calibration. La session V1.1 du persona doit produire les scores documenté
 
 Calcul indicatif V1.1 (à confronter au scoring effectif) :
 
-- Processus : Q04 (3) + Q05 (2) + Q12 (5) = **moyenne 3,33** (inchangé vs V1.0).
-- Participants : Q03 (3) + Q07 (3) + Q08 (3) = **moyenne 3,00** (vs 3,33 en Vague 3 — Q03 nouvelle option q03_d santé 3 au lieu de santé 4 sur l'axe cadrage homogénéisé).
-- Information : Q09 (2) + Q10 (2) + Q11 (5) + Q13 (2) = **moyenne 2,75** (inchangé vs V1.0 — Q09 baisse de 4 à 2, Q11 monte de 3 à 5, équilibre).
+- Processus : Q04 (3) + Q05 (2) + Q12 (5) → **score 3 / 10**.
+- Participants : Q03 (3) + Q07 (3) + Q08 (4) → **score 3 / 10**.
+- Information : Q09 (2) + Q10 (2) + Q11 (5) + Q13 (2) → **score 3 / 10**.
+
+(Les scores affichés au médecin sont des entiers sur 10. Le détail des contributions reste exposé en transparence — cf D-013 justifiabilité mathématique.)
 
 ---
 
