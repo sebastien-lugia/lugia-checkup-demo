@@ -63,7 +63,11 @@ export default function AccueilPage() {
 
   function handleResume() {
     if (!activeInterview) return;
-    router.push(`/checkup?interview=${activeInterview.id}`);
+    if (activeInterview.current_question_index >= 14) {
+      router.push(`/resultats?interview=${activeInterview.id}`);
+    } else {
+      router.push(`/checkup?interview=${activeInterview.id}`);
+    }
   }
 
   if (!isAuthReady) {
@@ -137,7 +141,9 @@ export default function AccueilPage() {
                   disabled={isWorking}
                   className="bg-lugia-text text-white px-6 py-3 rounded-lg font-medium text-sm hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Reprendre votre check-up →
+                  {activeInterview.current_question_index >= 14
+                    ? "Voir mes résultats →"
+                    : "Reprendre votre check-up →"}
                 </button>
                 <button
                   onClick={handleStartNew}
@@ -148,9 +154,19 @@ export default function AccueilPage() {
                 </button>
               </div>
               <div className="text-sm text-lugia-text-tertiary mt-3">
-                Une session est en cours (commencée le{" "}
-                {formatDate(activeInterview.created_at)}, question{" "}
-                {activeInterview.current_question_index + 1} sur 14).
+                {activeInterview.current_question_index >= 14 ? (
+                  <>
+                    Votre check-up est terminé (commencé le{" "}
+                    {formatDate(activeInterview.created_at)}). Vous pouvez
+                    consulter vos résultats.
+                  </>
+                ) : (
+                  <>
+                    Une session est en cours (commencée le{" "}
+                    {formatDate(activeInterview.created_at)}, question{" "}
+                    {activeInterview.current_question_index + 1} sur 14).
+                  </>
+                )}
               </div>
             </>
           ) : (
