@@ -235,9 +235,8 @@ def build_phrase_choc(answers: list[Any]) -> str:
 
     # Profil par défaut — équilibre tenu mais perfectible
     return (
-        "Pas de point de rupture évident dans votre cabinet — mais ce n'est pas une raison "
-        "pour ne rien faire. Plusieurs fragilités précises méritent un coup d'œil, et toutes "
-        "sont accessibles."
+        "Votre cabinet ne présente pas de point de rupture marqué. Quelques fragilités "
+        "précises méritent quand même un coup d'œil, et toutes sont à portée."
     )
 
 

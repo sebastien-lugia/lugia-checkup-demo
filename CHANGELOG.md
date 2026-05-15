@@ -39,6 +39,38 @@ Retour utilisateur immédiat sur Vague 3.1 : "trop de storytelling, reste concis
 - `chantier_ia` non-triggered : 2 phrases longues → 2 phrases courtes.
 - `chantier_absence` triggered : 3 phrases avec énumération → 2 phrases concrètes.
 
+### Vague 3.1i — quatre corrections après nouveau test prod
+
+Quatre retours après second test prod avec un nouveau profil utilisateur.
+
+**Pattern défaut moins rude :**
+
+*"Pas de point de rupture évident dans votre cabinet — mais ce n'est pas une raison pour ne rien faire."* → *"Votre cabinet ne présente pas de point de rupture marqué. Quelques fragilités précises méritent quand même un coup d'œil, et toutes sont à portée."* Plus accompagnant, conserve l'invitation à agir sans la teneur de reproche.
+
+**Bug d'espacement JSX dans l'intro chantiers :**
+
+L'intro affichait *"anticiper les fragilitésencore gérables"* — JSX absorbait l'espace après `</strong>` suivi d'un saut de ligne. Refonte du JSX avec `{" "}` systématique autour de chaque `<strong>` pour garantir les espaces, peu importe la mise en page du code source.
+
+**Chantier IA allégé :**
+
+- Analyse : 5 lignes → 3 lignes. *"Le besoin est légitime, le canal ne l'est pas. Aujourd'hui votre vigilance tient seule un cadre exigeant — secret médical, RGPD, hébergement de santé, responsabilité civile professionnelle — qu'un outil dédié pourrait porter à votre place."* Les références métier sont condensées (pas d'énumération en deux temps avec "(HDS)" entre parenthèses).
+- Proposition : 8 lignes → 4 lignes. *"Vous donner accès à un environnement IA conforme au secret médical pour les mêmes usages, sans anonymisation à la main. À votre rythme, ouverture à d'autres tâches utiles : préparation de courriers aux spécialistes, suivi de patients chroniques, comptes-rendus structurés."*
+
+**Bug session "Voir résultats" → Chateau :**
+
+Diagnostic : `get_active_interview` filtre sur `status == "in_progress"` et `order_by(updated_at)` desc. Le seed Chateau laissait volontairement la session en `in_progress` à `current_question_index = 14` (pour permettre la reprise depuis l'accueil). Conséquence : si le seed Chateau est rattaché au même email que celui avec lequel le user teste son propre parcours, et que le user n'a pas marqué sa session `complete` (ou si Chateau est plus récent), le bouton "Voir résultats" de l'accueil pointait sur Chateau.
+
+Fix : `scripts/seed_persona.py` appelle désormais `db.mark_interview_completed(interview_id)` après l'insertion des 14 réponses. Chateau ne ressort plus comme "interview active" du user. Le rapport Chateau reste accessible via l'URL directe `/resultats?interview=<id>` (sortie de `dump_report.py --list`) ou via `python scripts/dump_report.py --id <id>`.
+
+Note : à plus long terme (V1.5+), permettre une vraie liste des sessions du user sur l'accueil (in_progress + complete), avec un sélecteur. Pour V1.1 le fix court terme suffit.
+
+### Modifié (Vague 3.1i)
+
+- `src/templates.py` — pattern défaut de `build_phrase_choc` adouci.
+- `web/app/resultats/page.tsx` — intro chantiers avec `{" "}` systématique.
+- `src/workstreams.py` — analyse et propose chantier IA allégées.
+- `scripts/seed_persona.py` — Chateau marqué `complete` à la fin du seed.
+
 ### Vague 3.1h — trois corrections après test prod V1.1 Vague 3.1g
 
 Trois retours de test prod après push Vague 3.1g.

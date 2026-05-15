@@ -271,15 +271,15 @@ function ResultatsContent() {
           Trois chantiers prioritaires
         </div>
         <p className="text-[15px] text-lugia-text-primary leading-relaxed mb-6 max-w-3xl">
-          Les trois chantiers ci-dessous servent une même ambition&nbsp;: vous donner
-          une <strong className="font-semibold">vision complète</strong> de votre
-          cabinet pour comprendre l'origine des contraintes que vous vivez, savoir
-          par où commencer, absorber les imprévus et
-          {" "}<strong className="font-semibold">anticiper les fragilités</strong> encore
-          gérables. Le check-up pose la vue d'ensemble&nbsp;; les chantiers sont la
-          première marche vers une <strong className="font-semibold">interface où votre
-          organisation</strong>, physique et numérique, tient ensemble dans un cadre
-          protégé et sécurisé.
+          Les trois chantiers ci-dessous servent une même ambition&nbsp;: vous donner une{" "}
+          <strong className="font-semibold">vision complète</strong>{" "}
+          de votre cabinet pour comprendre l'origine des contraintes que vous vivez,
+          savoir par où commencer, absorber les imprévus et{" "}
+          <strong className="font-semibold">anticiper les fragilités</strong>{" "}
+          encore gérables. Le check-up pose la vue d'ensemble&nbsp;; les chantiers sont
+          la première marche vers une{" "}
+          <strong className="font-semibold">interface où votre organisation</strong>,
+          physique et numérique, tient ensemble dans un cadre protégé et sécurisé.
         </p>
         <div className="mb-10">
           {report.workstreams.map((ch) => (

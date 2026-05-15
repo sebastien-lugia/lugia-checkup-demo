@@ -269,11 +269,14 @@ def seed(email: str | None = None) -> int:
 
     total = len(ANSWERS)
     db.set_current_question_index(interview_id, total)
-    # La session reste en `in_progress` avec index = total. Elle sera alors
-    # proposée à la reprise depuis l'accueil et atterrira sur l'écran "Merci"
-    # qui mène vers la page de résultats.
+    # V1.1 Vague 3.1i : la session est marquée `complete` (toutes les réponses sont là).
+    # Cela évite que Chateau seedé pollue `get_active_interview` sur l'accueil quand
+    # le user teste son propre parcours avec le même email. Pour visualiser le rapport
+    # Chateau, ouvrir directement /resultats?interview=<id> ou regarder l'historique
+    # via dump_report.
+    db.mark_interview_completed(interview_id)
 
-    print(f"Pointeur de session positionné à la fin (current_question_index={total})")
+    print(f"Pointeur de session positionné à la fin (current_question_index={total}, statut=complete)")
     print()
     print("Pour consulter cette session :")
     print("  1. Lancer le frontend (streamlit ou Next.js selon la version)")

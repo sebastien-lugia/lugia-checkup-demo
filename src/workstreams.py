@@ -189,11 +189,10 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
             )
 
         analyse = (
-            "Le besoin de rédaction structurée est légitime, le canal ne l'est pas. "
-            "Aujourd'hui, c'est votre vigilance qui tient seule l'ensemble du cadre dans "
-            "lequel ces échanges circulent : secret médical, RGPD, hébergement de santé "
-            "(HDS), couverture par votre responsabilité civile professionnelle. C'est un "
-            "poids que l'outil pourrait porter à votre place."
+            "Le besoin est légitime, le canal ne l'est pas. Aujourd'hui votre vigilance "
+            "tient seule un cadre exigeant — secret médical, RGPD, hébergement de santé, "
+            "responsabilité civile professionnelle — qu'un outil dédié pourrait porter à "
+            "votre place."
         )
         pas_confirmer = (
             "La fréquence, le type de courriers concernés, et les autres usages éventuels "
@@ -201,12 +200,10 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
         )
 
         propose_parts = [
-            "Vous donner accès à un environnement IA conforme au secret médical qui couvre "
-            "les mêmes usages, sans avoir à anonymiser à la main. La transition se fait sans "
-            "changer votre façon de travailler. "
-            "Un usage compatible avec le secret médical dès le premier jour, puis à votre rythme "
-            "l'ouverture à d'autres tâches utiles (préparation de réponse à un spécialiste, "
-            "suivi de patients chroniques, préparation des comptes-rendus structurés)."
+            "Vous donner accès à un environnement IA conforme au secret médical pour les "
+            "mêmes usages, sans anonymisation à la main. À votre rythme, ouverture à "
+            "d'autres tâches utiles : préparation de courriers aux spécialistes, suivi "
+            "de patients chroniques, comptes-rendus structurés."
         ]
         if _has_classical_dictation(answers):
             propose_parts.append(
