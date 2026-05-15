@@ -306,68 +306,6 @@ def build_synthesis(answers: list[Any]) -> str:
 
 
 
-def build_synthesis(answers: list[Any]) -> str:
-    """Compose la synthèse de la page de résultats.
-
-    Retourne un fragment HTML. Le dernier passage est entouré de
-    `<em>...</em>` pour rendre l'italique coloré côté CSS.
-
-    V1.1 Vague 3.1 : ajout d'une phrase choc analytique en tête (build_phrase_choc),
-    suppression de la mention facturation électronique de septembre,
-    recommandation italique reformulée plus directe.
-    """
-    phrase_choc = build_phrase_choc(answers)
-
-    outils = derive_outils_principaux(answers)
-    externalisations = derive_externalisations(answers)
-    description_1 = description_demandes_directes(answers)
-    description_2 = description_usage_ia(answers)
-
-    # Ce qui tient au quotidien (factuel, sans jugement positif/négatif)
-    org_items: list[str] = []
-    if outils:
-        org_items.append(outils)
-    if externalisations:
-        org_items.append(externalisations)
-    if org_items:
-        organisation = " Au quotidien, vous vous appuyez sur " + ", ".join(org_items) + "."
-    else:
-        organisation = ""
-
-    # Ce qui demande encore de l'attention
-    descriptions = [d for d in (description_1, description_2) if d]
-    if len(descriptions) >= 2:
-        zone = (
-            " Deux points méritent d'être regardés en priorité : "
-            f"{descriptions[0]}, et {descriptions[1]}."
-        )
-    elif len(descriptions) == 1:
-        zone = f" Un point mérite d'être regardé en priorité : {descriptions[0]}."
-    else:
-        zone = ""
-
-    # Recommandation Lugia (italique) — sans mention facturation électronique
-    if description_2:
-        recommandation = (
-            " <em>Le geste qui pèse le plus aujourd'hui est de remplacer votre usage actuel "
-            "de l'IA par un environnement conforme au secret médical. Une fois ce socle posé, "
-            "le reste s'organise plus naturellement.</em>"
-        )
-    elif descriptions:
-        recommandation = (
-            " <em>Une heure avec Lugia suffit à reprendre ces points avec vous et décider "
-            "ensemble par lequel commencer, sans engagement ni jugement.</em>"
-        )
-    else:
-        recommandation = (
-            " <em>Une heure avec Lugia peut vous aider à confirmer cette lecture et identifier "
-            "le premier geste qui simplifiera votre semaine.</em>"
-        )
-
-    return phrase_choc + organisation + zone + recommandation
-
-
-
 def build_processes_summary(answers: list[Any]) -> str:
     """Compose le résumé qualitatif de la facette Parcours patient."""
     parts: list[str] = []
