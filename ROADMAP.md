@@ -54,6 +54,16 @@ Architecture envisagée :
 - **Sélecteur** : variable d'environnement `MODEL_PROVIDER` (ollama|anthropic|...) et `LLM_ENABLED` (0/1) pour basculer sans modifier le code.
 - **Fallback** : sur erreur LLM, indisponibilité, ou `LLM_ENABLED=0`, retour automatique aux templates V1.1.
 
+
+
+### Sélection sophistiquée des chaînes causales
+
+`src/templates.py::build_chaine_causale` (livrée Vague 3.1j) détecte 5 chaînes saillantes selon des combinaisons d'options et applique le premier match en cascade. Limite identifiée : pour un profil qui matche plusieurs chaînes, la cascade peut sélectionner la moins pertinente. Exemple Chateau : matche chaîne 1 (débordement admin) ET chaîne 2 (fragilité continuité) ; la cascade prend la 1 alors que la 2 résonne potentiellement plus avec son contexte familial.
+
+V1.2 : un module de scoring de saillance (priorité × profondeur × cohérence avec Q06/Q14) demande au SLM de classer les chaînes pertinentes pour un profil donné, et n'en retient qu'une ou deux. Permet aussi d'agréger plusieurs chaînes faibles en une chaîne synthétique inédite.
+
+Fallback systématique sur la cascade V1.1 si SLM indisponible.
+
 Travail prévu :
 - Choix du provider API cloud pour prod et signature des conditions.
 - Architecture d'orchestration côté `backend/main.py` ou nouveau module `src/llm.py`.

@@ -3,7 +3,7 @@
 > Master prompt de référence pour la fabrication progressive du démonstrateur Lugia.
 > Ce fichier définit le cadre méta du projet et doit être lu en premier par tout assistant IA qui ouvre le dépôt.
 >
-> Version 3.0 — 13 mai 2026 — Démarrage V1 (portage technique pur de V0 vers le web).
+> Version 3.1 — 15 mai 2026 — V1 livrée, V1.1 méthodologique enrichie livrée (tag v1.1 posable), V1.2 SLM hybride prochain chantier.
 
 ---
 
@@ -69,13 +69,13 @@ Avant chaque phase, tu rappelles brièvement son objectif et tu décris ce que t
 
 ## 5. Périmètre V0, V1 et au-delà
 
-### V0 — Premier jalon démontrable — LIVRÉE le 13 mai 2026
+### V0 — Premier jalon démontrable — LIVRÉE le 13 mai 2026 (tag `v0-final`)
 
 Démonstrateur local Streamlit + SQLite. Trois facettes WSF (Processus & Activités, Participants, Information), 14 questions en trois modes A/B/C, scoring moyenne brute, trois chantiers prédéfinis et paramétrés selon les réponses. Patient = Client en V0. Une seule visualisation, en cartes.
 
 L'état V0 est figé sur le tag git `v0-final`. Le démonstrateur reste pleinement fonctionnel en local pendant toute la suite (`streamlit run app.py`).
 
-### V1 — Portage technique pur — EN COURS
+### V1 — Portage technique pur — LIVRÉE le 13 mai 2026 (tag `v1-final`)
 
 V0 portée fidèlement sur une architecture web distante, **à isofonctionnel**. Aucune nouvelle fonctionnalité méthodologique. Le seul objectif est de rendre V0 accessible à distance via `diagnostic.lugia.fr` avec auth par lien magique. Le code métier (`src/scoring`, `src/templates`, `src/workstreams`, `src/questions`) est réutilisé tel quel, exposé via une API.
 
@@ -91,7 +91,21 @@ Architecture V1 :
 
 La V1 n'ajoute pas de feature produit. Sa seule valeur ajoutée est l'accès distant et l'ouverture à des tests clients chez eux.
 
-### V1.5 — Extension méthodologique — APRÈS V1
+### V1.1 — Méthodologique enrichi sur retours premiers prospects — LIVRÉE le 15 mai 2026
+
+Itération sur le backlog des premiers retours utilisateurs (mai 2026). Aucune nouvelle dépendance, aucun changement d'architecture. Refonte du questionnaire (Q2 à Q11 + règles globales 4 options + Autre, format mot-clé — détail, axe cadrage homogène, Q08 planifié+imprévu), refonte du moteur de rapport (`build_phrase_choc` style MBTI 6 patterns, `build_chaine_causale` 5 patterns, recommandation italique avec thèse Lugia "vue d'ensemble avant chantier", suppression des marques nominales et de la mention facturation électronique, ton adouci sans accusation, scores en entiers visibles).
+
+Voir `DECISIONS.md` D-020 (méthodologique enrichi + SLM hybride), D-021 (refonte Vague 3) et `CHANGELOG.md` entrées du 15 mai 2026 (Vague 3 + Vague 3.1a → 3.1k).
+
+Tag `v1.1` posable après les tests utilisateurs en cours.
+
+### V1.2 — SLM hybride — PROCHAIN CHANTIER
+
+Ajout d'une couche d'orchestration LLM en surcouche du méthodologique enrichi de V1.1, avec **fallback systématique** sur les templates en cas d'erreur, d'indisponibilité, ou de contrainte RGPD/confidentialité. Voir `DECISIONS.md` D-020 et `ROADMAP.md` V1.2 + V1.2+ pour le détail.
+
+À couvrir : choix provider API cloud (Anthropic Haiku par défaut, alternative Mistral Small), conception du module `src/llm.py` avec fallback templating, prompts par section avec few-shot examples issus de V1.1, génération dynamique des options de QCM selon profil (Q01/Q02/Q07) avec écran d'attente Lugia pédagogique, pondération de saillance des chaînes causales par SLM, enjeux temporels sectoriels datés (`temporal_concerns.json`).
+
+### V1.5 — Extension méthodologique — APRÈS V1.2
 
 Une fois V1 stable distant, enrichissement progressif du modèle d'analyse :
 
