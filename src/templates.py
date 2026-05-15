@@ -219,11 +219,11 @@ def build_phrase_choc(answers: list[Any]) -> str:
             "encore vous-même."
         )
 
-    # Profil 4 — cadre largement informel
+    # Profil 4 — cadre largement informel (formulation neutre solo/groupe)
     if cadre_absent:
         return (
-            "Votre cabinet fonctionne sur ce que chacun sait, pas sur ce qui est écrit. "
-            "Tenable au quotidien, mais difficile à transmettre dès que quelque chose change."
+            "Votre cabinet repose sur des règles qui ne sont nulle part écrites. "
+            "Tenable au quotidien, moins évident dès qu'il faut transmettre, déléguer ou s'absenter."
         )
 
     # Profil 5 — effort modéré, signaux dispersés
@@ -432,8 +432,7 @@ def build_participants_summary(answers: list[Any]) -> str:
     q08 = _selected_option(answers, "q08")
     if q08 == "q08_d":
         parts.append(
-            "Pendant vos congés, le cabinet ferme — c'est la solution que vous avez retenue, "
-            "faute d'un dispositif préparé en amont."
+            "Pendant vos congés, le cabinet ferme — c'est l'organisation que vous avez retenue."
         )
     elif q08 == "q08_c":
         parts.append(

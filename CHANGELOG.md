@@ -39,6 +39,30 @@ Retour utilisateur immédiat sur Vague 3.1 : "trop de storytelling, reste concis
 - `chantier_ia` non-triggered : 2 phrases longues → 2 phrases courtes.
 - `chantier_absence` triggered : 3 phrases avec énumération → 2 phrases concrètes.
 
+### Vague 3.1h — trois corrections après test prod V1.1 Vague 3.1g
+
+Trois retours de test prod après push Vague 3.1g.
+
+**Phrase choc — pattern 4 adapté au solo :**
+
+Pattern 4 (`cadre_absent`) disait *"Votre cabinet fonctionne sur ce que chacun sait, pas sur ce qui est écrit. Tenable au quotidien, mais difficile à transmettre dès que quelque chose change."* — formulation inadaptée à un médecin libéral seul (pas de "chacun"). Refondue en formulation neutre qui marche dans les deux cas : *"Votre cabinet repose sur des règles qui ne sont nulle part écrites. Tenable au quotidien, moins évident dès qu'il faut transmettre, déléguer ou s'absenter."*
+
+**Phrase Q08_d sans accusation implicite :**
+
+`build_participants_summary` disait *"Pendant vos congés, le cabinet ferme — c'est la solution que vous avez retenue, **faute d'un dispositif préparé en amont**."* Le segment "faute de" est un reproche tacite à un médecin solo qui choisit légitimement de fermer pour ses congés. Refondue en simple constat : *"Pendant vos congés, le cabinet ferme — c'est l'organisation que vous avez retenue."* L'information "pas de dispositif" reste utilisée par `chantier_absence` (analyse + proposition), elle n'a pas besoin d'être répétée dans la synthèse facette.
+
+À reconsidérer en V1.5+ : ajouter une question explicite "fermeture voulue ou subie ?" qui justifierait alors de différencier le wording.
+
+**Intro chantiers — moins de gras :**
+
+Vague 3.1g mettait 6 expressions en gras (4 axes + vision intégration intégrale), ce qui sursignifiait et perdait la hiérarchie. Vague 3.1h garde 3 ancres seulement : **vision complète**, **anticiper les fragilités**, **interface où votre organisation**. Les autres axes restent dans le texte sans emphase. Aligné côté MD (`scripts/dump_report.py`) et JSX (`web/app/resultats/page.tsx`).
+
+### Modifié (Vague 3.1h)
+
+- `src/templates.py` — pattern 4 de `build_phrase_choc` neutre solo/groupe + phrase Q08_d sans "faute de".
+- `scripts/dump_report.py` — intro chantiers : 3 mots-clés en gras au lieu de 6.
+- `web/app/resultats/page.tsx` — idem côté JSX.
+
 ### Vague 3.1g — finitions sur le second test local
 
 Cinq retours après second test local et deux idées de fond inscrites en ROADMAP.

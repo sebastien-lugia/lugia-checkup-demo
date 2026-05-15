@@ -172,7 +172,7 @@ def generate_markdown(interview_id: int) -> str:
     # ---- Chantiers ----
     lines.append("## Trois chantiers prioritaires")
     lines.append("")
-    lines.append("Les trois chantiers ci-dessous servent une même ambition : vous donner une **vision complète** de votre cabinet pour **comprendre l'origine** des contraintes que vous vivez, **savoir par où commencer**, **absorber les imprévus** et **anticiper les fragilités** encore gérables. Le check-up pose la vue d'ensemble ; les chantiers sont la première marche vers une **interface où votre organisation, physique et numérique, tient ensemble dans un cadre protégé et sécurisé**.")
+    lines.append("Les trois chantiers ci-dessous servent une même ambition : vous donner une **vision complète** de votre cabinet pour comprendre l'origine des contraintes que vous vivez, savoir par où commencer, absorber les imprévus et **anticiper les fragilités** encore gérables. Le check-up pose la vue d'ensemble ; les chantiers sont la première marche vers une **interface où votre organisation**, physique et numérique, tient ensemble dans un cadre protégé et sécurisé.")
     lines.append("")
     for ch in chantiers:
         lines.append(f"### Chantier {ch['priority']} — {ch['title']}")
