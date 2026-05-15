@@ -222,7 +222,7 @@ def build_phrase_choc(answers: list[Any]) -> str:
     # Profil 4 — cadre largement informel (formulation neutre solo/groupe)
     if cadre_absent:
         return (
-            "Votre cabinet repose sur des règles qui ne sont nulle part écrites. "
+            "Votre cabinet repose sur des règles qui ne sont pas écrites. "
             "Tenable au quotidien, moins évident dès qu'il faut transmettre, déléguer ou s'absenter."
         )
 
