@@ -179,11 +179,11 @@ def description_usage_ia(answers: list[Any]) -> Optional[str]:
 # ---- Synthèse complète ----
 
 def build_phrase_choc(answers: list[Any]) -> str:
-    """Première phrase de la synthèse — style MBTI : une affirmation forte qui claque.
+    """Première phrase de la synthèse — style MBTI : ouverture forte qui claque.
 
-    Peut être flatteuse, montrer un point de douleur saillant, ou les deux à la fois.
-    Le ton respecte le professionnel ; il met en valeur ce qui est vrai sans complaisance
-    ni dramatisation.
+    Six patterns selon profil. Chaque pattern commence par un superlatif ou une
+    affirmation tranchée, suivi d'une nuance qui ouvre sur la suite. Le ton reste
+    respectueux du professionnel.
     """
     porte_seul = _selected_option(answers, "q07") == "q07_a"
     canaux_directs = _selected_option(answers, "q04") == "q04_d"
@@ -195,50 +195,51 @@ def build_phrase_choc(answers: list[Any]) -> str:
 
     signals_effort = sum([porte_seul, canaux_directs, debordement_admin, ferme_conges])
 
-    # Profil 1 — cabinet tenu sur la seule personne du médecin (Chateau-type)
+    # Profil 1 — cabinet tenu par une seule personne (Chateau-type)
     if signals_effort >= 3:
         return (
-            "Peu de cabinets tiennent autant sur une seule personne que le vôtre. "
-            "C'est ce qui le fait tourner aujourd'hui — et ce qui rend le moindre imprévu "
-            "coûteux demain."
+            "Rares sont les cabinets qui tiennent autant sur une seule personne que le vôtre. "
+            "Ce qui le fait tourner aujourd'hui est exactement ce qui le fragilise au moindre "
+            "imprévu."
         )
 
     # Profil 2 — IA grand public + outils empilés
     if ia_non_conf and outils_empiles:
         return (
-            "Votre cabinet a déjà intégré l'IA dans son quotidien — vous êtes en avance "
-            "sur beaucoup de confrères. Reste maintenant à sécuriser ce gain pour qu'il "
-            "dure, sans porter seul le risque juridique."
+            "Votre cabinet est en avance sur beaucoup d'autres : vous avez déjà adopté l'IA "
+            "pour gagner du temps utile. Reste à transformer ce gain en habitude conforme, "
+            "sans en porter seul le risque."
         )
 
-    # Profil 3 — organisation efficace mais débordement administratif
+    # Profil 3 — organisation structurée mais débordement administratif
     if debordement_admin and not outils_empiles:
         return (
-            "Votre cabinet est plus structuré que la moyenne — sauf sur un point : "
-            "votre temps personnel sert encore de variable d'ajustement."
+            "Votre cabinet est plus structuré que la moyenne — sauf sur un point qui se voit "
+            "moins : votre temps personnel. C'est la dernière variable que vous arbitrez "
+            "encore vous-même."
         )
 
     # Profil 4 — cadre largement informel
     if cadre_absent:
         return (
-            "Votre cabinet fonctionne sur une organisation principalement implicite. "
-            "Tout repose sur ce que chacun sait sans que rien ne soit écrit — c'est "
-            "tenable tant que personne ne change de poste, ou de jour."
+            "Votre cabinet fonctionne sur ce que chacun sait, pas sur ce qui est écrit. "
+            "Tenable au quotidien, mais difficile à transmettre dès que quelque chose change."
         )
 
-    # Profil 5 — effort personnel modéré, signaux dispersés
+    # Profil 5 — effort modéré, signaux dispersés
     if signals_effort >= 2:
         return (
-            "Votre cabinet tourne, mais sur deux ou trois points qui pèsent davantage "
-            "que les autres et qui méritent d'être regardés ensemble."
+            "Votre cabinet tourne, avec deux ou trois points qui pèsent disproportionnellement "
+            "plus que les autres. C'est sur eux que se joue votre temps disponible."
         )
 
-    # Profil par défaut — équilibre tenu
+    # Profil par défaut — équilibre tenu mais perfectible
     return (
-        "Votre cabinet présente un équilibre tenu sur plusieurs points sensibles. "
-        "Les fragilités sont précises, repérables, et toutes solubles — le plus dur "
-        "est de décider par laquelle commencer."
+        "Pas de point de rupture évident dans votre cabinet — mais ce n'est pas une raison "
+        "pour ne rien faire. Plusieurs fragilités précises méritent un coup d'œil, et toutes "
+        "sont accessibles."
     )
+
 
 
 def build_synthesis(answers: list[Any]) -> str:

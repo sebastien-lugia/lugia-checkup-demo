@@ -2,7 +2,7 @@
 
 > Session de référence (oracle) du persona Dr Philippe Chateau pour le démonstrateur Lugia Check-up.
 >
-> Version 2.2 — 15 mai 2026 — V1.1 Vague 3.1d : Q02_d (Personne au lieu de Aucun), Q11_a/c/d (Signalement automatique, résultats sans 'boîte'), Q13_d (en connaissance de cause).
+> Version 2.3 — 15 mai 2026 — V1.1 Vague 3.1g : Q06_b refondue (pas de doublon 'recul'), Q07 simplifiée (seul/assistant/confrère associé/confrère remplaçant), Q05/Q09 'Par exemple :'.
 >
 > La session est générée à partir du contexte du persona (`persona_medecin_pchateau.md`) sans passage réel par l'application. Elle sert d'oracle de calibration et de seed `scripts/seed_persona.py`. Un test joué dans l'application doit reproduire ces réponses à l'identique.
 

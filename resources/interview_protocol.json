@@ -1,5 +1,5 @@
 {
-  "version": "1.5",
+  "version": "1.6",
   "last_updated": "2026-05-15",
   "total_questions": 14,
   "scored_facets": [
@@ -268,7 +268,7 @@
       "facet": "processes",
       "scored": true,
       "topic": "Charge administrative récurrente",
-      "open_prompt": "Y a-t-il des tâches administratives récurrentes que vous n'arrivez pas toujours à finir sur vos heures de travail prévues ? Si oui, lesquelles vous prennent le plus de temps ? Note : courriers, ordonnances, certificats, suivi de dossiers.",
+      "open_prompt": "Y a-t-il des tâches administratives récurrentes que vous n'arrivez pas toujours à finir sur vos heures de travail prévues ? Si oui, lesquelles vous prennent le plus de temps ? Par exemple : courriers, ordonnances, certificats, suivi de dossiers.",
       "qcm_prompt": "Dans une semaine ordinaire, où aboutissent ces tâches administratives qui n'ont pas été faites entre deux patients ?",
       "options": [
         {
@@ -339,7 +339,7 @@
         },
         {
           "id": "q06_b",
-          "label": "Une fatigue qui dure — je sens qu'il est temps de prendre du recul",
+          "label": "Une fatigue qui dure — j'ai besoin d'identifier ce qui pèse vraiment dans ma semaine",
           "health_score": null,
           "node_type": "Cause",
           "tags": [
@@ -396,7 +396,7 @@
         },
         {
           "id": "q07_b",
-          "label": "Assistant médical — en cabinet, à mes côtés",
+          "label": "Assistant(e) médical(e) — au cabinet, en soutien direct de la consultation",
           "health_score": 8,
           "node_type": "Acteur",
           "tags": [
@@ -405,17 +405,17 @@
         },
         {
           "id": "q07_c",
-          "label": "Locaux partagés — un IDEL, un kinésithérapeute ou un confrère sur le même site",
-          "health_score": 6,
+          "label": "Confrère associé — nous partageons l'organisation du cabinet au quotidien",
+          "health_score": 7,
           "node_type": "Acteur",
           "tags": [
-            "partage-locaux"
+            "confrère-associé"
           ]
         },
         {
           "id": "q07_d",
-          "label": "Remplaçant régulier — un confrère médecin qui revient ponctuellement",
-          "health_score": 7,
+          "label": "Confrère remplaçant — un médecin prend le relais régulièrement",
+          "health_score": 6,
           "node_type": "Acteur",
           "tags": [
             "remplaçant-régulier"
@@ -497,7 +497,7 @@
       "scored": true,
       "topic": "Nombre d'outils numériques utilisés",
       "open_prompt": null,
-      "qcm_prompt": "Combien d'outils numériques différents utilisez-vous pour gérer un dossier patient complet ? Note : prise de rendez-vous, consultation, ordonnance, courrier.",
+      "qcm_prompt": "Combien d'outils numériques différents utilisez-vous pour gérer un dossier patient complet ? Par exemple : prise de rendez-vous, consultation, ordonnance, courrier.",
       "options": [
         {
           "id": "q09_a",

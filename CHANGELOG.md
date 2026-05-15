@@ -39,6 +39,44 @@ Retour utilisateur immédiat sur Vague 3.1 : "trop de storytelling, reste concis
 - `chantier_ia` non-triggered : 2 phrases longues → 2 phrases courtes.
 - `chantier_absence` triggered : 3 phrases avec énumération → 2 phrases concrètes.
 
+### Vague 3.1g — finitions sur le second test local
+
+Cinq retours après second test local et deux idées de fond inscrites en ROADMAP.
+
+**Questionnaire (JSON v1.6) :**
+
+- **Q06_b** : "Une fatigue qui dure — je sens qu'il est temps de prendre du recul" → "Une fatigue qui dure — j'ai besoin d'identifier ce qui pèse vraiment dans ma semaine". Lève le doublon avec Q06_c ("Un événement récent — j'ai eu besoin de prendre du recul…").
+- **Q07** simplifiée : retire l'option "Locaux partagés — un IDEL, un kinésithérapeute ou un confrère" jugée non pertinente pour l'organisation médicale du cabinet. Quatre options désormais : Seul / Assistant(e) médical(e) / Confrère associé / Confrère remplaçant. Scores santé recalibrés (3 / 8 / 7 / 6).
+- **Q05 et Q09** : "Note :" → "Par exemple :" pour les énumérations d'exemples (courriers/ordonnances/… et RDV/consultation/…). "Note :" reste sur Q13 (exclusion conceptuelle Dragon).
+
+**Frontend (`web/components/CheckupWidgets.tsx`) :**
+
+`ModeAWidget` et `ModeBWidget` splittent désormais sur les deux séparateurs (" Note :" et " Par exemple :"). Le label affiché s'adapte automatiquement au séparateur détecté.
+
+**Phrases choc — punch augmenté :**
+
+Les 6 patterns de `build_phrase_choc` sont refondus pour ouvrir par un superlatif ou une affirmation tranchée, suivis d'une nuance qui ouvre. La phrase default plate ("Votre cabinet présente un équilibre tenu…") devient *"Pas de point de rupture évident dans votre cabinet — mais ce n'est pas une raison pour ne rien faire. Plusieurs fragilités précises méritent un coup d'œil, et toutes sont accessibles."* Pattern 1 (Chateau-type) devient *"Rares sont les cabinets qui tiennent autant sur une seule personne que le vôtre. Ce qui le fait tourner aujourd'hui est exactement ce qui le fragilise au moindre imprévu."*
+
+**Intro chantiers — lisibilité :**
+
+Côté MD (`scripts/dump_report.py`) : mots-clés en **gras** sur les 4 axes ("vision complète", "comprendre l'origine", "savoir par où commencer", "absorber les imprévus", "anticiper les fragilités") et sur la vision intégration ("interface où votre organisation, physique et numérique, tient ensemble dans un cadre protégé et sécurisé"). Côté JSX (`web/app/resultats/page.tsx`) : typographie passée de `text-sm text-lugia-text-secondary` à `text-[15px] text-lugia-text-primary` (plus lisible), mots-clés en `<strong className="font-semibold">`.
+
+**ROADMAP V1.5+ — deux notes ajoutées :**
+
+1. **Onboarding gamifié** type paramétrage profil de jeu vidéo (icônes pour personas, tâches, outils, enjeux), accessible dans le questionnaire d'approfondissement payant. Alimente le contexte des questions du parcours principal et des analyses du rapport.
+2. **Cohérence narrative thématique** : refondre l'ordre/groupement des questions en sections explicites avec micro-titres ("Votre temps", "La cohérence de vos actions", "Vos risques", "Votre résilience"), pour que le médecin ressente un fil rouge plutôt que des silos.
+
+### Modifié (Vague 3.1g)
+
+- `resources/interview_protocol.json` v1.6 — Q06_b, Q07 (4 options refondues), Q05/Q09 "Par exemple :".
+- `resources/sample_answers_pchateau.md` v2.3 — labels alignés.
+- `scripts/seed_persona.py` — labels alignés.
+- `src/templates.py` — 6 patterns `build_phrase_choc` plus punchy.
+- `scripts/dump_report.py` — intro chantiers avec **mots-clés gras**.
+- `web/app/resultats/page.tsx` — intro chantiers en typo `text-[15px] text-lugia-text-primary` + `<strong>` sur les axes Lugia.
+- `web/components/CheckupWidgets.tsx` — split générique " Note :" / " Par exemple :".
+- `ROADMAP.md` V1.5+ — gamification onboarding et cohérence narrative thématique inscrites.
+
 ### Vague 3.1f — philosophie Lugia ancrée dans la mémoire produit et dans le rapport
 
 Sébastien précise la philosophie attendue du check-up : les médecins n'ont jamais une vision complète de leur organisation, et Lugia doit les amener à voir quatre choses à la fois — comprendre les causes racines des contraintes et leurs interdépendances, faire face aux imprévus et surcharges ponctuelles, savoir par quel problème commencer, anticiper les fragilités encore gérables. Vision long terme : intégrer dans une seule interface protégée et sécurisée l'ensemble de l'organisation du cabinet, physique et numérique.

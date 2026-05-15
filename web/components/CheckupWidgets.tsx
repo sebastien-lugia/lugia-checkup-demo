@@ -103,9 +103,15 @@ export function ModeAWidget(props: WidgetProps) {
   const isOther = answer.selected_option?.endsWith("_other") ?? false;
 
   const qcmPrompt = question.qcm_prompt || "";
-  const hasNote = qcmPrompt.includes(" Note :");
+  const noteSep = qcmPrompt.includes(" Par exemple :")
+    ? " Par exemple :"
+    : qcmPrompt.includes(" Note :")
+      ? " Note :"
+      : null;
+  const noteLabel = noteSep === " Par exemple :" ? "Par exemple" : "Note";
+  const hasNote = noteSep !== null;
   const [mainPrompt, notePrompt] = hasNote
-    ? qcmPrompt.split(" Note :", 2)
+    ? qcmPrompt.split(noteSep, 2)
     : [qcmPrompt, ""];
 
   return (
@@ -115,7 +121,7 @@ export function ModeAWidget(props: WidgetProps) {
       </p>
       {hasNote && (
         <div className="text-xs text-lugia-text-tertiary mb-6 leading-relaxed">
-          Note : {notePrompt.trim()}
+          {noteLabel} : {notePrompt.trim()}
         </div>
       )}
       {!hasNote && <div className="mb-4" />}
@@ -134,9 +140,15 @@ export function ModeBWidget(props: WidgetProps) {
   const isOther = answer.selected_option?.endsWith("_other") ?? false;
 
   const openPrompt = question.open_prompt || "";
-  const hasNote = openPrompt.includes(" Note :");
+  const noteSep = openPrompt.includes(" Par exemple :")
+    ? " Par exemple :"
+    : openPrompt.includes(" Note :")
+      ? " Note :"
+      : null;
+  const noteLabel = noteSep === " Par exemple :" ? "Par exemple" : "Note";
+  const hasNote = noteSep !== null;
   const [mainPrompt, notePrompt] = hasNote
-    ? openPrompt.split(" Note :", 2)
+    ? openPrompt.split(noteSep, 2)
     : [openPrompt, ""];
 
   return (
@@ -146,7 +158,7 @@ export function ModeBWidget(props: WidgetProps) {
       </p>
       {hasNote && (
         <div className="text-xs text-lugia-text-tertiary mb-4 leading-relaxed">
-          Note : {notePrompt.trim()}
+          {noteLabel} : {notePrompt.trim()}
         </div>
       )}
       <textarea
