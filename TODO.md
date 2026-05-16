@@ -39,6 +39,57 @@ git push origin v1.1
 
 ---
 
+## Vague 2.2 LIVRÉE — multiplication des variantes méthodologiques (15 mai 2026)
+
+Livrée en 5 sous-vagues dans la même journée que V1.1 Vague 3.1. Critère opérationnel atteint : *deux médecins du même profil ne reçoivent plus exactement la même phrase analytique*. Voir `DECISIONS.md` D-022 et `CHANGELOG.md` entrées 2.2.0 / 2.2a / 2.2b / 2.2c / 2.2d.
+
+### Bilan final
+
+| Section | Variantes finales | Nouvelles |
+|---|---|---|
+| Phrase choc (6 patterns × 4 variantes) | 24 | 18 |
+| Recommandation italique (3 contextes × 1 variante) | 3 | 3 (réécrites concises métier, pas multipliées par choix : voir D-022) |
+| Chaînes causales (5 patterns × 3 variantes) | 15 | 10 |
+| Analyses chantier (7 contextes × 3 variantes) | 21 | 14 |
+| **Total** | **63** | **45 nouvelles + 3 réécrites** |
+
+Sortie strictement identique à V1.1 sur le chemin `interview_id=None` (V0 Streamlit figé sur `v0-final` non impacté). Sortie diversifiée à partir de l'appel API et `dump_report.py` qui passent maintenant `interview_id`.
+
+### Reste à valider en local
+
+Test bout en bout sur 5-10 profils distincts à passer côté machine de Sébastien :
+
+```bash
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+source .venv/bin/activate
+
+# Seed Chateau standard
+python scripts/seed_persona.py --email sebastien+test@gmail.com --reset
+python scripts/dump_report.py --list
+python scripts/dump_report.py --id <id>   # rapport généré dans resources/sample_report.md
+
+# Re-seed avec un autre email = autre interview_id = autre tirage
+python scripts/seed_persona.py --email sebastien+test2@gmail.com
+python scripts/dump_report.py --list
+python scripts/dump_report.py --id <new_id> --out resources/sample_report_v2.md
+
+# Diff visuel à l'œil : la phrase choc, la chaîne causale et l'analyse chantier doivent
+# être différentes entre les deux rapports. La reco italique doit être identique.
+diff resources/sample_report.md resources/sample_report_v2.md
+```
+
+Critères d'acceptation visuels :
+
+- Sur 3 rapports d'un même profil (Chateau × 3 ids), la phrase choc, la chaîne causale et au moins 2 analyses chantier sur 3 sont différentes entre les rapports.
+- La reco italique est identique aux 3 rapports d'un même contexte (`reco:ia_visible` ou `reco:descriptions` ou `reco:default`).
+- Aucun rapport ne contient de phrase qui sonne plaquée, condescendante ou en doublon avec la phrase suivante.
+
+### V1.2 SLM débloquée
+
+Le socle de 63 fragments narratifs (dont 51 nouveaux) est posé. Voir `ROADMAP.md` V1.2 pour la suite : choix provider API cloud, conception `src/llm.py`, prompts par section avec few-shot V1.1 Vague 2.2.
+
+---
+
 ## V1.2 PROCHAIN CHANTIER — SLM hybride
 
 Cadré en D-020 (méthodologique enrichi comme socle, SLM en surcouche avec fallback systématique). À ouvrir dans une nouvelle conversation Claude dédiée (cf D-019).

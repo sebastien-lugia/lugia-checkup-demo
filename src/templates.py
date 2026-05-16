@@ -10,13 +10,22 @@ V1.1 lite : vulgarisation du jargon WSF, suppression des citations
 nominatives d'outils (généralisation par catégorie), formulations
 factuelles non-dramatiques.
 
+V1.1 Vague 2.2 : chaque pattern (phrase choc, recommandation italique,
+chaîne causale, analyse chantier) expose désormais plusieurs variantes
+en liste. La sélection est déterministe par `_pick_variant(interview_id,
+variants, section_key)` — deux médecins du même profil voient un wording
+différent, un même médecin qui rouvre son rapport voit le même rendu.
+Sel par section pour que les sections ne shiftent pas en bloc entre deux
+profils similaires. Voir DECISIONS.md D-022 et TODO.md Vague 2.2.
+
 V1.2+ : génération contextuelle par SLM/LLM (voir DECISIONS.md D-020).
 """
 
 from __future__ import annotations
 
+import hashlib
 import re
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
 from src import db
 
@@ -63,6 +72,50 @@ def _complement(answers: list[Any], question_id: str) -> Optional[str]:
     """Retourne le texte de complément pour une question, ou None."""
     a = _get_answer(answers, question_id)
     return a["complement_text"] if a else None
+
+
+# ---- Sélection déterministe des variantes (V1.1 Vague 2.2) ----
+
+def _pick_variant(
+    interview_id: Optional[int],
+    variants: Sequence[Any],
+    section_key: str,
+) -> Any:
+    """Sélectionne une variante de manière déterministe.
+
+    Le hash combine `interview_id` et `section_key` (sel par section) pour que
+    deux sections du même rapport piochent indépendamment : deux médecins du
+    même profil reçoivent un mélange varié de wordings, pas une translation
+    en bloc d'un même rapport.
+
+    Stable cross-runs : `hashlib.md5` est utilisé sur la concaténation
+    string, contrairement à `hash()` Python dont la salaison change entre
+    processus pour les strings.
+
+    Si `interview_id` est `None` (chemin V0 Streamlit figé, ou contexte de
+    test sans interview), retourne la première variante. Le comportement est
+    alors strictement identique à V1.1 single-variant.
+
+    Args:
+        interview_id: identifiant de l'interview, ou `None` pour fallback.
+        variants: séquence non vide de variantes (typiquement des `str`).
+        section_key: clé courte de la section (ex: "phrase_choc:porteur_solo").
+            Doit être stable d'une exécution à l'autre.
+
+    Returns:
+        L'élément sélectionné dans `variants`.
+
+    Raises:
+        ValueError: si `variants` est vide.
+    """
+    if not variants:
+        raise ValueError("variants ne peut pas être vide")
+    if interview_id is None:
+        return variants[0]
+    key = f"{interview_id}:{section_key}".encode("utf-8")
+    digest = hashlib.md5(key).hexdigest()
+    idx = int(digest, 16) % len(variants)
+    return variants[idx]
 
 
 # ---- Dérivation des placeholders (généralisée, sans citations nominatives) ----
@@ -178,12 +231,23 @@ def description_usage_ia(answers: list[Any]) -> Optional[str]:
 
 # ---- Synthèse complète ----
 
-def build_phrase_choc(answers: list[Any]) -> str:
-    """Première phrase de la synthèse — style MBTI : ouverture forte qui claque.
+def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) -> str:
+    """Première phrase de la synthèse — interroge une zone aveugle systémique.
 
-    Six patterns selon profil. Chaque pattern commence par un superlatif ou une
-    affirmation tranchée, suivi d'une nuance qui ouvre sur la suite. Le ton reste
-    respectueux du professionnel.
+    Six patterns selon profil. Chaque pattern expose 4 variantes :
+    sélection déterministe par hash (`_pick_variant`). Sel par section pour
+    que deux médecins du même profil reçoivent un wording distinct.
+
+    Principe éditorial (refonte 2026-05-16) : la phrase choc ne conforte
+    pas le médecin dans sa pratique et ne la critique pas non plus. Elle
+    nomme une zone aveugle systémique — absence de mesure, absence de
+    trace, dépendance silencieuse, frictions absorbées sans signal — que
+    le check-up est précisément censé rendre visible.
+
+    Args:
+        answers: liste des réponses de l'interview.
+        interview_id: identifiant pour la sélection déterministe. Si `None`,
+            la première variante de chaque pattern est retournée.
     """
     porte_seul = _selected_option(answers, "q07") == "q07_a"
     canaux_directs = _selected_option(answers, "q04") == "q04_d"
@@ -195,58 +259,215 @@ def build_phrase_choc(answers: list[Any]) -> str:
 
     signals_effort = sum([porte_seul, canaux_directs, debordement_admin, ferme_conges])
 
-    # Profil 1 — cabinet tenu par une seule personne (Chateau-type)
+    # Profil 1 — porteur solo (cabinet tenu pour l'essentiel par 1 personne)
     if signals_effort >= 3:
-        return (
-            "Rares sont les cabinets qui tiennent autant sur une seule personne que le vôtre. "
-            "Ce qui le fait tourner aujourd'hui est exactement ce qui le fragilise au moindre "
-            "imprévu."
-        )
+        variants = [
+            (
+                "Ce qui fait tourner votre cabinet est mémorisé, pas documenté : les "
+                "particularités d'un patient chronique, le bon contact pour orienter un cas, "
+                "le rythme de relance d'un courrier non revenu. Cette mémoire fait la rapidité "
+                "du quotidien, et porte aussi la totalité du risque le jour où vous n'y êtes pas."
+            ),
+            (
+                "Votre cabinet est devenu très efficace dans sa configuration actuelle. Cette "
+                "efficacité tient parce que vous êtes le point de passage de toutes les "
+                "décisions — depuis l'arbitrage d'une consultation à intercaler jusqu'au tri "
+                "d'un courrier d'hôpital. Cette configuration repose sur votre présence "
+                "continue ; toute absence, même brève, ralentit l'ensemble."
+            ),
+            (
+                "Une partie de la conduite quotidienne de votre cabinet ne repose pas sur un "
+                "outil consultable : qui attend un retour de résultat, quels renouvellements "
+                "arrivent à échéance, quelles informations sont en suspens. Ce suivi vit dans "
+                "votre attention au fil des dossiers."
+            ),
+            (
+                "Vos décisions d'organisation se prennent au moment où elles se présentent — "
+                "quel rendez-vous décaler, quelle demande prioriser, quel renouvellement "
+                "traiter en premier. Cette réactivité vous rend rapide, et elle pourrait "
+                "empêcher qu'aucune de ces décisions soit déléguée le jour où ce serait utile."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "phrase_choc:porteur_solo")
 
     # Profil 2 — IA grand public + outils empilés
     if ia_non_conf and outils_empiles:
-        return (
-            "Votre cabinet est en avance sur beaucoup d'autres : vous avez déjà adopté l'IA "
-            "pour gagner du temps utile. Reste à transformer ce gain en habitude conforme, "
-            "sans en porter seul le risque."
-        )
+        variants = [
+            (
+                "Vous avez intégré l'IA dans votre quotidien — un courrier au spécialiste "
+                "reformulé en deux minutes, un compte-rendu structuré rapidement. L'outil que "
+                "vous utilisez n'a pourtant pas de lien contractuel avec votre cabinet : il "
+                "fonctionne sous des conditions générales pensées pour un usage grand public, "
+                "pas pour une activité médicale."
+            ),
+            (
+                "Chaque fois que vous demandez à votre outil d'IA de reformuler ou de résumer, "
+                "vous lui transmettez du contenu médical — souvent anonymisé partiellement, "
+                "parfois pas. Ce transfert ne déclenche aucune alerte, ne laisse aucune trace "
+                "dans votre cabinet, et ne pourrait pas être restitué si un patient ou un "
+                "confrère vous le demandait."
+            ),
+            (
+                "Le bénéfice que vous tirez de l'IA est immédiat. Le risque, lui, est différé "
+                "et personnel : en cas d'incident sur des données transmises, la responsabilité "
+                "revient au médecin qui en fait usage, pas à l'outil grand public."
+            ),
+            (
+                "Pour l'instant, ce qui empêche un problème dans votre usage de l'IA, c'est "
+                "votre attention au moment de la saisie — anonymiser un nom, retirer une date "
+                "de naissance, vérifier qu'aucun identifiant ne reste. C'est un dispositif "
+                "solide tant qu'il tient — mais c'est aussi le seul dispositif en place."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "phrase_choc:ia_stack")
 
-    # Profil 3 — organisation structurée mais débordement administratif
+    # Profil 3 — débordement perso (cabinet structuré mais charge déborde le soir)
     if debordement_admin and not outils_empiles:
-        return (
-            "Votre cabinet est plus structuré que la moyenne — sauf sur un point qui se voit "
-            "moins : votre temps personnel. C'est la dernière variable que vous arbitrez "
-            "encore vous-même."
-        )
+        variants = [
+            (
+                "L'unique indicateur qui détecte une surcharge de votre cabinet aujourd'hui, "
+                "c'est votre fatigue. Tant que vous arrivez à finir vos courriers et vos "
+                "comptes-rendus le soir ou pendant un weekend, le système considère que tout "
+                "va bien — et continue à fonctionner à ce niveau."
+            ),
+            (
+                "Travailler le soir et le weekend pour finir vos courriers, vos comptes-rendus "
+                "ou votre tri de résultats est devenu une partie attendue de votre semaine. "
+                "Cette habitude rend votre cabinet équilibré sur le papier — mais elle déplace "
+                "la frontière entre votre temps professionnel et votre temps personnel sans "
+                "qu'aucun signal ne la rappelle."
+            ),
+            (
+                "Votre temps personnel sert aujourd'hui de marge de manœuvre pour votre "
+                "cabinet. À la différence des autres ressources de votre cabinet — secrétariat, "
+                "logiciel métier, plage horaire, remplaçant ponctuel — celle-ci n'est ni "
+                "achetable, ni délégable, ni illimitée."
+            ),
+            (
+                "Le débordement administratif que vous décrivez — courriers à finir, "
+                "comptes-rendus à reformuler, mails à trier — ne déclenche aujourd'hui ni "
+                "alerte d'outil, ni signal de planning, ni discussion en équipe. Il est "
+                "entièrement absorbé par vous, invisible pour le système."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "phrase_choc:debordement_perso")
 
     # Profil 4 — cadre largement informel (formulation neutre solo/groupe)
     if cadre_absent:
-        return (
-            "Votre cabinet repose sur des règles qui ne sont pas écrites. "
-            "Tenable au quotidien, moins évident dès qu'il faut transmettre, déléguer ou s'absenter."
-        )
+        variants = [
+            (
+                "Votre cabinet fonctionne sur des règles non écrites — qui décide quoi, qui "
+                "prévient qui, comment réagir à un cas urgent. Cette informalité le rend très "
+                "adaptable au quotidien, et fait qu'aucune de ces règles n'existerait pour un "
+                "remplaçant ou un nouveau secrétaire qui arriverait demain."
+            ),
+            (
+                "Vos règles d'organisation existent dans la pratique et la conversation. Un "
+                "remplaçant qui débarquerait demain n'aurait pas de document à consulter sur ce "
+                "qu'il faut faire d'un appel pour un renouvellement, d'un résultat anormal "
+                "arrivé en urgence, ou d'une demande de certificat. Il devrait reconstituer "
+                "ces règles à mesure que les situations se présentent."
+            ),
+            (
+                "Le fonctionnement de votre cabinet se transmet par usage et par conversation, "
+                "pas par écrit. Cette transmission orale tient parce que c'est toujours la même "
+                "personne qui décide d'un renouvellement, d'une priorisation ou d'une "
+                "orientation — le jour où ces décisions doivent être prises par quelqu'un "
+                "d'autre, le cadre disparaît avec elle."
+            ),
+            (
+                "L'arrivée d'un nouveau collaborateur dans votre cabinet — secrétaire, "
+                "remplaçant, associé — passerait par plusieurs semaines d'alignement informel : "
+                "comprendre vos préférences de tri, vos seuils d'urgence, vos contacts "
+                "privilégiés chez les spécialistes. Ce temps n'apparaît dans aucun budget "
+                "parce que le besoin ne s'est pas encore présenté."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "phrase_choc:cadre_absent")
 
     # Profil 5 — effort modéré, signaux dispersés
     if signals_effort >= 2:
-        return (
-            "Votre cabinet tourne, avec deux ou trois points qui pèsent disproportionnellement "
-            "plus que les autres. C'est sur eux que se joue votre temps disponible."
-        )
+        variants = [
+            (
+                "Deux ou trois zones précises de votre cabinet consomment une part "
+                "disproportionnée de votre attention : une demande qui revient sous trois "
+                "canaux différents, un outil qui ne fait pas exactement ce que vous attendez, "
+                "un protocole que vous expliquez à nouveau chaque trimestre. Aucune ne pèse "
+                "assez, isolément, pour déclencher une remise en cause — et leur cumul ne se "
+                "voit pas davantage."
+            ),
+            (
+                "Quelques irritations récurrentes ont fini par devenir invisibles à force "
+                "d'être quotidiennes : le délai d'attente d'un compte-rendu de spécialiste, "
+                "le tiers payant qui se bloque sur certains dossiers, le SMS d'un patient "
+                "qu'on rappelle entre deux consultations. C'est précisément cette familiarité "
+                "qui les rend difficiles à voir — et donc difficiles à traiter."
+            ),
+            (
+                "Quelques points de friction se sont installés par habitude dans votre "
+                "quotidien — un canal qui apporte des demandes qu'il ne devrait pas, une "
+                "étape manuelle qu'on refait à chaque fois, un patient qui passe entre les "
+                "cases d'une liste. Aucun n'empêche le cabinet de tourner ; chacun, pris "
+                "isolément, reste sous le seuil de l'effort à corriger."
+            ),
+            (
+                "Votre cabinet tourne bien. Quelques zones précises pèsent plus que leur "
+                "poids — leur coût n'est pas dans le temps qu'elles vous prennent, mais dans "
+                "ce qu'elles vous empêchent d'engager ailleurs : reprendre un suivi de patient "
+                "chronique en retard, structurer un courrier difficile, dégager un créneau "
+                "d'urgence."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "phrase_choc:signaux_disperses")
 
-    # Profil par défaut — équilibre tenu mais perfectible
-    return (
-        "Votre cabinet ne présente pas de point de rupture marqué. Quelques fragilités "
-        "précises méritent quand même un coup d'œil, et toutes sont à portée."
-    )
+    # Profil par défaut — équilibre tenu mais lecture à froid pertinente
+    variants = [
+        (
+            "Votre cabinet ne présente pas de point de tension visible. Cette absence de "
+            "signal peut indiquer un cabinet effectivement bien réglé — ou un cabinet dont "
+            "les frictions sont absorbées en silence par vous-même ou par votre secrétariat : "
+            "un pic de demandes pendant la saison épidémique, l'absence d'un confrère, une "
+            "journée plus dense que prévu."
+        ),
+        (
+            "Pas d'alerte dans votre cabinet aujourd'hui. La question qu'un check-up "
+            "préventif pose à ce moment-là n'est pas \"qu'est-ce qui va mal\", mais "
+            "\"qu'est-ce qui pourrait basculer sans signal\" — un suivi de patient qui "
+            "s'effrite, un courrier en retard qui finit par bloquer un parcours, un protocole "
+            "qu'on n'a plus l'occasion de mettre à jour."
+        ),
+        (
+            "Quand un cabinet médical ne présente aucun signe de tension, deux lectures "
+            "restent possibles : il fonctionne effectivement bien, ou il fonctionne en "
+            "absorbant ses frictions sans les nommer — un délai qui s'allonge sans alerter, "
+            "un dossier qui dort, une tâche qu'on reporte de semaine en semaine. La "
+            "différence entre les deux ne se voit pas de l'intérieur, c'est précisément ce "
+            "qu'un regard extérieur peut faire apparaître."
+        ),
+        (
+            "Aucun point de votre cabinet ne demande d'intervention immédiate. C'est "
+            "précisément le moment où des repères posés à froid peuvent être utiles : saison "
+            "épidémique en fin d'année, départ imprévu du secrétariat, dossier complexe qui "
+            "s'enlise."
+        ),
+    ]
+    return _pick_variant(interview_id, variants, "phrase_choc:default")
 
 
 
-def build_chaine_causale(answers: list[Any]) -> Optional[str]:
+def build_chaine_causale(
+    answers: list[Any],
+    interview_id: Optional[int] = None,
+) -> Optional[str]:
     """Détecte une chaîne causale saillante et la nomme.
 
     Retourne None si aucune chaîne ne s'applique. Sinon retourne une phrase qui
     relie deux ou trois constats par un lien de cause à conséquence. Pile l'axe 1
     Lugia ("comprendre les causes racines et les interdépendances").
+
+    V1.1 Vague 2.2.0 : chaque chaîne expose une liste de variantes,
+    sélection déterministe par `_pick_variant`. Variantes supplémentaires
+    écrites en Vague 2.2c.
     """
     q01 = _selected_option(answers, "q01")
     q03 = _selected_option(answers, "q03")
@@ -261,47 +482,123 @@ def build_chaine_causale(answers: list[Any]) -> Optional[str]:
 
     # Chaîne 1 — Débordement admin causé par canaux directs + cadre flou
     if q05 == "q05_d" and q04 == "q04_d" and q03 in ("q03_c", "q03_d"):
-        return (
-            "Votre débordement administratif tient à un double facteur : des canaux directs "
-            "qui multiplient les sollicitations, et un cadre flou qui empêche votre secrétariat "
-            "de les absorber."
-        )
+        variants = [
+            (
+                "Votre débordement administratif tient à un double facteur : des canaux directs "
+                "qui multiplient les sollicitations, et un cadre flou qui empêche votre secrétariat "
+                "de les absorber."
+            ),
+            (
+                "Le débordement administratif que vous décrivez est le bout visible d'une cascade : "
+                "des canaux directs qui injectent des demandes en continu, un cadre encore flou qui "
+                "empêche votre secrétariat d'en absorber le flot, et vous qui rattrapez le reste en "
+                "fin de journée."
+            ),
+            (
+                "Ce qui déborde le soir n'est pas du travail en plus, c'est du travail qui aurait dû "
+                "être filtré en amont. Tant que les canaux directs restent ouverts et que le cadre "
+                "du secrétariat reste implicite, la pile administrative se reconstitue chaque jour."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "chaine:debordement_admin")
 
     # Chaîne 2 — Fragilité continuité causée par solo + isolement + pas de dispositif
     if q08 in ("q08_c", "q08_d") and q07 == "q07_a" and q01 == "q01_a":
-        return (
-            "La fragilité de continuité que vous décrivez n'est pas isolée : elle découle de "
-            "votre fonctionnement en solo, sans renfort régulier ni dispositif partagé pour "
-            "vos absences."
-        )
+        variants = [
+            (
+                "La fragilité de continuité que vous décrivez n'est pas isolée : elle découle de "
+                "votre fonctionnement en solo, sans renfort régulier ni dispositif partagé pour "
+                "vos absences."
+            ),
+            (
+                "L'absence imprévue est difficile à absorber chez vous parce que rien n'est partagé "
+                "en amont : votre fonctionnement solo n'est doublé d'aucun confrère qui connaisse "
+                "vos patients, et aucun dispositif n'est prêt à prendre le relais."
+            ),
+            (
+                "La fragilité que vous percevez sur la continuité n'est pas une faille d'organisation "
+                "isolée — c'est la conséquence directe d'un mode solo sans renfort régulier. Plus le "
+                "quotidien tient bien sans appui extérieur, plus une absence devient un événement à "
+                "fort impact."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "chaine:fragilite_continuite")
 
     # Chaîne 3 — Usage IA grand public causé par besoin réel + stack peu intégré
     if q13 in ("q13_c", "q13_d") and q09 == "q09_d":
-        return (
-            "Votre usage de l'IA grand public n'est pas un défaut isolé : c'est un besoin de "
-            "rédaction structurée auquel vos outils actuels, nombreux et peu intégrés, ne "
-            "savent pas répondre. Le canal grand public comble ce manque, faute d'alternative."
-        )
+        variants = [
+            (
+                "Votre usage de l'IA grand public n'est pas un défaut isolé : c'est un besoin de "
+                "rédaction structurée auquel vos outils actuels, nombreux et peu intégrés, ne "
+                "savent pas répondre. Le canal grand public comble ce manque, faute d'alternative."
+            ),
+            (
+                "Votre recours à une IA grand public n'arrive pas par hasard : c'est la réponse "
+                "pragmatique à un besoin de rédaction structurée que vos outils actuels, nombreux "
+                "mais peu intégrés, n'arrivent pas à couvrir. À défaut d'alternative interne, le "
+                "canal externe s'est installé."
+            ),
+            (
+                "Votre stack actuel fait beaucoup de choses, mais pas la rédaction assistée — et "
+                "c'est précisément là que vous gagnez du temps avec l'IA grand public. Le "
+                "contournement est donc rationnel, mais il vous fait porter seul un risque que "
+                "le cabinet pourrait mieux répartir."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "chaine:ia_stack")
 
     # Chaîne 4 — Perte de vue des chroniques causée par solo + pas d'alerte
     if q10 == "q10_d" and q07 == "q07_a":
-        return (
-            "Le suivi de vos patients chroniques repose entièrement sur leur initiative — "
-            "parce que vous portez seul l'organisation, et que vos outils n'envoient pas d'alerte."
-        )
+        variants = [
+            (
+                "Le suivi de vos patients chroniques repose entièrement sur leur initiative — "
+                "parce que vous portez seul l'organisation, et que vos outils n'envoient pas d'alerte."
+            ),
+            (
+                "Le suivi des patients chroniques est devenu votre angle mort : porté seul, sans "
+                "relais d'équipe pour relancer, et sans signal côté outil quand un dossier se met "
+                "en sommeil. Vous ne perdez personne par négligence — vous perdez la trace de ceux "
+                "qui s'éloignent silencieusement."
+            ),
+            (
+                "Vos patients chroniques reviennent quand ils veulent ou y pensent, et pas selon "
+                "une cadence que le cabinet contrôle. Sans alerte côté outil et sans regard "
+                "d'équipe, ce n'est plus le système qui suit le patient mais le patient qui suit "
+                "ce qu'il peut."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "chaine:perte_vue_chroniques")
 
     # Chaîne 5 — Tri opportuniste des résultats causé par isolement + pas d'alerte
     if q11 == "q11_d" and q07 == "q07_a":
-        return (
-            "Le tri opportuniste des résultats que vous décrivez est moins un choix qu'une "
-            "conséquence : seul à porter la vigilance, sans système d'alerte ni délégation."
-        )
+        variants = [
+            (
+                "Le tri opportuniste des résultats que vous décrivez est moins un choix qu'une "
+                "conséquence : seul à porter la vigilance, sans système d'alerte ni délégation."
+            ),
+            (
+                "Trier les résultats au fil de l'eau, comme vous le décrivez, n'est pas une "
+                "méthode mais une contrainte : seul à porter la vigilance, sans signal de tri "
+                "prioritaire ni relais d'équipe, le seul rythme possible est celui des fenêtres "
+                "disponibles dans votre journée."
+            ),
+            (
+                "Vous traitez les résultats quand vous tombez dessus parce que rien ne les classe "
+                "pour vous en amont. La conséquence pratique : un résultat important côtoie un "
+                "résultat banal dans votre flux, et c'est votre attention qui doit faire le tri "
+                "à chaque fois."
+            ),
+        ]
+        return _pick_variant(interview_id, variants, "chaine:tri_opportuniste")
 
     return None
 
 
 
-def build_synthesis(answers: list[Any]) -> str:
+def build_synthesis(
+    answers: list[Any],
+    interview_id: Optional[int] = None,
+) -> str:
     """Compose la synthèse de la page de résultats.
 
     Retourne un fragment HTML. Le dernier passage est entouré de
@@ -309,8 +606,16 @@ def build_synthesis(answers: list[Any]) -> str:
 
     V1.1 Vague 3.1d : phrase choc style MBTI en tête, recommandation italique
     réintroduit la thèse Lugia "vue d'ensemble avant chantier".
+
+    V1.1 Vague 2.2.0 : `interview_id` propagé jusqu'aux fonctions enfant
+    (`build_phrase_choc`, `build_chaine_causale`) pour permettre la
+    sélection déterministe de variantes. La recommandation italique
+    bascule également sur `_pick_variant`. Sortie strictement identique
+    à V1.1 tant que chaque pattern n'a qu'une variante (cas Vague 2.2.0) ;
+    diversifiée dès que les variantes supplémentaires sont écrites
+    (Vagues 2.2a-d).
     """
-    phrase_choc = build_phrase_choc(answers)
+    phrase_choc = build_phrase_choc(answers, interview_id)
 
     outils = derive_outils_principaux(answers)
     externalisations = derive_externalisations(answers)
@@ -331,11 +636,11 @@ def build_synthesis(answers: list[Any]) -> str:
     # Ce qui demande attention
     # V1.1 Vague 3.1j : si une chaîne causale s'applique, on la nomme à la place
     # d'une simple énumération. Pile l'axe 1 Lugia "causes racines et interdépendances".
-    chaine = build_chaine_causale(answers)
+    chaine = build_chaine_causale(answers, interview_id)
+    descriptions = [d for d in (description_1, description_2) if d]
     if chaine:
         zone = " " + chaine
     else:
-        descriptions = [d for d in (description_1, description_2) if d]
         if len(descriptions) >= 2:
             zone = (
                 " Deux points méritent d'être regardés en priorité : "
@@ -346,26 +651,38 @@ def build_synthesis(answers: list[Any]) -> str:
         else:
             zone = ""
 
-    # Recommandation Lugia (italique) — thèse "vision claire avant chantier"
+    # Recommandation Lugia (italique) — thèse "vision claire avant chantier".
+    # V1.1 Vague 2.2.0 : sélection déterministe par `_pick_variant`. Variantes
+    # supplémentaires écrites en Vague 2.2b.
     if description_2:
-        recommandation = (
-            " <em>Avant d'engager un chantier précis, Lugia commence par poser une vue "
-            "d'ensemble de votre organisation — c'est là que les vrais leviers apparaissent. "
-            "Pour vous, le geste qui pèse ensuite le plus est de remplacer votre usage actuel "
-            "de l'IA par un environnement conforme au secret médical.</em>"
-        )
+        reco_variants = [
+            (
+                " <em>Avant tout chantier, Lugia commence par une vue d'ensemble de votre "
+                "cabinet. Pour vous, le pas qui pèse le plus est de remplacer votre IA grand "
+                "public par un environnement conforme au secret médical.</em>"
+            ),
+        ]
+        recommandation = _pick_variant(interview_id, reco_variants, "reco:ia_visible")
     elif descriptions:
-        recommandation = (
-            " <em>Avant d'engager un chantier précis, Lugia commence par poser une vue "
-            "d'ensemble de votre organisation. Une heure suffit à confirmer cette lecture "
-            "et décider ensemble par lequel commencer.</em>"
-        )
+        reco_variants = [
+            (
+                " <em>Lugia commence par une vue d'ensemble de votre organisation de cabinet, "
+                "avant tout chantier ciblé. Une heure d'échange suffit à confirmer cette lecture "
+                "et tracer la première action — qu'il s'agisse de demandes patients, de courriers "
+                "ou de coordination.</em>"
+            ),
+        ]
+        recommandation = _pick_variant(interview_id, reco_variants, "reco:descriptions")
     else:
-        recommandation = (
-            " <em>Lugia commence toujours par poser une vue d'ensemble de votre organisation. "
-            "Une heure suffit à confirmer cette lecture et identifier le premier geste qui "
-            "simplifiera votre semaine.</em>"
-        )
+        reco_variants = [
+            (
+                " <em>Lugia commence par une vue d'ensemble de votre cabinet, même quand rien "
+                "ne presse. Une heure d'échange suffit à identifier où porter l'attention en "
+                "premier — coordination, suivi des chroniques, courriers ou organisation "
+                "interne.</em>"
+            ),
+        ]
+        recommandation = _pick_variant(interview_id, reco_variants, "reco:default")
 
     return phrase_choc + organisation + zone + recommandation
 

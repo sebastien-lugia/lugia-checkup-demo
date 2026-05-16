@@ -6,6 +6,37 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-022 — Sélection déterministe des variantes par sel de section + reco italique sans variantes
+
+**Date :** 2026-05-15
+
+**Décision :** Le moteur de génération du rapport (`src/templates.py`, `src/workstreams.py`) sélectionne désormais entre plusieurs variantes par section narrative via un hash déterministe combinant `interview_id` et une `section_key` propre à chaque section. Quatre sections analytiques exposent 3 à 4 variantes (phrase choc, chaîne causale, analyse chantier) — la recommandation italique en bas de synthèse garde une seule variante par contexte parce que c'est une fermeture commerciale standardisée, pas une phrase d'analyse.
+
+**Mécanique :** `_pick_variant(interview_id, variants, section_key)` calcule `md5(f"{interview_id}:{section_key}") % len(variants)`. `md5` est utilisé pour la stabilité cross-runs (contrairement à `hash()` Python qui randomise les strings via PYTHONHASHSEED). Le sel par section (`section_key`) garantit que deux sections du même rapport piochent indépendamment : deux médecins du même profil ne voient pas leurs sections shifter en bloc, mais reçoivent un mélange varié de wordings. Si `interview_id=None` (chemin V0 Streamlit figé sur `v0-final`, ou contexte de test sans interview), retour à `variants[0]` — comportement strictement V1.1 single-variant préservé.
+
+**Pourquoi :** D-020 prévoyait initialement "50+ variantes par section" comme cible Vague 2 méthodologique. Cette cible arbitraire a été remplacée par un critère opérationnel mesurable : *deux médecins du même profil ne doivent jamais recevoir exactement la même phrase analytique*. La discipline est :
+
+- *Variantes pour ce qui est analytique* — phrase choc (24 variantes sur 6 patterns), chaîne causale (15 sur 5 patterns), analyse chantier (21 sur 7 contextes). Trois angles d'attaque par pattern proposent trois lectures cohérentes de la même situation, ce qui enrichit le rapport sans le rendre redondant.
+- *Pas de variantes pour ce qui est commercial* — la recommandation italique en bas de synthèse est une fermeture standardisée qui rappelle la thèse Lugia ("vue d'ensemble avant chantier") et invite à la suite. Pour deux médecins du même profil, le contenu est intrinsèquement identique. Varier le wording de cette phrase serait cosmétique et affaiblirait la signature Lugia reconnaissable. Décision : 1 variante par contexte (3 contextes : `ia_visible`, `descriptions`, `default`), réécrites concises (~25-35 mots) et ancrées métier (cabinet, secret médical, semaine, demandes patients, courriers, coordination, suivi chroniques, organisation interne).
+
+**Justification du sel par section :** trois options envisagées pour le hash.
+
+- *Sel global unique* (`hash(interview_id) % N` partout) — rejeté : avec une même cardinalité (par exemple 4 variantes partout), deux interviews voisines voient toutes leurs sections shifter en bloc. Visuellement les rapports restent trop corrélés.
+- *Sel par section* (`hash((interview_id, section_key)) % N`) — retenu : chaque section pioche indépendamment. Pas de migration BDD, pas de stockage supplémentaire, calcul stable côté code.
+- *Sel par section + jitter sur seed stocké en base* — rejeté : surcoût d'une migration BDD légère pour un bénéfice marginal. Reporté en V1.2 si le besoin se manifeste.
+
+**Conséquence pour V1.1 :** `src/templates.py` voit un helper `_pick_variant` ajouté + 3 signatures étendues (`build_phrase_choc`, `build_chaine_causale`, `build_synthesis`) avec un paramètre `interview_id: Optional[int] = None`. `src/workstreams.py` voit les 3 chantiers étendus avec `interview_id: Optional[int] = None` également. `backend/main.py` et `scripts/dump_report.py` passent `interview_id` au caller `build_synthesis`. `pages/02_Resultats.py` (V0 Streamlit figé) reste compatible sans modification grâce au fallback `None`. Au total 63 fragments narratifs gérés par `_pick_variant` (24 phrase choc + 15 chaînes causales + 21 analyses chantier + 3 reco italiques), dont 51 nouveaux écrits en Vague 2.2a-d.
+
+**Conséquence pour V1.2 :** Le SLM hybride disposera désormais d'un socle de **51 few-shot examples** issus de V1.1 + V1.1 Vague 2.2 (au lieu des ~37 d'avant 2.2), répartis en 4 catégories sémantiques claires (phrase choc, chaîne causale, analyse chantier, reco italique). Permet de calibrer les prompts par section sans surajustement à un seul style. Le critère "fallback systématique sur templates en cas d'échec LLM" reste valide : si le LLM échoue ou si `LLM_ENABLED=0`, retour automatique à `_pick_variant` qui couvre 100% des cas.
+
+**Alternatives écartées :**
+
+- *Variantes uniformes (4 par section partout)* — rejeté pour la reco italique. Aurait dilué la signature commerciale et produit de la cosmétique sans plus-value analytique.
+- *Pas de variantes du tout, mais SLM dès V1.1* — rejeté par D-020 : on ne calibre pas un SLM sur un socle narratif pauvre. Mieux vaut un socle templated solide avant d'ajouter la couche LLM.
+- *Variantes par profil complet plutôt que par section* — rejeté : explosion combinatoire (4^4 = 256 rapports possibles à écrire et maintenir manuellement), pour un bénéfice marginal vs sélection par section.
+
+---
+
 ## D-021 — Refonte questionnaire V1.1 (Vague 3) : règles globales + dérogation à l'alternance
 
 **Date :** 2026-05-15

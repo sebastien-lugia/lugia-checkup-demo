@@ -43,6 +43,16 @@ Voir `DECISIONS.md` D-020 pour le cadrage de fond (méthodologique enrichi comme
 
 ---
 
+## Vague 2.2 — Multiplication des variantes méthodologiques — LIVRÉE 2026-05-15
+
+D-020 prévoyait "50+ variantes par section" comme cible Vague 2 méthodologique. Le travail livré par les Vagues 2 lite + 3.1 a produit ~37 fragments narratifs, mais avec une seule variante par pattern : deux médecins du même profil recevaient exactement le même rapport.
+
+Vague 2.2 (5 sous-vagues, 2026-05-15) résout ce point : 63 fragments narratifs au total, dont 51 nouveaux, sélectionnés de manière déterministe par `_pick_variant(interview_id, variants, section_key)` avec sel par section. Critère opérationnel atteint : deux médecins du même profil ne reçoivent plus la même phrase analytique. La recommandation italique reste mono-variante par contexte (signature commerciale standardisée — voir `DECISIONS.md` D-022). Détail dans `TODO.md` section dédiée et `CHANGELOG.md`.
+
+Donne au SLM V1.2 un meilleur socle de few-shot examples (51 nouveaux, répartis en 4 catégories sémantiques) et respecte la discipline D-020 "méthodologique d'abord, intelligence ensuite".
+
+---
+
 ## V1.2 — Intégration SLM/LLM hybride — APRÈS V1.1
 
 Ajout d'une couche d'orchestration LLM en surcouche du méthodologique enrichi de V1.1, avec fallback systématique. Cible : faire passer le rapport de "templating combinatoire 50+ variantes" à "génération contextualisée par section" (synthèse, analyse facettes, analyse chantiers).

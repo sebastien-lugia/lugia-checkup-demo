@@ -417,7 +417,7 @@ async def get_report(
     facet_scores = scoring.compute_all_facet_scores(interview_id)
     facet_labels = question_module.get_facet_labels()
 
-    synthesis = templates.build_synthesis(answers)
+    synthesis = templates.build_synthesis(answers, interview_id)
 
     facets_payload: dict[str, Any] = {}
     for facet in question_module.get_scored_facets():

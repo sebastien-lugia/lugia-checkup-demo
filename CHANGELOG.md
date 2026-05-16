@@ -4,6 +4,296 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-16 — V1.1 Vague 2.2 patch éditorial : refonte des 24 phrases choc
+
+Après tests locaux du 16 mai sur 3 interview_ids Chateau consécutifs (28/29/30), refonte complète des 24 variantes de `build_phrase_choc`. Les retours utilisateurs ont fait remonter cinq problèmes éditoriaux structurants que les variantes initiales (livrées en 2.2a) reproduisaient à des degrés divers.
+
+### Cinq problèmes corrigés
+
+**1. Phrases qui critiquent la pratique du médecin.** Le check-up ne sait pas si la configuration actuelle est subie ou choisie. Tant que cette information n'est pas dans le questionnaire, formuler une critique reste une hypothèse de Lugia. Tournures éliminées : "rien n'est doublé", "le maillon faible", "variable d'ajustement par défaut", "angle mort", "usage débrouillard", "irritants". Remplacées par des constats systémiques (configuration, mécanisme d'absorption, point de passage, dispositif unique).
+
+**2. Phrases qui confortent dans les convictions.** L'esprit MBTI exige une interrogation des limites même quand tout semble bien fonctionner. Toutes les variantes du pattern `default` ont été refondues pour poser la question "est-ce que rien ne va mal, ou est-ce que personne ne mesure ?" plutôt que pour valider la sérénité du médecin.
+
+**3. Constats banaux qui ne révèlent rien.** "Votre cabinet est tenu par une seule personne — vous" est évident pour un médecin solo : ce n'est pas une révélation. Les variantes ont été reformulées pour pointer des zones aveugles non évidentes : mémoire non documentée, absence de trace IA, fatigue comme seul indicateur, frictions invisibles, etc.
+
+**4. Vocabulaire et formulations problématiques.**
+- *"capacité d'amortissement"* (financier, décalé en contexte médical) → *"marge de manœuvre"*
+- *"vous répondrez devant l'Ordre ou la CNIL"* (menace explicite, bloque la lecture) → *"la responsabilité revient au médecin qui en fait usage"*
+- *"un avantage qui devient une dépendance"* (jugement) → *"cette configuration repose sur votre présence continue ; toute absence, même brève, ralentit l'ensemble"*
+- *"les cabinets regrettent"* (faute rétrospective moralisatrice) → *"c'est précisément le moment où des repères posés à froid peuvent être utiles"*
+- *"dans votre tête, pas dans le système"* (infantilisant) → *"ce suivi vit dans votre attention au fil des dossiers"*
+- *"en sachant qu'il ne saurait pas lesquelles poser"* (paradoxe alambiqué) → *"il devrait reconstituer ces règles à mesure que les situations se présentent"*
+- *"organisations"* (4 occurrences hors-contexte) → *"cabinets"* / *"cabinet médical"*
+
+**5. Manque d'ancrage métier.** Les phrases initiales restaient systémiques mais désincarnées. La refonte ajoute des références concrètes à des situations professionnelles que les médecins rencontrent au quotidien : courriers au spécialiste, comptes-rendus, renouvellements, résultats anormaux, certificats, suivi des chroniques, tiers payant, SMS de patient, anonymisation, saison épidémique, départ secrétariat, contacts privilégiés chez les spécialistes, etc. 18 phrases sur 24 contiennent désormais au moins un ancrage métier nommé.
+
+### Principe éditorial désormais documenté
+
+La phrase choc doit suivre une structure de **constat factuel du système** + **interrogation/risque non évident**, et jamais :
+
+- Conforter le médecin dans son fonctionnement ("vous faites bien").
+- Critiquer son mode de fonctionnement ("rien n'est doublé").
+- Répéter une évidence connue ("vous êtes seul").
+- Imposer une lecture ("organisation insuffisante").
+- Citer nommément une institution répressive (Ordre, CNIL, etc.).
+
+Elle doit pointer une **zone aveugle systémique** : absence de mesure, absence de trace, dépendance silencieuse, friction absorbée sans signal, ressource non remplaçable. Le médecin choisit s'il s'y reconnaît ou non.
+
+### Modifié (Vague 2.2 patch éditorial)
+
+- `src/templates.py::build_phrase_choc` — fonction entièrement réécrite. Les 6 patterns × 4 variantes = 24 phrases finales, toutes refondues selon le principe éditorial ci-dessus.
+- Docstring mise à jour pour documenter le principe.
+
+### Tests
+
+Tests précédents (déterminisme, sel par section, fallback `None`, stabilité, diversité sur 10 ids par pattern) restent valides — seul le wording des variantes a changé, pas la mécanique de sélection.
+
+### Reste ouvert
+
+Test local utilisateur final sur 4-9 ids consécutifs pour vérifier visuellement le rendu des 4 variantes par pattern. Si une formulation reste trop directe / trop molle / non métier, à signaler avec son ref `phrase_choc:<pattern>` + numéro de variante.
+
+---
+
+## 2026-05-15 — V1.1 Vague 2.2d : 21 analyses chantier (2 nouvelles par contexte × 7 contextes)
+
+Quatrième et dernière sous-vague d'écriture. Multiplie de 1 à 3 le nombre de variantes pour chacun des 7 contextes d'analyse chantier — c'est la phrase qui dit "ce que ça révèle" entre l'observation et la proposition de chaque chantier, sur les trois cartes du bas de page. Diversité analytique : chaque contexte propose un angle différent de la même analyse.
+
+Rythme aligné sur 2.2c (3 variantes par contexte = 1 héritée + 2 nouvelles) plutôt que les 3-4 prévues initialement. Critère "pas de surqualité" : 3 angles distincts suffisent pour éviter la perception "rapport copié-collé entre deux médecins" ; au-delà, les variantes deviennent difficiles à différencier clairement.
+
+### Contextes enrichis
+
+| Contexte | section_key | Variantes | Trigger |
+|---|---|---|---|
+| Demandes directes Q04=q04_d | `analyse:demandes_directes:q04` | 3 | canaux directs (type Chateau) |
+| Charge déborde Q05=q05_d | `analyse:demandes_directes:q05` | 3 | débordement admin sans canaux directs |
+| Aucun trigger demandes | `analyse:demandes_directes:default` | 3 | pas de surcharge détectée |
+| IA grand public Q13=q13_c/d | `analyse:ia:triggered` | 3 | usage IA déclaré |
+| Pas d'IA déclarée | `analyse:ia:default` | 3 | aucun usage IA |
+| Absence fragile Q08=q08_c/d | `analyse:absence:triggered` | 3 | continuité fragile |
+| Absence couverte | `analyse:absence:default` | 3 | dispositif solide |
+
+Total : 21 analyses chantier, 14 nouvelles (2 par contexte), 7 héritées de V1.1.
+
+### Angles distincts par contexte
+
+- **demandes_directes:q04** : suivi mental seul (V1.1) / visibilité absente (#1) / installation auto-renforçante (#2)
+- **demandes_directes:q05** : compensation invisible (V1.1) / ressource d'amortissement (#1) / indicateur en retard (#2)
+- **demandes_directes:default** : repère mesuré (V1.1) / état des lieux préventif (#1) / bon moment à froid (#2)
+- **ia:triggered** : vigilance seule (V1.1) / responsabilité structurelle (#1) / sécuriser plutôt que renoncer (#2)
+- **ia:default** : diffusion rapide (V1.1) / pratique confrères (#1) / apprentissage à froid (#2)
+- **absence:triggered** : règles écrites (V1.1) / test semaine d'arrêt (#1) / ce qui se transmet (#2)
+- **absence:default** : perfectible (V1.1) / mieux préparé que la moyenne (#1) / audit léger (#2)
+
+### Tests
+
+- Non-régression `interview_id=None` → identique V1.1 sur les 7 contextes.
+- Diversité sur 10 `interview_id` par contexte : 3/3 variantes couvertes pour 6 contextes, 2/3 pour 1 contexte (absence:triggered) — distribution conforme aux probabilités d'un tirage 3-cases × 10-essais.
+- Stabilité confirmée : 3 ids × 5 appels chacun → analyse toujours identique.
+
+### Modifié (Vague 2.2d)
+
+- `src/workstreams.py` — branches `analyse_variants` enrichies pour les 3 chantiers : `chantier_demandes_directes` (3 contextes), `chantier_ia` (2 contextes), `chantier_absence` (2 contextes). Aucune autre signature ne change.
+
+### Vague 2.2 — wording terminé
+
+Au total après 2.2a-d :
+
+| Section | Variantes | Source |
+|---|---|---|
+| Phrase choc | 24 | Vague 2.2a |
+| Recommandation italique | 3 | Vague 2.2b (signature concise + ancrage métier) |
+| Chaînes causales | 15 | Vague 2.2c |
+| Analyses chantier | 21 | Vague 2.2d |
+| **Total** | **63 fragments** | **51 nouveaux** (12 hérités V1.1) |
+
+Reste à faire :
+
+- **2.2e** — tests bout en bout sur 5-10 profils distincts en local (Chateau + variantes + profils opposés) via `python scripts/dump_report.py`, lecture humaine de la diversité perçue.
+- Journalisation finale : `DECISIONS.md` D-022 (sel par section + critère "pas de variantes sur la reco commerciale"), `TODO.md` (Vague 2.2 livrée), `ROADMAP.md` (V1.2 SLM débloquée).
+
+---
+
+## 2026-05-15 — V1.1 Vague 2.2c : 15 chaînes causales (2 nouvelles par pattern × 5 patterns)
+
+Troisième sous-vague d'écriture. Multiplie de 1 à 3 le nombre de variantes pour chacun des 5 patterns de chaîne causale. C'est ici que la diversité analytique compte le plus : la chaîne causale **nomme une interdépendance** entre deux ou trois constats — c'est l'endroit du rapport qui pile l'axe 1 Lugia ("comprendre les causes racines et les interdépendances", cf MASTER_PROMPT §2). Trois angles distincts par pattern, pour proposer trois lectures cohérentes de la même interdépendance.
+
+### Patterns enrichis
+
+| Pattern | section_key | Variantes | Trigger |
+|---|---|---|---|
+| Débordement admin (canaux directs + cadre flou) | `chaine:debordement_admin` | 3 | q05_d + q04_d + q03_c/d |
+| Fragilité continuité (solo + isolement + pas de dispositif) | `chaine:fragilite_continuite` | 3 | q08_c/d + q07_a + q01_a |
+| Usage IA grand public (besoin réel + stack peu intégré) | `chaine:ia_stack` | 3 | q13_c/d + q09_d |
+| Perte de vue chroniques (solo + pas d'alerte) | `chaine:perte_vue_chroniques` | 3 | q10_d + q07_a |
+| Tri opportuniste résultats (isolement + pas d'alerte) | `chaine:tri_opportuniste` | 3 | q11_d + q07_a |
+
+Total : 15 chaînes causales, 10 nouvelles (2 par pattern), 5 héritées de V1.1.
+
+### Angles distincts par pattern
+
+Chaque pattern propose trois angles d'attaque de la même interdépendance :
+
+- **debordement_admin** : double facteur (V1.1) / cascade (#1) / filtrage en amont (#2)
+- **fragilite_continuite** : isolement (V1.1) / réseau absent (#1) / paradoxe robustesse/fragilité (#2)
+- **ia_stack** : alternative manquante (V1.1) / besoin pragmatique (#1) / contournement rationnel (#2)
+- **perte_vue_chroniques** : initiative patient (V1.1) / angle mort silencieux (#1) / inversion contrôle (#2)
+- **tri_opportuniste** : contrainte (V1.1) / méthode forcée (#1) / charge attentionnelle (#2)
+
+### Tests
+
+- Non-régression `interview_id=None` → identique V1.1 sur les 5 patterns.
+- Diversité sur 10 `interview_id` par pattern : **3/3 variantes couvertes** pour les 5 patterns (couverture maximale sur tous).
+- Stabilité confirmée : 4 ids × 5 appels chacun → chaîne toujours identique.
+
+### Modifié (Vague 2.2c)
+
+- `src/templates.py::build_chaine_causale` — chaque branche enrichie de 2 variantes supplémentaires. Aucune autre signature ne change.
+
+### Reste ouvert (Vague 2.2d)
+
+- 2.2d — analyses chantier : 3-4 par contexte × 7 contextes (~18-21 nouvelles). C'est la sous-vague la plus volumineuse en écriture.
+
+---
+
+## 2026-05-15 — V1.1 Vague 2.2b : reco italique réécrite concise, pas de variantes
+
+Itération directe sur la première version 2.2b. Après réflexion utilisateur : la recommandation italique est une **fermeture commerciale standardisée**, pas une phrase d'analyse. Sa fonction est de rappeler la thèse Lugia ("vue d'ensemble avant chantier") et d'inviter à la suite. Pour deux médecins du même profil, le contenu est intrinsèquement identique — varier le wording de cette phrase est de la cosmétique, qui peut même affaiblir la "signature Lugia" reconnaissable.
+
+Décision : revenir à **1 variante par contexte** (au lieu des 4 prévues initialement par la cible TODO), mais réécrire chacune pour qu'elle soit **plus concise que la V1.1 héritée et plus ancrée dans le métier** (cabinet, secret médical, semaine). L'effort éditorial libéré est réinvesti sur 2.2c (chaînes causales) et 2.2d (analyses chantier) où la diversité a un vrai sens analytique.
+
+### Reco italique réécrite (3 phrases, 1 par contexte)
+
+**`reco:ia_visible`** (~30 mots, métier : secret médical + IA grand public)
+*Avant tout chantier, Lugia commence par une vue d'ensemble de votre cabinet. Pour vous, le pas qui pèse le plus est de remplacer votre IA grand public par un environnement conforme au secret médical.*
+
+**`reco:descriptions`** (~35 mots, métier : organisation cabinet + demandes patients + courriers + coordination)
+*Lugia commence par une vue d'ensemble de votre organisation de cabinet, avant tout chantier ciblé. Une heure d'échange suffit à confirmer cette lecture et tracer la première action — qu'il s'agisse de demandes patients, de courriers ou de coordination.*
+
+**`reco:default`** (~35 mots, métier : coordination + suivi chroniques + courriers + organisation interne)
+*Lugia commence par une vue d'ensemble de votre cabinet, même quand rien ne presse. Une heure d'échange suffit à identifier où porter l'attention en premier — coordination, suivi des chroniques, courriers ou organisation interne.*
+
+### Itération sur l'ancrage métier des reco non-IA
+
+Une seconde passe a élargi l'ancrage métier des reco non-IA. La V0 du revirement (sobriété : "votre cabinet" + "votre semaine") faisait paraître ces reco "trop génériques" face à la V1.1 héritée qui mentionnait au moins le secret médical pour ia_visible. Décision : nommer plusieurs sujets concrets de médecin libéral (demandes patients, courriers, coordination, suivi des chroniques, organisation interne) dans les reco non-IA, sans introduire l'IA hors-contexte. La reco devient ainsi reconnaissable même quand le sujet IA ne s'applique pas, en proposant un éventail de sujets que le médecin sait être les siens. Aucune projection hors-questionnaire : tous les sujets cités sont des champs Lugia explicites (Q04 demandes patients, Q05/Q09 courriers, Q10 chroniques, Q07/Q12 coordination, Q03 organisation interne).
+
+### Pourquoi ce revirement
+
+Question utilisateur : "pourquoi créer des variantes de la dernière phrase si c'est pour le même profil de persona ?". Argument retenu : la diversité d'écriture a du sens pour les phrases **d'analyse** (phrase choc, chaîne causale, analyses chantier) qui proposent un angle de lecture différent du même profil. Elle n'a pas de sens pour une phrase **commerciale** qui propose toujours la même chose (consultation Lugia + thèse vue d'ensemble + référence métier). Mieux vaut une signature reconnaissable, courte et ancrée dans le métier qu'un éparpillement cosmétique.
+
+### Critère opérationnel TODO ajusté
+
+Le critère "deux médecins du même profil ne reçoivent pas la même phrase" est **maintenu pour les sections analytiques** (phrase choc, chaîne causale, analyses chantier) mais **levé pour la recommandation italique** qui est commerciale. La signature Lugia gagne en clarté.
+
+### Tests
+
+- Non-régression `interview_id=None` non testée pour cette section (le wording a changé volontairement, plus comparable à V1.1).
+- 20 ids × 3 contextes → toujours 1 reco unique par contexte. Comportement attendu.
+
+### Modifié (Vague 2.2b révisée)
+
+- `src/templates.py::build_synthesis` — 3 branches `reco_variants` ramenées à 1 variante chacune, réécrites concises et métier. Aucune autre signature ne change.
+
+### Reste ouvert (Vagues 2.2c-d)
+
+- 2.2c — chaînes causales : 15 phrases (2 nouvelles par pattern × 5 patterns). Diversité analytique pertinente.
+- 2.2d — analyses chantier : ~25 phrases (3-4 par contexte × 7 contextes). Diversité analytique pertinente.
+
+---
+
+## 2026-05-15 — V1.1 Vague 2.2a : 24 phrases choc (3 nouvelles par pattern × 6 patterns)
+
+Première sous-vague d'écriture de wording après mise en place du squelette 2.2.0. Multiplie de 1 à 4 le nombre de variantes pour chacun des 6 patterns de la phrase choc. Style MBTI conservé (ouverture qui claque + nuance qui ouvre), ton accompagnant, pas de marques nominales, factuel sur le système et pas sur la personne. Voir `MASTER_PROMPT.md` §2 (4 axes Lugia) et §8 (tonalité et garde-fous).
+
+### Patterns enrichis
+
+| Pattern | section_key | Variantes | Trigger |
+|---|---|---|---|
+| Porteur solo (type Chateau) | `phrase_choc:porteur_solo` | 4 | `signals_effort >= 3` |
+| IA grand public + outils empilés | `phrase_choc:ia_stack` | 4 | `ia_non_conf and outils_empiles` |
+| Débordement personnel sur cabinet structuré | `phrase_choc:debordement_perso` | 4 | `debordement_admin and not outils_empiles` |
+| Cadre largement informel | `phrase_choc:cadre_absent` | 4 | `cadre_absent` |
+| Signaux dispersés (effort modéré) | `phrase_choc:signaux_disperses` | 4 | `signals_effort >= 2` |
+| Équilibre tenu (défaut) | `phrase_choc:default` | 4 | sinon |
+
+Total : 24 phrases choc, 18 nouvelles (3 par pattern), 6 héritées de V1.1.
+
+### Tests
+
+- Non-régression `interview_id=None` → strictement identique à V1.1 sur les 6 patterns.
+- Diversité sur 10 `interview_id` par pattern : entre 3 et 4 variantes uniques selon le pattern, distribution conforme aux probabilités (tirage 4 cases × 10 essais → couverture 3-4 attendue). Cible "deux médecins du même profil ne reçoivent pas la même phrase" largement atteinte : au minimum 5 ids sur 10 reçoivent une phrase distincte du tirage majoritaire.
+- Stabilité : 4 ids × 5 appels chacun → phrase toujours identique.
+
+### Modifié (Vague 2.2a)
+
+- `src/templates.py::build_phrase_choc` — chaque branche enrichie de 3 variantes supplémentaires. Aucune autre signature ne change.
+
+### Reste ouvert (Vagues 2.2b-d)
+
+- 2.2b — recommandation italique : 9 phrases (3 par contexte × 3 contextes).
+- 2.2c — chaînes causales : 15 phrases (3 par pattern × 5 patterns).
+- 2.2d — analyses chantier : ~25 phrases (3-4 par contexte × 7 contextes).
+
+---
+
+## 2026-05-15 — V1.1 Vague 2.2.0 : mécanique de sélection déterministe des variantes
+
+Squelette de la Vague 2.2 méthodologique (cf. `TODO.md` section dédiée). Ajoute l'infrastructure de sélection déterministe des variantes narratives, sans toucher au wording — sortie strictement identique à V1.1 tant que chaque pattern n'a qu'une seule variante. Prépare les Vagues 2.2a-d qui multiplieront les wordings.
+
+### Mécanique
+
+- Helper `_pick_variant(interview_id, variants, section_key)` ajouté à `src/templates.py`. Hash `md5(f"{interview_id}:{section_key}")` modulo `len(variants)`, stable cross-runs (contrairement à `hash()` Python qui randomise les strings). Sel par section : deux sections du même rapport piochent indépendamment, ce qui évite que deux médecins du même profil voient leurs sections shifter en bloc.
+- Fallback `interview_id=None` → `variants[0]`. Le chemin V0 Streamlit (`pages/02_Resultats.py`, figé sur `v0-final`) reste compatible sans modification : il appelle `build_synthesis(answers)` et récupère le comportement V1.1 single-variant.
+
+### Signatures et propagation
+
+- `build_phrase_choc(answers, interview_id=None)` — 6 patterns, chacun expose désormais une liste de variantes (encore unique en 2.2.0).
+- `build_chaine_causale(answers, interview_id=None)` — 5 patterns en cascade, idem.
+- `build_synthesis(answers, interview_id=None)` — propage `interview_id` aux deux fonctions ci-dessus + bascule la recommandation italique (3 contextes) sur `_pick_variant`.
+- `chantier_demandes_directes`, `chantier_ia`, `chantier_absence` (`src/workstreams.py`) — propagent `interview_id` à la fabrique de l'analyse (7 contextes au total). `build_workstreams(interview_id)` est inchangé dans sa signature publique.
+- Callers patchés : `backend/main.py::get_report` et `scripts/dump_report.py::generate_markdown` passent désormais `interview_id` à `build_synthesis`. Aucun autre caller à toucher.
+
+### Décision de sel par section
+
+Choix retenu après arbitrage : `hash((interview_id, section_key)) % N` plutôt qu'un sel global unique. Garantit l'indépendance des sections entre deux profils similaires (phrase choc, recommandation, chaîne causale, analyses chantier piochent chacune dans leur propre espace). Pas de migration BDD nécessaire. Le jitter par interview en base est repoussé en V1.2 si besoin.
+
+### Tests
+
+Smoke test exécuté localement sandbox :
+
+- Déterminisme stable : `_pick_variant(42, V, K) == _pick_variant(42, V, K)` répété N fois.
+- Sel par section : `id=42` donne des indices distincts selon `section_key` (B, D, A, D sur 4 sections testées).
+- Diversité : 10 `interview_id` distincts couvrent les 4 variantes d'une liste de test (3+ uniques requis, 4 atteints).
+- Fallback `None` → toujours `variants[0]`.
+- `ValueError` sur liste vide.
+- Cross-runs : digest MD5 d'une clé connue produit l'index attendu (1 pour `42:phrase_choc:porteur_solo`).
+
+Non-régression V1.1 → 2.2.0 confirmée sur 4 profils synthétiques (Chateau complet, minimal, IA-stack, neutre) : `build_phrase_choc`, `build_chaine_causale`, `build_synthesis`, les 3 facet summaries et les 3 chantiers retournent strictement les mêmes chaînes que la version V1.1 (testé avec `interview_id=None` et `interview_id=42`, équivalents tant qu'il n'y a qu'une variante par pattern).
+
+### Modifié (Vague 2.2.0)
+
+- `src/templates.py` — `_pick_variant` ajouté, signatures `build_phrase_choc`/`build_chaine_causale`/`build_synthesis` étendues, chaque branche enveloppe sa phrase actuelle dans une liste à un élément avec un `section_key` stable (`phrase_choc:porteur_solo`, `phrase_choc:ia_stack`, `phrase_choc:debordement_perso`, `phrase_choc:cadre_absent`, `phrase_choc:signaux_disperses`, `phrase_choc:default`, `chaine:debordement_admin`, `chaine:fragilite_continuite`, `chaine:ia_stack`, `chaine:perte_vue_chroniques`, `chaine:tri_opportuniste`, `reco:ia_visible`, `reco:descriptions`, `reco:default`).
+- `src/workstreams.py` — signatures `chantier_*(answers, interview_id=None)`, branches `analyse_variants = [...]` + `_pick_variant` avec section keys `analyse:demandes_directes:q04`, `analyse:demandes_directes:q05`, `analyse:demandes_directes:default`, `analyse:ia:triggered`, `analyse:ia:default`, `analyse:absence:triggered`, `analyse:absence:default`. `build_workstreams` propage `interview_id` aux 3 chantiers.
+- `backend/main.py` — `templates.build_synthesis(answers, interview_id)`.
+- `scripts/dump_report.py` — `_html_to_md(templates.build_synthesis(answers, interview_id))`.
+
+### Test local recommandé avant de pousser
+
+```bash
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+source .venv/bin/activate
+python scripts/seed_persona.py --email sebastien+test@gmail.com --reset
+python scripts/dump_report.py --id <id>
+diff <(git show v1.1:resources/sample_report.md 2>/dev/null || cat resources/sample_report.md) resources/sample_report.md
+```
+
+Diff attendu : aucune différence textuelle (mécanique seule, wording inchangé). Si différence il y a, c'est un bug.
+
+### Reste ouvert (Vagues 2.2a-d)
+
+Le squelette est prêt à recevoir les variantes supplémentaires : 18 phrases choc (3 par pattern × 6 patterns), 6 recommandations italiques (2 par contexte × 3 contextes), 10 chaînes causales (2 par pattern × 5 patterns), ~18 analyses chantier (2-3 par contexte × 7 contextes). Total cible Vague 2.2 : ~70 nouvelles formulations.
+
+---
+
 ## 2026-05-15 — V1.1 Vague 3.1 : second passage sur questionnaire et ton du rapport
 
 Itération sur les 8 retours utilisateur post-Vague 3 (Q03 hors axe, Q05 trop direct, format hétérogène, Q10 inadapté solo, Q11 peu pro, synthèse pas analytique, ton des analyses trop direct, mention facturation électronique oubliée). Aucune nouvelle dépendance, aucun changement de schéma BDD.

@@ -96,7 +96,7 @@ def generate_markdown(interview_id: int) -> str:
     answers = db.get_answers(interview_id)
     facet_scores = scoring.compute_all_facet_scores(interview_id)
     facet_labels = questions.get_facet_labels()
-    synthesis = _html_to_md(templates.build_synthesis(answers))
+    synthesis = _html_to_md(templates.build_synthesis(answers, interview_id))
     recommended = templates.build_next_step_recommendation(facet_scores, answers)
     chantiers = workstreams.build_workstreams(interview_id)
 

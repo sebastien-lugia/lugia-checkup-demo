@@ -11,6 +11,12 @@ explicite, et fusion de "propose" + "obtient" en une seule section finale
 (la proposition se termine par le bénéfice). Vulgarisation du jargon WSF
 et suppression des citations nominatives d'outils.
 
+V1.1 Vague 2.2 : chaque chantier propage `interview_id` jusqu'à la
+fabrique de l'analyse, qui expose désormais une liste de variantes
+choisie par `_pick_variant` (sel par section). Permet d'avoir des
+analyses différentes pour deux médecins du même profil. Variantes
+supplémentaires écrites en Vague 2.2d.
+
 Schéma de sortie V1.1 :
     {
         "key": str,
@@ -25,7 +31,7 @@ Schéma de sortie V1.1 :
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 from src import db
 from src import templates
@@ -85,7 +91,10 @@ def _usage_ia_decrit(answers: list[Any]) -> str:
 
 # ---- Chantier 1 : Reprendre la main sur les demandes directes ----
 
-def chantier_demandes_directes(answers: list[Any]) -> dict[str, Any]:
+def chantier_demandes_directes(
+    answers: list[Any],
+    interview_id: Optional[int] = None,
+) -> dict[str, Any]:
     q04 = _selected(answers, "q04")
     q05 = _selected(answers, "q05")
 
@@ -103,9 +112,25 @@ def chantier_demandes_directes(answers: list[Any]) -> dict[str, Any]:
                 f"Vous recevez des {canaux}, en plus de {flux} et {sec_du}. "
                 f"Ces demandes ne sont pas tracées et représentent une charge invisible."
             )
-            analyse = (
-                f"Ces demandes directes restent invisibles à {sec_label} : vous portez seul "
-                f"le suivi mental, et le coût s'accumule à mesure que les canaux se multiplient."
+            analyse_variants = [
+                (
+                    f"Ces demandes directes restent invisibles à {sec_label} : vous portez seul "
+                    f"le suivi mental, et le coût s'accumule à mesure que les canaux se multiplient."
+                ),
+                (
+                    f"Ces demandes directes échappent au tableau de bord de {sec_label} et reposent "
+                    f"uniquement sur votre mémoire. Pas de comptabilité, pas de suivi partagé : le "
+                    f"coût réel n'est mesurable nulle part."
+                ),
+                (
+                    "Plus vous restez joignable directement, plus la pratique s'installe : un "
+                    "patient qui obtient un retour rapide via votre mobile recommence. Le système "
+                    "se renforce de lui-même, sans que personne — pas même vous — décide qu'il en "
+                    "soit ainsi."
+                ),
+            ]
+            analyse = templates._pick_variant(
+                interview_id, analyse_variants, "analyse:demandes_directes:q04"
             )
             pas_confirmer = (
                 f"Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles "
@@ -122,10 +147,25 @@ def chantier_demandes_directes(answers: list[Any]) -> dict[str, Any]:
                 "Votre charge administrative déborde le soir et le week-end. "
                 "Vous compensez ce qui ne se voit pas la journée."
             )
-            analyse = (
-                "Cette compensation tient parce que vous l'assumez, mais elle masque la vraie "
-                "volumétrie de votre charge. Sans repère mesuré, il est difficile de savoir "
-                "ce qu'il faudrait alléger en priorité."
+            analyse_variants = [
+                (
+                    "Cette compensation tient parce que vous l'assumez, mais elle masque la vraie "
+                    "volumétrie de votre charge. Sans repère mesuré, il est difficile de savoir "
+                    "ce qu'il faudrait alléger en priorité."
+                ),
+                (
+                    "Le débordement administratif sur votre temps personnel est une ressource "
+                    "d'amortissement invisible. Tant qu'elle tient, le cabinet semble équilibré ; "
+                    "le jour où elle ne tient plus, c'est tout l'édifice qui se met à grincer."
+                ),
+                (
+                    "Le débordement sur votre temps personnel ne déclenche aucune alerte côté "
+                    "outil ni côté équipe. La fatigue reste le seul indicateur — et c'est un "
+                    "indicateur qui arrive en retard."
+                ),
+            ]
+            analyse = templates._pick_variant(
+                interview_id, analyse_variants, "analyse:demandes_directes:q05"
             )
             pas_confirmer = (
                 "La répartition exacte de votre charge sur la semaine et les sources principales "
@@ -143,9 +183,23 @@ def chantier_demandes_directes(answers: list[Any]) -> dict[str, Any]:
             "Un état des lieux régulier de ce qui vous prend du temps "
             "permettrait de l'anticiper si elle s'aggravait."
         )
-        analyse = (
-            "Aujourd'hui vous tenez la charge sans repère mesuré. Si elle augmente lentement, "
-            "vous risquez de vous en rendre compte une fois fatigué plutôt qu'en amont."
+        analyse_variants = [
+            (
+                "Aujourd'hui vous tenez la charge sans repère mesuré. Si elle augmente lentement, "
+                "vous risquez de vous en rendre compte une fois fatigué plutôt qu'en amont."
+            ),
+            (
+                "Pas de surcharge détectée pour l'instant, mais aussi pas de repère mesuré : un "
+                "état des lieux préventif vous donne un point de référence si la charge se met "
+                "à augmenter."
+            ),
+            (
+                "Tout va bien aujourd'hui — c'est précisément le bon moment pour poser un repère "
+                "mesuré. À chaud, on calibre rarement bien ; à froid, c'est l'inverse."
+            ),
+        ]
+        analyse = templates._pick_variant(
+            interview_id, analyse_variants, "analyse:demandes_directes:default"
         )
         pas_confirmer = (
             "La répartition exacte de vos tâches administratives sur la semaine."
@@ -168,7 +222,10 @@ def chantier_demandes_directes(answers: list[Any]) -> dict[str, Any]:
 
 # ---- Chantier 2 : Sécuriser votre usage actuel de l'IA ----
 
-def chantier_ia(answers: list[Any]) -> dict[str, Any]:
+def chantier_ia(
+    answers: list[Any],
+    interview_id: Optional[int] = None,
+) -> dict[str, Any]:
     q13 = _selected(answers, "q13")
     triggered = q13 in ("q13_c", "q13_d")
 
@@ -188,11 +245,28 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
                 f"l'anonymisation. Vous restez conscient des limites de cette pratique."
             )
 
-        analyse = (
-            "Le besoin est légitime, le canal ne l'est pas. Aujourd'hui votre vigilance "
-            "tient seule un cadre exigeant — secret médical, RGPD, hébergement de santé, "
-            "responsabilité civile professionnelle — qu'un outil dédié pourrait porter à "
-            "votre place."
+        analyse_variants = [
+            (
+                "Le besoin est légitime, le canal ne l'est pas. Aujourd'hui votre vigilance "
+                "tient seule un cadre exigeant — secret médical, RGPD, hébergement de santé, "
+                "responsabilité civile professionnelle — qu'un outil dédié pourrait porter à "
+                "votre place."
+            ),
+            (
+                "L'usage est utile, le canal pose un problème de fond. Tout ce qui borde "
+                "aujourd'hui votre pratique IA — secret médical, RGPD, hébergement de santé — "
+                "repose sur votre seule discipline, alors que ces garanties pourraient être "
+                "structurellement portées par l'outil."
+            ),
+            (
+                "La pratique est installée et le bénéfice réel ; le sujet est donc de la "
+                "sécuriser, pas d'y renoncer. Aujourd'hui c'est votre vigilance personnelle qui "
+                "tient le secret médical et le cadre RGPD — un environnement dédié ferait porter "
+                "ce poids à l'outil, pas à vous."
+            ),
+        ]
+        analyse = templates._pick_variant(
+            interview_id, analyse_variants, "analyse:ia:triggered"
         )
         pas_confirmer = (
             "La fréquence, le type de courriers concernés, et les autres usages éventuels "
@@ -217,9 +291,24 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
             "Vous n'utilisez pas d'IA générative aujourd'hui. C'est un bon point de départ pour "
             "découvrir un environnement maîtrisé avant que l'usage ne se diffuse de manière informelle."
         )
-        analyse = (
-            "L'IA générative se diffuse rapidement dans les cabinets. Découvrir un environnement "
-            "conforme dès maintenant évite d'avoir à recadrer des usages déjà installés."
+        analyse_variants = [
+            (
+                "L'IA générative se diffuse rapidement dans les cabinets. Découvrir un environnement "
+                "conforme dès maintenant évite d'avoir à recadrer des usages déjà installés."
+            ),
+            (
+                "L'IA générative est déjà entrée dans la pratique d'une grande partie de vos "
+                "confrères. Découvrir un environnement conforme avant d'en avoir besoin laisse le "
+                "temps de choisir vos usages plutôt que de les corriger plus tard."
+            ),
+            (
+                "Vous n'avez pas encore l'usage, ce qui est un avantage : vous pouvez explorer un "
+                "environnement conforme sans pression. C'est plus facile de prendre une habitude "
+                "propre dès le départ que de reprendre une habitude déjà installée."
+            ),
+        ]
+        analyse = templates._pick_variant(
+            interview_id, analyse_variants, "analyse:ia:default"
         )
         pas_confirmer = (
             "Vos besoins réels en matière de rédaction assistée, qui n'ont pas encore été explorés."
@@ -244,7 +333,10 @@ def chantier_ia(answers: list[Any]) -> dict[str, Any]:
 
 # ---- Chantier 3 : Anticiper une absence prolongée ----
 
-def chantier_absence(answers: list[Any]) -> dict[str, Any]:
+def chantier_absence(
+    answers: list[Any],
+    interview_id: Optional[int] = None,
+) -> dict[str, Any]:
     q08 = _selected(answers, "q08")
     triggered = q08 in ("q08_c", "q08_d")
 
@@ -274,10 +366,25 @@ def chantier_absence(answers: list[Any]) -> dict[str, Any]:
                 f"mais le reste serait compliqué. {depuis}, peu de procédures sont écrites."
             )
 
-        analyse = (
-            "Le fonctionnement actuel tient tant que vous êtes présent. Quelques règles écrites "
-            "sur les cas courants (renouvellements, urgences, contacts critiques) permettent "
-            "d'absorber une absence courte sans rupture."
+        analyse_variants = [
+            (
+                "Le fonctionnement actuel tient tant que vous êtes présent. Quelques règles écrites "
+                "sur les cas courants (renouvellements, urgences, contacts critiques) permettent "
+                "d'absorber une absence courte sans rupture."
+            ),
+            (
+                "Le test simple est celui de la semaine d'arrêt imprévu : aujourd'hui, le cabinet "
+                "s'arrête avec vous. Quelques règles écrites suffisent pourtant — renouvellements, "
+                "urgences, contacts critiques — à transformer cette rupture en relais."
+            ),
+            (
+                "Le fonctionnement actuel est entièrement non-écrit : il tient parce que vous êtes "
+                "là chaque jour. Écrire l'essentiel — qui prévenir, comment renouveler, quels "
+                "contacts urgents — rend ce fonctionnement partageable, sans le rigidifier."
+            ),
+        ]
+        analyse = templates._pick_variant(
+            interview_id, analyse_variants, "analyse:absence:triggered"
         )
         pas_confirmer = (
             "Ce qui se passerait concrètement, qui pourrait prendre le relais sur quoi, "
@@ -297,10 +404,25 @@ def chantier_absence(answers: list[Any]) -> dict[str, Any]:
             "Vous avez déjà quelques règles écrites pour le fonctionnement du cabinet sans vous. "
             "Le chantier consiste à les compléter pour mieux tenir un imprévu."
         )
-        analyse = (
-            "Plus solide que la moyenne, mais probablement perfectible sur les cas extrêmes "
-            "(absence longue, arrêt imprévu). Un examen rapide permettrait de combler les "
-            "angles morts encore présents."
+        analyse_variants = [
+            (
+                "Plus solide que la moyenne, mais probablement perfectible sur les cas extrêmes "
+                "(absence longue, arrêt imprévu). Un examen rapide permettrait de combler les "
+                "angles morts encore présents."
+            ),
+            (
+                "Vous êtes déjà mieux préparé que la moyenne sur ce sujet. Le travail restant "
+                "porte sur les cas qu'on n'a pas anticipés : arrêt long, absence simultanée, "
+                "panne d'outil critique."
+            ),
+            (
+                "Le dispositif existant est solide pour les absences courtes. Une relecture "
+                "rapide permet d'identifier les scénarios extrêmes qui n'ont pas encore été "
+                "couverts — sans tout refaire."
+            ),
+        ]
+        analyse = templates._pick_variant(
+            interview_id, analyse_variants, "analyse:absence:default"
         )
         pas_confirmer = (
             "Ce qui est déjà couvert et ce qui ne l'est pas encore."
@@ -325,10 +447,15 @@ def chantier_absence(answers: list[Any]) -> dict[str, Any]:
 # ---- Assemblage ----
 
 def build_workstreams(interview_id: int) -> list[dict[str, Any]]:
-    """Génère les trois chantiers pour une interview, dans l'ordre de priorité."""
+    """Génère les trois chantiers pour une interview, dans l'ordre de priorité.
+
+    V1.1 Vague 2.2.0 : `interview_id` est propagé à chaque chantier pour
+    permettre la sélection déterministe des variantes d'analyse via
+    `templates._pick_variant`.
+    """
     answers = db.get_answers(interview_id)
     return [
-        chantier_demandes_directes(answers),
-        chantier_ia(answers),
-        chantier_absence(answers),
+        chantier_demandes_directes(answers, interview_id),
+        chantier_ia(answers, interview_id),
+        chantier_absence(answers, interview_id),
     ]
