@@ -4,6 +4,109 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-18 — V1.1.8 : câblage Q06 dans la phrase choc et les titres de chantiers
+
+Q06 (*"Quelle est la raison principale qui vous fait faire ce check-up maintenant ?"*), collectée depuis V1 mais sans effet sur le rapport, est désormais câblée pour personnaliser le ton et la framing de la page résultats. Démarche médiane (V1.1.8) : phrase choc + titres de chantiers adaptés, propose et contenu des chantiers inchangés.
+
+**Q06 réécrite (interview_protocol.json v1.9)** — passage d'une logique émotionnelle à une logique de motivation professionnelle factuelle :
+
+| ID | Avant | Après |
+|---|---|---|
+| q06_a | Curiosité (1ère position) | **Réduire ma charge actuelle** — identifier ce qui pèse le plus dans ma semaine et alléger |
+| q06_b | Une fatigue qui dure | **Anticiper un événement à venir** — préparer l'arrivée d'un associé, un déménagement, un agrandissement, une transmission ou une cession du cabinet |
+| q06_c | Un événement récent | **Sécuriser un risque identifié** — consolider un dispositif fragile, traiter un incident récent ou répondre à une obligation de conformité (RGPD, IA, secret médical) |
+| q06_d | Anticiper | **Curiosité** (descendue en dernière position) |
+
+**Modulation phrase choc** — 3 ouvertures personnalisées (1 variante par motivation) :
+
+- q06_a → *"Vous avez démarré ce check-up pour identifier ce qui pèse le plus dans votre semaine. "*
+- q06_b → *"Vous avez démarré ce check-up pour préparer un événement à venir dans votre cabinet. "*
+- q06_c → *"Vous avez démarré ce check-up pour sécuriser un risque identifié. "*
+- q06_d, q06_other ou Q06 non répondue → ouverture vide (la phrase choc démarre directement comme en V1.1.7)
+
+**Modulation des titres de chantiers triggered** :
+
+| Chantier | q06_a (charge) | q06_b (événement) | q06_c (risque) | Défaut (q06_d/other/none) |
+|---|---|---|---|---|
+| Demandes directes | Réduire la charge des demandes directes | Cadrer les demandes directes en amont de l'événement | Sécuriser les demandes directes non tracées | Reprendre la main sur les demandes directes |
+| IA | Alléger les tâches admin via une IA conforme | Mettre votre usage IA en conformité en amont de l'événement | Sécuriser votre usage IA face au secret médical | Sécuriser votre usage actuel de l'IA |
+| Absence | Sécuriser la continuité pour libérer du temps mental | Structurer une fiche relais transférable en amont de l'événement | Sécuriser la continuité face à l'absence imprévue | Anticiper une absence prolongée |
+
+Les **titres fallback** (cas où aucun risque ne fire) restent inchangés — pas de modulation Q06 sur les chantiers préventifs.
+
+**Architecture** :
+- `src/templates.py` : nouveaux helpers `derive_q06_motivation(answers)` et `build_phrase_choc_opening(answers)`. L'ouverture est prependée dans `build_synthesis` avant le résultat de `build_phrase_choc` (cascade des 6 patterns inchangée).
+- `src/workstreams.py` : `title_map` Q06-aware dans chaque fonction `chantier_*` (cas triggered uniquement).
+- `scripts/seed_persona.py` : Château q06 = q06_a (réduire ma charge) pour aligner sur son profil porteur solo + débordement admin.
+- Pas de changement frontend, pas de migration BDD.
+
+**Conséquence pour les médecins en prod** : ceux qui avaient répondu à l'ancien Q06 (q06_a/b/c/d aux libellés émotionnels) verront leur réponse mappée aux nouveaux libellés selon l'index. L'effet narratif sera donc influencé par la migration des libellés. Acceptable car la base utilisateurs prod est encore réduite et les libellés émotionnels n'ont jamais été affichés dans le rapport jusqu'à présent.
+
+---
+
+## 2026-05-18 — V1.1.8 : câblage Q06 — priorité de cascade phrase choc + titres chantiers modulés
+
+Q06 (*"Quelle est la raison principale qui vous fait faire ce check-up maintenant ?"*) est désormais exploitée pour personnaliser le rapport — **modification de l'ordre de la cascade de sélection des patterns** de phrase choc + titres des 3 chantiers reformulés selon motivation.
+
+### Q06 réécrite (interview_protocol.json v1.9)
+
+Refonte des options pour passer d'une dimension émotionnelle (curiosité/fatigue/événement/anticipation) à une dimension **factuelle professionnelle** :
+
+| ID | Libellé |
+|---|---|
+| q06_a | Réduire ma charge actuelle — identifier ce qui pèse le plus dans ma semaine et alléger |
+| q06_b | Anticiper un événement à venir — préparer l'arrivée d'un associé, un déménagement, un agrandissement, une transmission ou une cession du cabinet |
+| q06_c | Sécuriser un risque identifié — consolider un dispositif fragile, traiter un incident récent ou répondre à une obligation de conformité (RGPD, IA, secret médical) |
+| q06_d | Curiosité — comprendre ce qu'un outil comme Lugia peut apporter à mon cabinet |
+
+Toutes les sous-phrases démarrent par un verbe à l'infinitif (cohérence éditoriale). Curiosité descend en 4ème position. Événement et transmission fusionnés dans q06_b. Conformité intégrée dans q06_c.
+
+### Modulation du rapport — priorité de cascade
+
+**Approche** : on ne change pas le contenu des phrases choc existantes (24 variantes V1.1.7), on change **l'ordre dans lequel les patterns sont testés** dans la cascade. Selon la motivation Q06, le médecin voit en priorité le pattern le plus pertinent pour son besoin.
+
+| Motivation | Ordre de priorité |
+|---|---|
+| **charge** (q06_a) | debordement_perso → porteur_solo → signaux_disperses → cadre_absent → ia_stack → default |
+| **evenement** (q06_b) | cadre_absent → porteur_solo → ia_stack → debordement_perso → signaux_disperses → default |
+| **risque** (q06_c) | ia_stack → cadre_absent → porteur_solo → debordement_perso → signaux_disperses → default |
+| **curiosité / autre / None** | ia_stack → debordement_perso → cadre_absent → porteur_solo → signaux_disperses → default (ordre V1.1.7-s inchangé) |
+
+Implémentation : nouveau helper `_select_phrase_choc_pattern(answers)` qui consulte `PHRASE_CHOC_ORDER_BY_MOTIVATION` et applique la cascade selon Q06. `build_phrase_choc` refactorée en if/elif sur `pattern` (au lieu de l'ancienne cascade de conditions). Aucun changement de contenu des variantes.
+
+### Titres de chantiers modulés
+
+18 reformulations (3 chantiers × 2 modes triggered/fallback × 3 motivations actives a/b/c). Pour q06_d/other/None, titres standards V1.1.7. Exemple chantier 1 triggered :
+- *charge* → *"Réduire la charge des demandes directes"*
+- *evenement* → *"Cadrer les demandes directes en amont de l'événement"*
+- *risque* → *"Sécuriser les demandes directes non tracées"*
+- *curiosité / autre* → *"Reprendre la main sur les demandes directes"* (V1.1.7)
+
+Implémentation : `title_map` (triggered) + `title_map_fallback` inline dans chaque fonction chantier de `workstreams.py`.
+
+### Pas de modulation côté
+
+- LA SITUATION, CE QU'ON METTRAIT RAPIDEMENT EN PLACE, cartes Prochaine étape — pas adaptés (concentration sur l'accroche + titres).
+- `build_phrase_choc_opening` neutralisée — retourne toujours `""` désormais. Le préfixe d'accroche imaginé en première itération s'est révélé sans valeur ajoutée. La modulation Q06 est désormais entièrement dans la cascade.
+
+### Code dead conservé pour réversibilité
+
+Conformément à D-027 :
+- `build_phrase_choc_opening` reste exposée (signature compatible, retour vide).
+- `build_recommandation` reste exposée (idem, depuis V1.1.7-k).
+- `chantier.analyse` et `chantier.pas_confirmer` toujours générés en backend bien que non rendus côté frontend.
+
+Le SLM V1.2 pourra réutiliser ces matériaux. Cleanup différé à une vague dédiée.
+
+### Audit éditorial post-V1.1.7-t
+
+Au passage : reformulation de C1.3 chaîne causale (*"ce qui reste finit chaque jour sur votre soirée"* → *"ce qui reste retombe sur votre soirée"*, moins fataliste) et de phrase choc ia_stack variant 2.3 (*"la responsabilité revient au médecin qui en fait usage"* → *"la responsabilité vous revient"*, voix vous cohérente V1.1.7-d).
+
+### Statut Curiosité
+
+q06_d (Curiosité) ne déclenche **aucune modulation** : cascade par défaut V1.1.7-s, titres chantiers V1.1.7. Choix volontaire — pas d'amplification pour ce qui n'est pas une motivation pro forte.
+
+
 ## 2026-05-18 — V1.1.7-t : audit éditorial complet templates/swot/workstreams
 
 Passage systématique sur tous les fichiers de génération texte pour détecter les tournures accusatrices, normatives ou consulting :

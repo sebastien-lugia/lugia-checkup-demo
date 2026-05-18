@@ -262,6 +262,116 @@ def description_usage_ia(answers: list[Any]) -> Optional[str]:
 
 # ---- Synthèse complète ----
 
+def derive_q06_motivation(answers: list[Any]) -> Optional[str]:
+    """V1.1.8 — Renvoie le code de motivation Q06 utilisé pour la modulation
+    du rapport. Retourne None si Q06 = curiosité, autre, ou non répondue.
+
+    Mapping :
+    - q06_a → 'charge'      (réduire la charge actuelle)
+    - q06_b → 'evenement'   (anticiper un événement)
+    - q06_c → 'risque'      (sécuriser un risque identifié)
+    - q06_d → None           (curiosité — pas de modulation)
+    - q06_other → None        (autre — pas de modulation)
+    """
+    opt = _selected_option(answers, "q06")
+    mapping = {"q06_a": "charge", "q06_b": "evenement", "q06_c": "risque"}
+    return mapping.get(opt or "")
+
+
+def build_phrase_choc_opening(answers: list[Any]) -> str:
+    """V1.1.8 (révisée) — Retourne toujours une chaîne vide.
+
+    Historique : ce préfixe acknowledgeait la motivation Q06 du médecin
+    devant la phrase choc. À l'usage il s'est révélé sans valeur ajoutée
+    — la modulation Q06 a été déplacée dans la cascade de sélection des
+    patterns de `build_phrase_choc` (priorité d'apparition selon la
+    motivation). Cette fonction reste exposée pour ne pas casser les
+    appelants (notamment `build_synthesis`).
+    """
+    _ = answers  # paramètre conservé pour la signature
+    return ""
+
+
+# V1.1.8 — Ordre de cascade phrase choc selon motivation Q06
+PHRASE_CHOC_DEFAULT_ORDER: list[str] = [
+    "ia_stack",
+    "debordement_perso",
+    "cadre_absent",
+    "porteur_solo",
+    "signaux_disperses",
+    "default",
+]
+
+PHRASE_CHOC_ORDER_BY_MOTIVATION: dict[str, list[str]] = {
+    # Réduire ma charge — privilégier débordement perso, puis porteur solo,
+    # puis signaux dispersés ; rejeter ia_stack/cadre_absent en fin.
+    "charge": [
+        "debordement_perso",
+        "porteur_solo",
+        "signaux_disperses",
+        "cadre_absent",
+        "ia_stack",
+        "default",
+    ],
+    # Anticiper un événement (transmissibilité) — privilégier cadre_absent
+    # (règles non écrites), puis porteur_solo (système qui repose sur 1 pers).
+    "evenement": [
+        "cadre_absent",
+        "porteur_solo",
+        "ia_stack",
+        "debordement_perso",
+        "signaux_disperses",
+        "default",
+    ],
+    # Sécuriser un risque — privilégier ia_stack (risque régulatoire le plus
+    # visible), puis cadre_absent (zones non documentées), puis porteur_solo.
+    "risque": [
+        "ia_stack",
+        "cadre_absent",
+        "porteur_solo",
+        "debordement_perso",
+        "signaux_disperses",
+        "default",
+    ],
+}
+
+
+def _select_phrase_choc_pattern(answers: list[Any]) -> str:
+    """V1.1.8 — Détermine le pattern phrase choc fire selon réponses + Q06.
+
+    Calcule les 6 conditions et applique l'ordre de cascade adapté à la
+    motivation Q06 (charge / evenement / risque). Pour curiosité, autre
+    ou non répondu, retombe sur l'ordre par défaut V1.1.7-s.
+    """
+    porte_seul = _selected_option(answers, "q07") == "q07_a"
+    canaux_directs = _selected_option(answers, "q04") == "q04_d"
+    debordement_admin = _selected_option(answers, "q05") == "q05_d"
+    ferme_conges = _selected_option(answers, "q08") == "q08_d"
+    ia_non_conf = _selected_option(answers, "q13") in ("q13_c", "q13_d")
+    outils_empiles = _selected_option(answers, "q09") == "q09_d"
+    cadre_absent_q3 = _selected_option(answers, "q03") in ("q03_c", "q03_d")
+    signals_effort = sum([porte_seul, canaux_directs, debordement_admin, ferme_conges])
+
+    conditions = {
+        "ia_stack": ia_non_conf and outils_empiles,
+        "debordement_perso": debordement_admin and not outils_empiles,
+        "cadre_absent": cadre_absent_q3,
+        "porteur_solo": signals_effort >= 3,
+        "signaux_disperses": signals_effort >= 2,
+        "default": True,
+    }
+
+    motivation = derive_q06_motivation(answers)
+    order = PHRASE_CHOC_ORDER_BY_MOTIVATION.get(
+        motivation or "", PHRASE_CHOC_DEFAULT_ORDER
+    )
+
+    for pattern in order:
+        if conditions[pattern]:
+            return pattern
+    return "default"
+
+
 def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) -> str:
     """Première phrase de la synthèse — interroge une zone aveugle systémique.
 
@@ -280,18 +390,10 @@ def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) ->
         interview_id: identifiant pour la sélection déterministe. Si `None`,
             la première variante de chaque pattern est retournée.
     """
-    porte_seul = _selected_option(answers, "q07") == "q07_a"
-    canaux_directs = _selected_option(answers, "q04") == "q04_d"
-    debordement_admin = _selected_option(answers, "q05") == "q05_d"
-    ferme_conges = _selected_option(answers, "q08") == "q08_d"
-    ia_non_conf = _selected_option(answers, "q13") in ("q13_c", "q13_d")
-    outils_empiles = _selected_option(answers, "q09") == "q09_d"
-    cadre_absent = _selected_option(answers, "q03") in ("q03_c", "q03_d")
+    # V1.1.8 : sélection du pattern selon réponses + motivation Q06
+    pattern = _select_phrase_choc_pattern(answers)
 
-    signals_effort = sum([porte_seul, canaux_directs, debordement_admin, ferme_conges])
-
-    # Profil 1 — IA grand public + outils empilés (régulatoire prioritaire)
-    if ia_non_conf and outils_empiles:
+    if pattern == "ia_stack":
         variants = [
             (
                 "Vous avez intégré l'IA dans votre quotidien — un courrier au spécialiste "
@@ -310,7 +412,7 @@ def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) ->
             (
                 "Le bénéfice que vous tirez de l'IA est immédiat. Le risque, lui, est <strong>différé et personnel</strong>"
                 " : en cas d'incident sur des données transmises, la responsabilité "
-                "revient au médecin qui en fait usage, pas à l'outil grand public."
+                "vous revient, pas à l'outil grand public."
             ),
             (
                 "Pour l'instant, ce qui empêche un problème dans votre usage de l'IA, c'est "
@@ -321,8 +423,7 @@ def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) ->
         ]
         return _pick_variant(interview_id, variants, "phrase_choc:ia_stack")
 
-    # Profil 2 — débordement perso (cabinet structuré mais charge déborde le soir)
-    if debordement_admin and not outils_empiles:
+    if pattern == "debordement_perso":
         variants = [
             (
                 "L'unique indicateur qui détecte une surcharge de votre cabinet aujourd'hui, "
@@ -352,8 +453,7 @@ def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) ->
         ]
         return _pick_variant(interview_id, variants, "phrase_choc:debordement_perso")
 
-    # Profil 3 — cadre largement informel (formulation neutre solo/groupe)
-    if cadre_absent:
+    if pattern == "cadre_absent":
         variants = [
             (
                 "Votre cabinet fonctionne sur des règles non écrites — qui décide quoi, qui "
@@ -385,12 +485,7 @@ def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) ->
         ]
         return _pick_variant(interview_id, variants, "phrase_choc:cadre_absent")
 
-    # Profil 4 — porteur solo (déplacé en V1.1.7-s : laisser thématiques d'abord)
-    # Active dès que ≥ 3 signaux d'effort cumulés (porte_seul, canaux_directs,
-    # débordement_admin, ferme_congés) sans qu'aucun pattern thématique n'ait
-    # déjà déclenché plus haut. Évite que la majorité des solo (qui matchent
-    # naturellement plusieurs signaux) reçoivent systématiquement ce profil.
-    if signals_effort >= 3:
+    if pattern == "porteur_solo":
         variants = [
             (
                 "Ce qui fait tourner votre cabinet est mémorisé, pas documenté : les "
@@ -420,8 +515,7 @@ def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) ->
         ]
         return _pick_variant(interview_id, variants, "phrase_choc:porteur_solo")
 
-    # Profil 5 — effort modéré, signaux dispersés
-    if signals_effort >= 2:
+    if pattern == "signaux_disperses":
         variants = [
             (
                 "Deux ou trois zones précises de votre cabinet consomment une part "
@@ -455,7 +549,7 @@ def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) ->
         ]
         return _pick_variant(interview_id, variants, "phrase_choc:signaux_disperses")
 
-    # Profil 6 — équilibre tenu mais lecture à froid pertinente (default)
+    # Default — toujours fire si aucun pattern précédent n'a matché
     variants = [
         (
             "Votre cabinet ne présente pas de point de tension visible. Cette absence de "
@@ -531,8 +625,8 @@ def build_chaine_causale(
             (
                 "Ce qui déborde le soir, ce sont les demandes qui n'ont pas pu être triées dans la "
                 "journée — appels sur votre mobile, SMS, mails directs qui ne passent pas par votre "
-                "secrétariat. Sans règle claire sur ce qu'il peut traiter seul, ce qui reste finit "
-                "chaque jour sur votre soirée."
+                "secrétariat. Sans règle claire sur ce qu'il peut traiter seul, ce qui reste retombe "
+                "sur votre soirée."
             ),
         ]
         return _pick_variant(interview_id, variants, "chaine:debordement_admin")
@@ -648,7 +742,9 @@ def build_synthesis(
     diversifiée dès que les variantes supplémentaires sont écrites
     (Vagues 2.2a-d).
     """
-    phrase_choc = build_phrase_choc(answers, interview_id)
+    # V1.1.8 : préfixe une phrase d'ouverture personnalisée selon la motivation Q06
+    # (q06_a/b/c). Chaîne vide pour curiosité, autre ou Q06 non répondue.
+    phrase_choc = build_phrase_choc_opening(answers) + build_phrase_choc(answers, interview_id)
 
     outils = derive_outils_principaux(answers)
     externalisations = derive_externalisations(answers)

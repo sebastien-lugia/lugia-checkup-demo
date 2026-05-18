@@ -104,7 +104,14 @@ def chantier_demandes_directes(
     sec_du = templates.derive_secretariat_with_du(answers)
 
     if triggered:
-        title = "Reprendre la main sur les demandes directes"
+        # V1.1.8 : titre adapté selon la motivation Q06 (charge / evenement / risque)
+        motivation = templates.derive_q06_motivation(answers)
+        title_map = {
+            "charge": "Réduire la charge des demandes directes",
+            "evenement": "Cadrer les demandes directes en amont de l'événement",
+            "risque": "Sécuriser les demandes directes non tracées",
+        }
+        title = title_map.get(motivation or "", "Reprendre la main sur les demandes directes")
         if q04 == "q04_d":
             canaux = _canaux_paralleles_phrase()
             flux = _flux_principal_categorie(answers)
@@ -183,7 +190,14 @@ def chantier_demandes_directes(
                 "semaines."
             )
     else:
-        title = "Garder un œil sur ce qui prend votre temps"
+        # V1.1.8 : titre fallback modulé selon Q06
+        motivation = templates.derive_q06_motivation(answers)
+        title_map_fallback = {
+            "charge": "Mesurer où passe votre temps avant d'agir",
+            "evenement": "Poser un état des lieux avant un changement",
+            "risque": "Repérer ce qui pourrait basculer sans signal",
+        }
+        title = title_map_fallback.get(motivation or "", "Garder un œil sur ce qui prend votre temps")
         vu = (
             "Le check-up n'a pas détecté de surcharge particulière. "
             "Un état des lieux régulier de ce qui vous prend du temps "
@@ -238,7 +252,14 @@ def chantier_ia(
     triggered = q13 in ("q13_c", "q13_d")
 
     if triggered:
-        title = "Sécuriser votre usage actuel de l'IA"
+        # V1.1.8 : titre adapté selon la motivation Q06
+        motivation = templates.derive_q06_motivation(answers)
+        title_map = {
+            "charge": "Alléger les tâches admin via une IA conforme",
+            "evenement": "Mettre votre usage IA en conformité en amont de l'événement",
+            "risque": "Sécuriser votre usage IA face au secret médical",
+        }
+        title = title_map.get(motivation or "", "Sécuriser votre usage actuel de l'IA")
         usage = _usage_ia_decrit(answers)
 
         if q13 == "q13_d":
@@ -293,7 +314,14 @@ def chantier_ia(
             )
         propose = " ".join(propose_parts)
     else:
-        title = "Préparer un usage maîtrisé de l'IA"
+        # V1.1.8 : titre fallback modulé selon Q06
+        motivation = templates.derive_q06_motivation(answers)
+        title_map_fallback = {
+            "charge": "Découvrir une IA conforme qui peut alléger votre quotidien",
+            "evenement": "Tester une IA conforme avant un changement à venir",
+            "risque": "Découvrir une IA conforme avant que l'usage informel ne s'installe",
+        }
+        title = title_map_fallback.get(motivation or "", "Préparer un usage maîtrisé de l'IA")
         vu = (
             "Vous n'utilisez pas d'IA générative aujourd'hui. C'est un bon point de départ pour "
             "découvrir un environnement maîtrisé avant que l'usage ne se diffuse de manière informelle."
@@ -353,7 +381,14 @@ def chantier_absence(
     duree = templates.derive_duree_secretariat(answers)
 
     if triggered:
-        title = "Anticiper une absence prolongée"
+        # V1.1.8 : titre adapté selon la motivation Q06
+        motivation = templates.derive_q06_motivation(answers)
+        title_map = {
+            "charge": "Sécuriser la continuité pour libérer du temps mental",
+            "evenement": "Structurer une fiche relais transférable en amont de l'événement",
+            "risque": "Sécuriser la continuité face à l'absence imprévue",
+        }
+        title = title_map.get(motivation or "", "Anticiper une absence prolongée")
 
         if pred:
             depuis = f"Depuis le départ de {pred}"
@@ -405,7 +440,14 @@ def chantier_absence(
             "à votre prochain remplaçant."
         )
     else:
-        title = "Compléter ce qui est déjà prévu pour vos absences"
+        # V1.1.8 : titre fallback modulé selon Q06
+        motivation = templates.derive_q06_motivation(answers)
+        title_map_fallback = {
+            "charge": "Compléter votre dispositif pour libérer du mental",
+            "evenement": "Compléter votre dispositif d'absence avant un événement",
+            "risque": "Compléter votre dispositif d'absence sur les cas extrêmes",
+        }
+        title = title_map_fallback.get(motivation or "", "Compléter ce qui est déjà prévu pour vos absences")
         vu = (
             "Vous avez déjà quelques règles écrites pour le fonctionnement du cabinet sans vous. "
             "Le chantier consiste à les compléter pour mieux tenir un imprévu."

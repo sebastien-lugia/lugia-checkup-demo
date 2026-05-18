@@ -1,5 +1,5 @@
 {
-  "version": "1.8",
+  "version": "1.9",
   "last_updated": "2026-05-15",
   "total_questions": 14,
   "scored_facets": [
@@ -335,42 +335,42 @@
       "scored": false,
       "topic": "Pourquoi ce check-up maintenant",
       "open_prompt": null,
-      "qcm_prompt": "Qu'est-ce qui vous fait faire ce check-up aujourd'hui ?",
+      "qcm_prompt": "Quelle est la raison principale qui vous fait faire ce check-up maintenant ?",
       "options": [
         {
           "id": "q06_a",
-          "label": "La curiosité — je veux comprendre ce qu'un outil comme Lugia peut m'apporter",
+          "label": "Réduire ma charge actuelle — identifier ce qui pèse le plus dans ma semaine et alléger",
           "health_score": null,
           "node_type": "Cause",
           "tags": [
-            "motivation-curiosité"
+            "motivation-charge"
           ]
         },
         {
           "id": "q06_b",
-          "label": "Une fatigue qui dure — j'ai besoin d'identifier ce qui pèse vraiment dans ma semaine",
+          "label": "Anticiper un événement à venir — préparer l'arrivée d'un associé, un déménagement, un agrandissement, une transmission ou une cession du cabinet",
           "health_score": null,
           "node_type": "Cause",
           "tags": [
-            "motivation-fatigue"
+            "motivation-evenement"
           ]
         },
         {
           "id": "q06_c",
-          "label": "Un événement récent — j'ai eu besoin de prendre du recul sur mon organisation",
+          "label": "Sécuriser un risque identifié — consolider un dispositif fragile, traiter un incident récent ou répondre à une obligation de conformité (RGPD, IA, secret médical)",
           "health_score": null,
           "node_type": "Cause",
           "tags": [
-            "motivation-déclencheur"
+            "motivation-risque"
           ]
         },
         {
           "id": "q06_d",
-          "label": "Anticiper — je veux savoir où j'en suis avant que quelque chose ne craque",
+          "label": "Curiosité — comprendre ce qu'un outil comme Lugia peut apporter à mon cabinet",
           "health_score": null,
           "node_type": "Cause",
           "tags": [
-            "motivation-anticipation"
+            "motivation-curiosite"
           ]
         },
         {

@@ -103,8 +103,8 @@ ANSWERS = [
     {
         "question_id": 'q06',
         "mode": 'A',
-        "selected_option": 'q06_c',
-        "selected_option_label": "Un événement récent — j'ai eu besoin de prendre du recul sur mon organisation",
+        "selected_option": 'q06_a',
+        "selected_option_label": "Réduire ma charge actuelle — identifier ce qui pèse le plus dans ma semaine et alléger",
         "free_text": None,
         "complement_text": (
         "Un confrère m'a parlé de Lugia il y a quelques semaines, dans un contexte "

@@ -104,7 +104,7 @@ Donne à V1.2 SLM un substrat plus riche : 40 fragments swot + 4 niveaux + 7 hyp
 
 ---
 
-## V1.1.8 — Câblage Q06 (motivation du check-up) — À FAIRE avant V1.2
+## V1.1.8 — Câblage Q06 (motivation du check-up) — LIVRÉE 2026-05-18
 
 Q06 (*"Qu'est-ce qui vous fait faire ce check-up aujourd'hui ?"*) est collectée depuis V1 mais n'irrigue actuellement aucun bloc de la page résultats. Elle propose 4 motivations distinctes — curiosité, fatigue qui dure, événement récent, anticipation — qui devraient moduler le rapport entier.
 
