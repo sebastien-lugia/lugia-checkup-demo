@@ -4,6 +4,592 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-18 — V1.1.7-t : audit éditorial complet templates/swot/workstreams
+
+Passage systématique sur tous les fichiers de génération texte pour détecter les tournures accusatrices, normatives ou consulting :
+
+- *"aurait dû"*, *"devrait"*, *"tant que ... reste"*, *"il faudrait"*, *"par négligence"*, *"vous savez que"*, *"vous restez conscient"*, *"sous le seuil"*, *"vous compensez"*, etc.
+
+6 corrections appliquées au-delà des reformulations précédentes :
+
+| Lieu | Avant | Après |
+|---|---|---|
+| `templates.py` C1.3 (débordement admin) | *"aurait dû être filtré en amont. Tant que les canaux restent ouverts..."* | *"qui n'ont pas pu être triées dans la journée — appels, SMS, mails... ce qui reste finit chaque jour sur votre soirée."* |
+| `templates.py` signaux_disperses #3 | *"qu'il ne devrait pas"* + *"sous le seuil de l'effort à corriger"* | *"hors de son périmètre"* + *"ne pèse pas assez pour qu'on prenne le temps de le regarder"* |
+| `templates.py` Chaîne 4.2 (perte de vue chroniques) | *"Vous ne perdez personne par négligence — vous perdez la trace..."* | *"La trace se perd silencieusement, sans rien pour vous l'indiquer."* |
+| `templates.py` `build_processes_summary` | *"Vous compensez ce qui ne se voit pas la journée."* | *"C'est votre temps personnel qui absorbe ce qui ne se voit pas la journée."* |
+| `workstreams.py` C1 q05_d `vu` | *"Vous compensez ce qui ne se voit pas la journée."* | *"C'est votre temps personnel qui absorbe ce qui ne se voit pas la journée."* |
+| `workstreams.py` C1 q05_d analyse #1 | *"savoir ce qu'il faudrait alléger en priorité"* | *"savoir ce qui pourrait être allégé en priorité"* |
+
+**Résiduel acceptable** : 1 occurrence de *"devrait"* conservée dans phrase choc cadre_absent #2 — le sujet désigne le remplaçant qui débarque, pas le médecin (*"Il devrait reconstituer ces règles..."*). Pas culpabilisant.
+
+Cohérence philosophique restaurée : le ton reste descriptif systémique partout, sans glisser vers le jugement de valeur. Fichier : `src/templates.py`, `src/workstreams.py`.
+
+---
+
+## 2026-05-18 — V1.1.7-s : reorder cascade phrase_choc + ROADMAP Q06 enrichi
+
+**Cascade `build_phrase_choc` réorganisée** pour éviter que le profil *porteur_solo* (≥ 3 signaux d'effort) ne capte la majorité des médecins solo qui matchent naturellement plusieurs signaux à la fois (canaux directs + débordement + ferme congés + porte seul).
+
+Nouvelle priorité :
+
+| # | Profil | Critère |
+|---|---|---|
+| 1 | IA grand public + outils empilés | régulatoire prioritaire |
+| 2 | Débordement perso | santé personnelle du médecin |
+| 3 | Cadre absent | transmissibilité actionnable |
+| 4 | Porteur solo | meta-profil cumulatif (≥ 3 signaux) |
+| 5 | Signaux dispersés | ≥ 2 signaux d'effort |
+| 6 | Default | équilibre tenu |
+
+Avant : porteur_solo en #1 → la plupart des médecins solo recevaient cette phrase choc en priorité, ce qui pouvait sonner moralisateur pour un médecin qui exerce ainsi depuis 20 ans sans problème.
+
+Après : les profils thématiques (IA, débordement, cadre) prennent la priorité ; porteur_solo ne déclenche que si aucune dimension thématique n'a déjà été identifiée. Plus juste.
+
+**ROADMAP V1.1.8 (Q06) enrichi** avec la stratégie de qualification statut répondant (cession à venir, structurer transmissibilité, aller mieux au quotidien, anticiper événement, curiosité). Q06 deviendra le pivot qui personnalise le ton de la phrase choc et l'orientation des chantiers selon la situation du médecin.
+
+Fichiers : `src/templates.py` (`build_phrase_choc`), `ROADMAP.md` (section V1.1.8).
+
+---
+
+## 2026-05-18 — V1.1.7-r : refonte bloc CE QUI RESSORT (synthèse)
+
+Audit éditorial du bloc synthèse suite à retours utilisateur (4 défauts repérés). Trois corrections structurelles :
+
+**1. Première phrase du phrase_choc default variant #3 raccourcie**
+Une phrase de 60 mots avec colon + tiret + énumération devient 3 phrases plus courtes. Le punch *"La différence ne se voit pas de l'intérieur, c'est précisément ce qu'un regard extérieur peut faire apparaître"* est désormais en gras et porte la chute, au lieu d'être noyé dans la longueur.
+
+**2. Chaîne causale `fragilite_continuite` variant #3 réécrite**
+Avant : *"La fragilité que vous percevez sur la continuité n'est pas une faille d'organisation isolée — c'est la conséquence directe d'un mode solo sans renfort régulier. Plus le quotidien tient bien sans appui extérieur, plus une absence devient un événement à fort impact."*
+
+Après : *"Cette fragilité de continuité a une racine simple : vous exercez seul, sans renfort régulier ni dispositif partagé. Au-delà d'une journée d'absence, rien ne prend le relais."*
+
+Corrections :
+- *"que vous percevez"* → présupposition retirée. Le médecin n'a pas dit qu'il percevait la fragilité ; il a juste répondu à Q08. La nouvelle version nomme la fragilité comme un fait sans présumer de son ressenti.
+- *"mode solo sans renfort régulier"* → *"vous exercez seul, sans renfort régulier"*. Sortie du registre management.
+- *"Plus le quotidien tient bien sans appui extérieur, plus une absence devient un événement à fort impact"* → la formule rhétorique inversée ne disait rien. Remplacée par un scénario concret : *"Au-delà d'une journée d'absence, rien ne prend le relais"*.
+
+**3. Bloc "organisation" supprimé entièrement de `build_synthesis`**
+La phrase *"Au quotidien, vous vous appuyez sur votre télésecrétariat."* (ou équivalent selon outils détectés) interrompait le flux entre phrase choc et chaîne causale sans apporter d'information utile. Le médecin sait sur quoi il s'appuie ; on n'a pas besoin de le lui répéter. La garde précédente (V1.1.7-j, qui ne coupait qu'en cas de zone vide) est aussi retirée car elle laissait la phrase orpheline quand une chaîne causale fire. Cette suppression rend la synthèse strictement *phrase_choc + zone*.
+
+Fichier : `src/templates.py` (`build_synthesis`, `build_phrase_choc`, `build_chaine_causale`).
+
+---
+
+## 2026-05-18 — V1.1.7-q : dump_report.py aligné sur la page web
+
+Le script `scripts/dump_report.py` est mis en cohérence avec la page résultats refondue :
+
+- **Cartes opportunités** : passage de 4 sous-sections (Ce que nous avons observé / Ce que ça révèle / À confirmer ensemble / L'opportunité d'action) à 2 (LA SITUATION + CE QU'ON METTRAIT EN PLACE), comme sur la page web.
+- **Prochaine étape** : 2 chemins (autonomie + Lugia en réel) au lieu de 3, avec les libellés et descriptions identiques au frontend.
+- **Phrase de transition** *"Vous avez vu les opportunités. Voici comment les transformer en chantiers avec Lugia."* ajoutée avant Prochaine étape.
+- Titre de section *"Prochaine étape recommandée"* → *"Prochaine étape ?"* (cohérent avec frontend).
+
+Le callout recommandation est déjà géré : `build_recommandation` retournant `""` depuis V1.1.7-k, le `if recommendation:` du dump ne déclenche plus rien.
+
+Fichier : `scripts/dump_report.py`.
+
+---
+
+## 2026-05-18 — V1.1.7-p : polishings éditoriaux finaux cartes opportunités
+
+Cinq retouches de cohérence après tests visuels :
+
+**1. Transition opportunité → chantier explicitée**
+Avant : *"Vous avez vu les chantiers. Voici comment avancer avec Lugia."*
+Après : *"Vous avez vu les opportunités. Voici comment les transformer en chantiers avec Lugia."*
+La distinction sémantique est désormais portée : opportunité = ce qui est identifié au diagnostic, chantier = ce qu'on entreprend.
+
+**2. Ouverture de cartes "Prochaine étape" parallèles**
+Ajout d'une virgule sur le titre du chemin autonome pour matcher la structure du chemin Lugia : *"Approfondir un chantier, en autonomie"* / *"Avancer avec Lugia, en réel"*.
+
+**3. Ancrages "check-up" distincts par chantier**
+Pour éviter la collision visuelle entre cartes opportunités, chaque chantier a désormais sa propre formulation d'ancrage au check-up :
+- C1 : *"À partir de votre check-up, on..."*
+- C2 : *"...en s'appuyant sur votre check-up..."*
+- C3 : *"...grâce à votre check-up..."*
+
+**4. Ouverture C2 fallback alignée sur la forme verbale**
+*"À partir de votre check-up, on vous fait découvrir..."* → *"On vous fait découvrir un environnement IA conforme au secret médical, en s'appuyant sur votre check-up, sur deux ou trois cas d'usage..."*. Évite que C1 fallback et C2 fallback commencent par la même structure.
+
+**5. LA SITUATION éditoriales tendues**
+Trois retouches pour aligner le ton :
+- C1 Q04=d : *"...représentent une charge invisible"* → *"...ne sont tracées nulle part."* (interprétation retirée)
+- C2 Q13=d : *"Vous savez que ce n'est pas une vraie garantie..."* → *"Sans garantie réelle de secret médical."* (formulation directe)
+- C2 Q13=c : *"Vous restez conscient des limites de cette pratique."* → *"Pratique vigilante, mais sans garantie structurelle de secret médical."* (nomme le risque au lieu du compliment)
+
+**6. Hybride distance/cabinet sur chantier 1**
+La modalité hybride *"à distance ou au cabinet"* est placée sur **l'acte de travail** (pose, mesure, mise en place) et non sur la restitution finale.
+
+Fichier : `src/workstreams.py` (`propose` et `vu` de 5 variants), `web/app/resultats/page.tsx` (transition + virgule titre carte autonomie).
+
+---
+
+## 2026-05-18 — V1.1.7-o : 3 micro-corrections cartes opportunités
+
+- **Label de section** : "LE LEVIER" renommé en "CE QU'ON METTRAIT EN PLACE". Le levier était trop abstrait/management ; la nouvelle formulation signale qu'on adapte plutôt qu'on applique une recette.
+- **Fallback chantier 1** : la phrase ne décrivait pas l'action Lugia. Réécrite pour intégrer le mode opératoire concret — *"on installe un suivi discret en arrière-plan pendant deux semaines pour mesurer où passent vraiment vos heures"*.
+- **Chantier 3 triggered** : *"Une fiche d'une page"* → *"Une fiche structurée"*. La taille fixe était inutilement restrictive.
+
+---
+
+## 2026-05-18 — V1.1.7-n : états de chargement et d'erreur restructurés
+
+Correction du bug visuel résiduel sur `/checkup` et `/resultats` : 4 états (3 sur /checkup error/loading/completed + 1 sur /resultats error) avaient encore `<AppHeader />` à l'intérieur d'un `<main flex items-center justify-center>`, ce qui plaçait le nav et le contenu côte à côte au lieu d'empiler proprement.
+
+Refonte uniforme : `<main flex flex-col><AppHeader /><div flex-1 flex items-center justify-center>...content...</div></main>`. Le nav reste en haut, le contenu s'centre verticalement dans l'espace restant.
+
+L'écran "Compte supprimé" sur /compte n'a pas d'AppHeader (l'utilisateur est déconnecté à ce stade) — pas touché, le flex-center y est correct.
+
+---
+
+## 2026-05-18 — V1.1.7-m : Prochaine étape refondue en 2 chemins
+
+La section "Prochaine étape ?" en bas de `/resultats` passe de 3 cartes à 2.
+
+**Avant** : Approfondir un chantier (autonomie) / Échanger avec Lugia 30 min / Diagnostic terrain 1 jour.
+
+**Après** :
+- *Approfondir un chantier en autonomie* — questionnaire ciblé sur l'opportunité choisie, ~15 min, gratuit, sans rendez-vous.
+- *Avancer avec Lugia, en réel* (recommandé) — *"Vous choisissez une opportunité, on la traite ensemble dans votre cabinet. Pas un appel d'identification — le chantier lui-même, structuré à partir de dispositifs éprouvés chez d'autres confrères."*
+
+**Pourquoi** : se démarquer des cabinets IA qui vendent des appels de 30/45 min pour "tout identifier". Lugia propose deux chemins concrets, dont aucun n'est un teaser de qualification. Le carton "diagnostic terrain 1 journée" est supprimé (la même intervention est désormais incluse dans "Lugia en réel" et fait moins peur en l'absence de durée fixe).
+
+**Force #5 (références confrères)** intégrée dans la description de la carte Lugia : *"structuré à partir de dispositifs éprouvés chez d'autres confrères"*. C'est la preuve sociale par les pairs.
+
+Fichiers : `web/app/resultats/page.tsx` (NEXT_STEPS, NextStepCard signature, grille md:grid-cols-2), `web/lib/api.ts` (type `recommended_next_step` réduit à `"autonomie" | "lugia"`).
+
+Pas de changement backend : `build_next_step_recommendation` retournait déjà toujours `"lugia"`.
+
+---
+
+## 2026-05-18 — V1.1.7-l : refonte cartes opportunités (Situation + Levier)
+
+Les 3 cartes "Trois opportunités d'action" passent d'une structure à 3 sections (Situation / Action proposée / À confirmer ensemble) à une **structure à 2 sections empilées** : **LA SITUATION** + **LE LEVIER**.
+
+**Frontend** — `web/app/resultats/page.tsx::ChantierCard` :
+- Layout single-column au lieu de 2 colonnes
+- Suppression du pied "À CONFIRMER ENSEMBLE"
+- Renommage "L'ACTION PROPOSÉE" → "CE QU'ON METTRAIT EN PLACE" (V1.1.7-l rebaptisé)
+- LA SITUATION rend désormais uniquement `chantier.vu` (le champ `analyse` reste populé en backend mais n'est plus affiché — réversibilité 1-click)
+- Le champ `pas_confirmer` reste populé en backend mais n'est plus rendu
+
+**Backend** — `src/workstreams.py` : réécriture du champ `propose` (rendu sous le label LE LEVIER) pour les 7 variants (3 chantiers × triggered/fallback) :
+
+| Chantier | Variant | Nouvelle formulation |
+|---|---|---|
+| Demandes directes | q04_d | *À partir de votre check-up, on mesure ensemble le volume réel de demandes qui passent par vos canaux directs (mobile, SMS, mails), et on pose une consigne claire avec {sec_label} — à communiquer à vos patients réguliers.* |
+| Demandes directes | q05_d | *À partir de votre check-up, on regarde ensemble où votre charge administrative déborde aujourd'hui sur vos soirées et week-ends — puis on identifie les pistes concrètes que vous pourriez expérimenter sur deux semaines.* |
+| Demandes directes | fallback | *À partir de votre check-up, on regarde avec vous où se concentrent vos heures aujourd'hui — un repère mesuré, sans changer votre organisation actuelle.* |
+| IA | triggered (q13_c/d) | *On vous fait tester un environnement IA conforme au secret médical et adapté à votre situation, à partir de votre check-up. Deux ou trois cas d'usage installés pour votre quotidien (courriers complexes, comptes-rendus, préparation de patients).* |
+| IA | fallback | *On vous fait tester un environnement IA conforme au secret médical sur quelques tâches concrètes (courriers, comptes-rendus, préparation de patients), à votre rythme et sans engagement.* |
+| Absence | triggered (q08_c/d) | *On structure votre fiche relais à partir de votre check-up — pas d'atelier découverte, pas de modèle générique. Une fiche d'une page, prête à partager à votre prochain remplaçant.* |
+| Absence | fallback | *On relit ensemble votre dispositif d'absence à partir de votre check-up pour identifier les scénarios non couverts — arrêt long, panne d'outil critique. Un complément ciblé à ce qui existe déjà.* |
+
+**Principes éditoriaux** (alignés sur retours utilisateur V1.1.7-l) :
+- Pas de surpromesse chiffrée ("vous récupérez des heures par semaine" → coupé).
+- Pas de blabla consulting ("vous repartez avec une vue d'ensemble", "à découvrir ensemble lors d'une présentation", "à simuler ensemble en testant un scénario" → coupés).
+- Lugia comme acteur explicite via verbes ("on mesure", "on pose", "on structure", "on fait tester", "on relit").
+- Force #1 (contexte déjà collecté) explicite via "à partir de votre check-up" dans chaque variant.
+- Force #5 (références confrères) non déployée dans les cartes — reste à intégrer dans la future section "Comment avancer" en pied de page.
+
+**Réversibilité** : les champs `analyse` et `pas_confirmer` restent générés et exposés dans le payload `/report`. Pour revenir à la structure 3 sections, c'est un revert ciblé de `ChantierCard` (~30 lignes).
+
+---
+
+## 2026-05-18 — V1.1.7-k : suppression du callout recommandation
+
+Le bloc *"recommandation"* intercalé entre la grille des facettes et les opportunités d'action (livré en V1.1.6-f) est supprimé. À l'usage les 3 variants se sont tous révélés sans valeur ajoutée :
+
+- `reco:ia_visible` dupliquait le chantier IA qui apparaît juste en dessous dans les opportunités.
+- `reco:descriptions` était une invitation vague à appeler ("Une heure d'échange suffit à confirmer cette lecture…") sans nommer de chantier concret.
+- `reco:default` (déjà retiré en V1.1.7-h) était purement filler.
+
+`src/templates.py::build_recommandation` retourne désormais toujours `""`. La signature est conservée pour ne pas casser l'API `/report` ni le rendu frontend (le `{report.recommendation && (...)}` du composant ne déclenche plus jamais).
+
+Conséquence visuelle : la page résultats enchaîne directement de la grille des 3 facettes vers "Trois opportunités d'action". Plus serré, plus honnête.
+
+Si un futur besoin justifie un bloc à cet emplacement (synthèse transversale des 3 facettes par exemple), il faudra réintroduire un contenu vraiment additif, pas une reformulation des chantiers à venir.
+
+---
+
+## 2026-05-18 — V1.1.7-j : synthèse propre quand aucun risque ne fire + légende conditionnelle
+
+Deux ajustements de cohérence sur la page résultats.
+
+**Synthèse** : si la zone *"ce qui demande attention"* est vide (aucun risque détecté), la phrase orpheline *"Au quotidien, vous vous appuyez sur…"* est coupée elle aussi. Elle était conçue comme une transition vers la zone risque ; sans elle, elle dangle. La synthèse se referme désormais sur la phrase choc.
+
+**Légende sous la grille** : la légende ("À surveiller", "À risque") n'apparaît plus que pour les badges effectivement présents dans la grille. Si toutes les facettes sont en niveau 1-2 (Maîtrisé / Opérationnel), pas de légende. Si seulement "À risque" s'affiche, seule cette entrée est listée.
+
+Fichiers : `src/templates.py` (build_synthesis), `web/app/resultats/page.tsx` (légende calculée à la volée).
+
+---
+
+## 2026-05-18 — V1.1.7-h : alignement ton des RISQUE_PLANCHER
+
+Audit de tous les fragments forces/risques pré-paramétrés (49 entrées) suite à V1.1.7-e : style nominal et longueur respectés partout (4-10 mots) sauf 3 fallbacks `RISQUE_PLANCHER` qui dénotaient à 10-12 mots. Préfixe *"Vigilance à maintenir"* conservé (doux pour un fallback), suite raccourcie.
+
+| Facette | Avant | Après |
+|---|---|---|
+| processes | Vigilance à maintenir sur l'évolution du volume de demandes. (10w) | Vigilance à maintenir sur le volume de demandes. (8w) |
+| participants | Vigilance à maintenir sur la transmission et la couverture des absences. (11w) | Vigilance à maintenir sur la couverture des absences. (8w) |
+| information | Vigilance à maintenir sur l'intégration des outils et les nouveaux usages. (12w) | Vigilance à maintenir sur l'intégration des outils. (8w) |
+
+Fichier : `src/swot.py` (lignes 257-259). Pas d'impact logique : ces fragments ne s'activent qu'en fallback si aucun risque spécifique ne déclenche pour une facette de niveau ≥ 2.
+
+---
+
+## 2026-05-16 — V1.1.7 : voix "vous" sur le callout + responsive + prénom médecin
+
+Itération sur la V1.1.6 livrée plus tôt dans la journée, à partir des specs V3 (`wireframes/resultats_v2_specs.md` + retours utilisateurs). Sept sous-vagues. Pas de changement de scoring ni de logique métier.
+
+### Sous-vagues livrées
+
+| Sous-vague | Périmètre | Fichiers principaux |
+|---|---|---|
+| V1.1.7-a | Backend prénom médecin : table user_profile + endpoints GET/PATCH /me/profile + injection doctor_firstname dans /report | `src/db.py`, `backend/main.py` |
+| V1.1.7-b | Frontend : page /compte avec champ prénom + getMyProfile / updateMyProfile dans api.ts | `web/lib/api.ts`, `web/app/compte/page.tsx` |
+| V1.1.7-c | Hero V3 : H1 "Votre cabinet, vu de l'extérieur" + sous-titre "Dr {prénom} — résultats du {date}" | `web/app/resultats/page.tsx`, `web/lib/api.ts` |
+| V1.1.7-d | Callout reformulé en voix "vous" (suppression "Lugia commence par..."), style discret bg gris + border-left, plus d'italique | `src/templates.py`, `web/app/resultats/page.tsx`, `scripts/dump_report.py` |
+| V1.1.7-e | 4 reformulations swot ("répartie", consultation libérée, aligné sur votre pratique, sans protocole défini) + phrase de transition avant Prochaine étape | `src/swot.py`, `web/app/resultats/page.tsx` |
+| V1.1.7-f | Responsive : @media print + @media (max-width: 640px) mobile | `web/app/globals.css`, classes utilitaires ajoutées dans `web/app/resultats/page.tsx` et `AppHeader.tsx` |
+| V1.1.7-g | Tests + journalisation (cette entrée) | docs structurantes |
+
+### Refonte de la voix du callout (V1.1.7-d)
+
+Avant : *"Avant tout chantier, Lugia commence par une vue d'ensemble de votre cabinet. Pour vous, le pas qui pèse le plus est de remplacer votre IA grand public..."*
+
+Après (3 contextes adaptés) : *"Ce check-up vous donne une vue d'ensemble avant d'engager quoi que ce soit. **Le chantier le plus urgent pour vous : remplacer votre IA grand public par un environnement conforme au secret médical.**"*
+
+Changements :
+
+- Plus de "Lugia commence par..." en 3ème personne — le médecin reste sujet de l'action.
+- Plus d'italique global (couché de la classe CSS `italic`) — la phrase clé en gras suffit à signaler la hiérarchie.
+- Saut de ligne `<br /><br />` entre les deux phrases pour aérer.
+- Style frontend : `bg-[#f7f7f7] border-l-[3px] border-[#e5e5e5]` — discret, fait transition entre angles et opportunités sans encadrer comme un "encart commercial".
+
+### Prénom médecin (V1.1.7-a/b/c)
+
+- Nouvelle table `user_profile(email PRIMARY KEY, firstname, updated_at)` dans `src/db.py`.
+- Helpers `db.get_user_profile(email)` et `db.upsert_user_profile(email, firstname)`.
+- Endpoints `GET /me/profile` et `PATCH /me/profile` avec modèle Pydantic `UserProfileUpdate`.
+- Page `/compte` : nouvelle section "Prénom" en haut, input + bouton enregistrer + feedback de succès/erreur. Note "Affiché en en-tête de votre rapport personnel".
+- Type `Interview` côté frontend enrichi : `doctor_firstname?: string | null`.
+- Hero affiche conditionnellement :
+  - Si prénom saisi : *"Dr {prénom} — résultats du {date}"*
+  - Si prénom absent : *"Réalisé le {date}"* (fallback V1.1.6)
+- Aucune migration manuelle requise : la table est créée par `metadata.create_all(engine)` au démarrage du backend.
+
+### 4 reformulations swot
+
+| Avant | Après |
+|---|---|
+| Charge administrative lissée sur deux journées de cabinet. | Charge administrative répartie sur deux journées de cabinet. |
+| Hervé, votre assistant·e médical·e, en soutien direct. | Hervé, votre assistant·e médical·e en soutien direct — consultation libérée, accueil professionnalisé. |
+| Secrétariat interne avec Marie, stable et intégré. | Marie, secrétariat interne stable et aligné sur votre pratique. |
+| Suivi des chroniques au cas par cas. | Suivi des patients chroniques sans protocole défini. |
+
+Décision conservée : `assistant·e médical·e` en plein (l'abréviation "AM" des specs V3 a été rejetée pour rester accessible aux médecins moins habitués à la nomenclature hospitalière).
+
+### Responsive (V1.1.7-f)
+
+**@media print** :
+- Nav et footer cachés.
+- Page padding réduit à 24px.
+- Grilles 3 colonnes (facettes, prochaine étape) deviennent des blocs empilés.
+- Corps des opportunités passe en bloc vertical.
+- `page-break-inside: avoid` sur les cartes opportunités et facettes.
+- Bordures `#ccc` adaptées pour l'impression noir et blanc.
+
+**@media (max-width: 640px)** :
+- Nav : padding horizontal réduit.
+- Page wrapper : padding 20px (vs 32px desktop).
+- H1 : 24px (vs 28px desktop).
+- Sous-titre : 15px (vs 17px desktop).
+- Tailwind gère automatiquement les grids `grid-cols-1 md:grid-cols-3` → bascule en colonne unique sous 768px (breakpoint Tailwind md).
+
+Pour cibler les éléments via les media queries CSS, des classes utilitaires sémantiques ont été ajoutées : `lugia-page-wrapper`, `lugia-facets-grid`, `lugia-opp-card`, `lugia-opp-body`, `lugia-next-grid`, `lugia-h1`, `lugia-subtitle`, `lugia-nav-inner`.
+
+### Modifié — résumé par fichier
+
+| Fichier | Changement |
+|---|---|
+| `src/db.py` | Table `user_profile` + helpers `get_user_profile` / `upsert_user_profile` |
+| `src/templates.py` | `build_recommandation` reformulée en voix "vous", suppression `<em>`, ajout `<br /><br /><strong>` |
+| `src/swot.py` | 4 reformulations forces/risques |
+| `backend/main.py` | Endpoints `GET/PATCH /me/profile`, `doctor_firstname` dans payload `/report` |
+| `scripts/dump_report.py` | Callout sans italique markdown |
+| `web/lib/api.ts` | Types `UserProfile`, fonctions `getMyProfile`/`updateMyProfile`, `Interview.doctor_firstname?` |
+| `web/components/AppHeader.tsx` | Classe `lugia-nav-inner` pour responsive |
+| `web/app/compte/page.tsx` | Section Prénom (input + sauvegarde) |
+| `web/app/resultats/page.tsx` | H1 + sous-titre prénom, callout V1.1.7-d, phrase transition, classes responsive |
+| `web/app/globals.css` | @media print et @media mobile |
+
+### Tests
+
+- Smoke tests sur build_recommandation : 3 contextes ia_visible / descriptions / default produisent le nouveau wording voix "vous".
+- Vérif syntaxe Python (db, templates, swot, dump_report, backend) — OK.
+- Vérif brace balance TypeScript sur compte/page.tsx et resultats/page.tsx — OK.
+- Validation visuelle locale par utilisateur à faire avant push (notamment responsive mobile <640px).
+
+### Reste ouvert
+
+- Hero V3 specs détaille un `<p>` séparé pour chacun des 3 blocs de la situation (phrase choc / organisation / "Deux points méritent..."). Aujourd'hui ces blocs sont concaténés dans la chaîne HTML de `build_synthesis`, séparés par un `<br /><br />` avant "Deux points". Pour avoir 3 vrais paragraphes `<p>`, il faudrait modifier `build_synthesis` pour wrapper chaque bloc — repoussé à V1.5+ si besoin.
+
+---
+
+## 2026-05-16 — V1.1.6 : refonte UI page de résultats vers palette V2 sobre
+
+Refonte visuelle de la page de résultats. Pas de changement de scoring ni de logique métier — purement UI et structure. Sept sous-vagues (a, b, c, d, e, f, +ajustements) livrées dans la journée du 16 mai à partir des specs V2 partagées par Sébastien (`wireframes/resultats_v2_specs.md`, `wireframes/resultats_v2_cible.pdf`).
+
+### Sous-vagues livrées
+
+| Sous-vague | Périmètre | Fichiers principaux |
+|---|---|---|
+| V1.1.6-a | Structure & palette : nav, Hero, max-w-[840px], palette V2 | `web/components/AppHeader.tsx`, `web/app/resultats/page.tsx`, `web/app/globals.css` |
+| V1.1.6-b | Refonte facettes : badge sans barre, tirets, séparateur entre forts/vigilance | `web/app/resultats/page.tsx` |
+| V1.1.6-c | Refonte opportunités : numéro grand + 2 colonnes (Situation / Action) + pied À confirmer | `web/app/resultats/page.tsx` |
+| V1.1.6-d | Refonte Prochaine étape : carte recommandée mise en avant + boutons CTA | `web/app/resultats/page.tsx` |
+| V1.1.6-f | Séparation reco italique : entre angles et opportunités, plus dans la synthèse | `src/templates.py`, `backend/main.py`, `scripts/dump_report.py`, `web/lib/api.ts`, `web/app/resultats/page.tsx` |
+| V1.1.6-e | Tests + journalisation (cette entrée) | `CHANGELOG.md`, `DECISIONS.md`, `TODO.md`, `ROADMAP.md` |
+
+### Palette V1.1.6 (référence)
+
+```
+Texte :     #111 / #555 / #999
+Bordures :  #e5e5e5
+Fond subtil : #f7f7f7
+Fond page : #faf9f5 (Lugia, gardé inchangé)
+
+Vert (Points forts) :        #2e7d4f
+Orange (Points vigilance) :  #b45200
+Bleu (CTA recommandé) :      #1a56a0
+
+Badge "À surveiller" :  fond #f0f0f0  /  texte #555  (gris neutre)
+Badge "À risque" :       fond #fbeae0  /  texte #8a4a1a  (rouille discret)
+```
+
+### Niveaux qualitatifs — badges asymétriques
+
+| Niveau | Badge affiché ? | Forces max | Risques max |
+|---|---|---|---|
+| 1 Maîtrisé | non (l'absence est un signal positif) | 3 | 0 |
+| 2 Opérationnel | non (idem) | 3 | 2 (plancher si rien ne déclenche) |
+| 3 À surveiller | oui (gris neutre) | 2 | 2 |
+| 4 À risque | oui (rouille discret) | 1 | 3 |
+
+La distinction Maîtrisé/Opérationnel se fait par la **présence ou non de la section "Points de vigilance"** : Maîtrisé n'affiche que les forces, Opérationnel ajoute 1 ou 2 vigilances.
+
+### Refonte du Hero
+
+- Plus de `PageHeader` (composant retiré de la page résultats — toujours utilisé sur les autres pages).
+- Breadcrumb simple en uppercase 11px gris : `DIAGNOSTIC PRÉVENTIF GRATUIT`.
+- H1 serif Georgia 28px (typo Lugia conservée — un kit de marque global viendra ultérieurement).
+- Date en gris #999.
+- Bloc situation : border-left 3px gris #e5e5e5 (au lieu de l'encadré crème V1.1.5).
+- Saut de ligne (`<br /><br />`) + gras sur la phrase pivot *"Deux points méritent d'être regardés en priorité"* (ou *"Un point mérite d'être regardé en priorité"*).
+
+### Refonte facettes
+
+- Grid `gap-[1px]` sur fond `#e5e5e5` créant des séparateurs naturels, border-radius 8px.
+- Cartes : fond blanc, padding 20px, sans bordure individuelle.
+- Listes : tirets `–` gris #999 (`before:content-['–']`), plus de bullets disc.
+- Labels Points forts (vert #2e7d4f) / Points de vigilance (orange #b45200) — uppercase bold 10px.
+- Séparateur fin `border-t border-[#ebebeb]` entre forts et vigilance dans chaque card.
+- Légende sous la grille : badges + signification.
+- **LevelBar (barre 4 segments) supprimée** — le badge texte suffit, plus épuré.
+
+### Refonte opportunités
+
+- Plus de badge "Priorité X" — remplacé par un numéro 28px bold couleur pâle `#d0d8f0` à gauche du titre.
+- En-tête fond `#f7f7f7` avec bordure basse.
+- Corps en **2 colonnes** :
+  - Gauche (fond blanc) : `LA SITUATION` = `chantier.vu + " " + chantier.analyse` (fusion fluide).
+  - Droite (fond `#fcfcfc`) : `L'ACTION PROPOSÉE` = `chantier.propose`.
+- Pied fond `#f7f7f7` : label `À CONFIRMER ENSEMBLE` sur sa ligne + texte `chantier.pas_confirmer` en 12.5px.
+- Plus de schéma 4 quadrants — la matière analytique reste, la présentation est resserrée.
+
+### Refonte Prochaine étape
+
+- 3 cards grid avec carte recommandée mise en avant : bordure bleue `#1a56a0` + bouton CTA bleu plein.
+- Cartes secondaires : bordure grise + bouton bordure grise.
+- Nouveau champ `cta` dans `NEXT_STEPS` ("Choisir un chantier", "Prendre rendez-vous", "En savoir plus").
+- Titre "Prochaine étape ?" passe de h2 serif à label uppercase 11px gris.
+
+### Séparation de la recommandation italique (V1.1.6-f)
+
+La phrase italique de Lugia (*"Avant tout chantier, Lugia commence par une vue d'ensemble..."*) était précédemment incluse en fin de synthèse. Elle est désormais **extraite dans une section dédiée**, affichée **entre les facettes et les opportunités d'action**, pour faire transition narrative entre "voici votre situation" et "voici les leviers d'action".
+
+- Backend : nouvelle fonction `build_recommandation(answers, interview_id)` dans `src/templates.py`. Logique de sélection 3 contextes identique à V1.1.5-b (`reco:ia_visible` / `reco:descriptions` / `reco:default`).
+- `build_synthesis` ne retourne plus la reco. Le payload `/report` expose désormais `synthesis` ET `recommendation` séparément.
+- Type `Report` côté frontend enrichi (`recommendation?: string`).
+- Rendu frontend : italique pleine largeur centré, marges verticales aérées (`py-6`), pas de bordure colorée (premier essai avec border-left bleu retiré sur retour utilisateur).
+- `dump_report.py` adapté : insertion `> *...*` entre angles et opportunités.
+
+### Phrase choc enrichie de `<strong>`
+
+Les 22 variantes de `build_phrase_choc` portent maintenant 1 ou 2 mots-clés en gras pour faire ressortir le pivot révélateur. Exemple : *"Un remplaçant qui débarquerait demain n'aurait pas de document à consulter"* (cadre_absent #1), *"votre fatigue"* (debordement_perso #0), *"n'a pourtant pas de lien contractuel avec votre cabinet"* (ia_stack #0).
+
+### Wireframes ajoutés
+
+Trois fichiers de référence dans `wireframes/` :
+
+- `resultats_v1_actuel.pdf` — V1.1.5 état avant V1.1.6.
+- `resultats_v2_cible.pdf` — maquette cible V1.1.6.
+- `resultats_v2_specs.md` — specs détaillées (palette, typo, layout, règles de ton visuel).
+
+### Modifié — résumé par fichier
+
+| Fichier | Changement |
+|---|---|
+| `web/components/AppHeader.tsx` | Refondu en nav V2 (logo + actions + bordure basse) |
+| `web/app/globals.css` | Suppression encart crème sur `.lugia-synthesis em` |
+| `web/lib/api.ts` | `Report.recommendation?` ajouté |
+| `web/app/resultats/page.tsx` | Refonte complète (Hero, FacetCard sans barre, ChantierCard 2 colonnes, NextStepCard CTA, reco déplacée) |
+| `src/templates.py` | `build_recommandation` extraite, `build_synthesis` épurée, 22 `<strong>` injectés dans phrase_choc, gras + saut de ligne sur "Deux/Un point" |
+| `backend/main.py` | Expose `recommendation` dans payload `/report` |
+| `scripts/dump_report.py` | Markdown adapté au format V2 (entête, niveaux qualitatifs, reco entre angles et opportunités) |
+
+### Tests bout en bout
+
+- Test local sur Chateau + profils opposés : rendu V2 conforme aux specs.
+- Validation visuelle par Sébastien sur plusieurs profils (Maîtrisé / Opérationnel / À surveiller / À risque).
+- Couleurs vérifiées : vert/orange/bleu/rouille uniquement où sémantiquement justifiées, fond crème Lugia conservé.
+
+### Reste ouvert
+
+- **dump_report et synthèse** : la fonction `build_synthesis` retourne toujours une chaîne unique sans `<p>` entre les blocs (phrase choc, organisation, zone). Avec V1.1.6-f, le saut de ligne `<br /><br />` est introduit avant "Deux/Un point", mais le rendu reste un seul paragraphe sinon. Si le besoin d'aération supplémentaire émerge, modifier `build_synthesis` pour wrapper chaque bloc dans un `<p>`.
+- **Synthèse mobile** : le rendu sur écran étroit (mobile, <600px) n'a pas été testé en V1.1.6. À valider en V1.2 ou avant le premier test client.
+- **Kit de marque global** : Sébastien prépare un kit complet (typo, couleurs, logo) qui viendra harmoniser l'ensemble. La typo Georgia + sans-serif système reste pour l'instant — sera revisitée à réception du kit.
+
+---
+
+## 2026-05-16 — V1.1.5 : niveaux qualitatifs + forces/risques par facette + opportunités d'action + prénom optionnel
+
+Refonte UI/méthodologique de la page de résultats. Sept sous-vagues livrées dans la journée (a, b, c, d, e, f, h, i, j, k — la lettre `g` est cette entrée). Aucune dépendance ajoutée, aucune rupture de l'auth ou du déploiement Render/Vercel.
+
+### Vue d'ensemble
+
+Avant V1.1.5, la page de résultats affichait pour chaque facette un score sur 10 + une phrase de résumé + 3 cartes de "chantiers prioritaires". Le calibrage des seuils niveaux qualitatifs et la valeur méthodologique de l'analyse étaient saturés. V1.1.5 refond cet affichage en :
+
+- **4 niveaux qualitatifs** au lieu d'un score chiffré (Maîtrisé / Opérationnel / À surveiller / À risque).
+- **Forces et points de vigilance** affichés explicitement, extraits des options du questionnaire avec priorité.
+- **Chantiers reframés en "opportunités d'action"** explicitement liées aux risques relevés plus haut.
+- **Champ prénom optionnel** sur les options secrétariat/équipe pour personnaliser le rapport ("Marie, votre télésecrétaire", "Hervé, votre assistant·e médical·e").
+
+### Sous-vagues livrées
+
+| Sous-vague | Périmètre | Fichiers principaux |
+|---|---|---|
+| V1.1.5-a | Bug visuel + intro chantiers raccourcie | `web/app/resultats/page.tsx` |
+| V1.1.5-b | Mapping score → niveau qualitatif backend | `src/scoring.py`, `backend/main.py` |
+| V1.1.5-c | Templates Forces/Risques par option (40 fragments) | `src/swot.py` (nouveau module) |
+| V1.1.5-d | Exposition niveau + forces/risques dans `/report` | `backend/main.py`, `web/lib/api.ts` |
+| V1.1.5-e | Refonte affichage facettes : badge niveau + barre segments + listes | `web/app/resultats/page.tsx`, `web/components/CheckupWidgets.tsx` |
+| V1.1.5-f | Reframing chantiers en opportunités (titre + 4 labels + intro + 7 pas_confirmer) | `web/app/resultats/page.tsx`, `src/workstreams.py` |
+| V1.1.5-h | Patch 3 analyses chantiers avec références métier | `src/workstreams.py` |
+| V1.1.5-i | Champ prénom optionnel (BDD + protocol + API + frontend + moteur rapport + seed) | 6 fichiers (cf D-024) |
+| V1.1.5-j | Risque de plancher dès niveau 2, note confidentialité prénom, layout 3 colonnes | `src/swot.py`, `web/components/CheckupWidgets.tsx`, `web/app/resultats/page.tsx` |
+| V1.1.5-k | Fusion ex-niveau 4-5 en un seul niveau 4 (À risque) + raccourcissement forces personnalisées | `src/scoring.py`, `src/swot.py`, `web/lib/api.ts`, `web/app/resultats/page.tsx` |
+
+### Mapping score → niveau qualitatif
+
+Décision actée en `DECISIONS.md` D-023. 4 niveaux, seuils stricts :
+
+| Score brut /10 | Niveau | Label | Couleur (sémantique) |
+|---|---|---|---|
+| 9-10 | 1 | Maîtrisé | green |
+| 7-8 | 2 | Opérationnel | yellow |
+| 5-6 | 3 | À surveiller | orange |
+| 0-4 | 4 | À risque | red |
+
+La fusion niveau 4-5 a été décidée en V1.1.5-k après constat empirique : la calibration des `health_scores` du questionnaire (cf `resources/interview_protocol.json`) ne permet pas mathématiquement à toutes les facettes d'atteindre l'ex-niveau 5 (score ≤ 2). Au pire absolu, Parcours patient plafonne à 3,3, Équipe et secrétariat à 2,7. Fusionner garde une échelle cohérente avec ce que le scoring peut produire et évite de promettre un niveau inatteignable.
+
+### Forces et risques par facette
+
+Mécanique en deux temps documentée dans `src/swot.py` :
+
+1. **Filtrage + tri + troncature** — chaque option du questionnaire peut être taguée comme déclencheur de force ou de risque, avec une priorité (1 = le plus structurant). À la génération, on garde les fragments dont le trigger est actif, on trie par priorité, on tronque selon le volume du niveau :
+
+| Niveau | Forces max | Risques max |
+|---|---|---|
+| 1 Maîtrisé | 3 | 1 |
+| 2 Opérationnel | 3 | 2 |
+| 3 À surveiller | 2 | 2 |
+| 4 À risque | 1 | 3 |
+
+2. **Planchers de garantie** — si la liste est vide après filtrage, on active une phrase de plancher :
+   - **Force** : toujours active si rien ne déclenche (chaque facette a 1 force générique).
+   - **Risque** : active uniquement si niveau ≥ 2. Le niveau 1 reste sans risque affiché.
+
+**40 fragments** au total : 21 forces + 15 risques + 3 forces de plancher + 3 risques de plancher.
+
+Le format des fragments est passé de phrases analytiques longues (V1.1.5-c initial) à des phrases nominales courtes (V1.1.5-c bis, suite retour utilisateur "trop long"). La matière analytique reste accessible dans le bloc "Ce que ça révèle" des opportunités, enrichi par V1.1.5-h.
+
+### Opportunités d'action (anciennement "chantiers")
+
+Le titre de section "Trois chantiers prioritaires" devient **"Trois opportunités d'action"**. L'intro est reformulée pour expliciter le lien forces/risques/opportunités :
+
+> *Les opportunités ci-dessous sont des leviers d'action concrets : chacune répond aux risques relevés plus haut, en s'appuyant sur les forces déjà en place quand c'est possible. À vous d'arbitrer ce qui vaut la peine d'être engagé en premier.*
+
+Les 4 labels internes de chaque carte d'opportunité ont été renommés (V1.1.5-f) :
+
+| Avant | Après |
+|---|---|
+| Ce que nous avons compris | Ce que nous avons observé |
+| Ce que ça révèle | Ce que ça révèle *(inchangé)* |
+| Ce qui nous échappe encore | À confirmer ensemble |
+| Ce que nous vous proposons | L'opportunité d'action |
+
+Les 7 phrases `pas_confirmer` ont été réécrites en hypothèses à confirmer ensemble (format *"Probablement... À mesurer ensemble"*), pour faire entendre l'accompagnement humain proposé.
+
+### Champ prénom optionnel (V1.1.5-i)
+
+Cf `DECISIONS.md` D-024 pour la motivation et l'architecture. Résumé technique :
+
+- Nouvelle colonne `entity_name TEXT NULL` dans la table `answer` (migration légère via SQLAlchemy + ALTER TABLE).
+- 8 options du questionnaire portent `has_entity_field: true` dans `interview_protocol.json` : Q02_a/b/c/other (secrétariat) et Q07_b/c/d/other (équipe étendue).
+- Input texte conditionnel sous l'option choisie côté frontend, avec label contextuel ("Prénom de votre secrétaire", "Prénom de votre assistant·e médical·e", etc.).
+- Note de confidentialité factuelle : *"Donnée privée, stockée dans votre espace, jamais partagée ni utilisée à d'autres fins."*
+- 6 fragments forces enrichis : si `entity_name` présent, version personnalisée ("Hervé, votre assistant·e médical·e, en soutien direct."), sinon fallback générique ("Assistant médical en soutien direct au cabinet.").
+- Fallback silencieux : `entity_name` null, vide ou composé d'espaces → strip → traité comme None → fallback générique. Pas d'invention de prénom, jamais.
+- Seed Chateau enrichi : `entity_name="Marie"` pour Q02 (la télésecrétaire actuelle, post-Catherine).
+
+### Modifié — résumé par fichier
+
+| Fichier | Changement |
+|---|---|
+| `src/scoring.py` | `score_to_level()` + 4 niveaux (V1.1.5-b puis fusion V1.1.5-k) |
+| `src/swot.py` | Nouveau module — 40 fragments forces/risques + planchers + `_pick_variant` réutilisé + lambdas pour entity_name |
+| `src/templates.py` | `derive_entity_name(answers, qid)` |
+| `src/workstreams.py` | 7 phrases `pas_confirmer` réécrites en hypothèses + 3 analyses enrichies métier (V1.1.5-h) |
+| `src/db.py` | Colonne `entity_name` + migration `_ensure_entity_name_column_on_answer()` + `save_answer` accepte `entity_name` |
+| `backend/main.py` | API `/report` expose niveau + forces/risques. `POST /answer` accepte `entity_name`. Import `swot`. |
+| `scripts/seed_persona.py` | `entity_name="Marie"` pour Q02 |
+| `scripts/dump_report.py` | Refonte complète du markdown : niveaux qualitatifs, barre 5 segments (markdown ▰░), forces/risques en listes, opportunités d'action |
+| `resources/interview_protocol.json` | 8 options enrichies `has_entity_field` + `entity_field_label`, version 1.7 → 1.8 |
+| `web/lib/api.ts` | Type `Option` enrichi (`has_entity_field?`, `entity_field_label?`). Type `Answer` enrichi (`entity_name?`). Type `FacetScore` enrichi (`level`, `level_label`, `level_color`, `forces?`, `risques?`) |
+| `web/components/CheckupWidgets.tsx` | Input prénom conditionnel + note confidentialité. `AnswerState` enrichi. |
+| `web/app/resultats/page.tsx` | Refonte `FacetCard` (niveau + barre 4 segments + forces + risques) + `LevelBar` + `LevelBadge` + reframing chantiers en opportunités |
+
+### Tests bout en bout
+
+- Smoke tests `score_to_level` sur 0-10 → mapping conforme 4 niveaux.
+- Tests forces/risques : `_pick_variant` déterministe, plancher activé correctement par niveau, callables (entity_name) résolus en runtime.
+- Test fallback `entity_name=None/""/"   "` → version générique systématique. Pas d'invention de prénom.
+- Test bout en bout local (backend uvicorn + frontend npm run dev pointé localhost:8000) : seed Chateau, login lien magique en mode console, page `/resultats?interview=<id>`, vérification visuelle des 3 cards facette + opportunités + Marie dans la force participants. Validé par l'utilisateur le 2026-05-16.
+- Test profil "tout au pire" : 3 facettes en "À risque" rouge (validation V1.1.5-k).
+
+### Reste ouvert (V1.5+)
+
+- Q12 (téléconsultation) limite mathématiquement Parcours patient à un score min de 3,3 → calibration health_scores à revisiter en V1.5.
+- Prédécesseur du secrétariat ("départ de Catherine") reste extrait par regex sur `complement_text` — mécanisme fragile, à transformer en champ structuré en V1.5+ si le besoin se confirme côté retours utilisateurs.
+- Page `/methode` qui rend public le mapping score → niveau et le mécanisme forces/risques par option, pour défendre publiquement la grille de lecture (cf D-023).
+
+---
+
+---
+
 ## 2026-05-16 — V1.1 Vague 2.2 patch éditorial : refonte des 24 phrases choc
 
 Après tests locaux du 16 mai sur 3 interview_ids Chateau consécutifs (28/29/30), refonte complète des 24 variantes de `build_phrase_choc`. Les retours utilisateurs ont fait remonter cinq problèmes éditoriaux structurants que les variantes initiales (livrées en 2.2a) reproduisaient à des degrés divers.

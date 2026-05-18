@@ -99,9 +99,13 @@ Voir `DECISIONS.md` D-020 (méthodologique enrichi + SLM hybride), D-021 (refont
 
 Tag `v1.1` posable après les tests utilisateurs en cours.
 
-### V1.2 — SLM hybride — PROCHAIN CHANTIER
+### Vague 2.2 — Multiplication des variantes méthodologiques — PRÉREQUIS V1.2
 
-Ajout d'une couche d'orchestration LLM en surcouche du méthodologique enrichi de V1.1, avec **fallback systématique** sur les templates en cas d'erreur, d'indisponibilité, ou de contrainte RGPD/confidentialité. Voir `DECISIONS.md` D-020 et `ROADMAP.md` V1.2 + V1.2+ pour le détail.
+Avant le SLM, multiplier les variantes des patterns existants par 3 à 4 (cible ~70 nouvelles formulations) avec sélection déterministe par hash d'interview_id. Évite que deux médecins du même profil reçoivent exactement le même rapport. Voir `TODO.md` et `ROADMAP.md`.
+
+### V1.2 — SLM hybride — APRÈS Vague 2.2
+
+Ajout d'une couche d'orchestration LLM en surcouche du méthodologique enrichi de V1.1 + Vague 2.2, avec **fallback systématique** sur les templates en cas d'erreur, d'indisponibilité, ou de contrainte RGPD/confidentialité. Voir `DECISIONS.md` D-020 et `ROADMAP.md` V1.2 + V1.2+ pour le détail.
 
 À couvrir : choix provider API cloud (Anthropic Haiku par défaut, alternative Mistral Small), conception du module `src/llm.py` avec fallback templating, prompts par section avec few-shot examples issus de V1.1, génération dynamique des options de QCM selon profil (Q01/Q02/Q07) avec écran d'attente Lugia pédagogique, pondération de saillance des chaînes causales par SLM, enjeux temporels sectoriels datés (`temporal_concerns.json`).
 

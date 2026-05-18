@@ -39,6 +39,152 @@ git push origin v1.1
 
 ---
 
+## V1.1.7 LIVRÉE — voix "vous" + responsive + prénom médecin (16 mai 2026)
+
+Itération sur V1.1.6 livrée le même jour, à partir des specs V3 (`wireframes/resultats_v2_specs.md`). 7 sous-vagues. Voir `CHANGELOG.md` 2026-05-16 V1.1.7 et `DECISIONS.md` D-026.
+
+### Récap
+
+| Sous-vague | Livré |
+|---|---|
+| V1.1.7-a | Backend prénom médecin : table user_profile + endpoints /me/profile |
+| V1.1.7-b | Frontend : page /compte avec champ Prénom |
+| V1.1.7-c | Hero V3 : H1 "Votre cabinet, vu de l'extérieur" + sous-titre "Dr X — résultats du Y" |
+| V1.1.7-d | Callout voix "vous" (suppression "Lugia commence par...") + style discret |
+| V1.1.7-e | 4 reformulations swot + phrase de transition avant Prochaine étape |
+| V1.1.7-f | @media print + @media mobile (640px) |
+| V1.1.7-g | Tests & journalisation (cette section) |
+
+### Procédure de déploiement V1.1.7
+
+1. Commit + push depuis machine locale. Render + Vercel rebuild automatiquement (~3 min).
+2. Au démarrage Render, `init_db()` applique la nouvelle table user_profile (idempotent).
+3. Vérification post-déploiement sur `diagnostic.lugia.fr` :
+   - Aller sur `/compte`, saisir un prénom, enregistrer.
+   - Vérifier `/resultats?interview=<id>` : H1 "Votre cabinet, vu de l'extérieur" + sous-titre "Dr {prénom} — résultats du {date}".
+   - Callout entre angles et opportunités en voix "vous" (plus de "Lugia commence par...").
+   - Phrase de transition "Vous avez vu les chantiers..." avant Prochaine étape.
+   - Test impression : Cmd+P / Ctrl+P, vérifier que nav et footer disparaissent, grilles empilées.
+   - Test mobile : réduire la fenêtre <640px, vérifier que les grids 3 cols deviennent des stacks verticaux.
+
+```bash
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+git add CHANGELOG.md DECISIONS.md TODO.md ROADMAP.md \
+        src/db.py src/templates.py src/swot.py \
+        backend/main.py scripts/dump_report.py \
+        web/lib/api.ts web/components/AppHeader.tsx \
+        web/app/compte/page.tsx web/app/resultats/page.tsx web/app/globals.css
+git commit -m "V1.1.7 : voix 'vous' sur le callout + responsive print/mobile + prénom médecin"
+git push origin main
+```
+
+### Tag `v1.1.7` posable
+
+```bash
+git tag -a v1.1.7 -m "V1.1.7 — voix 'vous' sur le callout + responsive + prénom médecin"
+git push origin v1.1.7
+```
+
+---
+
+## V1.1.6 LIVRÉE — refonte UI page de résultats vers palette V2 (16 mai 2026)
+
+Refonte visuelle complète selon les specs V2 (cf `wireframes/resultats_v2_specs.md` et `wireframes/resultats_v2_cible.pdf`). 6 sous-vagues livrées le 16 mai. Voir `CHANGELOG.md` 2026-05-16 V1.1.6 et `DECISIONS.md` D-025.
+
+### Récap
+
+| Sous-vague | Livré |
+|---|---|
+| V1.1.6-a | Structure & palette (nav, Hero, max-w-[840px], palette V2 sobre) |
+| V1.1.6-b | Refonte facettes (badge asymétrique 1-2 muets / 3-4 colorés, tirets, séparateur fin) |
+| V1.1.6-c | Refonte opportunités (numéro grand + 2 colonnes Situation/Action + À confirmer en pied) |
+| V1.1.6-d | Refonte Prochaine étape (carte recommandée bleue mise en avant + boutons CTA) |
+| V1.1.6-e | Tests & journalisation (cette section) |
+| V1.1.6-f | Séparation recommandation italique en transition entre facettes et opportunités |
+
+### Procédure de déploiement V1.1.6
+
+1. Commit + push depuis machine locale. Render + Vercel rebuild automatiquement (~3 min).
+2. Pas de migration BDD à appliquer (UI uniquement).
+3. Vérification post-déploiement sur `diagnostic.lugia.fr` :
+   - Nav avec logo Lugia gauche + email droite + bordure basse.
+   - 3 cards facette côte à côte avec séparateurs naturels (gap 1px sur fond gris).
+   - Badge "À surveiller" / "À risque" uniquement sur les facettes concernées.
+   - Reco italique entre les facettes et les opportunités (pas dans la synthèse).
+   - Cartes opportunités avec numéro grand + 2 colonnes.
+   - Carte "Échanger avec Lugia" mise en avant en bleu sur Prochaine étape.
+
+```bash
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+git add CHANGELOG.md DECISIONS.md TODO.md ROADMAP.md \
+        src/templates.py backend/main.py scripts/dump_report.py \
+        web/lib/api.ts web/components/AppHeader.tsx web/app/resultats/page.tsx web/app/globals.css \
+        wireframes/resultats_v1_actuel.pdf wireframes/resultats_v2_cible.pdf wireframes/resultats_v2_specs.md
+git commit -m "V1.1.6 : refonte UI page de résultats vers palette V2 sobre + reco italique en transition"
+git push origin main
+```
+
+### Tag `v1.1.6` posable
+
+Après vérification post-déploiement, poser :
+
+```bash
+git tag -a v1.1.6 -m "V1.1.6 — refonte UI page de résultats vers palette V2"
+git push origin v1.1.6
+```
+
+---
+
+## V1.1.5 LIVRÉE — niveaux qualitatifs + forces/risques + opportunités + prénom optionnel (16 mai 2026)
+
+Refonte UI/méthodologique de la page de résultats. 10 sous-vagues livrées dans la journée du 16 mai (a, b, c, d, e, f, h, i, j, k — la lettre `g` est la journalisation finale). Voir `CHANGELOG.md` et `DECISIONS.md` D-023 + D-024.
+
+### Récap
+
+| Sous-vague | Livré |
+|---|---|
+| V1.1.5-a | Bug visuel alignement + intro chantiers raccourcie |
+| V1.1.5-b | Mapping score → niveau qualitatif backend |
+| V1.1.5-c | Module `src/swot.py` : 40 fragments Forces/Risques par option |
+| V1.1.5-d | API `/report` expose niveau + forces/risques |
+| V1.1.5-e | Refonte affichage facettes (badge niveau + barre + listes) |
+| V1.1.5-f | Reframing chantiers en "opportunités d'action" |
+| V1.1.5-g | Journalisation finale (cette entrée + CHANGELOG + DECISIONS + ROADMAP) |
+| V1.1.5-h | 3 analyses chantiers enrichies métier |
+| V1.1.5-i | Champ prénom optionnel (BDD + protocol + API + frontend + moteur + seed) |
+| V1.1.5-j | Risque plancher dès niveau 2 + note confidentialité prénom + layout 3 colonnes |
+| V1.1.5-k | Fusion 5 niveaux → 4 niveaux + forces personnalisées raccourcies |
+
+### Procédure de déploiement V1.1.5
+
+1. Commit + push depuis machine locale (Vercel + Render rebuildent automatiquement, ~3 min).
+2. Au démarrage Render, `init_db()` applique automatiquement la migration `entity_name` (idempotente).
+3. Vérification post-déploiement sur `diagnostic.lugia.fr` :
+   - Page résultats avec un compte test → 3 cards facette en grid 3 colonnes, badge niveau + barre 4 segments + listes Points forts / Points de vigilance.
+   - Questionnaire avec un compte test → input prénom optionnel apparaît sous Q02_a/b/c/other et Q07_b/c/d/other quand sélectionné.
+
+```bash
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+git add CHANGELOG.md DECISIONS.md TODO.md ROADMAP.md \
+        src/scoring.py src/swot.py src/templates.py src/workstreams.py src/db.py \
+        backend/main.py scripts/dump_report.py scripts/seed_persona.py \
+        resources/interview_protocol.json \
+        web/lib/api.ts web/components/CheckupWidgets.tsx web/app/resultats/page.tsx
+git commit -m "V1.1.5 : niveaux qualitatifs + forces/risques par facette + opportunités d'action + prénom optionnel"
+git push origin main
+```
+
+### Tag `v1.1.5` posable
+
+Après vérification post-déploiement, poser :
+
+```bash
+git tag -a v1.1.5 -m "V1.1.5 — niveaux qualitatifs + forces/risques + opportunités d'action + prénom optionnel"
+git push origin v1.1.5
+```
+
+---
+
 ## Vague 2.2 LIVRÉE — multiplication des variantes méthodologiques (15 mai 2026)
 
 Livrée en 5 sous-vagues dans la même journée que V1.1 Vague 3.1. Critère opérationnel atteint : *deux médecins du même profil ne reçoivent plus exactement la même phrase analytique*. Voir `DECISIONS.md` D-022 et `CHANGELOG.md` entrées 2.2.0 / 2.2a / 2.2b / 2.2c / 2.2d.

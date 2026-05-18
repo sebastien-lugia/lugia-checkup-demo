@@ -87,6 +87,11 @@ answer_table = Table(
     Column("selected_option_label", String, nullable=True),
     Column("free_text", Text, nullable=True),
     Column("complement_text", Text, nullable=True),
+    # V1.1.5-i : nom de l'entité associée à l'option choisie (prénom du
+    # secrétariat, de l'assistant, de l'associé...). Optionnel, déclenché
+    # côté frontend par les options portant `has_entity_field: true` dans
+    # interview_protocol.json. Voir V1.1.5-i pour le détail.
+    Column("entity_name", String, nullable=True),
     Column("created_at", String, nullable=False),
 )
 
@@ -138,6 +143,18 @@ auth_token_table = Table(
     Column("used", Integer, nullable=False, server_default="0"),
     Column("created_at", String, nullable=False),
 )
+
+user_profile_table = Table(
+    "user_profile",
+    metadata,
+    # V1.1.7-a : profil utilisateur persistant par email (prénom du médecin
+    # pour personnaliser le rapport). Email = clé primaire — un seul profil
+    # par email, partagé entre toutes ses interviews.
+    Column("email", String, primary_key=True),
+    Column("firstname", String, nullable=True),
+    Column("updated_at", String, nullable=False),
+)
+
 
 session_table = Table(
     "session",
@@ -197,11 +214,24 @@ def _ensure_email_column_on_interview() -> None:
             conn.execute(text("ALTER TABLE interview ADD COLUMN email TEXT"))
 
 
+def _ensure_entity_name_column_on_answer() -> None:
+    """Migration V1.1.5-i.1 : ajoute la colonne `entity_name` à `answer` si absente."""
+    engine = get_engine()
+    inspector = inspect(engine)
+    if "answer" not in inspector.get_table_names():
+        return
+    columns = [c["name"] for c in inspector.get_columns("answer")]
+    if "entity_name" not in columns:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE answer ADD COLUMN entity_name TEXT"))
+
+
 def init_db() -> None:
     """Crée les tables manquantes et applique les migrations. Idempotent."""
     engine = get_engine()
     metadata.create_all(engine)
     _ensure_email_column_on_interview()
+    _ensure_entity_name_column_on_answer()
 
 
 # ---- Helpers Interview ----
@@ -302,6 +332,7 @@ def save_answer(
     selected_option_label: Optional[str],
     free_text: Optional[str],
     complement_text: Optional[str] = None,
+    entity_name: Optional[str] = None,
 ) -> None:
     """Enregistre une réponse, en remplaçant l'éventuelle réponse existante
     pour la même (interview_id, question_id)."""
@@ -324,6 +355,7 @@ def save_answer(
                 free_text=free_text,
                 complement_text=complement_text,
                 created_at=_now(),
+                entity_name=entity_name,
             )
         )
 
@@ -352,6 +384,38 @@ def get_answers(interview_id: int) -> list[dict[str, Any]]:
             .order_by(answer_table.c.created_at)
         )
         return [dict(row) for row in result.mappings().all()]
+
+
+# ---- Helpers User Profile (V1.1.7-a) ----
+
+def get_user_profile(email: str) -> Optional[dict[str, Any]]:
+    """Retourne le profil utilisateur (email, firstname) pour un email, ou None."""
+    with get_engine().connect() as conn:
+        result = conn.execute(
+            select(user_profile_table).where(user_profile_table.c.email == email)
+        ).mappings().first()
+        return dict(result) if result else None
+
+
+def upsert_user_profile(email: str, firstname: Optional[str]) -> None:
+    """Crée ou met à jour le profil utilisateur. Idempotent."""
+    now = _now()
+    with get_engine().begin() as conn:
+        existing = conn.execute(
+            select(user_profile_table).where(user_profile_table.c.email == email)
+        ).first()
+        if existing:
+            conn.execute(
+                user_profile_table.update()
+                .where(user_profile_table.c.email == email)
+                .values(firstname=firstname, updated_at=now)
+            )
+        else:
+            conn.execute(
+                insert(user_profile_table).values(
+                    email=email, firstname=firstname, updated_at=now
+                )
+            )
 
 
 # ---- Helpers Auth (V1-5a) ----

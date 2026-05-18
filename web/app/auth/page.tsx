@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import { PageHeader } from "@/components/PageHeader";
-import { verifyMagicToken } from "@/lib/api";
+import { getMyProfile, verifyMagicToken } from "@/lib/api";
 import { clearSession, setSession } from "@/lib/auth";
 
 function AuthContent() {
@@ -24,7 +24,19 @@ function AuthContent() {
         clearSession();
         const { session_token, email } = await verifyMagicToken(token);
         setSession(session_token, email);
-        router.replace("/");
+        // V1.1.7-i : si premier login (pas de prénom enregistré), proposer
+        // de le saisir avant d'arriver sur l'accueil. Sinon, route directe.
+        try {
+          const profile = await getMyProfile();
+          if (!profile.firstname || !profile.firstname.trim()) {
+            router.replace("/compte?from=onboarding");
+          } else {
+            router.replace("/");
+          }
+        } catch {
+          // best effort — si profile inaccessible, on n'empêche pas l'entrée
+          router.replace("/");
+        }
       } catch {
         setError(
           "Ce lien d'accès n'est plus valide. Il a peut-être expiré ou été déjà utilisé."

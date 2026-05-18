@@ -6,6 +6,126 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-026 — Voix "vous" sur le callout + responsive mobile/print + prénom médecin persistant (V1.1.7)
+
+**Date :** 2026-05-16
+
+**Décision :** Trois changements structurants à V1.1.6, livrés dans la foulée le même jour à partir des specs V3 produites dans une conversation Claude parallèle. (1) Le callout entre les facettes et les opportunités est reformulé à la 2ème personne du pluriel — plus de "Lugia commence par..." en 3ème personne. Le médecin reste sujet de l'action ("Ce check-up vous donne une vue d'ensemble..."). Style visuel allégé : fond gris #f7f7f7 + border-left #e5e5e5, plus d'italique global. (2) Responsive complet : @media print pour rapport imprimable/export PDF (grilles empilées, nav/footer cachés, page-break-inside avoid), @media (max-width: 640px) pour mobile (grids 3 cols → stacks verticaux, padding et tailles de typographie ajustés). (3) Persistance d'un prénom médecin via une nouvelle table `user_profile` indexée sur l'email — affiché en sous-titre du H1 ("Dr {prénom} — résultats du {date}").
+
+**Pourquoi :** La V1.1.6 livrée plus tôt a corrigé la palette et la structure mais laissait trois points à traiter avant un test prospect réel.
+
+- *Voix du callout* : la phrase "Lugia commence par une vue d'ensemble..." en 3ème personne lit comme un argument commercial entre les sections analytique et actionnable. La V3 propose de garder le médecin sujet ("Ce check-up vous donne...") pour préserver le ton accompagnant Lugia (cf MASTER_PROMPT §8). Le mot "Lugia" n'est plus répété — le médecin sait qu'il est sur Lugia (logo nav + footer), redondance évitée.
+- *Responsive* : V1-7 implique un médecin qui consulte ou imprime son rapport. Sans @media mobile, le rendu sous 768px est cassé (grid 3 cols qui se réduit mal, contenu coupé). Sans @media print, l'impression copie l'écran avec nav et footer inutiles, mauvaise lecture papier. Les deux étaient prérequis pour tout test prospect crédible.
+- *Prénom médecin* : un check-up qui s'adresse au "Dr Chateau" lit comme un rapport personnel. Sans prénom, il lit comme un rapport générique. La friction est minime (champ optionnel dans /compte, à saisir une fois) pour un gain de personnalisation réel. La voie pseudonymisation à l'export reste possible en V2 si besoin (D-024 a déjà tranché contre l'anonymisation BDD pour préserver la personnalisation à l'écran).
+
+**Conséquence pour V1.1.7 :** Refonte de `build_recommandation` côté backend (3 contextes adaptés à la voix "vous"). Nouvelle table `user_profile(email, firstname, updated_at)` avec migration automatique au démarrage. Endpoints `GET/PATCH /me/profile`. Nouvelle section sur `/compte` (input + save). Champ `doctor_firstname` dans le payload `/report`. Page résultats : H1 reformulé "Votre cabinet, vu de l'extérieur", sous-titre conditionnel selon présence du prénom. CSS print et mobile dans `globals.css` avec classes sémantiques utilitaires (`lugia-page-wrapper`, `lugia-facets-grid`, etc.). Aucun changement de scoring, aucune dépendance ajoutée, aucune refonte du questionnaire.
+
+**Conséquence pour V1.2 :** Le callout en voix "vous" devient plus facile à enrichir par SLM ultérieurement — la cohérence sujet ne dépend plus d'un fragment Lugia en marque commerciale, mais d'une formulation accompagnante reproductible. Le prénom médecin pourra alimenter d'autres surfaces (emails de relance, page d'accueil) sans refonte additionnelle.
+
+**Décisions micro associées :**
+
+- *AM vs assistant·e médical·e* : choix de garder le mot en plein. L'abréviation "AM" proposée par la V3 est connue côté hospitalier mais pas universellement en libéral. Gain de concision marginal, risque de perte de lecteurs réel.
+- *Robin "connaît vos patients" → "aligné sur votre pratique"* : compromis entre la chair de l'original ("connaît vos patients et s'aligne avec votre façon de travailler" — perçu redondant) et la sécheresse de la V3 ("stable et intégré à votre façon de travailler" — perd l'idée d'alignement). "Stable et aligné sur votre pratique" garde l'idée d'intégration sans la répétition.
+
+**Alternatives écartées :**
+
+- *Anonymisation hash du prénom en base* — déjà rejetée en D-024, casse la personnalisation.
+- *Question Q0 "Quel est votre prénom ?" dans le parcours* — alourdirait le questionnaire stabilisé en Vague 3.
+- *Extraction du prénom depuis l'email* — fragile (emails type cabinet.medical@orange.fr), pas systématique.
+- *Garder le callout en italique avec encadré crème* — testé en V1.1.6, jugé trop "encart commercial" séparant artificiellement la phrase Lugia du reste.
+- *Adopter "AM" pour rester strictement conforme V3* — pas mon vote, validé par utilisateur.
+
+---
+
+## D-025 — Refonte UI page de résultats vers palette V2 sobre + séparation reco italique (V1.1.6)
+
+**Date :** 2026-05-16
+
+**Décision :** Refonte visuelle complète de la page de résultats selon les specs V2 (cf `wireframes/resultats_v2_specs.md`) — palette resserrée, suppression de la barre de progression, badges asymétriques selon le niveau, refonte des opportunités d'action avec numéro grand et 2 colonnes, mise en avant de la carte recommandée sur "Prochaine étape", extraction de la recommandation italique de la synthèse pour la positionner en transition entre les facettes et les opportunités. Aucun changement de scoring ni de logique métier.
+
+**Pourquoi :** La V1.1.5 livrée le matin du 16 mai avait corrigé le fond (niveaux qualitatifs, forces/risques, opportunités) mais le rendu visuel restait chargé : bordures partout, encadré crème de la synthèse trop voyant, barre 4 segments redondante avec le badge texte, badge "Priorité X" ambigu sur les opportunités. La V2 conçue en parallèle dans une autre conversation Claude propose un design plus médical-professionnel : palette de 8 couleurs strictement sémantiques, suppression de tout élément décoratif, mise en valeur asymétrique des badges selon que la facette appelle ou non de la vigilance. Migration validée avant V1.2 SLM pour stabiliser le rendu prospect.
+
+**Badges asymétriques — la décision la plus structurante :** Les niveaux 1 (Maîtrisé) et 2 (Opérationnel) n'affichent **pas de badge**. L'absence de badge devient un signal positif implicite. Les niveaux 3 (À surveiller, gris #f0f0f0/#555) et 4 (À risque, rouille #fbeae0/#8a4a1a) affichent un badge qui attire l'œil sur la facette qui appelle attention. Cette asymétrie respecte le principe Lugia "les couleurs servent la sémantique, pas la décoration" et évite l'effet "ma facette Maîtrisée n'est pas verte donc je dois m'en méfier" qu'aurait produit un système symétrique. La distinction Maîtrisé/Opérationnel se fait par la présence ou non d'une section "Points de vigilance" (Maîtrisé : 0 risque ; Opérationnel : 1 ou 2 risques avec plancher générique si rien ne déclenche).
+
+**Séparation de la recommandation italique :** La phrase italique de Lugia (*"Avant tout chantier, Lugia commence par une vue d'ensemble..."*) était précédemment en fin de synthèse, ce qui mélangeait analyse et invitation commerciale dans un même bloc. Extraite dans une section dédiée entre les facettes et les opportunités d'action, elle joue désormais un rôle clair de **transition narrative** : "voici votre situation (synthèse + facettes) → voici la lecture Lugia (reco italique) → voici les leviers d'action (opportunités)". Plus de bordure colorée (premier essai retiré sur retour utilisateur : *"je ne veux pas qu'on rajoute un trait de couleur verticale pour cette phrase"*), pas d'encadré crème (jugé trop chargé) — italique simple aéré qui fait le pont.
+
+**Recommandation côté API :** Nouvelle fonction `build_recommandation(answers, interview_id)` dans `src/templates.py`. Le payload `/report` expose désormais `synthesis` (le bloc analytique) ET `recommendation` (la phrase Lugia) **séparément**. Type `Report` côté frontend enrichi (`recommendation?: string` — optionnel pour rétrocompat avec un backend qui ne l'expose pas encore). `dump_report.py` adapté.
+
+**Phrase choc enrichie de `<strong>` :** Les 22 variantes de `build_phrase_choc` portent maintenant 1 ou 2 mots-clés en gras pour faire ressortir le pivot révélateur. Calibrage manuel par variante.
+
+**Conséquence pour V1.1.6 :** Refonte complète de `web/app/resultats/page.tsx` (~127 lignes modifiées), refonte de `web/components/AppHeader.tsx` (nav full-width), simplification de `globals.css` (suppression encart crème), enrichissement de `src/templates.py` (build_recommandation + strong + saut de ligne), enrichissement de `backend/main.py` (clé `recommendation`), refonte de `scripts/dump_report.py` pour le markdown. Aucune migration BDD, aucun changement de scoring, aucun ajout de dépendance.
+
+**Conséquence pour V1.2 :** La séparation propre entre `synthesis` (analyse) et `recommendation` (invitation Lugia) facilite l'usage SLM ultérieur : le SLM pourra reformuler chacun indépendamment, avec des prompts dédiés et des contraintes de ton distinctes (analyse factuelle vs invitation commerciale).
+
+**Alternatives écartées :**
+
+- *Garder l'encadré crème sur la synthèse* — visuellement trop chargé sur fond crème de page, peu lisible.
+- *Conserver la barre 4 segments* — redondant avec le badge texte, surcharge visuelle.
+- *Badge sur tous les niveaux* — fait perdre le signal positif "absence de badge = tout va bien".
+- *Reco italique avec border-left bleu* — testé, jugé trop "encadré" pour une phrase qui doit faire transition.
+- *5 niveaux distincts (rétablir À risque + En tension)* — déjà tranché en V1.1.5-k (cf D-023), pas modifié en V1.1.6.
+
+---
+
+## D-024 — Champ prénom optionnel pour personnaliser le rapport (V1.1.5-i)
+
+**Date :** 2026-05-16
+
+**Décision :** Ajouter un champ texte optionnel `entity_name` à la table `answer`, déclenché côté frontend par 8 options du questionnaire (Q02_a/b/c/other secrétariat, Q07_b/c/d/other équipe étendue). Quand le médecin saisit le prénom de sa secrétaire / son assistant·e / son associé·e / son remplaçant·e, le moteur de rapport l'utilise pour personnaliser certaines forces ("Hervé, votre assistant·e médical·e, en soutien direct" au lieu de "Assistant médical en soutien direct au cabinet"). Si le prénom n'est pas saisi (ou vide ou composé d'espaces), fallback silencieux vers une formulation générique — aucune invention de prénom, jamais.
+
+**Pourquoi :** Le démonstrateur V1.1.5 avait identifié une faiblesse : le rapport mentionne "Catherine" (prédécesseur du télésecrétariat de Chateau) parce qu'une regex extrait ce prénom du `complement_text` libre de Q02 — mécanisme fragile, opportuniste, non systématique. Pour la personne actuelle (la collaboratrice présente au moment du check-up), aucun mécanisme n'existait. Conséquence : un médecin peut mentionner Catherine dans son texte libre par hasard et avoir ce prénom dans son rapport, alors qu'un autre médecin avec une assistante quotidienne ne verra jamais son prénom apparaître. Inéquitable et fragile.
+
+Trois voies envisagées :
+
+- *Améliorer la regex d'extraction sur `complement_text`* — rejeté : reste fragile, dépend du texte libre saisi, pas systématique.
+- *Ajouter une question dédiée Q02bis "Quel est le prénom de votre secrétaire ?"* — rejeté : alourdit le questionnaire (déjà calibré en Vague 3), introduit du friction inutile, et complique le scoring/parcours.
+- *Champ `entity_name` optionnel conditionnel sur l'option choisie* — retenu : zéro friction (input n'apparaît que si l'option éligible est cochée), explicite côté UX (le médecin voit qu'on lui demande un prénom optionnel), structurellement propre côté BDD, et permet une personnalisation systématique du rapport. Aucun impact sur le scoring ni sur le parcours.
+
+**Conséquence pour V1.1.5 :** Migration BDD légère (`ALTER TABLE answer ADD COLUMN entity_name TEXT`, idempotente via `_ensure_entity_name_column_on_answer()` au démarrage). Ajout des flags `has_entity_field` + `entity_field_label` aux 8 options éligibles dans `resources/interview_protocol.json` (version 1.7 → 1.8). Adaptation API `POST /interviews/{id}/answers/{qid}` et `GET /interviews/{id}/answers` (le payload remonte automatiquement `entity_name` via `select(answer_table)`). Frontend : `AnswerState` enrichi, `OptionRadioList` rend un input texte conditionnel sous l'option choisie avec label contextuel et note de confidentialité factuelle ("Donnée privée, stockée dans votre espace, jamais partagée ni utilisée à d'autres fins."). Moteur de rapport : `derive_entity_name(answers, qid)` dans `src/templates.py`, 6 fragments forces enrichis en lambdas qui résolvent la version personnalisée si `entity_name` présent, sinon fallback générique. `src/swot.py` adapte `Fragment.text` pour accepter `str | Callable` et expose `_resolve_text(fragment_text, answers)`. Seed Chateau enrichi : `entity_name="Marie"` pour Q02 (la télésecrétaire actuelle, post-Catherine).
+
+**Confidentialité :** Le prénom est stocké en clair en base (pas de hash, pas de chiffrement spécifique au-delà du chiffrement disque Postgres prod). La note affichée sous l'input est factuelle : la donnée reste privée à l'espace du médecin connecté, n'est jamais partagée ni utilisée à d'autres fins. Aucune anonymisation au moment de l'export (pas d'export en V1.1.5 — à reconsidérer en V2 si export PDF). Conformité RGPD : le prénom d'un collaborateur n'est pas une donnée patient identifiable au sens médical ; il reste une donnée personnelle au sens RGPD, justifiée par la finalité de personnalisation du rapport, et le médecin peut la modifier ou la supprimer en revenant sur sa réponse.
+
+**Alternatives écartées :**
+
+- *Hash en base + jamais en clair* — casserait la finalité de personnalisation du rapport.
+- *Pseudonymisation à l'export uniquement* — pas pertinent pour V1.1.5 (pas d'export). À reconsidérer en V2.
+- *Ajout systématique d'une question Q02bis dédiée* — voir ci-dessus.
+
+---
+
+## D-023 — Niveaux qualitatifs + extraction Forces/Risques par option + opportunités d'action (V1.1.5)
+
+**Date :** 2026-05-16
+
+**Décision :** Refonte de l'affichage de la page de résultats sur trois axes structurants. (1) Remplacement du score chiffré /10 par 4 niveaux qualitatifs (Maîtrisé / Opérationnel / À surveiller / À risque) avec seuils stricts publics. (2) Affichage explicite de **Forces** et **Points de vigilance** par facette, extraits des options du questionnaire avec mécanique de priorité, troncature selon le niveau, et planchers de garantie pour éviter les cards vides. (3) Reframing des "chantiers prioritaires" en "**opportunités d'action**" explicitement liées aux risques relevés, avec 4 labels internes renommés et 7 phrases `pas_confirmer` réécrites en hypothèses à confirmer ensemble.
+
+**Pourquoi :** Trois constats post-V1.1 motivent cette refonte. (a) **Faux verdict de précision** : un score "5,8/10" sonne comme une mesure précise alors que le calcul est une moyenne brute déclarative documentée pour ses limites en D-016. Un médecin qui voit "5,8" se demande légitimement "pourquoi pas 6,2 ?" — question à laquelle le scoring ne peut pas répondre. Un niveau qualitatif assume le caractère déclaratif et coupe ce procès en faux. (b) **Pauvreté de la lecture par facette** : la phrase de résumé unique par facette ("Votre prise de rendez-vous est bien outillée. Mais une part des demandes vous arrive en direct...") condense forces et risques en une narration linéaire, sans permettre au médecin de "tagger" rapidement ce qui marche vs ce qui appelle de la vigilance. (c) **Framing inadapté des chantiers** : "trois chantiers prioritaires" sonnait comme un programme imposé. "Trois opportunités d'action" reformule en proposition de levier, en s'appuyant sur ce qui marche déjà (les forces) pour adresser ce qui pose problème (les risques).
+
+**Conséquence pour V1.1.5 :** Nouveau module `src/swot.py` (40 fragments + planchers + `_pick_variant` partagé avec V1.1 Vague 2.2). Mapping `score_to_level()` ajouté à `src/scoring.py` (4 niveaux après fusion V1.1.5-k). Refonte des composants `FacetCard`, `LevelBar`, `LevelBadge` dans `web/app/resultats/page.tsx`. Couleurs sémantiques sobres (#2d7a4f vert forêt, #b8862e jaune-brun, #c25c1f orange-cuivre, #a23a3a rouge brique) pour le point de badge — pas de fond coloré, signal contenu. Barre 4 segments inversée (niveau 1 = 4 segments remplis, niveau 4 = 1 segment). Section "Trois opportunités d'action" remplace "Trois chantiers prioritaires" avec intro reformulée. Les 4 labels internes des cartes opportunités sont renommés ("Ce que nous avons observé", "Ce que ça révèle", "À confirmer ensemble", "L'opportunité d'action"). Les 7 phrases `pas_confirmer` (correspondant à des "hypothèses à valider") sont réécrites au format "Probablement... À mesurer/vérifier/simuler ensemble." Les phrases forces/risques sont en format nominal court (~5-10 mots) ; la matière analytique migre vers le bloc "Ce que ça révèle" des opportunités (V1.1.5-h).
+
+**Calibrage des seuils et fusion 4-5 :** Quatre niveaux, seuils stricts publics — 9-10 Maîtrisé / 7-8 Opérationnel / 5-6 À surveiller / 0-4 À risque. La fusion des ex-niveaux 4 (En tension, score 3-4) et 5 (À risque, score 0-2) en un seul niveau 4 (À risque, score 0-4) a été décidée empiriquement en V1.1.5-k : la calibration des `health_scores` du questionnaire (cf `resources/interview_protocol.json`) rend mathématiquement impossible certaines facettes d'atteindre l'ex-niveau 5. Au pire absolu : Parcours patient plafonne à 3,3 (à cause de Q12_b=5), Équipe et secrétariat à 2,7. Plutôt que d'ajuster les health_scores (changerait l'équilibre méthodologique) ou de relâcher les seuils (régresserait sur D-013), on simplifie l'échelle pour qu'elle reste cohérente avec ce que le scoring peut produire. Une révision de la calibration des health_scores reste possible en V1.5+ si besoin.
+
+**Volumes par niveau :**
+
+| Niveau | Forces affichées | Risques affichés |
+|---|---|---|
+| 1 Maîtrisé | jusqu'à 3 | jusqu'à 1 |
+| 2 Opérationnel | jusqu'à 3 | jusqu'à 2 |
+| 3 À surveiller | jusqu'à 2 | jusqu'à 2 |
+| 4 À risque | 1 | jusqu'à 3 |
+
+**Planchers :** garantie min 1 force par facette (toujours), garantie min 1 risque dès niveau 2 (Opérationnel ou pire). Le niveau 1 (Maîtrisé) reste sans risque affiché — on ne fabrique pas de vigilance quand tout va bien.
+
+**Conséquence pour V1.2 :** Le SLM hybride dispose maintenant d'un substrat plus riche : 40 fragments swot + 4 niveaux qualitatifs + 7 hypothèses "à confirmer ensemble". Les prompts du SLM pourront s'appuyer sur cette grille pour générer des reformulations contextuelles tout en gardant le fallback templated. La discipline D-020 ("méthodologique d'abord, intelligence ensuite") reste respectée : le SLM enrichit, il ne reconstruit pas.
+
+**Alternatives écartées :**
+
+- *Garder le score chiffré /10 en parallèle du niveau* — rejeté : double affichage redondant, ramène la pseudo-précision qu'on voulait éviter.
+- *Confier les forces/risques au SLM* — rejeté pour V1.1.5 : aurait contourné le principe templated-first et fragilisé la garantie de plancher. Le SLM viendra en V1.2 sur un substrat stable.
+- *4 niveaux d'emblée* — l'historique de la décision est 5 niveaux (D-023 initial), puis 4 niveaux (fusion V1.1.5-k empirique). Inscrire 4 niveaux d'emblée aurait masqué la motivation empirique de la fusion.
+
+---
+
 ## D-022 — Sélection déterministe des variantes par sel de section + reco italique sans variantes
 
 **Date :** 2026-05-15

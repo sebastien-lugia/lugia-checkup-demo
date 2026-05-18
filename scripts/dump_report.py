@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from src import db, questions, scoring, templates, workstreams  # noqa: E402
+from src import db, questions, scoring, swot, templates, workstreams  # noqa: E402
 
 
 REPORT_PATH = ROOT / "resources" / "sample_report.md"
@@ -97,6 +97,7 @@ def generate_markdown(interview_id: int) -> str:
     facet_scores = scoring.compute_all_facet_scores(interview_id)
     facet_labels = questions.get_facet_labels()
     synthesis = _html_to_md(templates.build_synthesis(answers, interview_id))
+    recommendation = _html_to_md(templates.build_recommandation(answers, interview_id))
     recommended = templates.build_next_step_recommendation(facet_scores, answers)
     chantiers = workstreams.build_workstreams(interview_id)
 
@@ -142,52 +143,79 @@ def generate_markdown(interview_id: int) -> str:
     facet_order = ["processes", "participants", "information"]
     for facet_key in facet_order:
         label = facet_labels.get(facet_key, facet_key).capitalize()
-        summary = templates.build_facet_summary(facet_key, answers)
         score_data = facet_scores.get(facet_key)
-        if score_data:
-            score = score_data["score"]
-            contribs = score_data["contributions"]
-            n = len(contribs)
-            lines.append(f"### {label} — **{score} / 10**")
-            lines.append("")
-            lines.append(summary)
-            lines.append("")
-            details = ", ".join(
-                f"{c['question_id'].upper()} ({c['health_score']})" for c in contribs
-            )
-            lines.append(
-                f"*Calculé à partir de {n} réponses — {details}.*"
-            )
-            lines.append("")
-        else:
+        if not score_data:
             lines.append(f"### {label}")
             lines.append("")
-            lines.append("Pas assez de données pour scorer cette facette.")
+            lines.append("Pas assez de données pour évaluer cette facette.")
             lines.append("")
+            continue
+        score = score_data["score"]
+        level_data = scoring.score_to_level(score)
+        level = level_data["level"]
+        level_label = level_data["label"]
+        # Barre 5 segments inversée en markdown (▰ rempli, ░ vide)
+        filled = 6 - level
+        bar = "".join("▰" if i <= filled else "░" for i in range(1, 6))
+        lines.append(f"### {label} — {level_label}")
+        lines.append("")
+        lines.append(f"`{bar}` *(niveau {level} sur 5)*")
+        lines.append("")
+        # Forces
+        forces = swot.build_facet_forces(facet_key, answers, level)
+        if forces:
+            lines.append("**Points forts**")
+            lines.append("")
+            for f in forces:
+                lines.append(f"- {f}")
+            lines.append("")
+        # Risques
+        risques = swot.build_facet_risques(facet_key, answers, level)
+        if risques:
+            lines.append("**Points de vigilance**")
+            lines.append("")
+            for r in risques:
+                lines.append(f"- {r}")
+            lines.append("")
+        # Note méthodologique compacte
+        contribs = score_data["contributions"]
+        n = len(contribs)
+        details = ", ".join(
+            f"{c['question_id'].upper()} ({c['health_score']})" for c in contribs
+        )
+        lines.append(
+            f"*Calculé à partir de {n} réponses — {details} ; score brut {score} sur 10.*"
+        )
+        lines.append("")
     lines.append("---")
     lines.append("")
 
-    # ---- Chantiers ----
-    lines.append("## Trois chantiers prioritaires")
-    lines.append("")
-    lines.append("Les trois chantiers ci-dessous servent une même ambition : vous donner une **vision complète** de votre cabinet pour comprendre l'origine des contraintes que vous vivez, savoir par où commencer, absorber les imprévus et **anticiper les fragilités** encore gérables. Le check-up pose la vue d'ensemble ; les chantiers sont la première marche vers une **interface où votre organisation**, physique et numérique, tient ensemble dans un cadre protégé et sécurisé.")
-    lines.append("")
-    for ch in chantiers:
-        lines.append(f"### Chantier {ch['priority']} — {ch['title']}")
+    # ---- Callout recommandation Lugia (V1.1.7-d : voix "vous") ----
+    if recommendation:
+        # Plus d'italique global — le markdown garde tel quel le HTML reçu
+        # (les <strong> deviendront du **gras** via _html_to_md).
+        lines.append(f"> {recommendation}")
         lines.append("")
-        lines.append("**Ce que nous avons compris**")
+        lines.append("---")
+        lines.append("")
+
+    # ---- Opportunités d'action (anciennement "chantiers") ----
+    lines.append("## Trois opportunités d'action")
+    lines.append("")
+    lines.append("Les opportunités ci-dessous sont des leviers d'action concrets : chacune répond aux risques relevés plus haut, en s'appuyant sur les forces déjà en place quand c'est possible. À vous d'arbitrer ce qui vaut la peine d'être engagé en premier.")
+    lines.append("")
+    # V1.1.7-l : sortie alignée sur le frontend — 2 blocs uniquement
+    # (LA SITUATION + CE QU'ON METTRAIT EN PLACE). Les champs analyse et
+    # pas_confirmer restent générés en backend pour réversibilité mais ne
+    # sont plus exposés dans le dump.
+    for ch in chantiers:
+        lines.append(f"### Opportunité {ch['priority']} — {ch['title']}")
+        lines.append("")
+        lines.append("**La situation**")
         lines.append("")
         lines.append(ch["vu"])
         lines.append("")
-        lines.append("**Ce que ça révèle**")
-        lines.append("")
-        lines.append(ch["analyse"])
-        lines.append("")
-        lines.append("**Ce qui nous échappe encore**")
-        lines.append("")
-        lines.append(ch["pas_confirmer"])
-        lines.append("")
-        lines.append("**Ce que nous vous proposons**")
+        lines.append("**Ce qu'on mettrait rapidement en place**")
         lines.append("")
         lines.append(ch["propose"])
         lines.append("")
@@ -195,23 +223,24 @@ def generate_markdown(interview_id: int) -> str:
     lines.append("")
 
     # ---- Prochaine étape ----
-    lines.append("## Prochaine étape recommandée")
+    lines.append("## Prochaine étape ?")
+    lines.append("")
+    lines.append("Vous avez vu les opportunités. Voici comment les transformer en chantiers avec Lugia.")
     lines.append("")
     # V1.1 Vague 3.1c : les 3 options sont toutes des accompagnements Lugia.
     # Aligné sur web/app/resultats/page.tsx (clés et wordings identiques).
+    # V1.1.7-m : 2 chemins (autonomie + Lugia en réel), suppression terrain.
     next_steps = {
         "autonomie": (
-            "Approfondir un chantier",
-            "Un second questionnaire ciblé sur un chantier de votre choix, gratuit. "
-            "Pour creuser à votre rythme.",
+            "Approfondir un chantier, en autonomie",
+            "Un questionnaire ciblé sur l'opportunité de votre choix. Environ 15 minutes, "
+            "gratuit, sans rendez-vous — à votre rythme.",
         ),
         "lugia": (
-            "Échanger avec Lugia",
-            "30 minutes pour reprendre ce que vous avez vu et tester l'environnement sécurisé.",
-        ),
-        "terrain": (
-            "Lancer un diagnostic terrain",
-            "Une journée d'observation sur place pour affiner les chantiers avec Lugia.",
+            "Avancer avec Lugia, en réel",
+            "Vous choisissez une opportunité, on la traite ensemble dans votre cabinet. "
+            "Pas un appel d'identification — le chantier lui-même, structuré à partir de "
+            "dispositifs éprouvés chez d'autres confrères.",
         ),
     }
     rec_title, rec_desc = next_steps[recommended]

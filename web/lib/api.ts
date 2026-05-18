@@ -77,6 +77,24 @@ export async function authMe(): Promise<{ email: string }> {
   return request<{ email: string }>("/auth/me");
 }
 
+// V1.1.7-a : profil utilisateur (prénom du médecin pour personnaliser le rapport)
+export type UserProfile = {
+  email: string;
+  firstname: string | null;
+};
+
+export async function getMyProfile(): Promise<UserProfile> {
+  return request<UserProfile>("/me/profile");
+}
+
+export async function updateMyProfile(firstname: string | null): Promise<UserProfile> {
+  return request<UserProfile>("/me/profile", {
+    method: "PATCH",
+    body: JSON.stringify({ firstname }),
+  });
+}
+
+
 export async function logout(): Promise<void> {
   await request<{ ok: boolean }>("/auth/logout", { method: "POST" });
 }
@@ -105,6 +123,11 @@ export type Option = {
   health_score: number | null;
   node_type: string | null;
   tags: string[];
+  // V1.1.5-i : si vrai, un input texte optionnel s'affiche sous l'option
+  // sélectionnée pour saisir le prénom de l'entité associée (secrétaire,
+  // assistant, associé...). Voir entity_field_label pour le libellé.
+  has_entity_field?: boolean;
+  entity_field_label?: string;
 };
 
 export type Question = {
@@ -141,6 +164,8 @@ export type Interview = {
   updated_at: string;
   status: "in_progress" | "completed";
   current_question_index: number;
+  // V1.1.7-a : prénom du médecin (du profil user) pour personnaliser l'en-tête.
+  doctor_firstname?: string | null;
 };
 
 export async function createInterview(): Promise<number> {
@@ -182,6 +207,8 @@ export type Answer = {
   selected_option_label: string | null;
   free_text: string | null;
   complement_text: string | null;
+  // V1.1.5-i : prénom de l'entité associée à l'option choisie. Optionnel.
+  entity_name?: string | null;
 };
 
 export async function saveAnswer(
@@ -212,6 +239,16 @@ export type FacetScore = {
   label: string;
   score: number | null;
   raw_mean: number | null;
+  // V1.1.5-b : niveau qualitatif (1-5, plus le niveau monte, plus la situation
+  // appelle de la vigilance). Null si la facette n'a pas de score.
+  level: 1 | 2 | 3 | 4 | null;
+  level_label: "Maîtrisé" | "Opérationnel" | "À surveiller" | "À risque" | null;
+  level_color: "green" | "yellow" | "orange" | "red" | null;
+  // V1.1.5-d : forces et risques analytiques extraits par option, triés par priorité,
+  // tronqués selon le niveau (1-3 forces, 0-3 risques). Voir src/swot.py côté backend.
+  // Optionnels pour rétrocompatibilité avec un backend pré-V1.1.5-d.
+  forces?: string[];
+  risques?: string[];
   summary: string;
   contributions: Array<{
     question_id: string;
@@ -235,9 +272,12 @@ export type Workstream = {
 export type Report = {
   interview: Interview;
   synthesis: string;
+  // V1.1.6-f : recommandation italique extraite de la synthèse, affichée
+  // entre les facettes et les opportunités d'action.
+  recommendation?: string;
   facets: Record<string, FacetScore>;
   workstreams: Workstream[];
-  recommended_next_step: "autonomie" | "lugia" | "terrain";
+  recommended_next_step: "autonomie" | "lugia";
 };
 
 export async function getReport(id: number): Promise<Report> {

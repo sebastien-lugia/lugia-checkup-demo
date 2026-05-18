@@ -1,11 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { PageHeader } from "@/components/PageHeader";
-import { deleteAccount } from "@/lib/api";
+import { deleteAccount, getMyProfile, updateMyProfile } from "@/lib/api";
 import {
   clearSession,
   getSessionEmail,
@@ -14,10 +14,16 @@ import {
 
 const CONFIRM_KEYWORD = "SUPPRIMER";
 
-export default function ComptePage() {
+function ComptePageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isOnboarding = searchParams.get("from") === "onboarding";
   const isAuthReady = useRequireAuth();
   const [email, setEmail] = useState<string | null>(null);
+  const [firstname, setFirstname] = useState("");
+  const [firstnameStatus, setFirstnameStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
   const [confirmInput, setConfirmInput] = useState("");
   const [status, setStatus] = useState<
     "idle" | "deleting" | "deleted" | "error"
@@ -27,7 +33,31 @@ export default function ComptePage() {
   useEffect(() => {
     if (!isAuthReady) return;
     setEmail(getSessionEmail());
+    (async () => {
+      try {
+        const profile = await getMyProfile();
+        setFirstname(profile.firstname || "");
+      } catch {
+        // best effort — si le backend ne supporte pas encore /me/profile, on laisse vide
+      }
+    })();
   }, [isAuthReady]);
+
+  async function handleSaveFirstname() {
+    setFirstnameStatus("saving");
+    try {
+      const trimmed = firstname.trim();
+      await updateMyProfile(trimmed || null);
+      if (isOnboarding) {
+        // V1.1.7-i : en onboarding, on enchaîne sur l'accueil après save
+        router.replace("/");
+        return;
+      }
+      setFirstnameStatus("idle");
+    } catch {
+      setFirstnameStatus("error");
+    }
+  }
 
   async function handleDelete() {
     if (confirmInput.trim().toUpperCase() !== CONFIRM_KEYWORD) {
@@ -87,15 +117,125 @@ export default function ComptePage() {
     );
   }
 
+  if (isOnboarding) {
+    return (
+      <main className="min-h-screen">
+        <AppHeader />
+        <div className="max-w-2xl mx-auto px-6 pt-6 pb-12">
+          <PageHeader subtitle="Check-up préventif" mbBottom={10} />
+
+          <h1 className="font-serif text-[28px] font-medium leading-snug mb-3">
+            Bienvenue.
+          </h1>
+          <p className="text-base text-lugia-text-secondary leading-relaxed mb-8">
+            Comment voulez-vous être appelé·e&nbsp;? Ce prénom sera affiché en
+            en-tête de votre rapport personnel. Vous pourrez le modifier à tout
+            moment depuis votre compte.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <input
+              type="text"
+              value={firstname}
+              onChange={(e) => {
+                setFirstname(e.target.value);
+                if (firstnameStatus !== "idle") setFirstnameStatus("idle");
+              }}
+              placeholder="Prénom"
+              className="flex-1 min-w-[200px] px-3 py-2 bg-white border border-lugia-border rounded-lg text-base focus:outline-none focus:border-lugia-accent"
+              maxLength={60}
+              autoFocus
+            />
+            <button
+              onClick={handleSaveFirstname}
+              disabled={firstnameStatus === "saving"}
+              className="bg-lugia-text text-white px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
+            >
+              {firstnameStatus === "saving" ? "Enregistrement…" : "Continuer →"}
+            </button>
+          </div>
+          {firstnameStatus === "error" && (
+            <p className="text-sm text-red-600 mb-4">Erreur, réessayez.</p>
+          )}
+
+          <button
+            onClick={() => router.replace("/")}
+            className="text-sm text-lugia-text-tertiary hover:text-lugia-text-secondary underline underline-offset-2"
+          >
+            Passer cette étape
+          </button>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen px-6 py-12 relative">
+    <main className="min-h-screen">
       <AppHeader />
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-6 pt-6 pb-12">
         <PageHeader subtitle="Check-up préventif" mbBottom={10} />
 
-        <h1 className="font-serif text-[28px] font-medium leading-snug mb-8">
+        <h1 className="font-serif text-[28px] font-medium leading-snug mb-6">
           Mon compte
         </h1>
+
+        <section className="mb-10 px-5 py-4 bg-lugia-bg-soft border-l-[3px] border-[#c9c4b3] rounded-r">
+          <div className="text-xs uppercase tracking-wider font-medium text-lugia-text-secondary mb-2">
+            Notre engagement
+          </div>
+          <p className="text-sm text-lugia-text-secondary leading-relaxed mb-3">
+            Lugia est conçu pour respecter le secret médical et votre indépendance
+            professionnelle. Concrètement&nbsp;:
+          </p>
+          <ul className="text-sm text-lugia-text-secondary leading-relaxed space-y-1 pl-5 list-disc mb-3">
+            <li>aucune donnée identifiable de vos patients n&apos;est saisie pendant le check-up&nbsp;;</li>
+            <li>vos réponses ne sont jamais partagées avec un tiers, ni utilisées pour de la publicité&nbsp;;</li>
+            <li>vous gardez le contrôle complet&nbsp;: modifier votre prénom, consulter vos données, ou tout effacer définitivement.</li>
+          </ul>
+          <p className="text-xs text-lugia-text-tertiary leading-relaxed">
+            Pour les détails techniques (finalités, durée de conservation,
+            sous-traitants), voir la{" "}
+            <a
+              href="/confidentialite"
+              className="text-lugia-accent underline underline-offset-2 hover:opacity-80"
+            >
+              politique de confidentialité
+            </a>
+            .
+          </p>
+        </section>
+
+        <section className="mb-10">
+          <div className="text-xs uppercase tracking-wider font-medium text-lugia-text-secondary mb-2">
+            Prénom
+          </div>
+          <p className="text-sm text-lugia-text-secondary mb-3">
+            Affiché en en-tête de votre rapport personnel. Optionnel.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              type="text"
+              value={firstname}
+              onChange={(e) => {
+                setFirstname(e.target.value);
+                if (firstnameStatus !== "idle") setFirstnameStatus("idle");
+              }}
+              placeholder="Prénom"
+              className="flex-1 min-w-[200px] px-3 py-2 bg-white border border-lugia-border rounded-lg text-base focus:outline-none focus:border-lugia-accent"
+              maxLength={60}
+            />
+            <button
+              onClick={handleSaveFirstname}
+              disabled={firstnameStatus === "saving"}
+              className="bg-lugia-text text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
+            >
+              {firstnameStatus === "saving" ? "Enregistrement…" : "Enregistrer"}
+            </button>
+            {firstnameStatus === "error" && (
+              <span className="text-sm text-red-600">Erreur, réessayez</span>
+            )}
+          </div>
+        </section>
 
         <section className="mb-10">
           <div className="text-xs uppercase tracking-wider font-medium text-lugia-text-secondary mb-2">
@@ -137,11 +277,16 @@ export default function ComptePage() {
           <h2 className="text-sm font-medium text-red-700 mb-2">
             Supprimer mon compte et toutes mes données
           </h2>
-          <p className="text-sm text-red-700 leading-relaxed mb-4">
+          <p className="text-sm text-red-700 leading-relaxed mb-3">
             Cette action est <strong>définitive et irréversible</strong>.
             Toutes vos réponses au check-up, les scores et chantiers
             associés, vos jetons d&apos;accès et sessions seront supprimés
             sans possibilité de récupération.
+          </p>
+          <p className="text-sm text-red-700 leading-relaxed mb-4">
+            <strong>À noter</strong>&nbsp;: vous perdrez tout point de comparaison
+            pour un futur check-up. Pour simplement recommencer le questionnaire,
+            pas besoin de supprimer le compte.
           </p>
           <p className="text-sm text-red-700 leading-relaxed mb-3">
             Pour confirmer, tapez{" "}
@@ -202,5 +347,19 @@ export default function ComptePage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ComptePage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center">
+          <div className="text-sm text-lugia-text-tertiary">Chargement…</div>
+        </main>
+      }
+    >
+      <ComptePageContent />
+    </Suspense>
   );
 }

@@ -42,6 +42,7 @@ from src import db  # noqa: E402
 from src import questions as question_module  # noqa: E402
 from src import scoring  # noqa: E402
 from src import templates  # noqa: E402
+from src import swot  # noqa: E402
 from src import workstreams  # noqa: E402
 
 try:
@@ -263,6 +264,45 @@ async def auth_me(email: str = Depends(get_current_user_email)) -> dict[str, str
     return {"email": email}
 
 
+# ---- Profil utilisateur (V1.1.7-a) ----
+
+class UserProfileUpdate(BaseModel):
+    firstname: Optional[str] = None
+
+
+@app.get("/me/profile", tags=["auth"])
+async def get_my_profile(
+    email: str = Depends(get_current_user_email),
+) -> dict[str, Optional[str]]:
+    """Retourne le profil du user authentifié (email + prénom)."""
+    profile = db.get_user_profile(email)
+    return {
+        "email": email,
+        "firstname": (profile or {}).get("firstname"),
+    }
+
+
+@app.patch("/me/profile", tags=["auth"])
+async def patch_my_profile(
+    body: UserProfileUpdate,
+    email: str = Depends(get_current_user_email),
+) -> dict[str, Optional[str]]:
+    """Met à jour le profil du user authentifié.
+
+    V1.1.7-a : champ `firstname` optionnel. Sert à personnaliser l'en-tête
+    du rapport (sous-titre 'Dr Prénom — résultats du JJ mois AAAA').
+    """
+    # Normalisation : trim et chaîne vide → None
+    firstname = body.firstname.strip() if body.firstname else None
+    if firstname == "":
+        firstname = None
+    db.upsert_user_profile(email, firstname)
+    return {
+        "email": email,
+        "firstname": firstname,
+    }
+
+
 @app.post("/auth/logout", tags=["auth"])
 async def auth_logout(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
@@ -365,6 +405,10 @@ class SaveAnswerBody(BaseModel):
     selected_option_label: Optional[str] = None
     free_text: Optional[str] = None
     complement_text: Optional[str] = None
+    # V1.1.5-i : prénom de l'entité associée (secrétaire, assistant, associé...)
+    # Optionnel. Déclenché côté frontend par les options portant
+    # has_entity_field=true dans interview_protocol.json.
+    entity_name: Optional[str] = None
 
 
 @app.put("/interviews/{interview_id}/answers/{question_id}", tags=["answer"])
@@ -383,6 +427,7 @@ async def save_answer(
         selected_option_label=body.selected_option_label,
         free_text=body.free_text,
         complement_text=body.complement_text,
+        entity_name=body.entity_name,
     )
     return {"ok": True}
 
@@ -414,18 +459,39 @@ async def get_report(
 ) -> dict[str, Any]:
     interview = _assert_user_owns_interview(email, interview_id)
     answers = db.get_answers(interview_id)
+    # V1.1.7-a : prénom du médecin (si saisi via /me/profile) pour
+    # personnaliser le sous-titre du rapport.
+    user_profile = db.get_user_profile(email) or {}
+    doctor_firstname = user_profile.get("firstname")
     facet_scores = scoring.compute_all_facet_scores(interview_id)
     facet_labels = question_module.get_facet_labels()
 
     synthesis = templates.build_synthesis(answers, interview_id)
+    recommendation = templates.build_recommandation(answers, interview_id)
 
     facets_payload: dict[str, Any] = {}
     for facet in question_module.get_scored_facets():
         score_data = facet_scores.get(facet)
+        score_value = score_data["score"] if score_data else None
+        # V1.1.5-b : exposition du niveau qualitatif à côté du score chiffré.
+        # Rétrocompatibilité préservée : `score` reste exposé pour V0 Streamlit.
+        if score_value is not None:
+            level_data = scoring.score_to_level(score_value)
+        else:
+            level_data = {"level": None, "label": None, "color": None}
+        # V1.1.5-d : extraction Forces / Risques par option choisie, triés par priorité
+        # et tronqués selon le niveau qualitatif de la facette. Cf src/swot.py.
+        forces_list = swot.build_facet_forces(facet, answers, level_data["level"])
+        risques_list = swot.build_facet_risques(facet, answers, level_data["level"])
         facets_payload[facet] = {
             "label": facet_labels.get(facet, facet),
-            "score": score_data["score"] if score_data else None,
+            "score": score_value,
             "raw_mean": score_data["raw_mean"] if score_data else None,
+            "level": level_data["level"],
+            "level_label": level_data["label"],
+            "level_color": level_data["color"],
+            "forces": forces_list,
+            "risques": risques_list,
             "summary": templates.build_facet_summary(facet, answers),
             "contributions": (
                 score_data["contributions"] if score_data else []
@@ -436,8 +502,9 @@ async def get_report(
     next_step = templates.build_next_step_recommendation(facet_scores, answers)
 
     return {
-        "interview": interview,
+        "interview": {**dict(interview), "doctor_firstname": doctor_firstname},
         "synthesis": synthesis,
+        "recommendation": recommendation,
         "facets": facets_payload,
         "workstreams": chantiers,
         "recommended_next_step": next_step,

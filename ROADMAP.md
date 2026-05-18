@@ -53,6 +53,92 @@ Donne au SLM V1.2 un meilleur socle de few-shot examples (51 nouveaux, répartis
 
 ---
 
+## V1.1.7 — Voix "vous" sur le callout + responsive + prénom médecin — LIVRÉE 2026-05-16
+
+7 sous-vagues livrées le 16 mai à partir des specs V3 (`wireframes/resultats_v2_specs.md`). Voir `CHANGELOG.md` 2026-05-16 V1.1.7 et `DECISIONS.md` D-026.
+
+Points structurants livrés :
+
+- **Voix "vous"** sur le callout entre angles et opportunités. Plus de "Lugia commence par..." en 3ème personne. Le médecin reste sujet de l'action.
+- **Responsive complet** : @media print (impression, export PDF) et @media mobile (max-width: 640px). Prérequis pour tout test prospect réel.
+- **Prénom médecin persistant** : nouvelle table `user_profile`, champ optionnel dans /compte, sous-titre "Dr {prénom} — résultats du {date}" dans l'en-tête du rapport.
+- **H1 reformulé** : "Votre cabinet, vu de l'extérieur" (Lugia positionné comme regard extérieur).
+- **4 reformulations swot** : "répartie" (au lieu de lissée), "consultation libérée" sur Hervé, "aligné sur votre pratique" sur Robin, "sans protocole défini" sur les chroniques.
+- **Phrase de transition** avant la section Prochaine étape.
+
+Aucun changement de scoring, aucune refonte du questionnaire.
+
+---
+
+## V1.1.6 — Refonte UI page de résultats vers palette V2 sobre — LIVRÉE 2026-05-16
+
+6 sous-vagues livrées le 16 mai à partir des specs V2 produites dans une conversation Claude parallèle (`wireframes/resultats_v2_specs.md`, `wireframes/resultats_v2_cible.pdf`). Voir `CHANGELOG.md` 2026-05-16 V1.1.6 et `DECISIONS.md` D-025.
+
+Points structurants livrés :
+
+- **Palette V2 resserrée** (vert/orange/bleu strictement sémantiques, jamais décoratifs).
+- **Badges asymétriques** : Maîtrisé/Opérationnel muets (l'absence est signal positif), À surveiller gris, À risque rouille.
+- **Suppression de la barre 4 segments** au profit du seul badge texte.
+- **Refonte opportunités** : numéro grand sans badge "Priorité X", 2 colonnes Situation/Action, note "À confirmer ensemble" en pied.
+- **Carte recommandée mise en avant** sur Prochaine étape (bordure bleue + bouton bleu + CTA "Prendre rendez-vous").
+- **Recommandation italique extraite de la synthèse** : positionnée en transition entre les facettes et les opportunités, plus sobre, sans encadré.
+- **22 mots-clés en gras** ajoutés dans les variantes phrase choc pour révéler les pivots MBTI.
+
+Aucun changement de scoring, aucune migration BDD, aucune dépendance ajoutée. Purement frontend (à 95%) + backend mineur pour exposer `recommendation` séparément.
+
+---
+
+## V1.1.5 — Refonte UI/méthodologique de la page de résultats — LIVRÉE 2026-05-16
+
+10 sous-vagues livrées dans la journée du 16 mai (a, b, c, d, e, f, h, i, j, k — `g` est la journalisation). Voir `CHANGELOG.md` 2026-05-16 V1.1.5 et `DECISIONS.md` D-023 + D-024.
+
+Points structurants livrés :
+
+- **4 niveaux qualitatifs** (Maîtrisé / Opérationnel / À surveiller / À risque) en remplacement du score chiffré /10, avec seuils stricts publics et fusion empirique des ex-niveaux 4-5.
+- **Forces et risques par facette** extraits des options du questionnaire avec mécanique de priorité, troncature par niveau, planchers de garantie. Module dédié `src/swot.py` (40 fragments).
+- **Reframing des chantiers en "opportunités d'action"** avec 4 labels internes renommés et 7 phrases `pas_confirmer` réécrites en hypothèses à confirmer ensemble.
+- **Champ prénom optionnel** (`entity_name`) sur 8 options secrétariat/équipe pour personnaliser les forces du rapport. Migration BDD légère et fallback silencieux si non saisi.
+- **dump_report** mis à jour pour produire des markdowns alignés sur le nouveau format.
+
+Donne à V1.2 SLM un substrat plus riche : 40 fragments swot + 4 niveaux + 7 hypothèses + champ entity_name. La discipline D-020 (méthodologique d'abord) reste respectée.
+
+---
+
+## V1.1.8 — Câblage Q06 (motivation du check-up) — À FAIRE avant V1.2
+
+Q06 (*"Qu'est-ce qui vous fait faire ce check-up aujourd'hui ?"*) est collectée depuis V1 mais n'irrigue actuellement aucun bloc de la page résultats. Elle propose 4 motivations distinctes — curiosité, fatigue qui dure, événement récent, anticipation — qui devraient moduler le rapport entier.
+
+### Pourquoi c'est devenu prioritaire
+
+Identifié en V1.1.7 sur le profil "porteur_solo" : les phrases choc pointent un risque structurel (mémoire individuelle, transmissibilité, non-délégation) qui n'est **pas un problème pour tous les médecins**. Un médecin de 55 ans qui anticipe sa cession va trouver l'analyse pertinente ; un médecin de 45 ans qui fait le check-up par curiosité peut la trouver alarmiste ou moralisatrice. La cascade actuelle `build_phrase_choc` ne fait aucune distinction. Q06 est la donnée qui permet ce raffinement.
+
+### Travail prévu
+
+**1. Qualifier le statut du répondant via Q06**
+Étendre Q06 (ou la croiser avec une question contextuelle additionnelle) pour qualifier la situation du médecin au-delà de la motivation pure :
+- *cession à venir* (médecin senior, transmissibilité critique)
+- *structurer la transmissibilité* (mid-career, prépare l'avenir)
+- *aller mieux au quotidien* (fatigue, surcharge actuelle)
+- *anticiper un événement* (arrivée d'un associé, déménagement, congé)
+- *curiosité pure* (pas de besoin pressant identifié)
+
+**2. Moduler la phrase choc selon Q06**
+Un médecin qui coche "anticipation" reçoit une phrase choc orientée transmissibilité ; un médecin qui coche "fatigue" en reçoit une orientée charge personnelle ; un médecin qui coche "curiosité" reçoit une formulation douce qui ne sur-dramatise pas.
+
+**3. Adapter l'orientation des chantiers**
+Chaque chantier devrait également se reformuler selon la motivation. *Anticiper une absence* fait sens pour un médecin qui anticipe ; pour un médecin en fatigue, le même chantier est mieux positionné comme *"libérer du temps"*. Le contenu structurel reste le même, le packaging change.
+
+**4. Tests en local**
+Sur persona Château et 4-5 variantes manuelles couvrant les 4 motivations.
+
+**5. Pas de migration BDD nécessaire** (la donnée est déjà stockée).
+
+### Pourquoi avant le SLM V1.2
+
+On enrichit le socle méthodologique tant qu'on peut. Q06 a un coût d'intégration faible (4 valeurs nominales) et un fort effet narratif. C'est l'opportunité typique D-020 — *"méthodologique d'abord, intelligence ensuite"*. Quand le SLM arrivera en V1.2, il pourra interpoler entre les variantes Q06 plutôt que de les générer à blanc.
+
+---
+
 ## V1.2 — Intégration SLM/LLM hybride — APRÈS V1.1
 
 Ajout d'une couche d'orchestration LLM en surcouche du méthodologique enrichi de V1.1, avec fallback systématique. Cible : faire passer le rapport de "templating combinatoire 50+ variantes" à "génération contextualisée par section" (synthèse, analyse facettes, analyse chantiers).
@@ -65,6 +151,18 @@ Architecture envisagée :
 - **Fallback** : sur erreur LLM, indisponibilité, ou `LLM_ENABLED=0`, retour automatique aux templates V1.1.
 
 
+
+### Exploitation de Q14 (texte libre de clôture)
+
+Q14 (*"En une phrase, qu'est-ce qui vous aiderait le plus aujourd'hui dans votre cabinet ?"*) est collectée depuis V1 mais reste cantonnée à un usage offline (handover commercial). Avec un SLM, on peut l'exploiter dans le rapport :
+
+- **Reformuler le texte libre du médecin** dans la phrase d'ouverture du rapport ou de la recommandation, pour renvoyer son besoin tel qu'il l'a exprimé ("Vous nous avez dit vouloir X. Voici comment Lugia peut y contribuer.").
+- **Aligner les opportunités d'action** : pondérer la sélection des chantiers selon les mots-clés du free_text ("souffler", "déléguer", "sécuriser"...).
+- **Détecter les hors-périmètre** : si Q14 mentionne quelque chose que Lugia ne couvre pas (financement, juridique, RH), le rapport peut l'acknowledger sans prétendre y répondre.
+
+Pas faisable en méthodologique pur (le free_text exige du parsing sémantique). Donc à intégrer en même temps que la couche SLM V1.2.
+
+---
 
 ### Sélection sophistiquée des chaînes causales
 
