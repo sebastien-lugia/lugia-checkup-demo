@@ -6,6 +6,55 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-027 — Arbitrage simplification produit : richesse analytique du master prompt non livrée en V1, à récupérer en V1.2+
+
+**Date :** 2026-05-18
+
+**Décision :** Reconnaître explicitement l'écart entre la vision initiale du master prompt (40 sections, livré début mai 2026) et le démonstrateur réellement construit. Plusieurs ambitions structurelles ont été simplifiées ou non implémentées en V1, au profit d'une lisibilité utilisateur immédiate. La dette est tracée pour récupération progressive en V1.2 (SLM) et au-delà.
+
+**Écarts assumés par rapport au master prompt :**
+
+| Vision originale | Réalité V1.1.7 | Statut |
+|---|---|---|
+| 9 facettes WSF (Clients / Produits & Services / Processus & Activités / Participants / Information / Technologies / Environnement / Infrastructure / Stratégies) | 3 facettes (Parcours patient / Équipe / Outils) | Simplification radicale 9→3 |
+| 6 constantes concrètes transversales (Service rendu / Information utile / Décisions claires / Charge soutenable / Règles et apprentissages / Capacité à changer) | Aucune structure équivalente | Non livré |
+| Ontologie de 13 types de nœuds (Acteur / Besoin / Service / Activité / Information / Outil / Contrainte / Ressource / Objectif / Symptôme / Cause / Risque / Chantier) | Aucun graphe de nœuds | Non livré |
+| 13 types de relations entre nœuds | Aucune | Non livré |
+| Formule de diagnostic structurée *"Le cabinet présente une fragilité de [famille], située principalement dans [facettes], visible à travers [symptômes], probablement causée ou aggravée par [causes], avec un risque de [risques] si rien ne change"* | Narratif libre (phrase choc + chaîne causale) | Remplacé par templates narratifs |
+| 4 vues Mermaid (ensemble / fonctionnement / diagnostic / transformation) | Aucune visualisation | Non livré |
+| Pyramide WSF cliquable | Aucune | Non livré |
+| Niveau de confiance par facette (fort/moyen/faible) | Non tracé | Non livré |
+| Chantiers en 4 parties (Ce que le check-up a vu / Ce qu'il ne peut confirmer / Ce que Lugia propose / Ce que le client obtient) | Refondu en 2 parties (LA SITUATION + CE QU'ON METTRAIT RAPIDEMENT EN PLACE) en V1.1.7-l | Simplification volontaire |
+| Stack Streamlit en local | Next.js + FastAPI en prod (Vercel + Render) | Saut au-delà du démonstrateur |
+
+**Ce qui est strictement aligné avec le master prompt :**
+
+- Positionnement Lugia (organisation du travail, pas qualité médicale).
+- Ton (sobre, clair, non culpabilisant) — V1.1.7-t a fait un audit complet anti-consulting.
+- Garde-fous (pas de données patient identifiables, pas de diagnostic médical, pas de notation individuelle, score déclaratif).
+- Promesse temporelle (~30 min check-up).
+- Bénéfices visés (lisibilité, clarté, premières actions).
+- Feuille de route concrète avec chantiers priorisés.
+- Spécialisation médecine générale (vocabulaire métier, contraintes spécifiques).
+- Différenciation anti-consulting (carte "Avancer avec Lugia, en réel" V1.1.7-m, anti-blabla des cabinets IA).
+
+**Pourquoi :** L'ambition originale du master prompt (9 facettes × ontologie × 4 vues Mermaid × pyramide WSF cliquable) supposait soit une équipe de développement plus large, soit un planning beaucoup plus long que ce que la fenêtre concurrentielle Lugia permet aujourd'hui. Le choix a été fait, dans la pratique, de privilégier *un démonstrateur lisible et vendable* sur *une plateforme analytique complète*. Un médecin surchargé ne va pas naviguer une pyramide à 9 facettes ni 4 graphes Mermaid — il a besoin d'une page qu'il scanne en 5 minutes et qui lui dit *"voici ce que je vois, voici 3 chantiers, voici comment on bosse ensemble"*. La V1.1.7 délivre exactement ça.
+
+**Alternatives écartées :**
+
+- *Tenir intégralement la vision V1 du master prompt* — aurait nécessité 3-4 mois supplémentaires avant de pouvoir tester en prod. Tué pour permettre des tests utilisateurs précoces.
+- *Faire un produit minimal sans structure méthodologique* — aurait tué la différenciation par rapport aux cabinets IA classiques. La méthodologique est restée présente sous une forme narrative (chaînes causales, phrases choc, opportunités) plutôt que graphique.
+
+**Trajectoire de récupération prévue :**
+
+- **V1.1.8 (en cours)** : câblage Q06 pour personnaliser le ton selon la motivation du médecin. Permet de tester si la simplification 9→3 facettes gêne les médecins, ou pas.
+- **V1.2 (SLM hybride)** : c'est l'opportunité de **réintroduire l'ontologie comme substrat invisible** pour le LLM. Les nœuds et relations ne s'affichent pas, mais permettent au SLM de raisonner et de générer une finesse narrative qu'on ne peut pas produire en templates purs. Les 9 facettes WSF peuvent revenir comme grille d'analyse en arrière-plan même si on n'en affiche toujours que 3.
+- **V1.5+** : envisager une *vue détaillée optionnelle* (lien "Voir l'analyse complète" qui ouvre une page avec 9 facettes + un Mermaid simple). Pour les médecins qui veulent creuser, pas comme défaut.
+
+**Conséquence pour la suite :** chaque vague V1.2+ doit être évaluée à l'aune de ce qui de la vision originale est récupérable et à quel endroit (substrat invisible vs vue dédiée). Ne pas perdre de vue que le master prompt n'était pas une checklist mais un programme de produit — dont une partie reste à livrer.
+
+---
+
 ## D-026 — Voix "vous" sur le callout + responsive mobile/print + prénom médecin persistant (V1.1.7)
 
 **Date :** 2026-05-16
