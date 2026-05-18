@@ -334,7 +334,7 @@ function ResultatsContent() {
         {(() => {
           const levels = FACET_ORDER
             .map((k) => report.facets[k]?.level)
-            .filter((l): l is number => typeof l === "number");
+            .filter((l): l is NonNullable<typeof l> => l != null);
           const hasL3 = levels.includes(3);
           const hasL4 = levels.includes(4);
           if (!hasL3 && !hasL4) return null;
