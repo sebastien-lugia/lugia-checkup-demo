@@ -1,5 +1,5 @@
 {
-  "version": "1.7",
+  "version": "1.8",
   "last_updated": "2026-05-15",
   "total_questions": 14,
   "scored_facets": [
@@ -26,7 +26,8 @@
     "Options mutuellement exclusives : chaque réponse possible doit pointer sur une et une seule option.",
     "Mise en scène d'une situation réelle quand c'est possible (un moment, un acte, un événement vécu).",
     "Mode B et C réservés aux questions où la réponse libre apporte un matériau verbatim irremplaçable.",
-    "Format des libellés homogène : 'Mot-clé — détail explicatif court' partout où c'est naturel."
+    "Format des libellés homogène : 'Mot-clé — détail explicatif court' partout où c'est naturel.",
+    "V1.1.5-i : les options Q02_a/b/c/other et Q07_b/c/d/other portent has_entity_field=true et entity_field_label — un input texte optionnel s'affiche sous l'option choisie, et la valeur saisie est stockée dans la colonne entity_name de la table answer."
   ],
   "questions": [
     {
@@ -96,7 +97,9 @@
           "node_type": "Acteur",
           "tags": [
             "secrétariat-interne"
-          ]
+          ],
+          "has_entity_field": true,
+          "entity_field_label": "Prénom de votre secrétaire (optionnel)"
         },
         {
           "id": "q02_b",
@@ -105,7 +108,9 @@
           "node_type": "Acteur",
           "tags": [
             "télésecrétariat-externalisé"
-          ]
+          ],
+          "has_entity_field": true,
+          "entity_field_label": "Prénom de votre interlocuteur principal (optionnel)"
         },
         {
           "id": "q02_c",
@@ -114,7 +119,9 @@
           "node_type": "Acteur",
           "tags": [
             "secrétariat-mixte"
-          ]
+          ],
+          "has_entity_field": true,
+          "entity_field_label": "Prénom de votre secrétaire interne (optionnel)"
         },
         {
           "id": "q02_d",
@@ -133,7 +140,9 @@
           "node_type": null,
           "tags": [
             "autre"
-          ]
+          ],
+          "has_entity_field": true,
+          "entity_field_label": "Prénom (optionnel)"
         }
       ]
     },
@@ -401,7 +410,9 @@
           "node_type": "Acteur",
           "tags": [
             "assistant-médical"
-          ]
+          ],
+          "has_entity_field": true,
+          "entity_field_label": "Prénom de votre assistant·e médical·e (optionnel)"
         },
         {
           "id": "q07_c",
@@ -410,7 +421,9 @@
           "node_type": "Acteur",
           "tags": [
             "confrère-associé"
-          ]
+          ],
+          "has_entity_field": true,
+          "entity_field_label": "Prénom de votre associé·e (optionnel)"
         },
         {
           "id": "q07_d",
@@ -419,7 +432,9 @@
           "node_type": "Acteur",
           "tags": [
             "remplaçant-régulier"
-          ]
+          ],
+          "has_entity_field": true,
+          "entity_field_label": "Prénom de votre remplaçant·e (optionnel)"
         },
         {
           "id": "q07_other",
@@ -428,7 +443,9 @@
           "node_type": null,
           "tags": [
             "autre"
-          ]
+          ],
+          "has_entity_field": true,
+          "entity_field_label": "Prénom (optionnel)"
         }
       ]
     },

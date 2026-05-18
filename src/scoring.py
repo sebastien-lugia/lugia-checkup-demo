@@ -111,3 +111,60 @@ def compute_all_facet_scores(interview_id: int) -> dict[str, Optional[dict[str, 
             answers=answers,
         )
     return results
+
+
+# ---- V1.1.5 : mapping score → niveau qualitatif ----
+#
+# Décision D-023 (à inscrire en Vague 1.1.5-g) : remplacer la note chiffrée /10
+# par une lecture qualitative en 5 niveaux. Seuils stricts choisis pour limiter
+# la fréquence du niveau "Maîtrisé" (signal fort) et garder une échelle
+# significative entre les 5 niveaux. Cf MASTER_PROMPT §8 (scoring déclaratif)
+# et resources/modeling_scoring.md.
+
+LEVEL_DEFINITIONS: tuple[tuple[int, int, int, str, str], ...] = (
+    # (score_min, score_max, level, label, color_key)
+    # V1.1.5-k : fusion des anciens niveaux 4 (En tension, score 3-4) et
+    # 5 (À risque, score 0-2) en un seul niveau 4 (À risque, score 0-4).
+    # Motivation : la calibration des health_scores rendait mathématiquement
+    # impossible certaines facettes (Parcours, Équipe) d'atteindre l'ancien
+    # niveau 5. Fusionner garde une échelle cohérente avec ce que le scoring
+    # peut produire.
+    (9, 10, 1, "Maîtrisé",     "green"),
+    (7, 8,  2, "Opérationnel", "yellow"),
+    (5, 6,  3, "À surveiller", "orange"),
+    (0, 4,  4, "À risque",     "red"),
+)
+
+
+def score_to_level(score: int) -> dict[str, Any]:
+    """Convertit un score entier (0-10) en niveau qualitatif V1.1.5.
+
+    Seuils stricts : 9-10 → 1 Maîtrisé, 7-8 → 2 Opérationnel,
+    5-6 → 3 À surveiller, 3-4 → 4 En tension, 0-2 → 5 À risque.
+
+    Plus le niveau est élevé, plus la situation appelle de la vigilance.
+    L'échelle est volontairement inverse au score chiffré : un score haut
+    correspond à un niveau bas (1 = situation maîtrisée), pour que la
+    progression du niveau (de 1 à 5) reflète une intensification du signal
+    d'attention.
+
+    Args:
+        score: score entier compris dans [0, 10] (typiquement retourné par
+            `compute_facet_score(...)['score']`).
+
+    Returns:
+        Dict ``{"level": int, "label": str, "color": str}``. La clé ``color``
+        est un identifiant sémantique (``green``, ``yellow``, ``orange``,
+        ``red``, ``dark``) que le frontend mappe sur sa palette. Ne pas
+        utiliser ces noms comme couleurs CSS directement.
+
+    Raises:
+        ValueError: si le score est hors [0, 10].
+    """
+    if not 0 <= score <= 10:
+        raise ValueError(f"score doit être entre 0 et 10, reçu {score}")
+    for score_min, score_max, level, label, color in LEVEL_DEFINITIONS:
+        if score_min <= score <= score_max:
+            return {"level": level, "label": label, "color": color}
+    # Bornes vérifiées au-dessus, ce chemin est théoriquement inatteignable
+    raise ValueError(f"score hors plage de niveaux : {score}")

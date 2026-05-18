@@ -28,6 +28,7 @@ const EMPTY_ANSWER: AnswerState = {
   selected_option_label: null,
   free_text: null,
   complement_text: null,
+  entity_name: null,
 };
 
 function CheckupContent() {
@@ -83,6 +84,7 @@ function CheckupContent() {
             selected_option_label: existing.selected_option_label,
             free_text: existing.free_text,
             complement_text: existing.complement_text,
+            entity_name: existing.entity_name ?? null,
           });
         } else {
           setAnswer(EMPTY_ANSWER);
@@ -109,6 +111,7 @@ function CheckupContent() {
         selected_option_label: current.selected_option_label,
         free_text: current.free_text,
         complement_text: current.complement_text,
+        entity_name: current.entity_name,
       });
     },
     [interviewId]
@@ -216,8 +219,9 @@ function CheckupContent() {
 
   if (error) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+      <main className="min-h-screen flex flex-col">
         <AppHeader />
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="max-w-xl text-center">
           <PageHeader subtitle="Check-up préventif" mbBottom={8} />
           <p className="text-red-600 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -230,15 +234,18 @@ function CheckupContent() {
             Retour à l&apos;accueil
           </button>
         </div>
+        </div>
       </main>
     );
   }
 
   if (!protocol || currentIndex === null) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+      <main className="min-h-screen flex flex-col">
         <AppHeader />
-        <div className="text-sm text-lugia-text-tertiary">Chargement...</div>
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="text-sm text-lugia-text-tertiary">Chargement...</div>
+        </div>
       </main>
     );
   }
@@ -249,8 +256,9 @@ function CheckupContent() {
   // Écran de fin "Merci"
   if (isCompleted) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+      <main className="min-h-screen flex flex-col">
         <AppHeader />
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="max-w-2xl w-full">
           <PageHeader subtitle="Check-up préventif" mbBottom={8} />
           <h1 className="font-serif text-[28px] font-medium mb-6">Merci.</h1>
@@ -273,6 +281,7 @@ function CheckupContent() {
             </button>
           </div>
         </div>
+        </div>
       </main>
     );
   }
@@ -284,9 +293,9 @@ function CheckupContent() {
   const canSubmit = isAnswerComplete(question.mode, answer);
 
   return (
-    <main className="min-h-screen px-6 py-12 relative">
+    <main className="min-h-screen">
       <AppHeader />
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-6 pt-6 pb-12">
         <PageHeader subtitle="Check-up préventif" mbBottom={4} />
 
         {/* Progress bar */}

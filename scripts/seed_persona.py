@@ -56,6 +56,9 @@ ANSWERS = [
     ),
         "free_text": None,
         "complement_text": 'Depuis 18 mois, après le départ de Catherine qui était en interne pendant 8 ans.',
+        # V1.1.5-i : prénom de l'interlocutrice actuelle au télésecrétariat
+        # (Catherine est partie, Marie a pris la suite).
+        "entity_name": 'Marie',
     },
     {
         "question_id": 'q03',
@@ -263,6 +266,7 @@ def seed(email: str | None = None) -> int:
             selected_option_label=ans["selected_option_label"],
             free_text=ans["free_text"],
             complement_text=ans["complement_text"],
+            entity_name=ans.get("entity_name"),
         )
         print(f"  [{i:>2}/14] {ans['question_id']} (mode {ans['mode']}) inséré")
 

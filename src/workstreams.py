@@ -110,17 +110,19 @@ def chantier_demandes_directes(
             flux = _flux_principal_categorie(answers)
             vu = (
                 f"Vous recevez des {canaux}, en plus de {flux} et {sec_du}. "
-                f"Ces demandes ne sont pas tracées et représentent une charge invisible."
+                f"Ces demandes ne sont tracées nulle part."
             )
             analyse_variants = [
                 (
-                    f"Ces demandes directes restent invisibles à {sec_label} : vous portez seul "
-                    f"le suivi mental, et le coût s'accumule à mesure que les canaux se multiplient."
+                    f"Ces demandes — appels sur votre mobile, SMS de patients, mails directs — "
+                    f"restent invisibles à {sec_label} : vous portez seul le suivi mental, et le "
+                    f"coût s'accumule à mesure que les canaux se multiplient."
                 ),
                 (
-                    f"Ces demandes directes échappent au tableau de bord de {sec_label} et reposent "
-                    f"uniquement sur votre mémoire. Pas de comptabilité, pas de suivi partagé : le "
-                    f"coût réel n'est mesurable nulle part."
+                    f"Ces demandes — appels sur votre mobile, SMS, mails directs — échappent au "
+                    f"tableau de bord de {sec_label} et reposent uniquement sur votre mémoire. "
+                    f"Pas de comptabilité, pas de suivi partagé : le coût réel n'est mesurable "
+                    f"nulle part."
                 ),
                 (
                     "Plus vous restez joignable directement, plus la pratique s'installe : un "
@@ -133,25 +135,27 @@ def chantier_demandes_directes(
                 interview_id, analyse_variants, "analyse:demandes_directes:q04"
             )
             pas_confirmer = (
-                f"Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles "
-                f"certains patients passent par vous plutôt que par {sec_label}."
+                "Ces demandes représentent probablement plusieurs heures par semaine et concernent "
+                "surtout des patients réguliers qui ont gardé votre ligne directe. À mesurer ensemble "
+                "sur deux semaines pour le confirmer."
             )
             propose = (
-                f"Recenser ces demandes sur deux semaines pour mesurer combien elles représentent, "
-                f"puis définir avec vous une règle simple à communiquer aux patients et à {sec_label}. "
-                f"À la clé : une vision claire de ces demandes, une règle simple à communiquer "
-                f"à vos patients, et des consignes claires pour {sec_label}."
+                f"À partir de votre check-up, on mesure ensemble — à distance ou au cabinet selon "
+                f"ce qui vous convient — le volume réel de demandes qui passent par vos canaux "
+                f"directs (mobile, SMS, mails), et on pose une consigne claire avec {sec_label} "
+                f"à communiquer à vos patients réguliers."
             )
         else:  # q05 == "q05_d" sans q04 == "q04_d"
             vu = (
                 "Votre charge administrative déborde le soir et le week-end. "
-                "Vous compensez ce qui ne se voit pas la journée."
+                "C'est votre temps personnel qui absorbe ce qui ne se voit pas la journée."
             )
             analyse_variants = [
                 (
-                    "Cette compensation tient parce que vous l'assumez, mais elle masque la vraie "
-                    "volumétrie de votre charge. Sans repère mesuré, il est difficile de savoir "
-                    "ce qu'il faudrait alléger en priorité."
+                    "Cette compensation — par exemple des courriers à finir le soir ou des "
+                    "comptes-rendus à reformuler le week-end — tient parce que vous l'assumez, "
+                    "mais elle masque la vraie volumétrie de votre charge. Sans repère mesuré, "
+                    "il est difficile de savoir ce qui pourrait être allégé en priorité."
                 ),
                 (
                     "Le débordement administratif sur votre temps personnel est une ressource "
@@ -168,13 +172,15 @@ def chantier_demandes_directes(
                 interview_id, analyse_variants, "analyse:demandes_directes:q05"
             )
             pas_confirmer = (
-                "La répartition exacte de votre charge sur la semaine et les sources principales "
-                "de cette charge invisible."
+                "Votre charge du soir porte vraisemblablement sur les courriers complexes et les "
+                "comptes-rendus de spécialistes. À vérifier en regardant ensemble une à deux "
+                "semaines de soirées."
             )
             propose = (
-                "Observer deux semaines de fonctionnement pour identifier les pistes d'allègement "
-                "de la charge administrative quotidienne. Vous repartez avec un relevé de votre "
-                "temps administratif et trois à cinq pistes concrètes priorisées."
+                "À partir de votre check-up, on regarde ensemble — à distance ou au cabinet — où "
+                "votre charge administrative déborde aujourd'hui sur vos soirées et week-ends, "
+                "puis on identifie les pistes concrètes que vous pourriez expérimenter sur deux "
+                "semaines."
             )
     else:
         title = "Garder un œil sur ce qui prend votre temps"
@@ -202,11 +208,13 @@ def chantier_demandes_directes(
             interview_id, analyse_variants, "analyse:demandes_directes:default"
         )
         pas_confirmer = (
-            "La répartition exacte de vos tâches administratives sur la semaine."
+            "Votre charge actuelle semble tenable, mais aucun repère mesuré ne permet de le "
+            "confirmer. À valider par un état des lieux léger."
         )
         propose = (
-            "Une observation rapide pour identifier des pistes d'allègement, sans changer votre "
-            "organisation actuelle. Vous repartez avec une vue d'ensemble et un plan de suivi léger."
+            "À partir de votre check-up, on met en place avec vous — à distance ou au cabinet — un "
+            "suivi discret de deux semaines pour repérer où passent vos heures (consultations, "
+            "admin, sollicitations directes). Sans changement d'organisation."
         )
 
     return {
@@ -236,13 +244,12 @@ def chantier_ia(
         if q13 == "q13_d":
             vu = (
                 f"Vous utilisez un outil d'IA grand public pour {usage}, en retirant à la main "
-                f"les informations identifiantes. Vous savez que ce n'est pas une vraie garantie "
-                f"de secret médical."
+                f"les informations identifiantes. Sans garantie réelle de secret médical."
             )
         else:  # q13_c
             vu = (
-                f"Vous utilisez un outil d'IA grand public pour {usage}, en faisant attention à "
-                f"l'anonymisation. Vous restez conscient des limites de cette pratique."
+                f"Vous utilisez un outil d'IA grand public pour {usage}, avec une anonymisation "
+                f"manuelle. Pratique vigilante, mais sans garantie structurelle de secret médical."
             )
 
         analyse_variants = [
@@ -269,15 +276,15 @@ def chantier_ia(
             interview_id, analyse_variants, "analyse:ia:triggered"
         )
         pas_confirmer = (
-            "La fréquence, le type de courriers concernés, et les autres usages éventuels "
-            "(résumés de consultations, recherches médicales)."
+            "Votre usage de l'IA concerne probablement des courriers complexes ponctuels, et "
+            "pourrait s'étendre vers les comptes-rendus structurés ou les courriers aux "
+            "spécialistes. À préciser ensemble pour calibrer la suite."
         )
 
         propose_parts = [
-            "Vous donner accès à un environnement IA conforme au secret médical pour les "
-            "mêmes usages, sans anonymisation à la main. À votre rythme, ouverture à "
-            "d'autres tâches utiles : préparation de courriers aux spécialistes, suivi "
-            "de patients chroniques, comptes-rendus structurés."
+            "On vous fait tester un environnement IA conforme au secret médical et adapté à "
+            "votre situation, en s'appuyant sur votre check-up. Deux ou trois cas d'usage prêts "
+            "pour votre quotidien (courriers complexes, comptes-rendus, préparation de patients)."
         ]
         if _has_classical_dictation(answers):
             propose_parts.append(
@@ -311,13 +318,14 @@ def chantier_ia(
             interview_id, analyse_variants, "analyse:ia:default"
         )
         pas_confirmer = (
-            "Vos besoins réels en matière de rédaction assistée, qui n'ont pas encore été explorés."
+            "Vous trouveriez vraisemblablement des cas d'usage utiles dans un environnement IA "
+            "conforme — courriers complexes, comptes-rendus, préparation de patients. À découvrir "
+            "ensemble lors d'une présentation."
         )
         propose = (
-            "Vous présenter un environnement IA conforme au secret médical, et identifier ensemble "
-            "deux ou trois tâches concrètes où il pourrait vous faire gagner du temps. "
-            "Vous repartez avec un cadre clair pour adopter l'IA progressivement, sans risque pour "
-            "le secret médical."
+            "On vous fait découvrir un environnement IA conforme au secret médical, en s'appuyant sur "
+            "votre check-up, sur deux ou trois cas d'usage adaptés à votre quotidien (courriers, "
+            "comptes-rendus, préparation de patients), à votre rythme."
         )
 
     return {
@@ -387,16 +395,14 @@ def chantier_absence(
             interview_id, analyse_variants, "analyse:absence:triggered"
         )
         pas_confirmer = (
-            "Ce qui se passerait concrètement, qui pourrait prendre le relais sur quoi, "
-            "et quels patients chroniques nécessitent une vigilance particulière."
+            "Votre cabinet pourrait absorber une absence courte si quelques règles étaient "
+            "écrites, mais une absence longue resterait critique. À simuler ensemble en testant "
+            "un scénario d'arrêt de deux semaines."
         )
         propose = (
-            "Mettre par écrit les règles essentielles de fonctionnement de votre cabinet : "
-            "à qui adresser quels types de demandes, comment gérer les renouvellements, "
-            "qui contacter en cas de problème technique. "
-            f"Vous repartez avec un document simple, à jour, partageable avec {sec_label} "
-            f"et un remplaçant éventuel. L'assurance qu'en cas d'imprévu, votre cabinet "
-            f"ne s'arrête pas net."
+            "On structure votre fiche relais grâce à votre check-up — pas d'atelier "
+            "découverte, pas de modèle générique. Une fiche structurée, prête à partager "
+            "à votre prochain remplaçant."
         )
     else:
         title = "Compléter ce qui est déjà prévu pour vos absences"
@@ -425,12 +431,14 @@ def chantier_absence(
             interview_id, analyse_variants, "analyse:absence:default"
         )
         pas_confirmer = (
-            "Ce qui est déjà couvert et ce qui ne l'est pas encore."
+            "Votre dispositif tient pour les absences courtes mais reste vraisemblablement "
+            "perfectible sur les cas extrêmes — arrêt long, panne d'outil critique. À valider "
+            "ensemble par une relecture rapide."
         )
         propose = (
-            "Faire un point rapide sur ce qui est en place et compléter ce qui manque. "
-            "Vous repartez avec un cadre prêt à être enrichi au fil de l'eau, qui réduit "
-            "le risque de rupture lors d'une absence imprévue."
+            "On relit ensemble votre dispositif d'absence grâce à votre check-up pour "
+            "identifier les scénarios non couverts — arrêt long, panne d'outil critique. "
+            "Un complément ciblé à ce qui existe déjà."
         )
 
     return {

@@ -7,6 +7,8 @@ export type AnswerState = {
   selected_option_label: string | null;
   free_text: string | null;
   complement_text: string | null;
+  // V1.1.5-i : prénom de l'entité associée à l'option choisie.
+  entity_name: string | null;
 };
 
 type WidgetProps = {
@@ -60,6 +62,23 @@ function OptionRadioList({ question, answer, onChange }: WidgetProps) {
                 placeholder="Précisez en quelques mots..."
                 className="mt-3 w-full px-3 py-2 bg-white border border-lugia-border rounded-md text-sm focus:outline-none focus:border-lugia-accent"
               />
+            )}
+            {opt.has_entity_field && isSelected && (
+              <div className="mt-3">
+                <label className="block text-xs text-lugia-text-tertiary mb-1.5">
+                  {opt.entity_field_label || "Prénom (optionnel)"}
+                </label>
+                <input
+                  type="text"
+                  value={answer.entity_name || ""}
+                  onChange={(e) => onChange({ entity_name: e.target.value })}
+                  placeholder="Prénom"
+                  className="w-full px-3 py-2 bg-white border border-lugia-border rounded-md text-sm focus:outline-none focus:border-lugia-accent"
+                />
+                <div className="mt-1.5 text-[11px] text-lugia-text-tertiary leading-relaxed">
+                  Donnée privée, stockée dans votre espace, jamais partagée ni utilisée à d'autres fins.
+                </div>
+              </div>
             )}
           </div>
         );
