@@ -21,7 +21,6 @@ export function PageHeader({
       <div className="text-xs uppercase tracking-wider text-lugia-accent mb-1">
         Diagnostic préventif gratuit
       </div>
-      <div className="text-sm font-medium mb-1">Lugia</div>
       <div
         className={`text-xs uppercase tracking-wider text-lugia-text-tertiary ${mbClass[mbBottom]}`}
       >

@@ -79,9 +79,10 @@ export default function AccueilPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 py-12 relative">
+    <main className="min-h-screen flex flex-col">
       <AppHeader />
-      <div className="max-w-2xl w-full">
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="max-w-2xl w-full">
         <PageHeader mbBottom={10} />
 
         <h1 className="font-serif text-[28px] font-medium leading-snug mb-6">
@@ -190,6 +191,7 @@ export default function AccueilPage() {
               {error}
             </div>
           )}
+          </div>
         </div>
       </div>
     </main>

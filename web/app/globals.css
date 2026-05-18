@@ -15,8 +15,71 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Synthèse : italique coloré sur les em renvoyés par le backend */
-.lugia-synthesis em {
-  font-style: italic;
-  color: #185fa5;
+/* V1.1.6-f : la reco italique a migré dans un bloc dédié (border-left bleu)
+   entre les facettes et les opportunités. Plus de règle spécifique sur les
+   <em> de .lugia-synthesis — l'italique standard suffit pour le HTML restant. */
+
+/* V1.1.7-f : @media print — rapport imprimable ou export PDF.
+   Cache la nav et le footer, empile les grids 3 colonnes,
+   garantit page-break-inside: avoid sur les cartes opportunités. */
+@media print {
+  nav, footer { display: none; }
+  body { font-size: 13px; background: white; }
+  .lugia-page-wrapper { padding: 24px 20px; max-width: 100%; }
+  h1 { font-size: 26px; }
+  /* Grille des 3 angles : empilée en bloc */
+  .lugia-facets-grid {
+    display: block !important;
+    border: 1px solid #ccc;
+    background: none !important;
+  }
+  .lugia-facets-grid > div {
+    border-bottom: 1px solid #e5e5e5;
+    page-break-inside: avoid;
+  }
+  .lugia-facets-grid > div:last-child {
+    border-bottom: none;
+  }
+  /* Cartes opportunités : corps en bloc vertical */
+  .lugia-opp-body {
+    display: block !important;
+  }
+  .lugia-opp-body > div:not(:first-child) {
+    border-left: none !important;
+    border-top: 1px solid #e5e5e5;
+  }
+  .lugia-opp-card {
+    page-break-inside: avoid;
+  }
+  /* Prochaine étape : une colonne */
+  .lugia-next-grid {
+    display: block !important;
+  }
+  .lugia-next-grid > div {
+    margin-bottom: 12px;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* V1.1.7-f : @media (max-width: 640px) — responsive mobile.
+   Les grids 3 colonnes deviennent des stacks verticaux. La nav et le
+   footer s'adaptent à la petite largeur. */
+@media (max-width: 640px) {
+  /* Nav : padding réduit pour gagner de la place horizontale */
+  .lugia-nav-inner {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  /* Conteneur principal */
+  .lugia-page-wrapper {
+    padding: 24px 20px 48px;
+  }
+  /* H1 plus petit en mobile */
+  h1.lugia-h1 {
+    font-size: 24px;
+  }
+  /* Sous-titre plus petit */
+  .lugia-subtitle {
+    font-size: 15px;
+  }
 }

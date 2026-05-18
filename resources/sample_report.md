@@ -2,12 +2,12 @@
 
 > Rapport produit par le démonstrateur Lugia Check-up à partir d'une session du persona de référence (`resources/sample_answers_pchateau.md`).
 > Généré par `scripts/dump_report.py` qui applique les modules V0-4 (`src/scoring`, `src/templates`, `src/workstreams`) à la session pré-remplie par `scripts/seed_persona.py`.
-> Date de génération : 15/05/2026.
+> Date de génération : 16/05/2026.
 
 ## Session
 
-- **Interview id** : 27
-- **Date de session** : 15/05/2026
+- **Interview id** : 39
+- **Date de session** : 16/05/2026
 - **Statut** : completed
 - **Nombre de réponses** : 14
 
@@ -15,87 +15,117 @@
 
 ## Votre situation aujourd'hui
 
-Rares sont les cabinets qui tiennent autant sur une seule personne que le vôtre. Ce qui le fait tourner aujourd'hui est exactement ce qui le fragilise au moindre imprévu. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Votre débordement administratif tient à un double facteur : des canaux directs qui multiplient les sollicitations, et un cadre flou qui empêche votre secrétariat de les absorber. *Avant d'engager un chantier précis, Lugia commence par poser une vue d'ensemble de votre organisation — c'est là que les vrais leviers apparaissent. Pour vous, le geste qui pèse ensuite le plus est de remplacer votre usage actuel de l'IA par un environnement conforme au secret médical.*
+Vos décisions d'organisation se prennent au moment où elles se présentent — quel rendez-vous décaler, quelle demande prioriser, quel renouvellement traiter en premier. Cette réactivité vous rend rapide, et elle pourrait empêcher qu'aucune de ces décisions soit déléguée le jour où ce serait utile. Au quotidien, vous vous appuyez sur votre télésecrétariat depuis 18 mois. Ce qui déborde le soir n'est pas du travail en plus, c'est du travail qui aurait dû être filtré en amont. Tant que les canaux directs restent ouverts et que le cadre du secrétariat reste implicite, la pile administrative se reconstitue chaque jour. *Avant tout chantier, Lugia commence par une vue d'ensemble de votre cabinet. Pour vous, le pas qui pèse le plus est de remplacer votre IA grand public par un environnement conforme au secret médical.*
 
 ---
 
 ## Trois angles de votre cabinet
 
-### Parcours patient — **3 / 10**
+### Parcours patient — En tension
 
-Votre prise de rendez-vous et le parcours de vos patients sont bien outillés. Mais une part des demandes vous arrive en direct (appels mobile, SMS, mails), en plus de votre télésecrétariat. Ces demandes ne sont pas tracées.
+`▰▰░░░` *(niveau 4 sur 5)*
 
-*Calculé à partir de 3 réponses — Q04 (3), Q05 (2), Q12 (5).*
+**Points forts**
 
-### Équipe et secrétariat — **3 / 10**
+- Parcours de rendez-vous fonctionnel au quotidien.
 
-Depuis le départ de Catherine il y a 18 mois, rien n'est écrit. Votre télésecrétariat fonctionne sans cadre formel — chaque cas est tranché au moment où il se présente. Vos congés se passent bien, mais une absence imprévue de plusieurs jours serait difficile à absorber.
+**Points de vigilance**
 
-*Calculé à partir de 3 réponses — Q03 (3), Q07 (3), Q08 (4).*
+- Demandes directes par mobile, SMS ou mail non tracées.
+- Charge administrative qui déborde sur le temps personnel.
+- Téléconsultation au cas par cas, sans règle.
 
-### Outils et dossiers — **3 / 10**
+*Calculé à partir de 3 réponses — Q04 (3), Q05 (2), Q12 (5) ; score brut 3 sur 10.*
 
-Vos résultats, courriers et ordonnances arrivent bien dans vos outils. Mais aucun signal ne vous remonte quand un patient chronique cesse de revenir.
+### Équipe et secrétariat — En tension
 
-*Calculé à partir de 4 réponses — Q09 (2), Q10 (2), Q11 (5), Q13 (2).*
+`▰▰░░░` *(niveau 4 sur 5)*
+
+**Points forts**
+
+- Télésecrétariat structuré — Marie absorbe l'essentiel des sollicitations entrantes.
+
+**Points de vigilance**
+
+- Organisation du cabinet portée seul sans renfort.
+- Secrétariat sans cadre formel écrit.
+- Continuité fragile en cas d'absence imprévue.
+
+*Calculé à partir de 3 réponses — Q03 (3), Q07 (3), Q08 (4) ; score brut 3 sur 10.*
+
+### Outils et dossiers — En tension
+
+`▰▰░░░` *(niveau 4 sur 5)*
+
+**Points forts**
+
+- Logiciel métier centralisant les dossiers patients.
+
+**Points de vigilance**
+
+- Suivi des chroniques sur initiative patient uniquement.
+- Usage d'IA grand public sans garantie de secret médical.
+- Plus de cinq outils numériques mobilisés.
+
+*Calculé à partir de 4 réponses — Q09 (2), Q10 (2), Q11 (5), Q13 (2) ; score brut 3 sur 10.*
 
 ---
 
-## Trois chantiers prioritaires
+## Trois opportunités d'action
 
-Les trois chantiers ci-dessous servent une même ambition : vous donner une **vision complète** de votre cabinet pour comprendre l'origine des contraintes que vous vivez, savoir par où commencer, absorber les imprévus et **anticiper les fragilités** encore gérables. Le check-up pose la vue d'ensemble ; les chantiers sont la première marche vers une **interface où votre organisation**, physique et numérique, tient ensemble dans un cadre protégé et sécurisé.
+Les opportunités ci-dessous sont des leviers d'action concrets : chacune répond aux risques relevés plus haut, en s'appuyant sur les forces déjà en place quand c'est possible. À vous d'arbitrer ce qui vaut la peine d'être engagé en premier.
 
-### Chantier 1 — Reprendre la main sur les demandes directes
+### Opportunité 1 — Reprendre la main sur les demandes directes
 
-**Ce que nous avons compris**
+**Ce que nous avons observé**
 
 Vous recevez des appels sur votre mobile, SMS de patients réguliers et mails directs, en plus de votre plateforme de rendez-vous et du télésecrétariat. Ces demandes ne sont pas tracées et représentent une charge invisible.
 
 **Ce que ça révèle**
 
-Ces demandes directes restent invisibles à votre télésecrétariat : vous portez seul le suivi mental, et le coût s'accumule à mesure que les canaux se multiplient.
+Ces demandes — appels sur votre mobile, SMS, mails directs — échappent au tableau de bord de votre télésecrétariat et reposent uniquement sur votre mémoire. Pas de comptabilité, pas de suivi partagé : le coût réel n'est mesurable nulle part.
 
-**Ce qui nous échappe encore**
+**À confirmer ensemble**
 
-Le volume exact, l'impact réel sur votre journée, et les raisons pour lesquelles certains patients passent par vous plutôt que par votre télésecrétariat.
+Ces demandes représentent probablement plusieurs heures par semaine et concernent surtout des patients réguliers qui ont gardé votre ligne directe. À mesurer ensemble sur deux semaines pour le confirmer.
 
-**Ce que nous vous proposons**
+**L'opportunité d'action**
 
 Recenser ces demandes sur deux semaines pour mesurer combien elles représentent, puis définir avec vous une règle simple à communiquer aux patients et à votre télésecrétariat. À la clé : une vision claire de ces demandes, une règle simple à communiquer à vos patients, et des consignes claires pour votre télésecrétariat.
 
-### Chantier 2 — Sécuriser votre usage actuel de l'IA
+### Opportunité 2 — Sécuriser votre usage actuel de l'IA
 
-**Ce que nous avons compris**
+**Ce que nous avons observé**
 
 Vous utilisez un outil d'IA grand public pour vos courriers complexes et vos comptes-rendus, en retirant à la main les informations identifiantes. Vous savez que ce n'est pas une vraie garantie de secret médical.
 
 **Ce que ça révèle**
 
-Le besoin est légitime, le canal ne l'est pas. Aujourd'hui votre vigilance tient seule un cadre exigeant — secret médical, RGPD, hébergement de santé, responsabilité civile professionnelle — qu'un outil dédié pourrait porter à votre place.
+L'usage est utile, le canal pose un problème de fond. Tout ce qui borde aujourd'hui votre pratique IA — secret médical, RGPD, hébergement de santé — repose sur votre seule discipline, alors que ces garanties pourraient être structurellement portées par l'outil.
 
-**Ce qui nous échappe encore**
+**À confirmer ensemble**
 
-La fréquence, le type de courriers concernés, et les autres usages éventuels (résumés de consultations, recherches médicales).
+Votre usage de l'IA concerne probablement des courriers complexes ponctuels, et pourrait s'étendre vers les comptes-rendus structurés ou les courriers aux spécialistes. À préciser ensemble pour calibrer la suite.
 
-**Ce que nous vous proposons**
+**L'opportunité d'action**
 
 Vous donner accès à un environnement IA conforme au secret médical pour les mêmes usages, sans anonymisation à la main. À votre rythme, ouverture à d'autres tâches utiles : préparation de courriers aux spécialistes, suivi de patients chroniques, comptes-rendus structurés. Votre logiciel de dictée actuel reste — ce chantier porte uniquement sur l'aide à la rédaction structurée.
 
-### Chantier 3 — Anticiper une absence prolongée
+### Opportunité 3 — Anticiper une absence prolongée
 
-**Ce que nous avons compris**
+**Ce que nous avons observé**
 
 En cas d'arrêt de plusieurs jours, votre télésecrétariat pourrait gérer les rendez-vous, mais le reste serait compliqué. Depuis le départ de Catherine, peu de procédures sont écrites.
 
 **Ce que ça révèle**
 
-Le fonctionnement actuel tient tant que vous êtes présent. Quelques règles écrites sur les cas courants (renouvellements, urgences, contacts critiques) permettent d'absorber une absence courte sans rupture.
+Le fonctionnement actuel est entièrement non-écrit : il tient parce que vous êtes là chaque jour. Écrire l'essentiel — qui prévenir, comment renouveler, quels contacts urgents — rend ce fonctionnement partageable, sans le rigidifier.
 
-**Ce qui nous échappe encore**
+**À confirmer ensemble**
 
-Ce qui se passerait concrètement, qui pourrait prendre le relais sur quoi, et quels patients chroniques nécessitent une vigilance particulière.
+Votre cabinet pourrait absorber une absence courte si quelques règles étaient écrites, mais une absence longue resterait critique. À simuler ensemble en testant un scénario d'arrêt de deux semaines.
 
-**Ce que nous vous proposons**
+**L'opportunité d'action**
 
 Mettre par écrit les règles essentielles de fonctionnement de votre cabinet : à qui adresser quels types de demandes, comment gérer les renouvellements, qui contacter en cas de problème technique. Vous repartez avec un document simple, à jour, partageable avec votre télésecrétariat et un remplaçant éventuel. L'assurance qu'en cas d'imprévu, votre cabinet ne s'arrête pas net.
 

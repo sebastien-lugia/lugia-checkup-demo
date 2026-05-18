@@ -8,10 +8,11 @@ import { logout } from "@/lib/api";
 import { clearSession, getSessionEmail } from "@/lib/auth";
 
 /**
- * Bandeau discret en haut à droite des pages protégées.
- * Affiche l'email de la session courante et un bouton de déconnexion.
- * Best-effort sur l'appel `/auth/logout` (on déconnecte localement même
- * si le backend est injoignable).
+ * V1.1.6 : Nav complète full-width avec logo Lugia à gauche, email +
+ * déconnexion à droite, bordure basse fine. Remplace l'ancien
+ * positionnement absolute.
+ *
+ * Affichée sur les pages protégées (checkup, resultats, compte).
  */
 export function AppHeader() {
   const router = useRouter();
@@ -37,25 +38,33 @@ export function AppHeader() {
     }
   }
 
-  if (!email) return null;
-
   return (
-    <div className="absolute top-4 right-6 flex items-center gap-2 text-xs">
-      <Link
-        href="/compte"
-        className="text-lugia-text-tertiary truncate max-w-[180px] hover:text-lugia-text-secondary"
-        title="Gérer mon compte"
-      >
-        {email}
-      </Link>
-      <span className="text-lugia-text-tertiary">·</span>
-      <button
-        onClick={handleLogout}
-        disabled={isLoggingOut}
-        className="text-lugia-text-secondary hover:text-lugia-text underline underline-offset-2 disabled:opacity-50"
-      >
-        {isLoggingOut ? "Déconnexion…" : "Se déconnecter"}
-      </button>
-    </div>
+    <nav className="w-full border-b border-[#e5e5e5] bg-lugia-bg">
+      <div className="max-w-[840px] mx-auto px-8 py-4 flex items-center justify-between lugia-nav-inner">
+        <Link href="/" className="text-base font-semibold text-lugia-text">
+          Lugia
+        </Link>
+        {email ? (
+          <div className="flex items-center gap-3 text-xs">
+            <Link
+              href="/compte"
+              className="text-[#555] hover:text-[#111]"
+            >
+              Mon compte
+            </Link>
+            <span className="text-[#999] truncate max-w-[180px]" title={email}>
+              {email}
+            </span>
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="text-[#555] hover:text-[#111] underline underline-offset-2 disabled:opacity-50"
+            >
+              {isLoggingOut ? "Déconnexion…" : "Se déconnecter"}
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </nav>
   );
 }
