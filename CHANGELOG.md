@@ -4,6 +4,16 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-18 — V1.1.8-a : 2 fixes éditoriaux post-test prod
+
+**Q05 — reformulation question** : *"Dans une semaine ordinaire, où aboutissent ces tâches administratives qui n'ont pas été faites entre deux patients ?"* → *"Dans une semaine ordinaire, à quel moment finissez-vous vos tâches administratives (courriers, ordonnances, certificats, suivi de dossiers) ?"*. L'ancienne formulation contredisait l'option q05_a (*"Faites au fil de l'eau — entre deux patients"*). La nouvelle question s'applique aux 4 options sans incohérence.
+
+**Phrase choc default #1 — transition cassée corrigée** : les exemples qui suivaient *"frictions absorbées en silence"* étaient des **événements** (pic épidémique, absence confrère, journée dense), pas des frictions. Remplacés par des frictions concrètes : *"un dossier qui dort sans déclencher d'alerte, un courrier en retard rattrapé de mémoire, une demande directe traitée hors radar"*. *"par vous-même ou par votre secrétariat"* supprimé — les exemples portent désormais le mécanisme d'absorption.
+
+Fichiers : `resources/interview_protocol.json`, `src/templates.py`.
+
+---
+
 ## 2026-05-18 — V1.1.8 : câblage Q06 dans la phrase choc et les titres de chantiers
 
 Q06 (*"Quelle est la raison principale qui vous fait faire ce check-up maintenant ?"*), collectée depuis V1 mais sans effet sur le rapport, est désormais câblée pour personnaliser le ton et la framing de la page résultats. Démarche médiane (V1.1.8) : phrase choc + titres de chantiers adaptés, propose et contenu des chantiers inchangés.

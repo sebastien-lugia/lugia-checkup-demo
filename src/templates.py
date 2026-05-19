@@ -554,9 +554,9 @@ def build_phrase_choc(answers: list[Any], interview_id: Optional[int] = None) ->
         (
             "Votre cabinet ne présente pas de point de tension visible. Cette absence de "
             "signal peut indiquer un cabinet effectivement bien réglé — ou un cabinet dont "
-            "<strong>les frictions sont absorbées en silence</strong> par vous-même ou par votre secrétariat : "
-            "un pic de demandes pendant la saison épidémique, l'absence d'un confrère, une "
-            "journée plus dense que prévu."
+            "<strong>les frictions sont absorbées en silence</strong> : un dossier qui dort sans "
+            "déclencher d'alerte, un courrier en retard rattrapé de mémoire, une demande "
+            "directe traitée hors radar."
         ),
         (
             "Pas d'alerte dans votre cabinet aujourd'hui. La question qu'un check-up "

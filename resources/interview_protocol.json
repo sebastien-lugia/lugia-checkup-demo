@@ -278,7 +278,7 @@
       "scored": true,
       "topic": "Charge administrative récurrente",
       "open_prompt": "Y a-t-il des tâches administratives récurrentes que vous n'arrivez pas toujours à finir sur vos heures de travail prévues ? Si oui, lesquelles vous prennent le plus de temps ? Par exemple : courriers, ordonnances, certificats, suivi de dossiers.",
-      "qcm_prompt": "Dans une semaine ordinaire, où aboutissent ces tâches administratives qui n'ont pas été faites entre deux patients ?",
+      "qcm_prompt": "Dans une semaine ordinaire, à quel moment finissez-vous vos tâches administratives (courriers, ordonnances, certificats, suivi de dossiers) ?",
       "options": [
         {
           "id": "q05_a",
