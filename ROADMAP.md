@@ -139,6 +139,29 @@ On enrichit le socle méthodologique tant qu'on peut. Q06 a un coût d'intégrat
 
 ---
 
+## V1.1.9 — Refonte apparence questionnaire + enrichissement contexte — À FAIRE
+
+Chantier ouvert le 18 mai 2026 (nouveau fil de conversation Claude). Le questionnaire (`web/app/checkup/page.tsx`) reste sur l'UI V1 d'origine — refondu fonctionnellement plusieurs fois mais jamais visuellement. Périmètre prévu :
+
+- Refonte de l'apparence : hiérarchie visuelle, espace, navigation entre questions, indicateur de progression, sauvegarde automatique visible.
+- Enrichissement du contexte : retravail de Q01 (type de cabinet) et Q02 (qui prend les rendez-vous), peut-être ajout d'une question contextuelle complémentaire (territoire, âge moyen de la patientèle, statut d'installation, ...).
+- Pas de changement de scoring, pas de migration BDD lourde prévue en V1.1.9.
+
+Travail prévu en parallèle des tests prospects V1.1.8 (les retours sur l'expérience questionnaire alimenteront cette vague).
+
+---
+
+## Bloquants pour tests prospects V1.1.8
+
+Deux chantiers à traiter **avant** d'envoyer le démonstrateur à 3-5 médecins :
+
+1. **Câblage des CTAs Prochaine étape** sur `/resultats` — "Choisir un chantier" et "En parler avec Lugia" sont inertes. À câbler au minimum sur un `mailto:` ou un formulaire de contact pour ne pas perdre confiance instantanément.
+2. **Construction du questionnaire d'approfondissement (Path A)** — la carte "Approfondir un chantier, en autonomie" promet *"un questionnaire ciblé, ~15 min, gratuit"*. À construire (5-7 questions par chantier débouchant sur un plan d'action concret), sinon la promesse écrite ne tient pas.
+
+Ces deux chantiers peuvent être traités dans V1.1.9 ou dans une V1.1.10 dédiée, selon le périmètre que tu veux donner à la vague visuelle.
+
+---
+
 ## V1.2 — Intégration SLM/LLM hybride — APRÈS V1.1
 
 Ajout d'une couche d'orchestration LLM en surcouche du méthodologique enrichi de V1.1, avec fallback systématique. Cible : faire passer le rapport de "templating combinatoire 50+ variantes" à "génération contextualisée par section" (synthèse, analyse facettes, analyse chantiers).

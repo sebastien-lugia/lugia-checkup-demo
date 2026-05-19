@@ -4,6 +4,40 @@ Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court
 
 ---
 
+## V1.1.9 EN COURS — refonte apparence du questionnaire + enrichissement contexte
+
+Chantier ouvert le 18 mai 2026 (nouveau fil de conversation Claude). Périmètre prévu :
+
+- Refonte UI du questionnaire `web/app/checkup/page.tsx` (apparence, hiérarchie visuelle, navigation).
+- Enrichissement des questions de contexte (Q01 / Q02) — peut-être ajout d'une question complémentaire.
+- Pas de changement de scoring ni de logique métier prévu en V1.1.9.
+
+Brief pour la nouvelle conversation :
+
+> *"Vague visuelle V1.1.9 — Refonte apparence du questionnaire + enrichissement du contexte. Lire MASTER_PROMPT.md, DECISIONS.md (D-026/D-027 récentes), CHANGELOG.md (depuis V1.1.5). État courant : V1.1.8 + V1.1.8-a en prod, câblage Q06 livré, rapport éditorialement audité."*
+
+---
+
+## En attente après V1.1.9 — Bloquants pour tests prospects
+
+1. **Câblage des CTAs Prochaine étape** : *"Choisir un chantier"* (Path A) et *"En parler avec Lugia"* (Path B) sont inertes aujourd'hui. À câbler au minimum sur un `mailto:` ou un formulaire avant tout test prospect — sinon le médecin clique dans le vide.
+2. **Construction du questionnaire d'approfondissement (Path A)** : la carte promet *"un questionnaire ciblé, ~15 min, gratuit"*. Aujourd'hui le questionnaire n'existe pas. À construire avant tests prospects — sinon la promesse écrite ne tient pas. Périmètre minimal : 5-7 questions par chantier débouchant sur un plan d'action concret.
+
+## Tests prospects — préalable à V1.2
+
+Une fois V1.1.9 livrée + bloquants ci-dessus traités : envoyer le démonstrateur à 3-5 médecins du réseau. Brief :
+- *"Faites le check-up complet (~30 min). Notez ce qui parle, ce qui hérisse. Imaginez cliquer sur 'En parler avec Lugia' — le feriez-vous ?"*
+
+Le retour qualitatif validera (ou pas) :
+- La simplification 9→3 facettes (cf D-027 dette acquise)
+- Le câblage Q06 (priorité de cascade)
+- Le ton anti-consulting (audits V1.1.7-t et V1.1.8-a)
+- Les ouvertures de phrase choc selon profil
+
+**Ne pas attaquer V1.2 SLM tant que ce retour terrain n'a pas eu lieu.** Il pourrait obliger à rouvrir la richesse analytique (graphes Mermaid, 9 facettes en arrière-plan) plutôt qu'à empiler une couche LLM.
+
+---
+
 ## V0 et V1 figées
 
 - **V0** Streamlit local — figée 12-13 mai 2026, tag `v0-final`. On n'y touche plus.
