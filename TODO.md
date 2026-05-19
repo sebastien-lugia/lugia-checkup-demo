@@ -4,28 +4,74 @@ Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court
 
 ---
 
-## V1.1.9 EN COURS — refonte apparence du questionnaire + enrichissement contexte
+## V1.1.9 LIVRÉE — refonte apparence questionnaire + page résultats + enrichissement contexte (19 mai 2026)
 
-Chantier ouvert le 18 mai 2026 (nouveau fil de conversation Claude). Périmètre prévu :
+Vague visuelle V1.1.9 livrée en 5 sous-vagues sur la journée du 19 mai. Voir `CHANGELOG.md` 2026-05-19 et `DECISIONS.md` D-028.
 
-- Refonte UI du questionnaire `web/app/checkup/page.tsx` (apparence, hiérarchie visuelle, navigation).
-- Enrichissement des questions de contexte (Q01 / Q02) — peut-être ajout d'une question complémentaire.
-- Pas de changement de scoring ni de logique métier prévu en V1.1.9.
+### Récap
 
-Brief pour la nouvelle conversation :
+| Sous-vague | Livré |
+|---|---|
+| V1.1.9-cadrage | `wireframes/checkup_v1_1_9_specs.md` (direction UI, périmètre contexte, critères d'acceptation) |
+| V1.1.9-a | `wireframes/checkup_v1_1_9_wireframe.html` (5 écrans : intro / question A / transition / question B / fin) |
+| V1.1.9-r | `wireframes/resultats_v1_1_9_wireframe.html` (hero ample, sections numérotées, pause narrative, opportunités narratives) |
+| V1.1.9-c | Protocol JSON v1.10 (17 questions, Q15/Q16/Q17 ajoutées, Q01 réordonné, Q02 reformulé) + seed + sample_answers v2.5 |
+| V1.1.9-b | Refonte Next.js questionnaire (4 nouveaux composants + refonte CheckupWidgets + refonte page.tsx) |
+| V1.1.9-s | Refonte Next.js page résultats (sections numérotées I-IV, pause narrative, opportunités pleine largeur) |
+| V1.1.9-d | Tests bout en bout : hash rapport identique à V1.1.8, cohérence MD/JSON OK, validation visuelle |
+| V1.1.9-e | Journalisation (cette section + CHANGELOG + DECISIONS D-028 + ROADMAP) |
 
-> *"Vague visuelle V1.1.9 — Refonte apparence du questionnaire + enrichissement du contexte. Lire MASTER_PROMPT.md, DECISIONS.md (D-026/D-027 récentes), CHANGELOG.md (depuis V1.1.5). État courant : V1.1.8 + V1.1.8-a en prod, câblage Q06 livré, rapport éditorialement audité."*
+### Procédure de déploiement V1.1.9
+
+```bash
+cd /Users/sebastien/Documents/Pro/lugia-mac/lugia-claude/lugia-checkup-demo
+
+# Vérifier la cohérence locale
+python scripts/seed_persona.py --email sebastien+test@gmail.com --reset
+python3 src/questions.py  # → "OK — JSON et .md cohérents (17 questions)."
+
+# Build frontend
+cd web && npm run build
+
+# Commit + push
+git add -A
+git commit -m "V1.1.9 : refonte UI questionnaire + page résultats + enrichissement contexte (Q15/Q16/Q17)"
+git push origin main
+```
+
+Après push, Render rebuild auto (~3 min) puis Vercel rebuild auto (~2 min). **Pas de migration BDD à appliquer** — IDs Q01-Q14 strictement préservés, les nouvelles questions Q15/Q16/Q17 sont stockées comme les autres dans `answer`.
+
+### Vérification post-déploiement sur `diagnostic.lugia.fr`
+
+1. `/checkup?interview=...` : écran d'intro pédagogique avant Q01, indicateur segmenté par facette, cartes options retravaillées (check-mark + descriptions secondaires), pastille `✓ Enregistré` après chaque clic, raccourci Entrée fonctionnel.
+2. Parcours complet : Q01 → Q02 → Q15 → Q16 → Q17 → Q03 → ... → Q14 → écran de fin.
+3. `/resultats?interview=...` : hero serif 44px, sections numérotées I-IV en marge, synthèse en lead serif 22px, pause narrative beige avec guillemet décoratif, opportunités en cards pleine largeur avec numéro grand serif, carte Lugia recommandée en bleu + gradient.
+4. Print (Cmd+P) : nav cachée, sections empilées, page-break-inside avoid sur les cartes opportunités.
+5. Mobile (≤640px) : grids 3 cols → stacks verticaux, numéros romains en flow normal.
+
+### Tag `v1.1.9` posable
+
+Après vérification post-déploiement :
+
+```bash
+git tag -a v1.1.9 -m "V1.1.9 — refonte UI questionnaire + page résultats + enrichissement contexte"
+git push origin v1.1.9
+```
 
 ---
 
-## En attente après V1.1.9 — Bloquants pour tests prospects
+## V1.1.10 PROCHAIN CHANTIER — Bloquants tests prospects (CTAs + questionnaire approfondissement Path A)
+
+Deux chantiers non-visuels à traiter **avant** d'envoyer le démonstrateur à 3-5 médecins :
 
 1. **Câblage des CTAs Prochaine étape** : *"Choisir un chantier"* (Path A) et *"En parler avec Lugia"* (Path B) sont inertes aujourd'hui. À câbler au minimum sur un `mailto:` ou un formulaire avant tout test prospect — sinon le médecin clique dans le vide.
 2. **Construction du questionnaire d'approfondissement (Path A)** : la carte promet *"un questionnaire ciblé, ~15 min, gratuit"*. Aujourd'hui le questionnaire n'existe pas. À construire avant tests prospects — sinon la promesse écrite ne tient pas. Périmètre minimal : 5-7 questions par chantier débouchant sur un plan d'action concret.
 
+V1.1.10 est indépendante de V1.1.9 (chantier non-visuel). Peut être traitée dans une conversation Claude dédiée.
+
 ## Tests prospects — préalable à V1.2
 
-Une fois V1.1.9 livrée + bloquants ci-dessus traités : envoyer le démonstrateur à 3-5 médecins du réseau. Brief :
+Une fois V1.1.10 livrée (bloquants ci-dessus traités) : envoyer le démonstrateur à 3-5 médecins du réseau. Brief :
 - *"Faites le check-up complet (~30 min). Notez ce qui parle, ce qui hérisse. Imaginez cliquer sur 'En parler avec Lugia' — le feriez-vous ?"*
 
 Le retour qualitatif validera (ou pas) :

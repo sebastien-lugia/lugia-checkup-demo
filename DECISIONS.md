@@ -6,6 +6,58 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-028 — Vague visuelle V1.1.9 : refonte UI questionnaire + page résultats + enrichissement contexte de départ (substrat V1.2)
+
+**Date :** 2026-05-19
+
+**Décision :** V1.1.9 livre trois changements structurants en une vague :
+
+1. **Refonte UI du questionnaire** (`web/app/checkup/page.tsx` + nouveaux composants `CheckupHeader/CheckupProgress/CheckupIntro/CheckupWidgets`). Direction « moderne immersive métier » : bandeau Lugia minimal, indicateur de progression segmenté par facette, écran d'intro pédagogique avant Q01, sauvegarde silencieuse + pastille `✓ Enregistré`, raccourci clavier Entrée, cartes options retravaillées (check-mark à la place du radio natif, split automatique des labels `mot-clé — détail`).
+
+2. **Refonte UI de la page résultats** (`web/app/resultats/page.tsx`). Hero serif 44px aéré, sections numérotées I-IV en marge gauche, synthèse refondue en lead serif 22px + corps 16px aéré (plus de border-left), reco italique en pause narrative pleine largeur (encadré beige + guillemet décoratif), opportunités en cards pleine largeur avec numéro grand serif (1/2/3 en 56px) en marge gauche, prochaine étape avec carte recommandée bordure bleue 2px + gradient subtil.
+
+3. **Enrichissement du bloc Contexte de départ** (`resources/interview_protocol.json` v1.10). Q01 reformulée pour distinguer cabinet de groupe 2-3 vs 4-5 médecins (ajout `q01_d`, IDs existants strictement préservés pour zéro migration BDD). Q02 légèrement reformulée (IDs préservés). Trois nouvelles questions ajoutées en positions 3, 4, 5 : `q15` statut d'installation, `q16` territoire et patientèle, `q17` horizon 3 ans. Toutes mode A, facette `context`, non scorées. Décalage des positions Q03–Q14 de +3 (IDs `q03..q14` strictement inchangés). Total parcours : 14 → 17 questions.
+
+**Important — les nouvelles questions Q15/Q16/Q17 ne sont PAS câblées dans le rapport en V1.1.9.** Elles sont collectées en base mais aucun fragment narratif ne les exploite. Substrat posé pour V1.2 SLM (cascade phrase choc modulée selon horizon, orientation chantiers selon territoire, voix de la recommandation selon ancienneté). Discipline D-020 respectée : *« méthodologique d'abord, intelligence ensuite »*.
+
+**Pourquoi :** Trois constats motivent cette vague.
+
+*UI du questionnaire vieillissante.* Depuis V1, `checkup/page.tsx` était resté sur un design brut hérité du portage V0 : pill facette uppercase, progress bar fine, options en cartes basiques. Aucune respiration entre les facettes, aucun écran d'intro pédagogique, aucune sauvegarde visible. Un test prospect crédible exige une UI à la hauteur du contenu narratif refondu en V1.1.5-V1.1.8. La direction « moderne immersive métier » est cohérente avec la sobriété médicale acquise sur la page résultats V1.1.6.
+
+*Page résultats déjà sobre mais non scénographiée.* La V1.1.6 (cf D-025) avait stabilisé une palette sobre et une structure claire. V1.1.9 va plus loin en rythme de lecture : sections numérotées en marge pour scander les 4 temps du rapport, synthèse mise en valeur typographique, reco italique transformée en vraie pause narrative entre l'analytique (synthèse + facettes) et l'actionnable (opportunités + prochaine étape). Le but n'est pas de tout réécrire mais de mieux séparer ce qui est conservé.
+
+*Manque de contexte de départ pour V1.2 SLM.* Q01 et Q02 capturent le format du cabinet et la prise des RDV mais aucune donnée sur le statut d'installation (récent / senior / approche transmission), le territoire (urbain dense / rural sous-doté), ni l'horizon court-moyen terme. Sans ces 3 dimensions, le SLM V1.2 devrait fabriquer ses propres heuristiques pour personnaliser la cascade phrase choc selon le profil. Avec elles, le SLM dispose d'un substrat factuel qui permet une modulation explicite et auditable. Le coût d'intégration est minime (3 questions mode A, ~90s ajoutées au parcours) et le bénéfice V1.2 est élevé. C'est l'opportunité D-020 typique — *enrichir le méthodologique tant qu'on peut, avant d'ajouter de l'intelligence*.
+
+**Conséquences pour V1.1.9 :**
+
+*Backend / ressources :* `interview_protocol.json` v1.9 → v1.10 (17 questions), `interview_protocol.md` v1.6 → v1.10, `sample_answers_pchateau.md` v2.4 → v2.5 (avec alignement au passage de `q06_c` → `q06_a` qui traînait depuis V1.1.8), `scripts/seed_persona.py` étendu à 17 réponses. Aucun changement de schéma BDD. Aucune migration des données prod nécessaire (les IDs Q01/Q02/Q03-Q14 sont strictement préservés). Les médecins qui ont répondu Q01_b en V1.1.8 (« Cabinet de groupe 2-5 médecins ») verront leur réponse interprétée en V1.1.9 comme « Cabinet de groupe 2-3 médecins » — un médecin en cabinet 4-5 serait alors mal classé. Impact faible vu la base prod minimale.
+
+*Frontend :* 4 nouveaux composants atomiques (`CheckupHeader`, `CheckupProgress`, `CheckupIntro`, `CheckupTransition`), refonte de `CheckupWidgets`, refonte de `checkup/page.tsx` et `resultats/page.tsx`, enrichissement de `globals.css` (animations + classes utilitaires). Pas de nouvelle dépendance. Build Next.js / Tailwind / TS inchangé.
+
+*Non-régression validée :* hash sha256 du rapport généré strictement identique entre V1.1.9 (17 réponses Chateau) et V1.1.8 équivalent (14 réponses Chateau sans q15/q16/q17). Aucune référence brute aux IDs q15/q16/q17 dans le rapport généré. Cohérence MD/JSON OK.
+
+**Retrait sur retour utilisateur — cartons de transition entre facettes :** la phase intermédiaire `"transition"` qui affichait un carton (titre serif 32px + phrase pédagogique + auto-skip 1.5s) entre 2 facettes a été désactivée après le premier test. Jugée perturbante dans le déroulé — casse le rythme d'enchaînement Q par Q. Le composant `CheckupTransition.tsx` reste sur disque, non importé, prêt à être rebranché si un futur retour le justifie. Décision micro mais structurante pour la grammaire du parcours.
+
+**Conséquence pour V1.2 :**
+
+V1.2 SLM disposera de 3 dimensions contextuelles supplémentaires utilisables pour moduler le rapport :
+
+- *Q15 statut d'installation* — un médecin senior (>15 ans) ne reçoit pas la même phrase choc qu'un installé récent. Un médecin qui prépare la transmission (<5 ans) doit recevoir une lecture orientée transmissibilité, sans que le rapport sonne moralisateur pour les autres profils.
+- *Q16 territoire et patientèle* — un médecin en zone sous-dotée fait face à des contraintes d'orientation différentes d'un urbain dense. Les chantiers continuité et IA peuvent se reformuler selon ces contraintes.
+- *Q17 horizon 3 ans* — croise très bien avec Q06 motivation. Un médecin qui anticipe un déménagement n'a pas le même chantier prioritaire qu'un médecin qui veut alléger sa charge actuelle. Le SLM pourra orchestrer cette nuance.
+
+Le câblage sera arbitré en V1.2 sur la base de retours tests prospects V1.1.10 (cf TODO/ROADMAP). En attendant, ces données sont *dormantes* en base, exactement comme Q14 dort depuis V1 — disponibles pour exploitation future.
+
+**Alternatives écartées :**
+
+- *Refondre le contenu narratif en même temps.* Aurait dilué la cohérence de la vague. V1.1.9 s'est strictement limité au visuel + substrat. Le contenu narratif (fragments swot, phrases choc, chaînes causales, chantiers) reste celui de V1.1.8-a, validé par hash identique.
+- *Ne pas ajouter Q15/Q16/Q17 et faire seulement la refonte UI.* Aurait raté une fenêtre opportune. Les 3 nouvelles questions s'intègrent naturellement dans la refonte UI du questionnaire — les ajouter plus tard aurait demandé une 2e refonte du parcours. Mieux les poser maintenant comme substrat dormant.
+- *Renommer les IDs existants pour réordonner sémantiquement Q01 (q01_a Solo / q01_b Groupe 2-3 / q01_c Groupe 4-5 / q01_d MSP).* Aurait nécessité une migration BDD silencieuse (les médecins qui ont répondu q01_c MSP en V1.1.8 auraient vu leur réponse interprétée comme « Groupe 4-5 » en V1.1.9). Trop risqué pour un bénéfice cosmétique. Solution retenue : ajouter q01_d (Groupe 4-5) en fin de liste, réordonner uniquement l'affichage (pas les IDs).
+- *Décaler ou renommer Q03–Q14.* Aurait cassé toutes les dépendances Python dans `src/swot.py`, `src/templates.py`, `src/workstreams.py`. Solution retenue : décaler uniquement les `position`, conserver les IDs.
+- *Garder les cartons de transition entre facettes.* Testés au premier essai puis désactivés sur retour utilisateur (perturbants dans le rythme).
+
+---
+
 ## D-027 — Arbitrage simplification produit : richesse analytique du master prompt non livrée en V1, à récupérer en V1.2+
 
 **Date :** 2026-05-18

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wireframe V1.1.9 — questionnaire Lugia</title>
+<style>
+  /* === Tokens — alignés sur la page résultats V1.1.6 sobre === */
+  :root {
+    --lugia-bg: #faf9f5;
+    --lugia-bg-card: #ffffff;
+    --lugia-bg-soft: #f3f1ea;
+    --lugia-text: #111111;
+    --lugia-text-secondary: #555555;
+    --lugia-text-tertiary: #999999;
+    --lugia-border: #e5e5e5;
+    --lugia-border-soft: #efece4;
+    --lugia-accent: #1a56a0;
+    --lugia-accent-soft: #eaf1fb;
+    --lugia-accent-border: #c9d9ee;
+    --lugia-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.02);
+    --lugia-radius: 10px;
+    --serif: "Iowan Old Style", "Apple Garamond", Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--lugia-bg); color: var(--lugia-text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body { font-size: 15px; line-height: 1.55; }
+
+  /* === Sélecteur d'écran (chrome de la maquette, pas dans le produit) === */
+  .wf-switcher {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #1a1a1a; color: #fff; padding: 10px 24px;
+    display: flex; gap: 14px; align-items: center; font-size: 12px;
+    border-bottom: 1px solid #333;
+  }
+  .wf-switcher strong { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; margin-right: 6px; }
+  .wf-switcher button {
+    background: transparent; color: #aaa; border: 1px solid #444; padding: 6px 12px;
+    border-radius: 4px; font-size: 12px; cursor: pointer; font-family: inherit;
+    transition: all 120ms ease;
+  }
+  .wf-switcher button:hover { color: #fff; border-color: #666; }
+  .wf-switcher button.active { color: #fff; background: #1a56a0; border-color: #1a56a0; }
+  .wf-meta { margin-left: auto; opacity: 0.5; font-size: 11px; }
+
+  /* === Layout produit === */
+  .screen { display: none; padding-top: 44px; /* sous le switcher */ min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* Bandeau Lugia minimal (mode questionnaire) */
+  .lugia-nav {
+    border-bottom: 1px solid var(--lugia-border);
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--lugia-bg);
+  }
+  .lugia-logo {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--lugia-text);
+    text-decoration: none;
+  }
+  .lugia-logo::before {
+    content: "";
+    display: inline-block;
+    width: 18px; height: 18px;
+    background: var(--lugia-text);
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: -3px;
+  }
+  .lugia-nav .quit-link {
+    font-size: 13px;
+    color: var(--lugia-text-tertiary);
+    text-decoration: none;
+    transition: color 120ms;
+  }
+  .lugia-nav .quit-link:hover { color: var(--lugia-text-secondary); }
+
+  /* Conteneur question */
+  .checkup-container {
+    flex: 1;
+    width: 100%; max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 32px 80px;
+  }
+
+  /* === Indicateur de progression segmenté par facette === */
+  .progress-row { margin-bottom: 36px; }
+  .progress-segments {
+    display: flex; gap: 3px;
+    margin-bottom: 10px;
+  }
+  .progress-segment {
+    height: 4px;
+    background: var(--lugia-bg-soft);
+    border-radius: 2px;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-segment.done { background: var(--lugia-text-secondary); }
+  .progress-segment.current { background: var(--lugia-bg-soft); }
+  .progress-segment.current::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--lugia-accent);
+    border-radius: 2px;
+    width: var(--fill, 35%);
+    transition: width 200ms ease;
+  }
+  /* Widths proportionnels au nombre de questions par facette */
+  .seg-context { flex: 5; }      /* Q01, Q02, Q01bis, Q01ter, Q01quater */
+  .seg-processes { flex: 3; }    /* Q04, Q05, Q12 */
+  .seg-participants { flex: 3; } /* Q03, Q07, Q08 */
+  .seg-information { flex: 4; }  /* Q09, Q10, Q11, Q13 */
+  .seg-motivation { flex: 1; }   /* Q06 */
+  .seg-closing { flex: 1; }      /* Q14 */
+
+  .progress-meta {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11px; color: var(--lugia-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.12em;
+  }
+  .progress-meta .section-name { font-weight: 600; color: var(--lugia-text-secondary); }
+  .progress-meta .counter { color: var(--lugia-text-tertiary); letter-spacing: 0.06em; text-transform: none; font-weight: 500; }
+
+  /* === Question — typographie === */
+  h1.question-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--lugia-text);
+    margin: 0 0 14px 0;
+    letter-spacing: -0.005em;
+  }
+  .question-note {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--lugia-text-tertiary);
+    font-style: italic;
+    margin-bottom: 32px;
+  }
+  .question-note strong { color: var(--lugia-text-secondary); font-style: normal; text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; font-weight: 600; margin-right: 4px; }
+
+  .qcm-intro {
+    font-size: 14px;
+    color: var(--lugia-text-secondary);
+    margin: 20px 0 12px 0;
+    font-weight: 500;
+  }
+
+  /* === Options radio retravaillées === */
+  .options-list {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .option-card {
+    display: flex; align-items: flex-start;
+    padding: 16px 20px;
+    background: var(--lugia-bg-card);
+    border: 1px solid var(--lugia-border);
+    border-radius: var(--lugia-radius);
+    cursor: pointer;
+    transition: all 140ms ease;
+    box-shadow: var(--lugia-shadow-card);
+    position: relative;
+  }
+  .option-card:hover { border-color: var(--lugia-text-tertiary); }
+  .option-card.selected {
+    border-color: var(--lugia-accent);
+    background: var(--lugia-accent-soft);
+    box-shadow: 0 0 0 3px rgba(26, 86, 160, 0.06);
+  }
+  .option-other { background: var(--lugia-bg-soft); }
+  .option-marker {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--lugia-border);
+    background: var(--lugia-bg-card);
+    margin-right: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+    transition: all 140ms ease;
+  }
+  .option-card.selected .option-marker {
+    border-color: var(--lugia-accent);
+    background: var(--lugia-accent);
+  }
+  .option-card.selected .option-marker::after {
+    content: "";
+    position: absolute;
+    left: 5px; top: 1px;
+    width: 5px; height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .option-body { flex: 1; min-width: 0; }
+  .option-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--lugia-text);
+    line-height: 1.4;
+  }
+  .option-detail {
+    font-size: 13px;
+    color: var(--lugia-text-tertiary);
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+
+  /* Input texte complément (apparaît après sélection Autre ou has_entity_field) */
+  .option-followup {
+    margin-top: 14px;
+    padding: 0;
+    border-top: 1px solid var(--lugia-accent-border);
+    padding-top: 14px;
+  }
+  .option-followup label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--lugia-text-secondary);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .option-followup input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--lugia-border);
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--lugia-text);
+  }
+  .option-followup input:focus { outline: none; border-color: var(--lugia-accent); }
+  .option-followup .privacy-note {
+    font-size: 11px;
+    color: var(--lugia-text-tertiary);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* Textarea (mode B / C) */
+  .free-text {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--lugia-border);
+    border-radius: var(--lugia-radius);
+    background: var(--lugia-bg-card);
+    font-size: 15px;
+    line-height: 1.55;
+    font-family: inherit;
+    color: var(--lugia-text);
+    resize: vertical;
+    min-height: 110px;
+    box-shadow: var(--lugia-shadow-card);
+    transition: border-color 140ms;
+  }
+  .free-text:focus { outline: none; border-color: var(--lugia-accent); box-shadow: 0 0 0 3px rgba(26, 86, 160, 0.06); }
+
+  /* Optionnel complément texte (sous les options) */
+  .complement-block {
+    margin-top: 22px;
+  }
+  .complement-block label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--lugia-text-secondary);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .complement-block textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--lugia-border);
+    border-radius: 8px;
+    background: var(--lugia-bg-card);
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 70px;
+  }
+  .complement-block textarea:focus { outline: none; border-color: var(--lugia-accent); }
+
+  /* === Footer boutons === */
+  .nav-buttons {
+    margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+  }
+  .nav-buttons .left { display: flex; gap: 16px; align-items: center; }
+  .btn-primary {
+    background: var(--lugia-text);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 140ms;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-link {
+    background: none; border: none;
+    color: var(--lugia-text-tertiary);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 6px 8px;
+    transition: color 140ms;
+  }
+  .btn-link:hover { color: var(--lugia-text-secondary); }
+
+  /* Pastille "Enregistré" */
+  .saved-pill {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--lugia-bg-card);
+    border: 1px solid var(--lugia-border);
+    color: var(--lugia-text-secondary);
+    font-size: 12px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex; align-items: center; gap: 6px;
+    opacity: 0; transition: opacity 200ms;
+  }
+  .saved-pill.visible { opacity: 1; }
+  .saved-pill::before {
+    content: "✓";
+    color: #2e7d4f;
+    font-weight: bold;
+  }
+
+  /* === Écran d'intro === */
+  .intro-wrap {
+    flex: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 32px 60px;
+    display: flex; flex-direction: column;
+  }
+  .intro-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--lugia-text-tertiary);
+    font-weight: 600;
+    margin-bottom: 22px;
+  }
+  h1.intro-title {
+    font-family: var(--serif);
+    font-size: 38px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0 0 18px 0;
+    letter-spacing: -0.015em;
+  }
+  .intro-sub {
+    font-size: 17px;
+    color: var(--lugia-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 40px 0;
+    max-width: 580px;
+  }
+  .intro-guardrails {
+    background: var(--lugia-bg-soft);
+    border-left: 3px solid var(--lugia-border);
+    padding: 22px 26px;
+    border-radius: 4px;
+    margin-bottom: 40px;
+  }
+  .intro-guardrails .gr-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    color: var(--lugia-text-secondary);
+    margin-bottom: 12px;
+  }
+  .intro-guardrails ul {
+    list-style: none; padding: 0; margin: 0;
+  }
+  .intro-guardrails li {
+    font-size: 14px;
+    color: var(--lugia-text-secondary);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.55;
+    margin-bottom: 7px;
+  }
+  .intro-guardrails li:last-child { margin-bottom: 0; }
+  .intro-guardrails li::before {
+    content: "—";
+    position: absolute; left: 0;
+    color: var(--lugia-text-tertiary);
+  }
+  .intro-cta {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  }
+  .intro-cta .start-btn {
+    background: var(--lugia-text);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .intro-cta .meta {
+    font-size: 13px;
+    color: var(--lugia-text-tertiary);
+  }
+
+  /* === Carton de transition entre facettes === */
+  .transition-wrap {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 32px;
+  }
+  .transition-card {
+    max-width: 540px;
+    text-align: center;
+  }
+  .transition-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+    color: var(--lugia-text-tertiary);
+    margin-bottom: 18px;
+  }
+  h2.transition-title {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.25;
+    margin: 0 0 18px 0;
+    color: var(--lugia-text);
+    letter-spacing: -0.01em;
+  }
+  .transition-desc {
+    font-size: 16px;
+    color: var(--lugia-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 36px 0;
+  }
+  .transition-skip {
+    font-size: 12px;
+    color: var(--lugia-text-tertiary);
+    background: none; border: none; cursor: pointer; font-family: inherit;
+  }
+  .transition-skip:hover { color: var(--lugia-text-secondary); }
+
+  /* === Écran de fin === */
+  .end-wrap {
+    flex: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 32px 60px;
+    display: flex; flex-direction: column;
+  }
+  h1.end-title {
+    font-family: var(--serif);
+    font-size: 38px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0 0 22px 0;
+    letter-spacing: -0.015em;
+  }
+  .end-body {
+    font-size: 16px;
+    color: var(--lugia-text-secondary);
+    line-height: 1.65;
+    margin: 0 0 40px 0;
+    max-width: 580px;
+  }
+  .end-cta {
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+  .end-cta .secondary {
+    background: var(--lugia-bg-card);
+    color: var(--lugia-text);
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--lugia-border);
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* Annotations de wireframe (légende discrète) */
+  .wf-annotation {
+    position: fixed;
+    background: #fffde7;
+    border: 1px solid #f0d000;
+    color: #6b5900;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    line-height: 1.4;
+    max-width: 220px;
+    z-index: 90;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    pointer-events: none;
+  }
+  .wf-annotation::before {
+    content: "";
+    position: absolute;
+    width: 8px; height: 8px;
+    background: #fffde7;
+    border-left: 1px solid #f0d000;
+    border-top: 1px solid #f0d000;
+  }
+
+  @media (max-width: 720px) {
+    .checkup-container { padding: 24px 20px 60px; }
+    h1.question-title { font-size: 22px; }
+    h1.intro-title { font-size: 30px; }
+    .wf-annotation { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====================================================== -->
+<!-- Switcher de la maquette (chrome non produit)            -->
+<!-- ====================================================== -->
+<div class="wf-switcher">
+  <strong>Wireframe V1.1.9</strong>
+  <button data-screen="intro" class="active">1. Intro</button>
+  <button data-screen="qmodeA">2. Question mode A (Q01)</button>
+  <button data-screen="transition">3. Transition facette</button>
+  <button data-screen="qmodeB">4. Question mode B (Q05)</button>
+  <button data-screen="end">5. Fin du check-up</button>
+  <span class="wf-meta">Données mockées Chateau · Affichez en plein écran</span>
+</div>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 1 : intro                                          -->
+<!-- ====================================================== -->
+<section class="screen active" id="screen-intro">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <a href="#" class="quit-link">Retour à l'accueil</a>
+  </header>
+
+  <div class="intro-wrap">
+    <div class="intro-eyebrow">Check-up préventif</div>
+    <h1 class="intro-title">Première lecture de votre cabinet,<br/>en environ 30 minutes.</h1>
+    <p class="intro-sub">
+      Vous allez répondre à 17 questions sur le fonctionnement de votre cabinet.
+      Pas de bonne ou de mauvaise réponse — on cherche à voir ensemble ce qui
+      tient bien, ce qui pèse, et ce qui mérite un coup d'œil.
+    </p>
+
+    <div class="intro-guardrails">
+      <div class="gr-title">Avant de commencer</div>
+      <ul>
+        <li>Aucune donnée patient identifiable ne vous sera demandée.</li>
+        <li>Le check-up porte sur votre organisation, pas sur votre clinique.</li>
+        <li>Vous pouvez interrompre et reprendre plus tard à tout moment.</li>
+      </ul>
+    </div>
+
+    <div class="intro-cta">
+      <button class="start-btn">Commencer le check-up →</button>
+      <span class="meta">Durée estimée : ~30 min</span>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 2 : question mode A (Q01 — Contexte)              -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-qmodeA">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <a href="#" class="quit-link">Quitter et reprendre plus tard</a>
+  </header>
+
+  <div class="checkup-container">
+
+    <!-- Indicateur segmenté -->
+    <div class="progress-row">
+      <div class="progress-segments">
+        <div class="progress-segment seg-context current" style="--fill: 20%;"></div>
+        <div class="progress-segment seg-processes"></div>
+        <div class="progress-segment seg-participants"></div>
+        <div class="progress-segment seg-information"></div>
+        <div class="progress-segment seg-motivation"></div>
+        <div class="progress-segment seg-closing"></div>
+      </div>
+      <div class="progress-meta">
+        <span class="section-name">Contexte</span>
+        <span class="counter">Question 1 sur 17</span>
+      </div>
+    </div>
+
+    <h1 class="question-title">Quel est le format de votre cabinet ?</h1>
+    <div class="question-note"><strong>Note</strong>Une seule réponse, celle qui décrit le mieux votre cadre principal.</div>
+
+    <!-- Options -->
+    <div class="options-list">
+      <div class="option-card selected">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Solo</div>
+          <div class="option-detail">Un seul médecin au cabinet</div>
+        </div>
+      </div>
+      <div class="option-card">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Cabinet de groupe — 2 à 3 médecins</div>
+        </div>
+      </div>
+      <div class="option-card">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Cabinet de groupe — 4 à 5 médecins</div>
+        </div>
+      </div>
+      <div class="option-card">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Maison de santé pluriprofessionnelle (MSP)</div>
+          <div class="option-detail">Médecins + paramédicaux dans un projet de santé commun</div>
+        </div>
+      </div>
+      <div class="option-card option-other">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Autre</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons -->
+    <div class="nav-buttons">
+      <button class="btn-link" disabled style="visibility:hidden">← Précédent</button>
+      <div style="display:flex; gap:14px; align-items:center;">
+        <span style="font-size:12px; color: var(--lugia-text-tertiary);">⏎ pour valider</span>
+        <button class="btn-primary">Suivant →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="saved-pill visible">Enregistré</div>
+
+  <div class="wf-annotation" style="top: 130px; right: 32px;">
+    Indicateur segmenté — largeur proportionnelle au nb de questions par facette.
+    Le segment "Contexte" est rempli à 20% (Q01 sur 5 questions Contexte).
+  </div>
+  <div class="wf-annotation" style="top: 380px; right: 32px;">
+    Options retravaillées : check-mark gauche à la place du radio natif, descriptions secondaires (gris 13px) sur une 2ème ligne, card "Autre" légèrement teintée par défaut.
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 3 : carton de transition entre facettes           -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-transition">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <a href="#" class="quit-link">Quitter et reprendre plus tard</a>
+  </header>
+
+  <div class="checkup-container" style="padding-top: 24px;">
+    <!-- Indicateur reste visible (continuité) -->
+    <div class="progress-row">
+      <div class="progress-segments">
+        <div class="progress-segment seg-context done"></div>
+        <div class="progress-segment seg-processes current" style="--fill: 0%;"></div>
+        <div class="progress-segment seg-participants"></div>
+        <div class="progress-segment seg-information"></div>
+        <div class="progress-segment seg-motivation"></div>
+        <div class="progress-segment seg-closing"></div>
+      </div>
+      <div class="progress-meta">
+        <span class="section-name">Parcours patient</span>
+        <span class="counter">Section 2 sur 6</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="transition-wrap">
+    <div class="transition-card">
+      <div class="transition-eyebrow">Section 2 sur 6</div>
+      <h2 class="transition-title">Parcours patient</h2>
+      <p class="transition-desc">
+        On regarde maintenant comment les demandes patients circulent jusqu'à vous —
+        par quels canaux, à quel rythme, et où elles aboutissent quand vous n'avez pas
+        eu le temps de les traiter dans la journée.
+      </p>
+      <button class="transition-skip">Continuer →  (ou appuyez sur Entrée)</button>
+    </div>
+  </div>
+
+  <div class="wf-annotation" style="top: 200px; right: 32px;">
+    Carton de transition entre 2 facettes. Visible ~1.2s puis auto-skip — ou skip manuel par clic / Entrée. Pas de bouton bloquant.
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 4 : question mode B (Q05 — Parcours patient)      -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-qmodeB">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <a href="#" class="quit-link">Quitter et reprendre plus tard</a>
+  </header>
+
+  <div class="checkup-container">
+
+    <div class="progress-row">
+      <div class="progress-segments">
+        <div class="progress-segment seg-context done"></div>
+        <div class="progress-segment seg-processes current" style="--fill: 66%;"></div>
+        <div class="progress-segment seg-participants"></div>
+        <div class="progress-segment seg-information"></div>
+        <div class="progress-segment seg-motivation"></div>
+        <div class="progress-segment seg-closing"></div>
+      </div>
+      <div class="progress-meta">
+        <span class="section-name">Parcours patient</span>
+        <span class="counter">Question 7 sur 17</span>
+      </div>
+    </div>
+
+    <h1 class="question-title">Dans une semaine ordinaire, à quel moment finissez-vous vos tâches administratives ?</h1>
+    <div class="question-note"><strong>Par exemple</strong>courriers, ordonnances, certificats, suivi de dossiers.</div>
+
+    <textarea class="free-text" placeholder="Votre réponse en une ou deux phrases…">Souvent le soir après les consultations, parfois le week-end pour rattraper. Le télésecrétariat trie une partie mais les courriers et certificats finissent toujours sur ma table en fin de journée.</textarea>
+
+    <p class="qcm-intro">Et plus précisément, parmi ces situations, laquelle décrit le mieux la vôtre ?</p>
+
+    <div class="options-list">
+      <div class="option-card">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Au fil de l'eau</div>
+          <div class="option-detail">Entre deux patients dans la journée</div>
+        </div>
+      </div>
+      <div class="option-card">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Sur un créneau dédié en fin de journée</div>
+          <div class="option-detail">Planifié, généralement avant 19h</div>
+        </div>
+      </div>
+      <div class="option-card selected">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Le soir après les consultations</div>
+          <div class="option-detail">Temps personnel, sans cadre horaire défini</div>
+        </div>
+      </div>
+      <div class="option-card">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Le week-end</div>
+          <div class="option-detail">Rattrapage hebdomadaire de ce qui n'a pas été traité</div>
+        </div>
+      </div>
+      <div class="option-card option-other">
+        <div class="option-marker"></div>
+        <div class="option-body">
+          <div class="option-label">Autre</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="complement-block">
+      <label>Un détail à ajouter (optionnel)</label>
+      <textarea placeholder="Un exemple récent, une précision, un détail à ajouter…"></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-link">← Précédent</button>
+      <div style="display:flex; gap:14px; align-items:center;">
+        <span style="font-size:12px; color: var(--lugia-text-tertiary);">⏎ pour valider</span>
+        <button class="btn-primary">Suivant →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wf-annotation" style="top: 160px; right: 32px;">
+    Mode B : textarea libre d'abord (zone visuellement présente, focus immédiat), puis sous-question QCM avec phrase d'intro distincte. Permet au médecin de partager son verbatim avant de cocher.
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 5 : fin du check-up                                -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-end">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <a href="#" class="quit-link">Retour à l'accueil</a>
+  </header>
+
+  <div class="end-wrap">
+    <div class="intro-eyebrow">Check-up terminé</div>
+    <h1 class="end-title">Merci pour vos réponses.</h1>
+    <p class="end-body">
+      Vos 17 réponses sont enregistrées. Le rapport reprend votre situation,
+      met en regard trois angles d'analyse — parcours patient, équipe et secrétariat,
+      outils et dossiers — et propose trois opportunités d'action concrètes.
+      Bonne lecture.
+    </p>
+    <div class="end-cta">
+      <button class="btn-primary" style="padding:14px 28px; font-size:15px;">Voir mon check-up →</button>
+      <button class="secondary">Retour à l'accueil</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Switcher de la maquette (chrome non produit)
+  const buttons = document.querySelectorAll('.wf-switcher button');
+  const screens = document.querySelectorAll('.screen');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.screen;
+      screens.forEach(s => s.classList.toggle('active', s.id === 'screen-' + target));
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // Animer la pastille "Enregistré" sur la question mode A pour montrer le pattern
+  setTimeout(() => {
+    document.querySelectorAll('.saved-pill').forEach(p => p.classList.remove('visible'));
+  }, 2200);
+</script>
+
+</body>
+</html>

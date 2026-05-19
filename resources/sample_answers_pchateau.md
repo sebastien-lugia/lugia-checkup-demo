@@ -2,7 +2,7 @@
 
 > Session de référence (oracle) du persona Dr Philippe Chateau pour le démonstrateur Lugia Check-up.
 >
-> Version 2.4 — 15 mai 2026 — V1.1 Vague 3.1j : Q08 refondue (planifié + imprévu en une question). Chateau passe q08_d → q08_c (santé 4). Participants 3,00 → 3,33.
+> Version 2.5 — 19 mai 2026 — V1.1.9 : bloc Contexte de départ enrichi de 3 questions (q15 statut d'installation, q16 territoire et patientèle, q17 horizon 3 ans). Chateau ajoute q15_c (senior), q16_b (périurbain), q17_d (préparer transmission). Alignement Q06 : `q06_c` (ancien libellé "événement récent") corrigé en `q06_a` (V1.1.8 "réduire ma charge actuelle"). Aucun changement de score — les 3 nouvelles questions sont non scorées (facette `context`).
 >
 > La session est générée à partir du contexte du persona (`persona_medecin_pchateau.md`) sans passage réel par l'application. Elle sert d'oracle de calibration et de seed `scripts/seed_persona.py`. Un test joué dans l'application doit reproduire ces réponses à l'identique.
 
@@ -19,24 +19,27 @@
 
 ## Synthèse rapide
 
-### Choix par question — V1.1 Vague 3.1
+### Choix par question — V1.1.9
 
 | Position | ID | Mode | Facette | Choix | Score santé |
 |---|---|---|---|---|---|
 | 1 | Q01 | A | Contexte | `q01_a` | — |
 | 2 | Q02 | A | Contexte | `q02_b` | — |
-| 3 | Q03 | A | Participants | `q03_d` | 3 |
-| 4 | Q04 | A | Processus | `q04_d` | 3 |
-| 5 | Q05 | B | Processus | `q05_d` | 2 |
-| 6 | Q06 | A | Motivation | `q06_c` | — |
-| 7 | Q07 | A | Participants | `q07_a` | 3 |
-| 8 | Q08 | A | Participants | `q08_c` | 4 |
-| 9 | Q09 | A | Information | `q09_d` | 2 |
-| 10 | Q10 | A | Information | `q10_d` | 2 |
-| 11 | Q11 | A | Information | `q11_c` | 5 |
-| 12 | Q12 | A | Processus | `q12_b` | 5 |
-| 13 | Q13 | B | Information | `q13_d` | 2 |
-| 14 | Q14 | C | Clôture | — | — |
+| 3 | Q15 | A | Contexte | `q15_c` | — |
+| 4 | Q16 | A | Contexte | `q16_b` | — |
+| 5 | Q17 | A | Contexte | `q17_d` | — |
+| 6 | Q03 | A | Participants | `q03_d` | 3 |
+| 7 | Q04 | A | Processus | `q04_d` | 3 |
+| 8 | Q05 | B | Processus | `q05_d` | 2 |
+| 9 | Q06 | A | Motivation | `q06_a` | — |
+| 10 | Q07 | A | Participants | `q07_a` | 3 |
+| 11 | Q08 | A | Participants | `q08_c` | 4 |
+| 12 | Q09 | A | Information | `q09_d` | 2 |
+| 13 | Q10 | A | Information | `q10_d` | 2 |
+| 14 | Q11 | A | Information | `q11_c` | 5 |
+| 15 | Q12 | A | Processus | `q12_b` | 5 |
+| 16 | Q13 | B | Information | `q13_d` | 2 |
+| 17 | Q14 | C | Clôture | — | — |
 
 ### Scores bruts attendus par facette (moyenne)
 
@@ -50,14 +53,24 @@ Q03 passe de santé 4 (q03_c "pas de cadre formel" en Vague 3) à santé 3 (q03_
 
 ---
 
-## Détail des 14 réponses V1.1 Vague 3.1
+## Détail des 17 réponses V1.1.9
 
 ### Q01 — Type de votre cabinet
 - **Mode** : A · **Choix** : `q01_a` — *Cabinet libéral solo (un seul médecin)*
 
 ### Q02 — Prise des rendez-vous et des appels
-- **Mode** : A · **Choix** : `q02_b` — *Télésecrétariat externalisé — un prestataire prend les appels et la prise de rendez-vous*
+- **Mode** : A · **Choix** : `q02_b` — *Télésecrétariat externalisé — prestataire à distance*
 - **Complément** : "Depuis 18 mois, après le départ de Catherine qui était en interne pendant 8 ans."
+
+### Q15 — Statut d'installation
+- **Mode** : A · **Choix** : `q15_c` — *Senior — plus de 15 ans*
+
+### Q16 — Territoire et patientèle
+- **Mode** : A · **Choix** : `q16_b` — *Périurbain ou ville moyenne — patientèle mixte, accès correct aux confrères*
+
+### Q17 — Horizon des 3 prochaines années
+- **Mode** : A · **Choix** : `q17_d` — *Préparer la transmission — cession, départ, succession*
+- **Complément** : "Pas dans l'urgence, mais dans les 3 prochaines années il faudra avoir préparé la suite. C'est précisément ce qui me pousse à regarder mon organisation de plus près maintenant."
 
 ### Q03 — Cadre du secrétariat
 - **Mode** : A · **Choix** : `q03_d` — *Pas de cadre formel — chaque cas est tranché au moment où il se présente*
@@ -74,7 +87,7 @@ Q03 passe de santé 4 (q03_c "pas de cadre formel" en Vague 3) à santé 3 (q03_
 - **Complément** : "Pas tous les soirs, mais souvent. Je le fais parce que ça ne se voit pas le lendemain et que ça reste tenable pour moi."
 
 ### Q06 — Pourquoi ce check-up maintenant
-- **Mode** : A · **Choix** : `q06_c` — *Un événement récent — j'ai eu besoin de prendre du recul sur mon organisation*
+- **Mode** : A · **Choix** : `q06_a` — *Réduire ma charge actuelle — identifier ce qui pèse le plus dans ma semaine et alléger*
 - **Complément** : "Un confrère m'a parlé de Lugia il y a quelques semaines, dans un contexte familial qui me pousse à prendre du recul sur mon organisation. Et je m'intéresse depuis longtemps à l'IA pour le cabinet."
 
 ### Q07 — Équipe étendue du cabinet
@@ -113,4 +126,4 @@ Q03 passe de santé 4 (q03_c "pas de cadre formel" en Vague 3) à santé 3 (q03_
 
 ---
 
-*Version 2.1. Toute évolution structurante de cet oracle doit être journalisée dans `DECISIONS.md` et `CHANGELOG.md`.*
+*Version 2.5. Toute évolution structurante de cet oracle doit être journalisée dans `DECISIONS.md` et `CHANGELOG.md`.*

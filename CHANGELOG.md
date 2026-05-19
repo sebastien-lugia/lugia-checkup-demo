@@ -4,6 +4,122 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-19 — V1.1.9 : refonte UI questionnaire + page résultats + enrichissement contexte
+
+Vague visuelle V1.1.9 livrée. Refonte complète de l'apparence du questionnaire et de la page résultats dans une direction « moderne immersive métier », avec enrichissement du bloc Contexte de départ (3 nouvelles questions de qualification). Aucun changement de scoring, aucun câblage des nouvelles questions dans le rapport en V1.1.9 — substrat pour V1.2 SLM.
+
+### V1.1.9-cadrage — note de specs
+
+`wireframes/checkup_v1_1_9_specs.md` v1.0 produit. Cadre la direction UI (typographie aérée, layout max-w-680px, indicateur segmenté par facette, écran d'intro, cartes options retravaillées), le périmètre Contexte enrichi (Q01/Q02 reformulées + Q15/Q16/Q17 ajoutées), les impacts éventuels sur scoring/templates (aucun en V1.1.9 — câblage différé V1.2), les critères d'acceptation (non-régression Chateau exigée).
+
+### V1.1.9-a — wireframe HTML autonome du questionnaire
+
+`wireframes/checkup_v1_1_9_wireframe.html` produit. 5 écrans avec sélecteur de bascule en haut (Intro, Question Mode A, Transition facette, Question Mode B, Fin). Données mockées Chateau. Validation visuelle obtenue avant code Next.js.
+
+### V1.1.9-r — wireframe page résultats
+
+`wireframes/resultats_v1_1_9_wireframe.html` produit. Hero ample (titre serif 44px), sections numérotées I-IV en marge gauche, synthèse refondue en lead serif 22px + corps aéré, reco italique en pause narrative pleine largeur (encadré beige + guillemet décoratif), opportunités en cards pleine largeur avec numéro grand serif, prochaine étape avec carte recommandée bordure bleue + gradient. Données mockées Chateau.
+
+### V1.1.9-c — enrichissement contexte (protocol JSON)
+
+**`resources/interview_protocol.json` v1.10** (backup `*.bak-v1.9` conservé) :
+- Q01 : `q01_a` (Solo) inchangé · `q01_b` reformulé en "Cabinet de groupe — 2 à 3 médecins" · `q01_d` nouveau "Cabinet de groupe — 4 à 5 médecins" inséré en 3ème position visuelle · `q01_c` (MSP) déplacé en 4ème position visuelle (IDs strictement préservés pour zéro migration BDD).
+- Q02 : libellés des options légèrement reformulés, **IDs strictement préservés** (toutes les dépendances `q02_a/b/c/d` dans swot/templates sont safe).
+- **Q15** (Statut d'installation : récent / installé / senior / approche transmission / remplaçant), **Q16** (Territoire et patientèle : urbain dense / périurbain / rural / zone sous-dotée), **Q17** (Horizon 3 ans : reconduire / renforcer équipe / déménager / préparer transmission / incertain) ajoutées en positions 3, 4, 5. Mode A, facette `context`, non scorées.
+- Positions Q03–Q14 décalées de +3. IDs `q03..q14` inchangés.
+- Total 17 questions, version `1.10`, last_updated `2026-05-19`.
+
+**`resources/interview_protocol.md` v1.10** : tableau distribution mis à jour (15 A / 2 B / 1 C), insertion des sections Q15/Q16/Q17 entre Q02 et Q03, tableau persona Chateau étendu à 17 lignes.
+
+**`scripts/seed_persona.py`** : ANSWERS passe à 17 entrées. Chateau coche `q15_c` (senior), `q16_b` (périurbain), `q17_d` (préparer transmission). Libellé Q02 mis à jour.
+
+**`resources/sample_answers_pchateau.md` v2.5** : tableau persona à 17 lignes, sections par question alignées. **Alignement Q06 au passage** : `q06_c` (ancien libellé V1.1.7 "événement récent") corrigé en `q06_a` (libellé V1.1.8 "réduire ma charge actuelle"). Le seed et la prod utilisaient déjà `q06_a` depuis V1.1.8 ; seul le sample documentait encore l'ancien.
+
+**Test de cohérence MD/JSON** : `python3 src/questions.py` retourne *"OK — JSON et .md cohérents (17 questions)."*
+
+**Non-régression du rapport** : smoke test sur les fragments narratifs (build_synthesis, build_phrase_choc, build_chaine_causale, build_recommandation, chantier_demandes_directes/absence/ia, swot) avec et sans les nouvelles réponses q15/q16/q17. Hash sha256 du rapport généré strictement identique à V1.1.8 équivalent (`a862a32ad3a06655` dans les deux cas). Aucune référence brute aux IDs q15/q16/q17 dans le rapport. **Critère d'acceptation V1.1.9 validé**.
+
+### V1.1.9-b — implémentation Next.js questionnaire
+
+Refonte complète de `web/app/checkup/page.tsx` et `web/components/CheckupWidgets.tsx`. 4 nouveaux composants atomiques :
+
+- **`web/components/CheckupHeader.tsx`** — bandeau Lugia minimal (logo rond + nom à gauche, lien Quitter à droite). Pas d'email/menu compte pour ne pas distraire le médecin.
+- **`web/components/CheckupProgress.tsx`** — indicateur segmenté par facette, chaque segment se remplit proportionnellement aux questions de la facette répondues, **indépendamment de l'ordre du parcours** (le protocole entrelace les facettes : Q06 motivation au milieu, Q12 processes après Q11 information — un système linéaire « passé/courant/à venir » n'aurait pas tenu).
+- **`web/components/CheckupIntro.tsx`** — écran d'intro avant Q01 (promesse temporelle, encadré garde-fous, bouton « Commencer le check-up »). Apparaît une seule fois — saute automatiquement à la reprise d'une session.
+- **`web/components/CheckupTransition.tsx`** — carton de transition entre facettes (produit mais désactivé sur retour utilisateur, voir « Retrait » plus bas).
+
+**Refonte de `CheckupWidgets.tsx`** :
+- Nouvelle `OptionCard` avec check-mark personnalisé à la place du radio natif.
+- Split automatique des labels `"mot-clé — détail"` : titre en 15px medium, détail en 13px gris sur une 2ème ligne.
+- « Autre » pré-teinté `#f5f4ef`, champ inline visible après sélection.
+- Composant `QuestionTitle` qui sépare la question (serif 26px) de la note (`Par exemple :` ou `Note :`, italique grise).
+- Animation fade-slide à chaque changement de question via la classe `lugia-question-anim`.
+
+**Refonte de `web/app/checkup/page.tsx`** :
+- Machine à états `phase: "intro" | "question" | "completed"`.
+- Sauvegarde silencieuse + pastille `✓ Enregistré` 1.5s après chaque clic Suivant (clé `Date.now()` pour rejouer l'animation).
+- Raccourci clavier `Entrée` qui valide la question quand la réponse est complète, sauf si focus sur textarea/input.
+- Reprise de session : si l'utilisateur revient sur une interview avec `currentIndex > 0` ou des réponses déjà saisies, on saute l'intro.
+
+**CSS V1.1.9 dans `globals.css`** : animations `lugia-fade-in`, `lugia-fade-slide-in`, `lugia-pulse-saved`, classe `.lugia-saved-pill`, ajustement responsive 640px pour la pastille.
+
+**Retrait sur retour utilisateur** : les cartons de transition entre facettes (`CheckupTransition`) ont été désactivés (jugés perturbants dans le déroulé). Le composant reste sur disque non importé, peut être rebranché plus tard. Suppression du state `seenFacets` et de la phase `"transition"`.
+
+**Fix bug d'interpolation JSX** : sur l'écran d'intro et l'écran de fin, le texte du paragraphe utilisait `Vous allez répondre à {totalQuestions} questions...` — selon le formattage, JSX pouvait avaler l'espace autour de l'interpolation. Migration vers des template literals `${totalQuestions}` qui sont insensibles au whitespace JSX.
+
+**Validation** : `npx tsc --noEmit` passe (exit 0).
+
+### V1.1.9-s — implémentation Next.js page résultats
+
+Refonte complète de `web/app/resultats/page.tsx` selon le wireframe V1.1.9-r :
+
+- **Hero ample** — eyebrow `CHECK-UP PRÉVENTIF — VOTRE LECTURE PERSONNELLE`, H1 serif 44px en deux lignes "Votre cabinet, / vu de l'extérieur.", sous-titre conditionnel `Dr X — résultats du Y` (préservé V1.1.7-c).
+- **Sections numérotées I. II. III. IV.** en marge gauche, position absolute -60px sur desktop, bascule en flow normal sur mobile via media query. Eyebrow prolongé d'un filet horizontal 1px.
+- **Synthèse refondue** — premier `<p>` retourné par le backend devient automatiquement un lead serif 22px via `.lugia-synthesis > *:first-child`. Le corps passe à 16px line-height 1.7. Plus de border-left gris.
+- **Trois angles** — grille 3 cols conservée (séparateurs naturels), padding intérieur p-6, séparateur subtil entre forces et risques, badges asymétriques V1.1.6 préservés.
+- **Reco italique → pause narrative pleine largeur** — encadré fond beige `#f7f5ee`, padding 44px, citation centrée serif italique 19px max-w-640px, guillemet décoratif `❝` en haut-gauche (serif 64px gris très clair, masqué en print).
+- **Opportunités en cards pleine largeur** — numéro grand serif (`1`, `2`, `3`) 56px desktop / 38px mobile en marge gauche, titre serif 22px, structure 2 sections conservée (`La situation` + `Ce qu'on mettrait rapidement en place`), padding 36-40px aéré.
+- **Prochaine étape** — cards plus hautes, titres serif 21px. Carte recommandée : bordure bleue 2px + gradient subtil `#fbfdff → blanc` + CTA bleu plein.
+
+**CSS V1.1.9-s dans `globals.css`** : `.lugia-section-num` (absolute -60px desktop, flow mobile), `.lugia-synthesis` qui style le premier `<p>` en lead serif via `:first-child`, ajustements print pour la pause narrative.
+
+**Classes utilitaires V1.1.6/V1.1.7 préservées** : `lugia-page-wrapper`, `lugia-h1`, `lugia-subtitle`, `lugia-facets-grid`, `lugia-opp-card`, `lugia-opp-body`, `lugia-next-grid` — toutes encore présentes, le print CSS et le responsive 640px restent fonctionnels.
+
+**Validation** : `npx tsc --noEmit` passe (exit 0).
+
+### V1.1.9-d — tests bout en bout
+
+Smoke test backend complet : cohérence JSON/MD à 17 questions, fragments narratifs sur les 17 réponses Chateau, hash de rapport identique à V1.1.8 équivalent (`a862a32ad3a06655`), aucune référence brute aux IDs q15/q16/q17. Validation visuelle confirmée par l'utilisateur sur le parcours questionnaire et la page résultats refondues.
+
+### Fichiers modifiés
+
+Backend / ressources :
+- `resources/interview_protocol.json` v1.9 → v1.10 (17 questions, q15/q16/q17 ajoutées, q01 réordonné)
+- `resources/interview_protocol.md` v1.6 → v1.10
+- `resources/sample_answers_pchateau.md` v2.4 → v2.5
+- `scripts/seed_persona.py` (17 réponses, libellés Q02 et Q06 alignés)
+
+Frontend (nouveaux) :
+- `web/components/CheckupHeader.tsx`
+- `web/components/CheckupProgress.tsx`
+- `web/components/CheckupIntro.tsx`
+- `web/components/CheckupTransition.tsx` (présent mais non importé — réserve pour rebranchement futur)
+
+Frontend (refondus) :
+- `web/components/CheckupWidgets.tsx`
+- `web/app/checkup/page.tsx`
+- `web/app/resultats/page.tsx`
+- `web/app/globals.css` (bloc V1.1.9 + bloc V1.1.9-s)
+
+Documentation :
+- `wireframes/checkup_v1_1_9_specs.md` (nouveau)
+- `wireframes/checkup_v1_1_9_wireframe.html` (nouveau)
+- `wireframes/resultats_v1_1_9_wireframe.html` (nouveau)
+
+Voir `DECISIONS.md` D-028.
+
+---
+
 ## 2026-05-18 — V1.1.8-a : 2 fixes éditoriaux post-test prod
 
 **Q05 — reformulation question** : *"Dans une semaine ordinaire, où aboutissent ces tâches administratives qui n'ont pas été faites entre deux patients ?"* → *"Dans une semaine ordinaire, à quel moment finissez-vous vos tâches administratives (courriers, ordonnances, certificats, suivi de dossiers) ?"*. L'ancienne formulation contredisait l'option q05_a (*"Faites au fil de l'eau — entre deux patients"*). La nouvelle question s'applique aux 4 options sans incohérence.

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wireframe V1.1.9 — page résultats Lugia</title>
+<style>
+  /* === Tokens — alignés sur le wireframe questionnaire V1.1.9 === */
+  :root {
+    --lugia-bg: #faf9f5;
+    --lugia-bg-card: #ffffff;
+    --lugia-bg-soft: #f3f1ea;
+    --lugia-bg-pause: #f7f5ee;
+    --lugia-text: #111111;
+    --lugia-text-secondary: #555555;
+    --lugia-text-tertiary: #999999;
+    --lugia-text-faint: #c7c2b1;
+    --lugia-border: #e5e5e5;
+    --lugia-border-soft: #efece4;
+    --lugia-accent: #1a56a0;
+    --lugia-accent-soft: #eaf1fb;
+    --lugia-accent-border: #c9d9ee;
+    --lugia-green: #2e7d4f;
+    --lugia-orange: #b45200;
+    --lugia-orange-soft: #fbeae0;
+    --lugia-orange-text: #8a4a1a;
+    --serif: "Iowan Old Style", "Apple Garamond", Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--lugia-bg); color: var(--lugia-text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body { font-size: 15px; line-height: 1.6; }
+
+  /* === Chrome maquette (jaunisseur ; pas dans le produit) === */
+  .wf-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #1a1a1a; color: #fff; padding: 10px 24px;
+    display: flex; gap: 18px; align-items: center; font-size: 12px;
+    border-bottom: 1px solid #333;
+  }
+  .wf-bar strong { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; }
+  .wf-bar nav { display: flex; gap: 14px; align-items: center; flex: 1; }
+  .wf-bar nav a { color: #aaa; text-decoration: none; font-size: 12px; padding: 4px 8px; border-radius: 4px; transition: all 120ms; }
+  .wf-bar nav a:hover { color: #fff; background: #333; }
+  .wf-bar .meta { opacity: 0.5; font-size: 11px; }
+
+  /* === Bandeau Lugia (AppHeader simplifié) === */
+  .lugia-nav {
+    background: var(--lugia-bg);
+    border-bottom: 1px solid var(--lugia-border);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 44px; /* sous le chrome wireframe */
+  }
+  .lugia-logo {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--lugia-text);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .lugia-logo::before {
+    content: "";
+    display: inline-block;
+    width: 18px; height: 18px;
+    background: var(--lugia-text);
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: -3px;
+  }
+  .lugia-nav-right { display: flex; gap: 18px; align-items: center; }
+  .lugia-nav-right a { font-size: 13px; color: var(--lugia-text-tertiary); text-decoration: none; }
+  .lugia-nav-right a:hover { color: var(--lugia-text-secondary); }
+
+  /* === Page wrapper === */
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 48px 56px 100px;
+    position: relative;
+  }
+
+  /* === Hero === */
+  .hero { margin-bottom: 72px; }
+  .hero-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--lugia-text-tertiary);
+    font-weight: 600;
+    margin-bottom: 22px;
+  }
+  h1.hero-title {
+    font-family: var(--serif);
+    font-size: 44px;
+    font-weight: 500;
+    line-height: 1.15;
+    margin: 0 0 14px 0;
+    letter-spacing: -0.015em;
+    color: var(--lugia-text);
+    max-width: 720px;
+  }
+  .hero-subtitle {
+    font-size: 17px;
+    color: var(--lugia-text-tertiary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* === Section header (numéroté en marge gauche) === */
+  .section { margin-bottom: 80px; position: relative; }
+  .section-num {
+    position: absolute;
+    left: -56px; top: 4px;
+    font-family: var(--serif);
+    font-size: 13px;
+    color: var(--lugia-text-faint);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .section-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--lugia-text-tertiary);
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+  .section-eyebrow.with-rule {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 32px;
+  }
+  .section-eyebrow.with-rule::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--lugia-border);
+  }
+
+  /* === Section 1 — Synthèse === */
+  .synthese-lead {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.45;
+    font-weight: 400;
+    color: var(--lugia-text);
+    max-width: 720px;
+    margin: 0 0 26px 0;
+    letter-spacing: -0.005em;
+  }
+  .synthese-lead strong { font-weight: 600; }
+  .synthese-body {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--lugia-text-secondary);
+    max-width: 720px;
+    margin: 0;
+  }
+  .synthese-body p { margin: 0 0 16px 0; }
+  .synthese-body p:last-child { margin-bottom: 0; }
+  .synthese-body strong { color: var(--lugia-text); font-weight: 600; }
+
+  /* === Section 2 — Trois angles === */
+  .facets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    background: var(--lugia-border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .facet-card {
+    background: #fff;
+    padding: 26px 24px;
+    display: flex; flex-direction: column;
+    gap: 16px;
+  }
+  .facet-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 12px;
+  }
+  .facet-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--lugia-text);
+    line-height: 1.3;
+  }
+  .facet-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .facet-badge.surveiller { background: #f0f0f0; color: #555; }
+  .facet-badge.risque { background: var(--lugia-orange-soft); color: var(--lugia-orange-text); }
+  .facet-section {
+    border-top: 1px solid var(--lugia-border-soft);
+    padding-top: 14px;
+  }
+  .facet-section:first-of-type { border-top: none; padding-top: 0; }
+  .facet-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .facet-label.forces { color: var(--lugia-green); }
+  .facet-label.risques { color: var(--lugia-orange); }
+  .facet-list {
+    list-style: none; padding: 0; margin: 0;
+  }
+  .facet-list li {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--lugia-text-secondary);
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 7px;
+  }
+  .facet-list li:last-child { margin-bottom: 0; }
+  .facet-list li::before {
+    content: "—";
+    position: absolute;
+    left: 0; top: 0;
+    color: var(--lugia-text-tertiary);
+  }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-size: 11px; color: var(--lugia-text-tertiary);
+    margin-top: 14px;
+  }
+  .legend > span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend .facet-badge { font-size: 10px; padding: 2px 7px; }
+
+  /* === Section 3 — Reco italique (pause narrative) === */
+  .pause {
+    margin-bottom: 80px;
+    padding: 44px 56px 44px;
+    background: var(--lugia-bg-pause);
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+  }
+  .pause::before {
+    content: "❝";
+    position: absolute;
+    left: 22px; top: 12px;
+    font-family: var(--serif);
+    font-size: 64px;
+    color: var(--lugia-text-faint);
+    line-height: 1;
+    opacity: 0.6;
+  }
+  .pause-text {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--lugia-text-secondary);
+    font-style: italic;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .pause-text strong { font-weight: 600; color: var(--lugia-text); font-style: normal; }
+
+  /* === Section 4 — Opportunités d'action === */
+  .opportunites-intro {
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: var(--lugia-text-secondary);
+    max-width: 720px;
+    margin: 0 0 36px 0;
+  }
+  .opp-card {
+    background: #fff;
+    border: 1px solid var(--lugia-border);
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 20px;
+    box-shadow: var(--shadow-card);
+  }
+  .opp-num {
+    font-family: var(--serif);
+    font-size: 56px;
+    font-weight: 500;
+    color: var(--lugia-text-faint);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .opp-body { min-width: 0; }
+  .opp-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--lugia-text);
+    margin: 6px 0 24px 0;
+    letter-spacing: -0.005em;
+  }
+  .opp-block { margin-bottom: 18px; }
+  .opp-block:last-child { margin-bottom: 0; }
+  .opp-block-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    color: var(--lugia-text-tertiary);
+    margin-bottom: 8px;
+  }
+  .opp-block-body {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--lugia-text-secondary);
+  }
+
+  /* === Section 5 — Prochaine étape === */
+  .next-intro {
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: var(--lugia-text-secondary);
+    max-width: 720px;
+    margin: 0 0 28px 0;
+  }
+  .next-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 8px;
+  }
+  .next-card {
+    background: #fff;
+    border: 1px solid var(--lugia-border);
+    border-radius: 12px;
+    padding: 28px 30px;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-card);
+  }
+  .next-card.recommended {
+    border: 2px solid var(--lugia-accent);
+    background: linear-gradient(180deg, #fbfdff 0%, #fff 60%);
+  }
+  .next-badge {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    color: var(--lugia-text-tertiary);
+    margin-bottom: 12px;
+  }
+  .next-card.recommended .next-badge { color: var(--lugia-accent); }
+  .next-title {
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--lugia-text);
+    margin: 0 0 12px 0;
+    letter-spacing: -0.005em;
+  }
+  .next-desc {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--lugia-text-secondary);
+    margin: 0 0 24px 0;
+    flex: 1;
+  }
+  .next-cta {
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid var(--lugia-border);
+    background: #fff;
+    color: var(--lugia-text-secondary);
+    transition: all 140ms;
+    text-align: center;
+  }
+  .next-cta:hover { border-color: var(--lugia-text-tertiary); color: var(--lugia-text); }
+  .next-card.recommended .next-cta {
+    background: var(--lugia-accent);
+    color: #fff;
+    border-color: var(--lugia-accent);
+  }
+  .next-card.recommended .next-cta:hover { background: #144a8c; border-color: #144a8c; }
+
+  /* === Footer === */
+  .page-footer {
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--lugia-border);
+    display: flex; gap: 14px; align-items: center;
+  }
+  .page-footer .btn-back {
+    padding: 11px 20px;
+    border: 1px solid var(--lugia-border);
+    background: #fff;
+    color: var(--lugia-text-secondary);
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+  }
+  .page-footer .btn-back:hover { border-color: var(--lugia-text-tertiary); color: var(--lugia-text); }
+  .page-footer .meta {
+    font-size: 12px;
+    color: var(--lugia-text-tertiary);
+    margin-left: auto;
+  }
+
+  /* === Annotations wireframe === */
+  .wf-annotation {
+    position: absolute;
+    background: #fffde7;
+    border: 1px solid #f0d000;
+    color: #6b5900;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    line-height: 1.45;
+    max-width: 230px;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  /* === Responsive === */
+  @media (max-width: 880px) {
+    .page { padding: 36px 28px 80px; }
+    .section-num { position: static; margin-bottom: 8px; display: block; }
+    .facets-grid { grid-template-columns: 1fr; }
+    .next-grid { grid-template-columns: 1fr; }
+    .opp-card { grid-template-columns: 1fr; padding: 28px 26px; }
+    .opp-num { font-size: 38px; }
+    h1.hero-title { font-size: 32px; }
+    .pause { padding: 32px 28px; }
+    .pause-text { font-size: 16.5px; }
+    .wf-annotation { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====================================================== -->
+<!-- Chrome maquette                                          -->
+<!-- ====================================================== -->
+<div class="wf-bar">
+  <strong>Wireframe V1.1.9-r</strong>
+  <nav>
+    <a href="#hero">Hero</a>
+    <a href="#synthese">Synthèse</a>
+    <a href="#facettes">Angles</a>
+    <a href="#pause">Pause</a>
+    <a href="#opportunites">Opportunités</a>
+    <a href="#prochaine">Prochaine étape</a>
+  </nav>
+  <span class="meta">Persona Chateau mocké</span>
+</div>
+
+<!-- ====================================================== -->
+<!-- Bandeau Lugia                                            -->
+<!-- ====================================================== -->
+<header class="lugia-nav">
+  <a href="#" class="lugia-logo">Lugia</a>
+  <div class="lugia-nav-right">
+    <a href="#">Mon compte</a>
+    <a href="#">Se déconnecter</a>
+  </div>
+</header>
+
+<!-- ====================================================== -->
+<!-- Page                                                     -->
+<!-- ====================================================== -->
+<main class="page">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-eyebrow">Check-up préventif — votre lecture personnelle</div>
+    <h1 class="hero-title">Votre cabinet,<br/>vu de l'extérieur.</h1>
+    <div class="hero-subtitle">Dr Chateau — résultats du 19 mai 2026</div>
+  </section>
+
+  <!-- SECTION 1 — SYNTHÈSE -->
+  <section class="section" id="synthese">
+    <div class="section-num">I.</div>
+    <div class="section-eyebrow with-rule">Ce qui ressort</div>
+
+    <p class="synthese-lead">
+      Vous tenez un cabinet qui fonctionne — mais c'est <strong>vous</strong> qui le tenez,
+      seul, à coups d'absorption silencieuse de tout ce qui passe entre les mailles.
+    </p>
+
+    <div class="synthese-body">
+      <p>
+        En semaine, les demandes patients arrivent par plusieurs canaux et finissent
+        sur votre table en fin de journée — courriers, ordonnances, certificats,
+        suivi de dossiers. Le télésecrétariat absorbe les appels, mais la part qui
+        vous parvient directement reste hors de tout filtre, et le tri se fait au
+        moment où vous tombez dessus, le soir.
+      </p>
+      <p>
+        Cette mécanique tient parce qu'elle s'appuie sur vous. <strong>Au-delà d'une
+        journée d'absence, rien ne prend le relais</strong> — pas de fiche transférable,
+        pas de protocole partagé. Ce n'est pas un défaut d'organisation : c'est la
+        signature d'un cabinet construit autour d'une personne clé qui n'a jamais
+        eu besoin de se rendre transmissible.
+      </p>
+    </div>
+
+    <div class="wf-annotation" style="top: 80px; right: -10px; max-width: 200px;">
+      Synthèse refondue en deux paragraphes lisibles — phrase choc en lead 22px serif, puis chaîne causale en corps 16px aéré. Plus de border-left.
+    </div>
+  </section>
+
+  <!-- SECTION 2 — TROIS ANGLES -->
+  <section class="section" id="facettes">
+    <div class="section-num">II.</div>
+    <div class="section-eyebrow with-rule">Trois angles de votre cabinet</div>
+
+    <div class="facets-grid">
+
+      <!-- Facette 1 -->
+      <div class="facet-card">
+        <div class="facet-header">
+          <div class="facet-title">Parcours patient</div>
+          <span class="facet-badge surveiller">À surveiller</span>
+        </div>
+        <div class="facet-section">
+          <div class="facet-label forces">Points forts</div>
+          <ul class="facet-list">
+            <li>Télésecrétariat actif sur les appels entrants</li>
+            <li>Tri assuré sur la majorité des demandes</li>
+          </ul>
+        </div>
+        <div class="facet-section">
+          <div class="facet-label risques">Points de vigilance</div>
+          <ul class="facet-list">
+            <li>Une part des demandes vous parvient sans filtre</li>
+            <li>Tâches administratives traitées sur votre temps personnel</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Facette 2 -->
+      <div class="facet-card">
+        <div class="facet-header">
+          <div class="facet-title">Équipe et secrétariat</div>
+          <span class="facet-badge risque">À risque</span>
+        </div>
+        <div class="facet-section">
+          <div class="facet-label forces">Points forts</div>
+          <ul class="facet-list">
+            <li>Marie, votre télésecrétaire, en relai sur les appels</li>
+          </ul>
+        </div>
+        <div class="facet-section">
+          <div class="facet-label risques">Points de vigilance</div>
+          <ul class="facet-list">
+            <li>Règles de tri non formalisées par écrit</li>
+            <li>Au-delà d'une journée d'absence, rien ne prend le relais</li>
+            <li>Pas de dispositif partagé avec un confrère</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Facette 3 -->
+      <div class="facet-card">
+        <div class="facet-header">
+          <div class="facet-title">Outils et dossiers</div>
+          <span class="facet-badge surveiller">À surveiller</span>
+        </div>
+        <div class="facet-section">
+          <div class="facet-label forces">Points forts</div>
+          <ul class="facet-list">
+            <li>Logiciel métier installé et utilisé au quotidien</li>
+            <li>Résultats d'examens reçus par voie dédiée</li>
+          </ul>
+        </div>
+        <div class="facet-section">
+          <div class="facet-label risques">Points de vigilance</div>
+          <ul class="facet-list">
+            <li>Pas de système d'alerte pour les patients chroniques</li>
+            <li>Usage IA grand public non encadré côté secret médical</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="legend">
+      <span><span class="facet-badge surveiller">À surveiller</span> Situation à améliorer, non urgente</span>
+      <span><span class="facet-badge risque">À risque</span> Point critique, à traiter en priorité</span>
+    </div>
+
+    <div class="wf-annotation" style="top: 80px; right: -20px;">
+      Cartes en grille 3 cols, séparateurs naturels (gap 1px sur fond gris). Plus d'air dans chaque carte. Badges asymétriques conservés (V1.1.6 D-025). Légende sous la grille.
+    </div>
+  </section>
+
+  <!-- SECTION 3 — PAUSE NARRATIVE (RECOMMANDATION ITALIQUE) -->
+  <section id="pause">
+    <div class="pause">
+      <p class="pause-text">
+        Avant tout chantier, ce check-up vous donne une <strong>vue d'ensemble</strong> de
+        votre cabinet — c'est cette lecture qui rend les opportunités d'action lisibles,
+        et qui permet d'arbitrer celle qui mérite votre énergie en premier.
+      </p>
+    </div>
+
+    <div class="wf-annotation" style="top: 30px; right: -20px; position: relative;">
+      Reco italique = vraie pause narrative. Encadré pleine largeur, fond beige doux, citation centrée serif italique, guillemet décoratif en haut-gauche. Transition forte entre angles et opportunités.
+    </div>
+  </section>
+
+  <!-- SECTION 4 — OPPORTUNITÉS D'ACTION -->
+  <section class="section" id="opportunites">
+    <div class="section-num">III.</div>
+    <div class="section-eyebrow with-rule">Trois opportunités d'action</div>
+
+    <p class="opportunites-intro">
+      Chacune répond aux points de vigilance relevés plus haut, en s'appuyant sur les
+      forces déjà en place. À vous d'arbitrer ce qui vaut la peine d'être engagé en premier.
+    </p>
+
+    <!-- Opportunité 1 -->
+    <article class="opp-card">
+      <div class="opp-num">1</div>
+      <div class="opp-body">
+        <h3 class="opp-title">Réduire la charge des demandes directes</h3>
+        <div class="opp-block">
+          <div class="opp-block-label">La situation</div>
+          <div class="opp-block-body">
+            Une partie des demandes patients arrive directement sur votre ligne, votre
+            boîte mail ou en passant la porte du cabinet — hors du circuit du
+            télésecrétariat. Sans cadre commun, vous traitez chaque cas au moment où
+            il se présente, ce qui consomme du temps fragmenté difficile à reconstituer
+            en fin de journée.
+          </div>
+        </div>
+        <div class="opp-block">
+          <div class="opp-block-label">Ce qu'on mettrait rapidement en place</div>
+          <div class="opp-block-body">
+            Un cadre écrit de tri partagé avec Marie : qui répond à quoi, dans quel
+            délai, par quel canal. Un message d'accueil aligné sur ces règles pour
+            réorienter les demandes directes vers le bon point d'entrée. Un suivi
+            hebdomadaire léger pour ajuster les règles selon les situations qui
+            échappent.
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Opportunité 2 -->
+    <article class="opp-card">
+      <div class="opp-num">2</div>
+      <div class="opp-body">
+        <h3 class="opp-title">Anticiper une absence prolongée</h3>
+        <div class="opp-block">
+          <div class="opp-block-label">La situation</div>
+          <div class="opp-block-body">
+            Aujourd'hui, au-delà d'une journée d'absence, rien ne prend le relais —
+            ni fiche de fonctionnement transférable, ni dispositif partagé avec un
+            confrère, ni protocole pour les chroniques à suivre. C'est tenable tant
+            que l'imprévu reste court, mais une semaine d'arrêt devient un événement
+            à fort impact.
+          </div>
+        </div>
+        <div class="opp-block">
+          <div class="opp-block-label">Ce qu'on mettrait rapidement en place</div>
+          <div class="opp-block-body">
+            Une fiche de relais courte (1 à 2 pages) reprenant les règles de tri,
+            les dossiers chroniques sensibles, et les contacts confrères en relai.
+            Un accord léger avec un ou deux confrères du secteur pour couvrir une
+            semaine donnée. Une mise à jour deux fois par an, intégrée au rythme du
+            cabinet.
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Opportunité 3 -->
+    <article class="opp-card">
+      <div class="opp-num">3</div>
+      <div class="opp-body">
+        <h3 class="opp-title">Sécuriser votre usage actuel de l'IA</h3>
+        <div class="opp-block">
+          <div class="opp-block-label">La situation</div>
+          <div class="opp-block-body">
+            Vous utilisez déjà des outils d'IA grand public pour gagner du temps sur
+            certaines tâches — synthèses, courriers, recherches rapides. Ces outils
+            n'ont pas été conçus pour le secret médical et la responsabilité de ce
+            qui passe par eux vous revient. Le risque ne saute pas aux yeux au
+            quotidien, ce qui le rend précisément difficile à anticiper.
+          </div>
+        </div>
+        <div class="opp-block">
+          <div class="opp-block-label">Ce qu'on mettrait rapidement en place</div>
+          <div class="opp-block-body">
+            Un audit court de vos usages IA actuels (quoi, pour quoi, avec quelles
+            données). Le remplacement progressif par un environnement sécurisé conforme
+            au secret médical — sans changer vos habitudes au quotidien. Un cadre
+            partagé pour que Marie puisse aussi s'en servir en confiance.
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <div class="wf-annotation" style="top: 80px; right: -20px;">
+      Opportunités passent de "card-encart avec numéro en bandeau gris" à "card pleine largeur avec numéro grand serif en marge gauche". Plus narratif, plus de hauteur, structure 2 sections conservée.
+    </div>
+  </section>
+
+  <!-- SECTION 5 — PROCHAINE ÉTAPE -->
+  <section class="section" id="prochaine">
+    <div class="section-num">IV.</div>
+    <div class="section-eyebrow with-rule">Prochaine étape ?</div>
+
+    <p class="next-intro">
+      Vous avez vu les opportunités. Voici deux façons de les transformer en
+      chantiers concrets — à votre rythme, ou avec Lugia.
+    </p>
+
+    <div class="next-grid">
+      <div class="next-card">
+        <div class="next-badge">Pour explorer</div>
+        <h3 class="next-title">Approfondir un chantier, en autonomie</h3>
+        <p class="next-desc">
+          Un questionnaire ciblé sur l'opportunité de votre choix. Environ 15 minutes,
+          gratuit, sans rendez-vous — à votre rythme.
+        </p>
+        <button class="next-cta">Choisir un chantier</button>
+      </div>
+
+      <div class="next-card recommended">
+        <div class="next-badge">Recommandé</div>
+        <h3 class="next-title">Avancer avec Lugia, en réel</h3>
+        <p class="next-desc">
+          Vous choisissez une opportunité, on la traite ensemble dans votre cabinet.
+          Pas un appel d'identification — le chantier lui-même, structuré à partir
+          de dispositifs éprouvés chez d'autres confrères.
+        </p>
+        <button class="next-cta">En parler avec Lugia</button>
+      </div>
+    </div>
+
+    <div class="wf-annotation" style="top: 80px; right: -20px;">
+      2 cartes plus hautes, plus aérées, hiérarchie identique mais titres serif 21px. Carte recommandée : border bleu 2px + gradient subtil + CTA bleu plein. La hiérarchie visuelle est plus marquée que V1.1.7.
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="page-footer">
+    <a href="#" class="btn-back">← Retour à l'accueil</a>
+    <span class="meta">Imprimer ce check-up · Partager le lien (V2)</span>
+  </footer>
+
+</main>
+
+</body>
+</html>

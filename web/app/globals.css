@@ -83,3 +83,139 @@ body {
     font-size: 15px;
   }
 }
+
+
+/* === V1.1.9 — Refonte UI questionnaire ====================================
+   Animations douces pour l'orchestration intro → transition → question,
+   pastille de sauvegarde, et utilitaires sur la grammaire visuelle du
+   nouveau wireframe (cf wireframes/checkup_v1_1_9_wireframe.html).
+   ========================================================================= */
+
+@keyframes lugia-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes lugia-fade-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes lugia-pulse-saved {
+  0%   { opacity: 0; transform: translateY(4px); }
+  20%  { opacity: 1; transform: translateY(0); }
+  80%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: lugia-fade-in 200ms ease-out both;
+}
+.lugia-question-anim {
+  animation: lugia-fade-slide-in 220ms ease-out both;
+}
+
+/* Pastille discrète "Enregistré" visible 1.5s après chaque clic Suivant. */
+.lugia-saved-pill {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  color: #595959;
+  font-size: 12px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 50;
+  animation: lugia-pulse-saved 1800ms ease-out both;
+}
+.lugia-saved-pill::before {
+  content: "✓";
+  color: #2e7d4f;
+  font-weight: bold;
+}
+
+/* Responsive du questionnaire V1.1.9 — pastille remonte en mobile pour ne
+   pas masquer le bouton Suivant qui reste sticky-bas en petit écran. */
+@media (max-width: 640px) {
+  .lugia-saved-pill {
+    right: 16px;
+    bottom: 80px;
+  }
+}
+
+
+/* === V1.1.9-s — Refonte UI page résultats ================================
+   Sections numérotées en marge, synthèse refondue lead serif + corps aéré,
+   pause narrative pleine largeur. Conserve les classes lugia-* existantes
+   pour ne pas casser le print/responsive.
+   ========================================================================= */
+
+/* Numéro romain de section, positionné à -60px à gauche sur desktop. */
+.lugia-section-num {
+  position: absolute;
+  top: 2px;
+  left: -60px;
+  font-style: normal;
+}
+
+/* Synthèse refondue V1.1.9-s : lead serif 22px + corps aéré 16px line-height
+   1.7. Plus de border-left gris (la phrase choc se suffit à elle-même).
+   La phrase choc est attendue en premier paragraphe (ou wrappé en p) — on
+   styling fortement le 1er <p> et garde un corps confortable sur les suivants. */
+.lugia-synthesis {
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 720px;
+}
+.lugia-synthesis > *:first-child {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #111;
+  letter-spacing: -0.005em;
+  margin: 0 0 22px 0;
+}
+.lugia-synthesis p {
+  margin: 0 0 16px 0;
+}
+.lugia-synthesis p:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive : sur mobile (<880px), les numéros romains repassent en flow
+   normal au-dessus de l'eyebrow. Ils restent discrets. */
+@media (max-width: 880px) {
+  .lugia-section-num {
+    position: static;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .lugia-synthesis > *:first-child {
+    font-size: 19px;
+  }
+  .lugia-synthesis {
+    font-size: 15px;
+  }
+}
+
+/* Print V1.1.9-s : pause narrative en fond gris très clair pour rester
+   lisible sur papier. Numéros romains masqués (déjà numérotés par les
+   eyebrows uppercase). */
+@media print {
+  .lugia-section-num { display: none; }
+  .lugia-pause {
+    background: #f7f5ee !important;
+    page-break-inside: avoid;
+    padding: 24px !important;
+  }
+  .lugia-pause-quote { display: none; }
+  .lugia-synthesis > *:first-child {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "version": "1.10",
-  "last_updated": "2026-05-19",
-  "total_questions": 17,
+  "version": "1.9",
+  "last_updated": "2026-05-15",
+  "total_questions": 14,
   "scored_facets": [
     "processes",
     "participants",
@@ -52,24 +52,12 @@
         },
         {
           "id": "q01_b",
-          "label": "Cabinet de groupe — 2 à 3 médecins",
+          "label": "Cabinet de groupe (2 à 5 médecins)",
           "health_score": null,
           "node_type": "Acteur",
           "tags": [
             "libéral",
-            "groupe",
-            "groupe-petit"
-          ]
-        },
-        {
-          "id": "q01_d",
-          "label": "Cabinet de groupe — 4 à 5 médecins",
-          "health_score": null,
-          "node_type": "Acteur",
-          "tags": [
-            "libéral",
-            "groupe",
-            "groupe-moyen"
+            "groupe"
           ]
         },
         {
@@ -104,7 +92,7 @@
       "options": [
         {
           "id": "q02_a",
-          "label": "Secrétariat interne — au cabinet, temps plein ou partiel",
+          "label": "Secrétariat interne — à temps plein ou partiel, au cabinet",
           "health_score": null,
           "node_type": "Acteur",
           "tags": [
@@ -115,7 +103,7 @@
         },
         {
           "id": "q02_b",
-          "label": "Télésecrétariat externalisé — prestataire à distance",
+          "label": "Télésecrétariat externalisé — un prestataire prend les appels et la prise de rendez-vous",
           "health_score": null,
           "node_type": "Acteur",
           "tags": [
@@ -126,7 +114,7 @@
         },
         {
           "id": "q02_c",
-          "label": "Mixte — une partie en interne, une partie externalisée",
+          "label": "Fonctionnement mixte — une partie interne, une partie externalisée",
           "health_score": null,
           "node_type": "Acteur",
           "tags": [
@@ -137,7 +125,7 @@
         },
         {
           "id": "q02_d",
-          "label": "Vous-même — sans secrétariat",
+          "label": "Personne — je gère moi-même les rendez-vous et les appels",
           "health_score": null,
           "node_type": "Acteur",
           "tags": [
@@ -159,197 +147,8 @@
       ]
     },
     {
-      "id": "q15",
-      "position": 3,
-      "mode": "A",
-      "facet": "context",
-      "scored": false,
-      "topic": "Statut d'installation",
-      "open_prompt": null,
-      "qcm_prompt": "Depuis combien de temps exercez-vous dans ce cabinet ?",
-      "options": [
-        {
-          "id": "q15_a",
-          "label": "Installation récente — moins de 3 ans",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "installation-recente"
-          ]
-        },
-        {
-          "id": "q15_b",
-          "label": "Installé — entre 3 et 15 ans",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "installe"
-          ]
-        },
-        {
-          "id": "q15_c",
-          "label": "Senior — plus de 15 ans",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "senior"
-          ]
-        },
-        {
-          "id": "q15_d",
-          "label": "Approche transmission — moins de 5 ans avant cession ou retraite",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "transmission-proche"
-          ]
-        },
-        {
-          "id": "q15_e",
-          "label": "Remplaçant — pas titulaire du cabinet",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "remplacant"
-          ]
-        },
-        {
-          "id": "q15_other",
-          "label": "Autre",
-          "health_score": null,
-          "node_type": null,
-          "tags": [
-            "autre"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "q16",
-      "position": 4,
-      "mode": "A",
-      "facet": "context",
-      "scored": false,
-      "topic": "Territoire et patientèle",
-      "open_prompt": null,
-      "qcm_prompt": "Comment décririez-vous votre territoire et votre patientèle ?",
-      "options": [
-        {
-          "id": "q16_a",
-          "label": "Urbain dense — patientèle variée, demande forte, peu de visites à domicile",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "urbain-dense"
-          ]
-        },
-        {
-          "id": "q16_b",
-          "label": "Périurbain ou ville moyenne — patientèle mixte, accès correct aux confrères",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "periurbain"
-          ]
-        },
-        {
-          "id": "q16_c",
-          "label": "Rural ou semi-rural — patientèle vieillissante, visites fréquentes",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "rural"
-          ]
-        },
-        {
-          "id": "q16_d",
-          "label": "Zone sous-dotée — délais longs, peu de spécialistes accessibles",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "zone-sous-dotee"
-          ]
-        },
-        {
-          "id": "q16_other",
-          "label": "Autre",
-          "health_score": null,
-          "node_type": null,
-          "tags": [
-            "autre"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "q17",
-      "position": 5,
-      "mode": "A",
-      "facet": "context",
-      "scored": false,
-      "topic": "Horizon des 3 prochaines années",
-      "open_prompt": null,
-      "qcm_prompt": "Quel est votre horizon pour les 3 prochaines années ?",
-      "options": [
-        {
-          "id": "q17_a",
-          "label": "Reconduire à l'identique — pas de changement majeur prévu",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "statu-quo"
-          ]
-        },
-        {
-          "id": "q17_b",
-          "label": "Renforcer l'équipe — recruter un associé, un assistant, une secrétaire",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "renforcer-equipe"
-          ]
-        },
-        {
-          "id": "q17_c",
-          "label": "Déménager ou agrandir — nouveau local, extension du cabinet",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "demenager-agrandir"
-          ]
-        },
-        {
-          "id": "q17_d",
-          "label": "Préparer la transmission — cession, départ, succession",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "preparer-transmission"
-          ]
-        },
-        {
-          "id": "q17_e",
-          "label": "Encore incertain — pas de cap arrêté",
-          "health_score": null,
-          "node_type": "Contexte",
-          "tags": [
-            "horizon-incertain"
-          ]
-        },
-        {
-          "id": "q17_other",
-          "label": "Autre",
-          "health_score": null,
-          "node_type": null,
-          "tags": [
-            "autre"
-          ]
-        }
-      ]
-    },
-    {
       "id": "q03",
-      "position": 6,
+      "position": 3,
       "mode": "A",
       "facet": "participants",
       "scored": true,
@@ -415,7 +214,7 @@
     },
     {
       "id": "q04",
-      "position": 7,
+      "position": 4,
       "mode": "A",
       "facet": "processes",
       "scored": true,
@@ -473,7 +272,7 @@
     },
     {
       "id": "q05",
-      "position": 8,
+      "position": 5,
       "mode": "B",
       "facet": "processes",
       "scored": true,
@@ -530,7 +329,7 @@
     },
     {
       "id": "q06",
-      "position": 9,
+      "position": 6,
       "mode": "A",
       "facet": "motivation",
       "scored": false,
@@ -587,7 +386,7 @@
     },
     {
       "id": "q07",
-      "position": 10,
+      "position": 7,
       "mode": "A",
       "facet": "participants",
       "scored": true,
@@ -652,7 +451,7 @@
     },
     {
       "id": "q08",
-      "position": 11,
+      "position": 8,
       "mode": "A",
       "facet": "participants",
       "scored": true,
@@ -710,7 +509,7 @@
     },
     {
       "id": "q09",
-      "position": 12,
+      "position": 9,
       "mode": "A",
       "facet": "information",
       "scored": true,
@@ -769,7 +568,7 @@
     },
     {
       "id": "q10",
-      "position": 13,
+      "position": 10,
       "mode": "A",
       "facet": "information",
       "scored": true,
@@ -827,7 +626,7 @@
     },
     {
       "id": "q11",
-      "position": 14,
+      "position": 11,
       "mode": "A",
       "facet": "information",
       "scored": true,
@@ -884,7 +683,7 @@
     },
     {
       "id": "q12",
-      "position": 15,
+      "position": 12,
       "mode": "A",
       "facet": "processes",
       "scored": true,
@@ -941,7 +740,7 @@
     },
     {
       "id": "q13",
-      "position": 16,
+      "position": 13,
       "mode": "B",
       "facet": "information",
       "scored": true,
@@ -998,7 +797,7 @@
     },
     {
       "id": "q14",
-      "position": 17,
+      "position": 14,
       "mode": "C",
       "facet": "closing",
       "scored": false,

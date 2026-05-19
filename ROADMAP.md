@@ -139,26 +139,30 @@ On enrichit le socle méthodologique tant qu'on peut. Q06 a un coût d'intégrat
 
 ---
 
-## V1.1.9 — Refonte apparence questionnaire + enrichissement contexte — À FAIRE
+## V1.1.9 — Refonte UI questionnaire + page résultats + enrichissement contexte — LIVRÉE 2026-05-19
 
-Chantier ouvert le 18 mai 2026 (nouveau fil de conversation Claude). Le questionnaire (`web/app/checkup/page.tsx`) reste sur l'UI V1 d'origine — refondu fonctionnellement plusieurs fois mais jamais visuellement. Périmètre prévu :
+Vague visuelle livrée en 5 sous-vagues sur la journée du 19 mai. Voir `CHANGELOG.md` entrée du 19 mai 2026 et `DECISIONS.md` D-028.
 
-- Refonte de l'apparence : hiérarchie visuelle, espace, navigation entre questions, indicateur de progression, sauvegarde automatique visible.
-- Enrichissement du contexte : retravail de Q01 (type de cabinet) et Q02 (qui prend les rendez-vous), peut-être ajout d'une question contextuelle complémentaire (territoire, âge moyen de la patientèle, statut d'installation, ...).
-- Pas de changement de scoring, pas de migration BDD lourde prévue en V1.1.9.
+**Livrables :**
+- 4 nouveaux composants frontend (`CheckupHeader`, `CheckupProgress`, `CheckupIntro`, `CheckupTransition` — ce dernier produit mais désactivé sur retour utilisateur).
+- Refonte de `CheckupWidgets.tsx` (OptionCard avec check-mark, split labels `mot-clé — détail`, QuestionTitle avec note italique séparée).
+- Refonte de `web/app/checkup/page.tsx` (machine à états intro/question/completed, sauvegarde visible, raccourci Entrée, animations fade-slide).
+- Refonte de `web/app/resultats/page.tsx` (hero ample, sections numérotées I-IV, synthèse en lead serif + corps aéré, pause narrative pleine largeur, opportunités narratives, prochaine étape mise en valeur).
+- Protocol JSON v1.10 (17 questions, Q15 statut d'installation / Q16 territoire / Q17 horizon ajoutées, IDs Q01-Q14 strictement préservés).
+- Wireframes HTML autonomes (`wireframes/checkup_v1_1_9_*.html`, `wireframes/resultats_v1_1_9_wireframe.html`) + specs (`wireframes/checkup_v1_1_9_specs.md`).
 
-Travail prévu en parallèle des tests prospects V1.1.8 (les retours sur l'expérience questionnaire alimenteront cette vague).
+**Non-régression confirmée** : hash sha256 du rapport généré strictement identique à V1.1.8 équivalent. Q15/Q16/Q17 collectées en base mais non câblées dans le rapport en V1.1.9 — substrat dormant pour V1.2 SLM (discipline D-020 respectée).
 
 ---
 
-## Bloquants pour tests prospects V1.1.8
+## V1.1.10 — Bloquants tests prospects (CTAs + questionnaire approfondissement Path A) — PROCHAIN CHANTIER
 
-Deux chantiers à traiter **avant** d'envoyer le démonstrateur à 3-5 médecins :
+Deux chantiers non-visuels à traiter **avant** d'envoyer le démonstrateur à 3-5 médecins :
 
 1. **Câblage des CTAs Prochaine étape** sur `/resultats` — "Choisir un chantier" et "En parler avec Lugia" sont inertes. À câbler au minimum sur un `mailto:` ou un formulaire de contact pour ne pas perdre confiance instantanément.
 2. **Construction du questionnaire d'approfondissement (Path A)** — la carte "Approfondir un chantier, en autonomie" promet *"un questionnaire ciblé, ~15 min, gratuit"*. À construire (5-7 questions par chantier débouchant sur un plan d'action concret), sinon la promesse écrite ne tient pas.
 
-Ces deux chantiers peuvent être traités dans V1.1.9 ou dans une V1.1.10 dédiée, selon le périmètre que tu veux donner à la vague visuelle.
+V1.1.10 est indépendante de V1.1.9 (chantier non-visuel). Peut être traitée dans une conversation Claude dédiée. Cible : livraison avant tests prospects.
 
 ---
 
