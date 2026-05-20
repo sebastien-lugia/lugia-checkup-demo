@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import {
   completeInterview,
   createInterviewV2,
+  getActiveInterviewsByVersion,
   getMyProfile,
   getProtocolV2,
   getScoresV2,
@@ -80,13 +81,50 @@ function CheckupV2Content() {
     let cancelled = false;
     (async () => {
       try {
-        const [proto, prof] = await Promise.all([
+        // 1. Protocole + profil + interview V2 active (en parallèle).
+        const [proto, prof, actives] = await Promise.all([
           getProtocolV2(),
           getMyProfile(),
+          getActiveInterviewsByVersion(),
         ]);
         if (cancelled) return;
         setProtocol(proto);
         setProfile(prof);
+
+        // 2. T6-fix : si une session V2 est déjà en cours, on charge son
+        // état complet (id + réponses + scores) pour que `resumeStep` puisse
+        // ramener le médecin directement à la bonne étape — pas à l'intro.
+        const v2Interview = actives["v2.0"];
+        if (v2Interview) {
+          setInterviewId(v2Interview.id);
+          try {
+            const [existingAnswers, existingScores] = await Promise.all([
+              listAnswers(v2Interview.id),
+              getScoresV2(v2Interview.id),
+            ]);
+            if (cancelled) return;
+            // Conversion liste → dict question_id → Answer (forme attendue
+            // par le state local `answers`).
+            const answersDict: StoredAnswers = {};
+            for (const a of existingAnswers) {
+              answersDict[a.question_id] = {
+                mode: a.mode,
+                selected_option: a.selected_option,
+                selected_option_label: a.selected_option_label,
+                free_text: a.free_text,
+                complement_text: a.complement_text,
+                entity_name: a.entity_name ?? null,
+                scored: a.scored ?? true,
+              };
+            }
+            setAnswers(answersDict);
+            setScores(existingScores);
+          } catch {
+            // Pas bloquant — l'utilisateur arrivera à l'intro si on n'a pas
+            // pu charger les réponses, mais il pourra avancer.
+          }
+        }
+
         setLoading(false);
       } catch (e) {
         if (cancelled) return;
