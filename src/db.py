@@ -69,6 +69,18 @@ interview_table = Table(
     Column("updated_at", String, nullable=False),
     Column("status", String, nullable=False, server_default="in_progress"),
     Column("current_question_index", Integer, nullable=False, server_default="0"),
+    # V2.0-T3 : cohabitation des protocoles V1.1.9 / V2.0 (cf D-029, D-030).
+    # `protocol_version` route le dispatcher backend vers les modules
+    # `src/*` (V1.1.x) ou `src/v2/*` (V2.0). `global_score` stocke la
+    # moyenne des 3 scores d'axe pour analyses cohortes (non exposé au
+    # médecin — cf D-013, D-023).
+    Column(
+        "protocol_version",
+        String,
+        nullable=False,
+        server_default="v1.1.9",
+    ),
+    Column("global_score", Integer, nullable=True),
 )
 
 answer_table = Table(
@@ -93,6 +105,9 @@ answer_table = Table(
     # interview_protocol.json. Voir V1.1.5-i pour le détail.
     Column("entity_name", String, nullable=True),
     Column("created_at", String, nullable=False),
+    # V2.0-T3 : marque les réponses non scorées (typiquement l'ancrage
+    # énergie V2). Par défaut TRUE pour préserver le comportement V1.x.
+    Column("scored", Integer, nullable=False, server_default="1"),
 )
 
 facet_score_table = Table(
@@ -153,6 +168,21 @@ user_profile_table = Table(
     Column("email", String, primary_key=True),
     Column("firstname", String, nullable=True),
     Column("updated_at", String, nullable=False),
+    # V2.0-T3 : extension du profil pour le mini-onboarding V2 (cf spec V2
+    # §3). Toutes nullables — un médecin qui n'a pas démarré V2.0 n'a aucun
+    # de ces champs renseignés et le rapport V1.1.9 reste produit comme
+    # avant. Documenté ici plutôt que dans une table séparée pour permettre
+    # le partage du profil entre V1.1.9 et V2.0 (cf spec V2 §3 + D-029).
+    Column("cabinet_type", String, nullable=True),
+    Column("volume", String, nullable=True),
+    Column("paramedical_team", String, nullable=True),
+    Column("logiciel_metier", String, nullable=True),
+    Column("logiciel_metier_other", String, nullable=True),
+    Column("rdv_canal", String, nullable=True),
+    Column("status", String, nullable=True),
+    Column("territoire", String, nullable=True),
+    Column("horizon", String, nullable=True),
+    Column("motivation", String, nullable=True),
 )
 
 
@@ -226,28 +256,115 @@ def _ensure_entity_name_column_on_answer() -> None:
             conn.execute(text("ALTER TABLE answer ADD COLUMN entity_name TEXT"))
 
 
+def _ensure_interview_v2_columns() -> None:
+    """Migration V2.0-T3 : ajoute `protocol_version` et `global_score` à
+    `interview` si absents. Idempotent."""
+    engine = get_engine()
+    inspector = inspect(engine)
+    if "interview" not in inspector.get_table_names():
+        return
+    columns = {c["name"] for c in inspector.get_columns("interview")}
+    with engine.begin() as conn:
+        if "protocol_version" not in columns:
+            # NOT NULL DEFAULT 'v1.1.9' : les interviews existantes prennent
+            # automatiquement la valeur 'v1.1.9', le dispatcher route donc
+            # vers les modules V1.x. Aucune régression possible.
+            conn.execute(
+                text(
+                    "ALTER TABLE interview ADD COLUMN protocol_version TEXT "
+                    "NOT NULL DEFAULT 'v1.1.9'"
+                )
+            )
+        if "global_score" not in columns:
+            conn.execute(
+                text("ALTER TABLE interview ADD COLUMN global_score INTEGER")
+            )
+
+
+def _ensure_answer_scored_column() -> None:
+    """Migration V2.0-T3 : ajoute `scored` (boolean) à `answer` si absent.
+    Par défaut TRUE pour préserver le comportement V1.x. Idempotent."""
+    engine = get_engine()
+    inspector = inspect(engine)
+    if "answer" not in inspector.get_table_names():
+        return
+    columns = {c["name"] for c in inspector.get_columns("answer")}
+    if "scored" not in columns:
+        with engine.begin() as conn:
+            # SQLite ne supporte pas BOOLEAN typé — on stocke INTEGER 0/1.
+            conn.execute(
+                text(
+                    "ALTER TABLE answer ADD COLUMN scored INTEGER "
+                    "NOT NULL DEFAULT 1"
+                )
+            )
+
+
+def _ensure_profile_v2_columns() -> None:
+    """Migration V2.0-T3 : ajoute les 10 champs du profil V2 à
+    `user_profile` si absents. Toutes nullables. Idempotent."""
+    engine = get_engine()
+    inspector = inspect(engine)
+    if "user_profile" not in inspector.get_table_names():
+        return
+    columns = {c["name"] for c in inspector.get_columns("user_profile")}
+    v2_fields = [
+        "cabinet_type",
+        "volume",
+        "paramedical_team",
+        "logiciel_metier",
+        "logiciel_metier_other",
+        "rdv_canal",
+        "status",
+        "territoire",
+        "horizon",
+        "motivation",
+    ]
+    with engine.begin() as conn:
+        for field in v2_fields:
+            if field not in columns:
+                conn.execute(
+                    text(f"ALTER TABLE user_profile ADD COLUMN {field} TEXT")
+                )
+
+
 def init_db() -> None:
     """Crée les tables manquantes et applique les migrations. Idempotent."""
     engine = get_engine()
     metadata.create_all(engine)
     _ensure_email_column_on_interview()
     _ensure_entity_name_column_on_answer()
+    # V2.0-T3 — cohabitation des protocoles V1.1.9 / V2.0
+    _ensure_interview_v2_columns()
+    _ensure_answer_scored_column()
+    _ensure_profile_v2_columns()
 
 
 # ---- Helpers Interview ----
 
-def create_interview(email: Optional[str] = None) -> int:
+def create_interview(
+    email: Optional[str] = None,
+    protocol_version: str = "v1.1.9",
+) -> int:
     """Crée une nouvelle interview et retourne son id.
 
     L'email est facultatif pour préserver la compatibilité V0 (scripts,
     Streamlit local sans auth). Les endpoints V1 authentifiés passeront
     toujours l'email du user connecté.
+
+    V2.0-T3 : `protocol_version` détermine vers quel jeu de modules
+    (`src/*` ou `src/v2/*`) le dispatcher backend route les calculs.
+    Valeurs supportées : `"v1.1.9"` (par défaut, préserve la compat) et
+    `"v2.0"`. Voir D-029 et D-030.
     """
     now = _now()
     with get_engine().begin() as conn:
         result = conn.execute(
             insert(interview_table).values(
-                email=email, created_at=now, updated_at=now
+                email=email,
+                created_at=now,
+                updated_at=now,
+                protocol_version=protocol_version,
             )
         )
         return int(result.inserted_primary_key[0])
@@ -292,6 +409,49 @@ def get_latest_in_progress_interview(
     return dict(row) if row else None
 
 
+def get_in_progress_interviews_by_version(
+    email: Optional[str] = None,
+) -> dict[str, dict[str, Any]]:
+    """Retourne les interviews `in_progress` du user, indexées par
+    `protocol_version`.
+
+    V2.0-T5-fix : permet à la page d'accueil d'afficher séparément la
+    session V1.1.9 en cours et la session V2.0 en cours, plutôt que de
+    n'exposer que la plus récente.
+
+    Pour chaque version on retourne la plus récente (si le même médecin
+    a ouvert plusieurs interviews V1.1.9, on prend la dernière updatée).
+    Si l'email est None, on filtre sans contrainte d'appartenance.
+    """
+    with get_engine().connect() as conn:
+        stmt = (
+            select(interview_table)
+            .where(interview_table.c.status == "in_progress")
+            .order_by(desc(interview_table.c.updated_at))
+        )
+        if email is not None:
+            stmt = (
+                select(interview_table)
+                .where(
+                    and_(
+                        interview_table.c.status == "in_progress",
+                        interview_table.c.email == email,
+                    )
+                )
+                .order_by(desc(interview_table.c.updated_at))
+            )
+        result = conn.execute(stmt).mappings().all()
+
+    by_version: dict[str, dict[str, Any]] = {}
+    for row in result:
+        version = row.get("protocol_version") or "v1.1.9"
+        # Ordre desc — la première occurrence pour chaque version est la
+        # plus récente.
+        if version not in by_version:
+            by_version[version] = dict(row)
+    return by_version
+
+
 def touch_interview(interview_id: int) -> None:
     """Met à jour le timestamp updated_at."""
     with get_engine().begin() as conn:
@@ -333,9 +493,14 @@ def save_answer(
     free_text: Optional[str],
     complement_text: Optional[str] = None,
     entity_name: Optional[str] = None,
+    scored: bool = True,
 ) -> None:
     """Enregistre une réponse, en remplaçant l'éventuelle réponse existante
-    pour la même (interview_id, question_id)."""
+    pour la même (interview_id, question_id).
+
+    V2.0-T3 : `scored=False` pour les questions non scorées (typiquement
+    l'ancrage énergie V2). Stocké en INTEGER 0/1 côté SQLite.
+    """
     with get_engine().begin() as conn:
         conn.execute(
             delete(answer_table).where(
@@ -356,6 +521,7 @@ def save_answer(
                 complement_text=complement_text,
                 created_at=_now(),
                 entity_name=entity_name,
+                scored=1 if scored else 0,
             )
         )
 
@@ -416,6 +582,79 @@ def upsert_user_profile(email: str, firstname: Optional[str]) -> None:
                     email=email, firstname=firstname, updated_at=now
                 )
             )
+
+
+# Champs V2.0 du profil utilisateur — référence canonique réutilisée par
+# `upsert_user_profile_v2` et exposée à `backend/main.py` (validation
+# Pydantic). Toutes les valeurs sont des slugs définis dans
+# `resources/interview_protocol_v2.json::profile.{step1,step2}.fields`.
+USER_PROFILE_V2_FIELDS: tuple[str, ...] = (
+    "cabinet_type",
+    "volume",
+    "paramedical_team",
+    "logiciel_metier",
+    "logiciel_metier_other",
+    "rdv_canal",
+    "status",
+    "territoire",
+    "horizon",
+    "motivation",
+)
+
+
+def upsert_user_profile_v2(
+    email: str,
+    fields: dict[str, Optional[str]],
+) -> None:
+    """Met à jour les champs V2 du profil utilisateur (cf spec V2 §3.4).
+
+    Seuls les champs présents dans `fields` sont écrits — les autres
+    restent inchangés. Cette sémantique en patch partiel permet au
+    frontend de saisir le profil en 2 étapes (5 chips factuels puis 4
+    chips réflexifs) sans devoir renvoyer l'ensemble.
+
+    Les champs inconnus sont ignorés silencieusement (garde-fou contre
+    une injection accidentelle). La normalisation (trim, chaîne vide →
+    None) est à la charge de l'appelant.
+
+    V2.0-T3 — Sébastien.
+    """
+    safe_fields = {
+        k: v for k, v in fields.items() if k in USER_PROFILE_V2_FIELDS
+    }
+    if not safe_fields:
+        return
+    now = _now()
+    with get_engine().begin() as conn:
+        existing = conn.execute(
+            select(user_profile_table).where(user_profile_table.c.email == email)
+        ).first()
+        if existing:
+            conn.execute(
+                user_profile_table.update()
+                .where(user_profile_table.c.email == email)
+                .values(updated_at=now, **safe_fields)
+            )
+        else:
+            conn.execute(
+                insert(user_profile_table).values(
+                    email=email, updated_at=now, **safe_fields
+                )
+            )
+
+
+def set_global_score(interview_id: int, score: int) -> None:
+    """Stocke le score global V2.0 (moyenne des 3 axes) sur l'interview.
+
+    Non exposé au médecin (cf D-013, D-023). Sert aux analyses cohortes
+    en backend admin.
+    """
+    with get_engine().begin() as conn:
+        conn.execute(
+            update(interview_table)
+            .where(interview_table.c.id == interview_id)
+            .values(global_score=int(score), updated_at=_now())
+        )
 
 
 # ---- Helpers Auth (V1-5a) ----

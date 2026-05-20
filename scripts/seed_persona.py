@@ -1,6 +1,6 @@
 """Seed un parcours type Dr Chateau dans la base (SQLite locale ou Postgres prod).
 
-Crée une nouvelle interview, insère les 17 réponses du persona de référence
+Crée une nouvelle interview, insère les 14 réponses du persona de référence
 (voir `resources/sample_answers_pchateau.md`), positionne le pointeur de
 session à la fin du questionnaire, et laisse la session en `in_progress`
 pour qu'elle soit accessible via "Reprendre votre check-up" sur l'accueil.
@@ -9,10 +9,11 @@ Depuis V1-5a, l'API exige une auth par email. L'argument `--email` rattache
 l'interview seedée à un email donné : une fois connecté avec cet email,
 l'utilisateur retrouve la session sur l'accueil.
 
-Aligné sur le protocole V1.1.9 (refonte Vague 3 + bloc Contexte enrichi V1.1.9,
-voir D-021 et D-028). Trois réponses ajoutées en V1.1.9 : q15_c (senior), q16_b
-(périurbain), q17_d (préparer transmission) — cohérent avec le contexte familial
-du persona et son souhait de "récupérer du temps libre pour ses proches".
+Aligné sur le protocole V1.1.9 stricte (refonte Vague 3 — D-021 — avec
+reformulations Q01/Q02 de V1.1.9 préservées). Les questions q15/q16/q17
+initialement ajoutées en v1.10 ont été retirées en révision v1.11 :
+dormantes en V1.1.9, l'information équivalente est désormais collectée
+via le mini-onboarding profil V2.0.
 
 Lancement local (SQLite local) :
     python scripts/seed_persona.py --email sebastien+test@gmail.com
@@ -59,36 +60,6 @@ ANSWERS = [
         # V1.1.5-i : prénom de l'interlocutrice actuelle au télésecrétariat
         # (Catherine est partie, Marie a pris la suite).
         "entity_name": 'Marie',
-    },
-    # V1.1.9 : trois nouvelles questions de contexte (q15/q16/q17).
-    # Non câblées dans le rapport en V1.1.9 — substrat V1.2 SLM.
-    {
-        "question_id": 'q15',
-        "mode": 'A',
-        "selected_option": 'q15_c',
-        "selected_option_label": 'Senior — plus de 15 ans',
-        "free_text": None,
-        "complement_text": None,
-    },
-    {
-        "question_id": 'q16',
-        "mode": 'A',
-        "selected_option": 'q16_b',
-        "selected_option_label": 'Périurbain ou ville moyenne — patientèle mixte, accès correct aux confrères',
-        "free_text": None,
-        "complement_text": None,
-    },
-    {
-        "question_id": 'q17',
-        "mode": 'A',
-        "selected_option": 'q17_d',
-        "selected_option_label": 'Préparer la transmission — cession, départ, succession',
-        "free_text": None,
-        "complement_text": (
-            "Pas dans l'urgence, mais dans les 3 prochaines années il faudra avoir "
-            "préparé la suite. C'est précisément ce qui me pousse à regarder mon "
-            "organisation de plus près maintenant."
-        ),
     },
     {
         "question_id": 'q03',

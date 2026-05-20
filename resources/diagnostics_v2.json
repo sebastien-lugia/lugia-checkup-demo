@@ -1,0 +1,91 @@
+{
+  "version": "2.0",
+  "last_updated": "2026-05-19",
+  "schema_doc": "12 titres de diagnostic par couple (axe, niveau qualitatif) + 6 signaux croisés inter-axes. Les titres sont des accroches serif courtes pour la page résultats V2.0. Les signaux sont évalués par priorité (S-burnout d'abord, S-structured en dernier), un seul affiché à la fois.",
+  "titres_diagnostic": {
+    "A": {
+      "axe": "Parcours patient",
+      "a_risque": "Le patient navigue à vue.",
+      "a_surveiller": "Des bases existent, mais elles restent fragiles.",
+      "operationnel": "Le parcours est maîtrisé sur les situations courantes.",
+      "maitrise": "Un parcours fluide, de bout en bout."
+    },
+    "B": {
+      "axe": "Équipe & secrétariat",
+      "a_risque": "L'organisation repose sur vous seul.",
+      "a_surveiller": "Une équipe qui fonctionne, mais sous tension.",
+      "operationnel": "Une équipe organisée et relativement autonome.",
+      "maitrise": "Un cabinet bien gouverné, équipe responsabilisée."
+    },
+    "C": {
+      "axe": "Outils & dossiers",
+      "a_risque": "Les outils travaillent contre vous.",
+      "a_surveiller": "Les outils sont là, mais pas encore au service du soin.",
+      "operationnel": "Les outils soutiennent l'activité clinique.",
+      "maitrise": "Un cabinet numérique mature."
+    }
+  },
+  "seuils_niveaux": {
+    "_doc": "Mapping score % → niveau qualitatif Lugia (cf spec V2 §8.2). Affichés en texte uniquement, jamais en chiffre.",
+    "maitrise": { "min": 78, "max": 100 },
+    "operationnel": { "min": 55, "max": 77 },
+    "a_surveiller": { "min": 35, "max": 54 },
+    "a_risque": { "min": 0, "max": 34 }
+  },
+  "signaux_croises": [
+    {
+      "id": "S-burnout",
+      "ordre_priorite": 1,
+      "condition": "A <= 34 AND B <= 34 AND C <= 54",
+      "condition_doc": "Inhibé si au moins un axe tient (typiquement C >= 55 — cf S-tech-vs-organisation qui prend la main).",
+      "titre": "Signal fort : risque d'épuisement professionnel",
+      "tonalite": "alerte_forte",
+      "message": "Les trois axes sont sous tension simultanément. Ce n'est pas un défaut d'organisation individuelle — c'est un système qui ne s'auto-régule plus. La priorité n'est pas de tout reprendre, c'est de dégager une marge sur un seul levier pour permettre aux autres de respirer."
+    },
+    {
+      "id": "S-tech-vs-organisation",
+      "ordre_priorite": 2,
+      "condition": "C >= 55 AND A <= 34 AND B <= 34",
+      "condition_doc": "Médecin équipé techniquement mais dont l'organisation humaine ne suit pas. Cas limite typique : C=90, A=33, B=34 — ne déclenche plus S-burnout mais ce recadrage plus juste.",
+      "titre": "Vous avez investi sur les outils — l'organisation humaine est le prochain palier",
+      "tonalite": "recadrage",
+      "message": "Vos outils sont à un bon niveau de maîtrise. Ce qui pèse aujourd'hui ne se résoudra pas par plus de technologie — c'est sur le parcours patient et l'équipe que le levier suivant se trouve."
+    },
+    {
+      "id": "S-admin",
+      "ordre_priorite": 3,
+      "condition": "B <= 34 AND C <= 34",
+      "condition_doc": "Surcharge administrative chronique combinée à une équipe fragile.",
+      "titre": "Surcharge administrative chronique",
+      "tonalite": "alerte",
+      "message": "L'équipe et les outils sont simultanément en difficulté — ce qui produit cette sensation que l'administratif occupe une part démesurée du temps. La voie de sortie commence par identifier une seule tâche à déléguer ou automatiser sur 6 semaines, pas par une refonte globale."
+    },
+    {
+      "id": "S-paradox",
+      "ordre_priorite": 4,
+      "condition": "A >= 55 AND B <= 34",
+      "condition_doc": "Bon parcours patient malgré une équipe fragile — typiquement, médecin solo qui porte beaucoup.",
+      "titre": "Paradoxe : bon parcours patient, équipe fragile",
+      "tonalite": "paradoxe",
+      "message": "Vous parvenez à délivrer un bon parcours patient en compensant côté équipe. C'est tenable à court terme — la question est : pour combien de temps encore, et à quel coût personnel ?"
+    },
+    {
+      "id": "S-tools-opp",
+      "ordre_priorite": 5,
+      "condition": "C <= 34 AND A >= 55",
+      "condition_doc": "Outils faibles, mais pratiques de soin déjà solides. Opportunité d'investissement.",
+      "titre": "Opportunité : vos pratiques méritent de meilleurs outils",
+      "tonalite": "opportunite",
+      "message": "Votre pratique de soin tient debout sans appui technologique fort — c'est une compétence rare. Les outils numériques sont aujourd'hui un démultiplicateur, pas une condition. Vous pourriez gagner significativement en investissant légèrement de ce côté."
+    },
+    {
+      "id": "S-structured",
+      "ordre_priorite": 6,
+      "condition": "A >= 55 AND B >= 55 AND C >= 55",
+      "condition_doc": "Cabinet structuré — ferme le tableau, ne masque jamais une alerte (priorité la plus basse).",
+      "titre": "Cabinet structuré — voici où concentrer votre énergie pour passer au niveau suivant",
+      "tonalite": "positif",
+      "message": "Les trois axes sont au moins opérationnels. Le check-up sert ici à identifier la marche suivante — pas un point de rupture, mais un palier de maturité supplémentaire que vous pouvez choisir d'engager."
+    }
+  ]
+}

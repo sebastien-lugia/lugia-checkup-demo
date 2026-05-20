@@ -4,6 +4,347 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-19 — V2.0 : passe éditoriale complète + guide de relecture pour pilote
+
+Refonte V2.0 du check-up amorcée (cf D-029). Trois livrables rédactionnels produits dans la journée + démarrage de l'intégration technique en soirée (sous-vague T1 livrée) suite à l'inversion de séquence D-030.
+
+### V2.0-T5-fix — accueil : sessions en cours par version (pas une seule globale)
+
+Sébastien constate qu'avec une V1.1.9 en cours ET une V2.0 en cours, l'accueil n'affichait qu'une seule session "active" (la plus récente updatée). L'utilisateur ne pouvait donc pas reprendre celle des deux qu'il voulait.
+
+**Backend** :
+- `src/db.py` : nouveau helper `get_in_progress_interviews_by_version(email)` qui retourne un dict `{version: Interview}` — pour chaque version, l'interview `in_progress` la plus récente du user (ou une seule si plusieurs in_progress sur la même version, ce qui ne devrait pas arriver mais est géré).
+- `backend/main.py` : nouvel endpoint `GET /interviews/actives` (pluriel) qui expose ce dict. L'endpoint legacy `GET /interviews/active` (singulier) reste en place pour compat — il continue de renvoyer la plus récente toutes versions confondues.
+
+**Frontend** :
+- `web/lib/api.ts` : type `ActiveInterviewsByVersion = Partial<Record<string, Interview>>` + fonction `getActiveInterviewsByVersion()`.
+- `web/app/page.tsx` réécrit : retrait du bandeau "Session en cours" en tête, refonte avec un composant `<VersionCard>` réutilisé pour les 2 cartes. Chaque carte affiche :
+  - Si pas de session active pour cette version : eyebrow + titre + description + pills + CTA "Commencer →" ou "Essayer la nouvelle version →".
+  - Si une session est en cours : encart "Session en cours" intégré sous les pills (date + position pour V1, juste date pour V2 vu que V2 a son `resumeStep` interne), CTA "Reprendre →" (ou "Voir mes résultats →" si la session est completed) à la place du CTA de démarrage. Fond de carte légèrement teinté `#fbf9f1`.
+- Routing intelligent : `pathForResumeV1` pointe vers `/checkup?interview={id}` ou `/resultats?interview={id}` selon `current_question_index >= 14`. `pathForResumeV2` pointe vers `/checkup/v2` (la machine à états V2 `resumeStep` choisit l'étape) ou `/resultats/v2?id={id}` si `status === 'completed'`.
+
+**Tests validés** (5 scénarios end-to-end via TestClient) :
+- 0 session → dict vide.
+- 1 session V1.1.9 → `{v1.1.9: ...}`.
+- 1 V1.1.9 + 1 V2.0 → dict avec les 2 clés, chacune pointant sur la bonne interview.
+- Compléter V1.1.9 → la clé `v1.1.9` disparaît du dict, `v2.0` reste.
+- Legacy `/interviews/active` (singulier) reste fonctionnel et renvoie V2.0 (la plus récente in_progress).
+
+TypeScript strict : 0 erreur.
+
+### V1.1.9-revision — retrait Q15/Q16/Q17 (dormantes)
+
+Sébastien constate en testant V1.1.9 que les 3 questions de contexte (Q15 statut, Q16 territoire, Q17 horizon) ajoutées en v1.10 polluent le parcours classique. Elles étaient marquées comme **dormantes** (collectées en BDD mais non câblées dans les rapports — substrat différé pour V1.2 SLM cf D-020 et D-028). Or l'information équivalente est désormais portée par le mini-onboarding profil V2.0 (chips factuels `cabinet_type` + chips réflexifs `status` / `territoire` / `horizon`), ce qui rend la collecte côté V1.1.9 doublement redondante.
+
+**Décision Sébastien** : V1.1.9 doit être strictement les 14 questions d'origine. Les reformulations Q01 (réordering) et Q02 (libellés) introduites en v1.10 sont préservées — elles font partie de la V1.1.9 visuelle stricto sensu.
+
+**Fichiers modifiés** :
+- `resources/interview_protocol.json` v1.10 → v1.11 : retrait des 3 entrées q15/q16/q17, repositionnement de q03..q14 en positions 3..14, `total_questions: 17 → 14`.
+- `resources/interview_protocol.md` : note v1.10 → v1.11 expliquant la révision post-V2.0, distribution refondue (11 A + 2 B + 1 C, alternance `A A A A B A A A A A A A B C`), retrait des 3 sections Q15/Q16/Q17 + des 3 lignes correspondantes dans le persona Chateau, renumérotation des positions, titre `Les 17 questions → Les 14 questions`.
+- `scripts/seed_persona.py` : retrait des 3 entrées ANSWERS pour q15/q16/q17, docstring mise à jour.
+- `resources/sample_answers_pchateau.md` v2.5 → v2.6 : retrait des 3 lignes dans la table, retrait des 3 sections détail, titre `Détail des 17 réponses → Détail des 14 réponses`, note mise à jour.
+
+**Validation** :
+- `python3 src/questions.py` → `OK — JSON et .md cohérents (14 questions).`
+- `check_md_json_consistency()` → `True`, aucune erreur.
+- Seed Chateau insère bien 14 réponses (IDs séquentiels q01..q14).
+- `dump_report` génère un rapport de 5 757 caractères sans aucune référence q15/q16/q17 et sans erreur.
+- Scores facettes inchangés : processes 3 (raw_mean 3.33), participants 3 (3.33), information 3 (2.75).
+- Le hash sha256 du rapport diffère de l'ancien (puisque les options Q15/Q16/Q17 ne sont plus dans la BDD), mais la structure et le contenu du rapport sont strictement identiques à V1.1.8 ergonomiquement.
+
+**Impact prod** : la migration BDD T3 n'est pas touchée — les colonnes `protocol_version`, `scored`, et les 10 colonnes V2 de `user_profile` restent. Les interviews existantes qui ont des answers q15/q16/q17 conservent ces données en BDD (sans impact — `dump_report` ignore les question_id absents du protocole courant), mais aucune nouvelle interview V1.1.9 n'en collectera plus.
+
+### V2.0-T4g — page dédiée /modules/[id] (détail d'un module)
+
+Complète T4e. La page résultats V2 affichait jusqu'ici les cartes-résumé des opportunités sans permettre d'accéder au détail des 4 étapes + benchmark de conclusion. Cette sous-vague livre la page dédiée prévue par la spec V2 §11.5 et rend les cartes cliquables.
+
+**`backend/main.py`** :
+- Import `from src.v2 import modules as v2_modules`.
+- Nouveaux endpoints publics (pas d'auth — contenu statique partageable) :
+  - `GET /modules` retourne la liste complète des 7 modules (cf `modules_v2.json`).
+  - `GET /modules/{module_id}` retourne le détail d'un module. 404 si l'id n'existe pas.
+
+**`web/lib/api.ts`** :
+- Nouveau type `V2ModulesPayload` (wrapping du JSON `modules_v2.json`).
+- Fonctions `listModulesV2()` et `getModuleV2(moduleId)`.
+
+**`web/app/modules/[id]/page.tsx`** (~180 lignes, nouvelle page Next.js) :
+- Route dynamique `/modules/{urgences|chroniques|delegation|comm|logiciel|admin|pilotage}`.
+- Hero : eyebrow accent bleu « Module d'approfondissement », titre serif avec icône, méta `EffortPips + impact + N étapes`.
+- 4 étapes numérotées : grand chiffre serif `01/02/03/04`, titre, pill colorée selon tag temporalité (`quick` vert / `medium` ambre / `invest` bleu) avec libellé complet, body en prose.
+- Encadré ambré « Repère terrain » avec le benchmark de conclusion et marqueur `[À confirmer]` si applicable.
+- Lien retour `router.back()` en tête + note de partage en pied (URL publique partageable avec un associé sans connexion requise).
+- Gestion d'erreur 404 explicite (« Ce module n'existe pas »).
+
+**`web/components/v2/ResultatsV2.tsx`** :
+- Import `Link from "next/link"`.
+- `ChantierCard` (section III opportunités) devient un `<Link href={`/modules/${mod.id}`}>` cliquable avec hover bg-white/70 + bordure plus marquée + CTA « Voir le détail → » accent bleu sous le bloc méta.
+- `ModuleSummary` (section IV grille tous chantiers) devient également un `<Link>` cliquable avec hover.
+
+**Validation** :
+- TypeScript strict : `tsc --noEmit -p .` → 0 erreur.
+- API : `GET /modules` retourne les 7 IDs, `GET /modules/comm` retourne le détail complet (label, 4 étapes avec tags `['quick', 'quick', 'medium', 'medium']`, benchmark `to_confirm`), `GET /modules/inconnu` → 404 avec detail explicite.
+
+### V2.0-T5-fix — bugfix runtime sur /checkup/v2 (optional chaining)
+
+Erreur runtime remontée en dev par Sébastien sur la page `/checkup/v2` au premier chargement : *« undefined is not an object (evaluating 'protocol?.blocks.find') »* à `app/checkup/v2/page.tsx:190`. Cause : `blockA/B/C` étaient calculés à chaque render avec `protocol?.blocks.find(...)`, y compris pendant l'état initial où `protocol === null`. La spec ECMAScript prévoit que la chaîne court-circuite proprement (`null?.blocks.find()` retourne `undefined`), mais Turbopack/Next 16 + WebKit ne propage pas le short-circuit comme attendu dans ce cas précis.
+
+Correction : déplacement des 3 lignes `const blockA/B/C = protocol.blocks.find(...) ?? null` **sous** l'early return `if (!protocol || !profile) return null;`. À ce point `protocol` est garanti non-nul, on peut supprimer l'optional chaining. Plus de risque d'évaluer `.find(...)` sur undefined.
+
+Aucun impact sur les autres composants V2 — TypeScript reste à 0 erreur.
+
+### V2.0-T5 — page d'accueil 2 cartes (V1.1.9 / V2.0)
+
+Refonte de `app/page.tsx` pour permettre au médecin testeur de choisir entre les deux versions du check-up. Cf D-029 et spec V2 §11.5.
+
+**`web/lib/api.ts`** :
+- Type `Interview` étendu avec `protocol_version?: string` (optionnel pour préserver la compat — le backend l'expose toujours depuis T3 grâce à `interview.protocol_version NOT NULL DEFAULT 'v1.1.9'`).
+
+**`web/app/page.tsx`** réécrit (~245 lignes) :
+- Hero épuré avec phrase d'accroche.
+- Bandeau « Session en cours » conditionnel — affiche la version (Check-up classique / Nouvelle version), la date de démarrage, et un CTA « Reprendre » qui route vers `/checkup`, `/checkup/v2`, `/resultats?interview=...` ou `/resultats/v2?id=...` selon `protocol_version` et `status` (via `pathForResume`).
+- 2 cartes côte à côte (`grid-cols-1 md:grid-cols-2`) :
+  - **Check-up classique** (V1.1.9) — eyebrow gris « Version actuelle », titre serif, 2 pills `14 questions` + `~25 min`, CTA bleu. Au clic : `createInterview()` puis `router.push('/checkup?interview=...')`.
+  - **Diagnostic organisationnel V2** (V2.0) — badge `Pilote` accent bleu en haut à droite, bordure 2px bleue, eyebrow bleu « Nouvelle version », 3 pills `18 questions` + `~25 min` + `Radar live`, CTA. Au clic : `createInterviewV2()` puis `router.push('/checkup/v2')`.
+- Carte « Vos garde-fous (les deux versions) » sous les cartes (aucune donnée patient / pas de diagnostic médical / reprise possible).
+- État `workingPath: 'classic' | 'v2' | null` partagé entre les 2 cartes pour désactiver les boutons pendant la création.
+- Helper `Pill` réutilisé pour les badges de spec.
+
+**Validation** :
+- TypeScript strict : `tsc --noEmit -p .` → 0 erreur.
+- Test API : `GET /interviews/active` expose bien `protocol_version` (déjà présent en BDD depuis T3). Scénario validé : V1.1.9 créée → reportée comme `v1.1.9` ; V1.1.9 completed + V2.0 créée → V2.0 devient l'active. Le bandeau de reprise peut donc router correctement.
+
+**Substrat livré pour T6** — la page d'accueil ne dépend plus que du backend déjà en place (T3 + T4a). T6 est purement opérationnel : migration prod, déploiement Vercel + Render, smoke test cohabitation.
+
+### V2.0-T4c/d/e/f — composants Next.js V2 + orchestrateur + page résultats + test bout en bout
+
+3 vagues UI livrées d'un trait — la totalité du parcours V2 est codée et fonctionnelle.
+
+**`web/components/v2/`** — 11 composants :
+- `IntroV2.tsx` (~80 lignes) — page d'intro 4 cartes promesses (Adaptatif / Terrain / Croisé / Actionnable), CTA pilule sombre.
+- `ChipsField.tsx` (~55 lignes) — composant chips réutilisable avec free_text optionnel pour l'option « Autre ».
+- `ProfilStep1.tsx` (~90 lignes) — 5 chips factuels (cabinet_type / volume / paramedical_team / logiciel_metier / rdv_canal), validation côté client.
+- `ProfilStep2.tsx` (~70 lignes) — 4 chips réflexifs (status / territoire / horizon / motivation), bouton retour étape 1.
+- `Energie.tsx` (~80 lignes) — 1 question 4 options non scorée, check-mark accent bleu, CTA Continuer explicite.
+- `OptionCardV2.tsx` (~140 lignes) — option avec check-mark, **reformulation terrain inline** apparaissant sous l'option sélectionnée, **benchmark ambré** conditionnel avec marqueur `[À confirmer]` quand `source_status='to_confirm'`, support `has_entity_field` (V1.1.5-i préservé), animations CSS-in-JS avec respect `prefers-reduced-motion`.
+- `BlocQuestion.tsx` (~130 lignes) — **format bloc-entier** (6 questions rendues sur la même page), persistance immédiate de chaque réponse via `onAnswer`, **auto-scroll 250ms** après chaque clic (`window.scrollBy` smooth pour positionner le bas de la carte répondue à 70 % du viewport, désactivé si `prefers-reduced-motion: reduce`), bouton « Bloc suivant » actif uniquement quand les 6 sont répondues.
+- `RadarAside.tsx` + `RadarTopbar` (~190 lignes) — **radar SVG dynamique** style V4 : triangle équilatéral tourné (sommet A à 0°/droite, C à 120°/haut-gauche, B à 240°/bas-gauche), **4 polygones concentriques** (25/50/75/100 %), **3 points couleur r=4** même dimension dès le départ (positionnés à 4 % du rayon si axe pas encore commencé), polygone des scores qui se construit en direct avec transitions CSS 300ms, mini-barres horizontales sous chaque axe, **aucun score numérique exposé** (D-013/D-023). `RadarTopbar` est le fallback texte uniquement pour mobile (`< 1080px`).
+- `BlockTransition.tsx` (~80 lignes) — page intermédiaire entre 2 blocs, score-reveal animé sur le niveau qualitatif + le titre diagnostic du bloc tout juste complété (`v2RevealUp` 500ms ease-out staggered, désactivé en `prefers-reduced-motion`).
+- `RadarResult.tsx` (~140 lignes) — radar grand format 340×340 pour la page résultats, même orientation que `RadarAside`, **labels des axes affichés sur le SVG** (contrairement à l'aside), `text-anchor` typé strict (`"start" | "middle" | "end"`).
+- `ResultatsV2.tsx` (~310 lignes) — page résultats complète : bandeau remplaçant conditionnel, hero personnalisé avec prénom Dr X, phrase d'accueil italique (`motivation_intro`), radar grand format, **SignalBanner** stylé selon `tonalite` (alerte / recadrage / opportunité / positif), aparté status_junior ou status_senior, **section I « Les trois axes »** avec 3 `FacetCard` dépliables (titres diagnostic + badges asymétriques Maîtrisé/Opérationnel muets vs gris/rouille pour À surveiller/À risque), **section II « Repères terrain personnalisés »** avec les `R-bench-*` déclenchés en encadrés ambrés, **section III « Opportunités d'action »** avec les 4 premières opportunités (compute_opportunities_order côté backend) — première carte mise en avant « Recommandé pour vous » bordure bleue, **section IV « Tous les chantiers »** grille des 7 modules.
+
+**`web/app/checkup/v2/page.tsx`** (~310 lignes) — orchestrateur du parcours V2 :
+- Machine à états utilisant `V2Step` + `resumeStep` (un médecin qui revient sur son parcours reprend automatiquement au bon endroit).
+- Bootstrap : `Promise.all([getProtocolV2(), getMyProfile()])` au mount.
+- 9 transitions explicites : `intro → profil_step1 → profil_step2 → energy → bloc_A → transition_A → bloc_B → transition_B → bloc_C → /resultats/v2?id={iid}`.
+- Création différée de l'interview V2 : à la validation de l'étape 2 du profil (et pas à l'intro), pour éviter les interviews orphelines.
+- Refresh des scores en arrière-plan après chaque réponse via `getScoresV2(iid)` → mise à jour du radar live sans bloquer la saisie.
+- Layout responsive : aside radar 220px visible `≥ xl (1280px)`, sinon `RadarTopbar` texte uniquement.
+- Barre de progression chapitres (Profil / Ancrage / Parcours patient / Équipe & secrétariat / Outils & dossiers).
+
+**`web/app/resultats/v2/page.tsx`** (~80 lignes) — page résultats :
+- Charge `/interviews/{id}/report` au mount, redirige vers `/resultats?id={id}` (legacy) si `protocol_version !== 'v2.0'`.
+- Affiche un message d'attente si `is_complete: false`.
+- Délègue le rendu à `<ResultatsV2 report={report} />`.
+
+**Validation** :
+- TypeScript strict : `tsc --noEmit -p .` retourne **0 erreur** sur l'ensemble du code projet (incluant les 11 nouveaux composants V2 + 2 nouvelles pages).
+- Test bout en bout via FastAPI TestClient simulant ce que le frontend fera : GET protocol V2 + GET profile + PATCH étape 1 + PATCH étape 2 + POST interview V2 + PUT 18 réponses (1 scored=false énergie + 17 scorées) + GET scores intermédiaire + POST complete + GET report. Validation des assertions clés : Chateau-style produit `A=62%/B=38%/C=54%`, niveaux qualitatifs corrects, prénom Pierre, R-bench-transmission déclenché, routing Doctolib, `opportunities_order=['comm', 'chroniques', 'delegation', 'pilotage', 'logiciel', 'admin', 'urgences']` (premier `comm` cohérent avec `motivation=charge` favor effort 1-2 + `horizon=preparer_transmission` favor B).
+- Smoke build Next.js : la commande `npm run build` échoue uniquement sur le binaire SWC du sandbox Linux/arm64 (problème d'environnement, pas du code). Build OK attendu sur le MacBook.
+
+**Reste à coder en aval** :
+- T5 (page d'accueil 2 cartes V1.1.9 / V2.0) — court, désormais débloqué.
+- T6 (mise en prod : migration Alembic, déploiement Vercel + Render, smoke test cohabitation).
+- T7 (pilote terrain : envoi de l'URL prod + guide adapté aux 3-5 médecins testeurs).
+- Sourcing benchmarks (tâche #6 en parallèle) — application des sources DREES / CNAM / CMG / URPS sur les 21 chiffres `[À confirmer]`.
+- Application du brand kit Lugia en passe finale (track Communication).
+
+### V2.0-T4b — infrastructure frontend (types TS + API client + state machine)
+
+Préparation du socle TypeScript pour les écrans V2 (T4c-T4e). Aucun composant React produit dans cette sous-vague — uniquement les types et les fonctions utilitaires que les prochains écrans vont consommer.
+
+**`web/lib/api.ts`** (étendu) :
+- `UserProfile` enrichi des 10 champs V2 (cabinet_type, volume, paramedical_team, logiciel_metier, logiciel_metier_other, rdv_canal, status, territoire, horizon, motivation) — tous optionnels (null tant que le médecin n'a pas démarré V2.0).
+- Nouveau type `UserProfilePatch` pour le patch partiel du profil.
+- `patchMyProfileV2(patch)` — patch partiel multi-champs (étape 1 ou 2 indépendamment).
+- `createInterviewV2()` — POST /interviews avec `{protocol_version:'v2.0'}`, retourne `{interview_id, protocol_version}`.
+- `Answer` étendu avec `scored?: boolean` (défaut conservatoire true côté backend).
+- Types V2 complets : `ProtocolV2`, `V2Block`, `V2Question`, `V2Option`, `V2OptionBenchmark`, `V2EnergyQuestion`, `V2RoutingRule`, `V2RenderingHints`, `V2Scores`, `V2AxisScore`, `V2Level`, `V2Signal`, `V2Tonality`, `V2EnergyPrio`, `V2MotivationPrio`, `V2HorizonPrio`, `V2Prioritization`, `V2BenchmarkCombi`, `V2RoutingMessages`, `V2ReplacementPayload`, `V2Module`, `V2ModuleStep`, `V2Report`.
+- `getProtocolV2()`, `getScoresV2(iid)`, `getReportV2(iid)` — wrappers typés.
+- Utilitaire pur `getVisibleQuestions(block, profile)` qui réplique côté client la logique de routing solo de `src/v2/questions.py` (b1b si cabinet_type=solo, b3 sinon). Permet au frontend de filtrer les questions sans rappel backend.
+
+**`web/lib/v2/state.ts`** (nouveau) :
+- Type `V2Step` énumérant les 10 étapes du parcours (intro → profil_step1 → profil_step2 → energy → bloc_A → transition_A → bloc_B → transition_B → bloc_C → resultats).
+- Constante `V2_STEP_ORDER` — ordre canonique pour la barre de progression.
+- Prédicats `isProfileStep1Complete`, `isProfileStep2Complete`, `isEnergyAnswered`, `isBlockComplete` — chacun pur, sans side-effect.
+- `nextStep(current)` / `prevStep(current)` — transitions linéaires.
+- `resumeStep(profile, scores, answeredIds)` — détermine l'étape initiale à servir, saute les étapes déjà complétées (un médecin qui a saisi son profil dans une session précédente reprend directement à l'énergie ou au bloc A en cours).
+- `stepLabel(step)` et `stepChapter(step)` — helpers d'affichage pour la barre de progression (5 chapitres : Profil / Ancrage / Parcours patient / Équipe / Outils).
+
+**Validation TypeScript** : `tsc --noEmit -p .` ne remonte aucune erreur sur le code projet (les warnings éventuels viennent de node_modules/next/, filtrés). 11 nouveaux exports utilitaires côté `state.ts`, ~23 types V2 + 3 fonctions API côté `api.ts`.
+
+**Substrat livré pour T4c** — les composants Intro V2 / Profil étape 1/2 / Énergie pourront :
+- `import { getProtocolV2, patchMyProfileV2, ProtocolV2, UserProfile } from "@/lib/api"`.
+- `import { V2Step, isProfileStep1Complete, nextStep, stepChapter } from "@/lib/v2/state"`.
+- Récupérer le protocole V2 une seule fois côté page, dériver la liste des chips à afficher depuis `protocol.profile.step1.fields`.
+- Sauvegarder via `patchMyProfileV2({cabinet_type: '...', volume: '...', ...})` avec sémantique patch (l'étape 2 ne réécrase pas l'étape 1).
+
+### V2.0-T4a — glue backend du parcours V2 (dispatcher /report + /scores + scored sur /answers)
+
+Première sous-vague de T4 — préparation du backend pour que le frontend V2 (T4b-T4e) puisse consommer un payload propre.
+
+**`src/v2/report.py`** (nouveau) :
+- `build_report(interview, answers, profile)` — assemble le payload V2 complet : scores 3 axes + signal croisé + tonalité + prioritization + benchmarks combinatoires + routing messages + replacement + modules + opportunities_order. Pas de génération narrative — c'est le frontend qui assemble visuellement à partir du payload structuré.
+- `compute_opportunities_order(profile, scores, rules_output)` — cascade de priorisation des 7 modules : R-motivation-prio puis R-horizon-prio puis R-energy-prio (max_effort) puis filtre R-replacement puis tri secondaire par score d'axe associé. Fonction pure, déterministe.
+
+**`backend/main.py`** :
+- Import des modules V2 (`src.v2.report`, `src.v2.scoring`) — inconditionnel, le dispatcher les active seulement pour les interviews `protocol_version='v2.0'`. Aucun impact V1.1.9.
+- `SaveAnswerBody` reçoit le champ `scored: bool = True`. Par défaut conservatoire (préserve le comportement V1.x), permet à V2 d'envoyer `scored=False` pour l'ancrage énergie.
+- `PUT /interviews/{iid}/answers/{qid}` propage `body.scored` à `db.save_answer`.
+- `GET /interviews/{iid}/scores` : dispatcher. Pour V2.0 retourne `v2_scoring.compute_all_scores(answers, profile)` (payload léger 3 axes + niveaux + completeness suffisant pour le radar live). Pour V1.x : comportement legacy inchangé.
+- `GET /interviews/{iid}/report` : dispatcher. Pour V2.0 retourne `v2_report.build_report(...)` (payload V2 complet). Pour V1.x : comportement legacy bit-à-bit identique. Le `global_score` V2 est persisté en BDD via `db.set_global_score` à la première lecture du rapport (pour analyses cohortes admin — jamais exposé au médecin).
+
+**Tests end-to-end validés** (sur BDD éphémère via FastAPI TestClient) :
+- Création interview V2.0 via `POST /interviews {protocol_version:'v2.0'}`.
+- 18 réponses persistées dont l'énergie avec `scored=False` (vérifié en BDD : `energy.scored=0`, `a1.scored=1`).
+- `GET /scores` V2 retourne A=62%/B=38%/C=54% (Chateau-style), niveaux qualitatifs Lugia, titres diagnostic, completeness 1.0 sur les 3 axes.
+- `GET /report` V2 retourne le payload complet : protocol_version v2.0, doctor_firstname Pierre, tonalité status_senior, phrase d'accueil charge, R-bench-transmission déclenché (B=38 ≤ 54), routing Doctolib, opportunities_order = `['comm', 'chroniques', 'delegation', 'pilotage', 'logiciel', 'admin', 'urgences']` (cohérent — favor_modules de horizon=preparer_transmission + favor_efforts de motivation=charge promeut `comm` effort 1 en premier).
+- `global_score=51` persisté en BDD côté interview.
+- Non-régression V1.1.9 : `GET /report` sur une interview legacy retourne la structure `facets + synthesis + workstreams + recommendation`, sans clé `protocol_version` — comportement strictement préservé.
+
+**Substrat livré pour T4b** — le frontend Next.js V2 pourra consommer :
+- `POST /interviews` body `{protocol_version: 'v2.0'}` → crée interview V2.
+- `PATCH /me/profile` → saisie en 2 étapes des chips factuels + réflexifs.
+- `GET /protocol?version=v2.0` → schéma complet du questionnaire (chargé une fois).
+- `PUT /interviews/{iid}/answers/{qid}` body `{scored: false}` pour l'énergie.
+- `GET /interviews/{iid}/scores` → mise à jour du radar live après chaque réponse.
+- `GET /interviews/{iid}/report` → payload complet pour la page résultats.
+
+### V2.0-T2 — scoring + personnalisation backend
+
+Package `src/v2/` créé (5 modules Python + 1 marker) qui consomme les JSON de T1 et les colonnes BDD de T3 pour produire le rapport V2.0 en règles déterministes.
+
+**`src/v2/questions.py`** — chargement du protocole + résolution du routing solo.
+- `load_protocol()` — cache singleton.
+- `get_visible_questions(block_id, profile)` — applique R-routing-solo sur le bloc B (b1b XOR b3), toujours 6 questions visibles par bloc.
+- `get_all_visible_question_ids(profile)` — IDs plats pour vérifier la complétude.
+- `find_question(question_id)` + `get_option(question, option_id)`.
+
+**`src/v2/scoring.py`** — % par bloc + niveaux qualitatifs.
+- `score_to_level(pct)` — mapping seuils 35 / 55 / 78 (cf spec V2 §8.2).
+- `score_block(block_id, answers, profile)` — formule `Σ s / (N_visible × 4) × 100`, ignore les réponses non visibles via routing.
+- `compute_all_scores(answers, profile)` — payload complet 3 axes + `global_score` (non exposé au médecin) + `completeness` (utile au radar live).
+- `has_three_complete_blocks(scores)` — gate pour l'orchestrateur rapport.
+- `get_energy_level(answers)` — extrait l'option énergie non scorée.
+
+**`src/v2/signals.py`** — 6 signaux croisés en cascade priorisée.
+- `evaluate_signals(scores)` — premier match gagne, retour `None` si aucun pattern.
+- Mini-DSL `_condition_matches` qui parse `A <= 34 AND B <= 34 AND C <= 54` depuis `diagnostics_v2.json` (opérateurs `<= >= < > ==`, liaison `AND`). Évite d'avoir à coder 6 conditions à la main et garde la spec déclarative.
+- Cas limite documenté testé : A=33 B=34 C=90 → `S-burnout` exclu (C≥55), match `S-tech-vs-organisation` (recadrage plus juste que l'alerte générique).
+
+**`src/v2/personalize.py`** — 13 règles déterministes nommées.
+- Tonalité : `r_status_junior`, `r_status_senior` (3 variantes chacune, sélection déterministe par `interview_id`), `r_motivation_tone` (4 branches motivation, libellés exacts du brouillon).
+- Priorisation : `r_energy_prio` (max_effort + tonalité par énergie), `r_motivation_prio` (4 stratégies dont `lowest_first` pour `motivation=risque`), `r_horizon_prio` (3 ordres de blocs selon horizon).
+- Benchmarks combinatoires : `r_bench_solo_charge`, `r_bench_volume_admin`, `r_bench_transmission` (positif post-revue), `r_bench_solo_hero` (qualitatif). Tous marqués `source_status: to_confirm` ou `qualitative`. Affichés en page résultats finale uniquement (cf spec V2 §11.6).
+- Routing/contexte : `r_routing_rdv` (Doctolib / Maiia nommés explicitement), `r_territoire_context` (mention sur chantiers coordination, **ne modifie jamais le score** — garde-fou documenté cf §3.3).
+- Composite : `r_replacement` (bandeau + ton de découverte + modules exclus `comm` + `delegation` + fallback message).
+- Orchestrateur `apply_rules(profile, scores, answers, interview_id)` → payload consolidé pour le futur `templates.py`.
+- Sélection déterministe `_pick_deterministic(variants, interview_id, salt)` — réutilise la mécanique D-022 (deux médecins du même profil ne reçoivent pas la même variante, mais même interview rejoue à l'identique).
+
+**`src/v2/modules.py`** — chargement simple des 7 modules d'approfondissement (lecture pure du JSON, pas de logique métier — la sélection arrivera dans `templates.py` à T4).
+
+**Tests** — `tests/test_v2_scoring_personalize.py` (29 tests, tous passent) :
+- Routing solo : `b1b` servi aux solos, `b3` aux non-solos, profil vide → fallback non-solo.
+- Scoring : seuils 35/55/78, banker's rounding (37.5 → 38), parcours partiel renvoie `None`, b1b répondu par un MSP ignoré dans le calcul.
+- Signaux : les 6 patterns validés sur scores synthétiques + cas limite S-tech-vs-organisation + scores incomplets → `None`.
+- Personnalisation : 13 règles validées indépendamment + intégration `apply_rules` sur Chateau-style (senior solo transmission charge).
+- Déterminisme : `r_status_senior({"status": "senior"}, 42)` rejouable à l'identique.
+
+**Substrat livré pour T4** — le frontend pourra consommer :
+- `compute_all_scores(answers, profile)` après chaque réponse pour mettre à jour le radar live.
+- `evaluate_signals(scores)` à la fin du parcours pour afficher le signal croisé.
+- `apply_rules(...)` pour les benchmarks combinatoires, tonalités et priorisations sur la page résultats.
+
+Ce qui reste à coder (différé à T4 ou T2-bis si nécessaire) : `src/v2/opportunities.py` (sélection ordonnée des chantiers en consommant les payloads de priorisation), `src/v2/templates.py` (assemblage narratif final).
+
+### V2.0-T3 — migration BDD cohabitation V1.1.9 / V2.0
+
+Schéma BDD étendu pour permettre la cohabitation des protocoles (cf D-029 + D-030). Modifications strictement additives — aucune colonne supprimée, défauts conservatoires sur toutes les nouvelles colonnes pour préserver la compatibilité descendante.
+
+**`src/db.py`** :
+- `interview` reçoit `protocol_version TEXT NOT NULL DEFAULT 'v1.1.9'` et `global_score INTEGER` (nullable, non exposé au médecin — cf D-013, D-023).
+- `answer` reçoit `scored INTEGER NOT NULL DEFAULT 1` (stocke 0/1 côté SQLite, sert l'ancrage énergie V2 non scoré).
+- `user_profile` reçoit 10 colonnes V2 nullables : `cabinet_type`, `volume`, `paramedical_team`, `logiciel_metier`, `logiciel_metier_other`, `rdv_canal`, `status`, `territoire`, `horizon`, `motivation`.
+- 3 helpers idempotents : `_ensure_interview_v2_columns()`, `_ensure_answer_scored_column()`, `_ensure_profile_v2_columns()`, tous appelés via `init_db()`.
+- `create_interview(email, protocol_version='v1.1.9')` — paramètre ajouté, défaut conservatoire.
+- `save_answer(..., scored=True)` — paramètre ajouté, défaut conservatoire.
+- Nouveau helper `upsert_user_profile_v2(email, fields)` — patch partiel (les champs non passés restent inchangés), garde-fou contre injection de champs inconnus via la constante `USER_PROFILE_V2_FIELDS`.
+- Nouveau helper `set_global_score(interview_id, score)`.
+
+**`backend/main.py`** :
+- `POST /interviews` accepte un body optionnel `{protocol_version: 'v1.1.9'|'v2.0'}`. Sans body → v1.1.9 par défaut (compat V1.x). Version inconnue → 400 explicite.
+- Réponse `CreateInterviewResponse` étendue à `{interview_id, protocol_version}`.
+- `GET /protocol?version=v2.0` retourne le protocole V2.0 (chargé depuis `resources/interview_protocol_v2.json` + cache singleton par processus). Sans `version` → V1.x legacy.
+- `GET /me/profile` retourne les 12 champs (firstname + 10 V2 + email). Les champs non saisis sont à `null`.
+- `PATCH /me/profile` étendu aux 11 champs en patch partiel — la saisie en 2 étapes (5 chips factuels puis 4 chips réflexifs) ne nécessite pas de renvoyer l'ensemble.
+- Helper `_normalize_text(v)` partagé (trim + chaîne vide → None).
+
+**Tests validés** (10 tests end-to-end via FastAPI TestClient + tests unitaires db) :
+- Schéma sur BDD fraîche : 8 tables, toutes colonnes V2 présentes.
+- Idempotence : `init_db()` re-run sans erreur ni doublon.
+- Upgrade depuis BDD V1.1.9 existante : colonnes ajoutées, données legacy préservées, défauts auto-appliqués (`protocol_version='v1.1.9'` sur les interviews existantes).
+- `POST /interviews` : v1.1.9 par défaut, v2.0 explicite, v9.99 → 400.
+- `PATCH /me/profile` : patch partiel étape 1 puis étape 2 — étape 1 préservée.
+- Sécurité : champ inconnu `evil_field` filtré silencieusement par `USER_PROFILE_V2_FIELDS`.
+- Non-régression V1.1.9 : rapport Chateau de 5 757 caractères généré sans erreur sur le schéma étendu, aucune fuite de mention V2 dans le rendu V1.
+
+### V2.0-T1 — fichiers de données JSON
+
+Extraction du brouillon éditorial (`resources/v2_editorial_draft.md` v1.0) vers les 3 fichiers de données exploitables par le backend V2.0 :
+
+- `resources/interview_protocol_v2.json` (49.6 KB, version 2.0) : profil 5+4 chips, ancrage énergie non scoré, 3 blocs (A Parcours patient / B Équipe & secrétariat / C Outils & dossiers), 19 IDs de questions (a1-a6 + b1+b1b+b3+b4-b7 + c1-c6) avec routing R-routing-solo position 2 du bloc B (b1b XOR b3), 76 options scorées 1-4 avec reformulation Lugia, 14 benchmarks inline marqués `source_status: to_confirm`, mécanisme `entity_name` (V1.1.5-i) préservé sur 4 options éligibles, hints de rendu (bloc-entier, auto-scroll 250ms, prefers-reduced-motion, breakpoints radar aside/topbar).
+- `resources/modules_v2.json` (17.2 KB) : 7 modules d'approfondissement (urgences / chroniques / délégation / comm / logiciel / admin / pilotage), chacun avec 4 étapes numérotées 01-04 + tag temporalité quick/medium/invest + benchmark de conclusion marqué `to_confirm`. Champ `logiciel_dynamique: true` sur le module `logiciel` pour permettre le nommage dynamique via `profile.logiciel_metier` (logique côté templates V2).
+- `resources/diagnostics_v2.json` (5.4 KB) : 12 titres de diagnostic (3 axes × 4 niveaux qualitatifs), seuils 35/55/78 codifiés, 6 signaux croisés (S-burnout, S-tech-vs-organisation, S-admin, S-paradox, S-tools-opp, S-structured) avec condition logique, priorité d'évaluation, titre, tonalité et message.
+
+**Validation** : `json.load` OK sur les 3 fichiers, comptages structurels conformes à la spec V2 §5-7 (3 blocs × 6 visibles, scores [1,2,3,4] sur toutes les options, 21 benchmarks total). Tous les chiffres non sourcés sont préservés avec le marqueur `[À CONFIRMER]` (cf instruction Sébastien — sourcing en parallèle tâche #6).
+
+**Substrat dormant** : ces 3 fichiers ne sont pas encore lus par le backend en V2.0-T1. Ils servent la sous-vague T2 (`src/v2/scoring.py` + `src/v2/personalize.py`) et T4 (frontend V2).
+
+### V2.0-specs — note de cadrage v1.9
+
+`wireframes/checkup_v2_specs.md` v1.9 (~625 lignes) : note de cadrage complète de la refonte V2.0. Rompt avec D-021 (alternance des modes) et suspend D-020 (SLM hybride en V1.2). Mode A pur, 3 blocs successifs, radar dynamique permanent, modules d'approfondissement statiques, 13 règles déterministes de personnalisation, 6 signaux croisés inter-axes. Détail complet dans `DECISIONS.md` D-029.
+
+### V2.0-wireframe — maquette HTML autonome
+
+`wireframes/checkup_v2_wireframe.html` (~1300 lignes) : 9 écrans (Accueil / Intro V2 / Profil étape 1 / Profil étape 2 / Énergie / Bloc-question avec radar aside / Transition inter-blocs / Résultats / Module). Switcher en haut pour parcourir les états. Radar aside style V4 (rotated pointe à droite, grille 4 niveaux concentriques). Conservation de la palette V1.1.9 (crème + serif + bleu accent).
+
+### V2.0-editorial — brouillon éditorial complet
+
+`resources/v2_editorial_draft.md` v1.0 (967 lignes, 5 lots) :
+- **Lot 1** — Bloc A Parcours patient : 5 questions × 4 options reformulées ton Lugia + 12 benchmarks marqués `[À CONFIRMER]`.
+- **Lot 2** — Bloc B Équipe : 5 questions × 4 options + routing solo (b1b/b3) + benchmarks.
+- **Lot 3** — Bloc C Outils & information : 5 questions × 4 options (dont C5 IA reformulée anti-désirabilité) + benchmarks.
+- **Lot 4** — 7 modules d'approfondissement "1 chose cette semaine" en ton Lugia.
+- **Lot 5** — 13 règles déterministes de personnalisation avec libellés complets (R-status-junior, R-status-senior, R-motivation-tone, R-energy-prio, R-bench-soloHero, R-bench-transmission, etc.).
+
+76 reformulations terrain + 12 titres de diagnostic + 21 benchmarks + 7 modules + 13 règles. Tonalité non culpabilisante, descriptif systémique, posture levier d'action.
+
+### V2.0-pilote — guide de relecture pour médecins testeurs
+
+`resources/v2_editorial_review_guide.md` v1.0 produit aujourd'hui. Guide structuré pour faciliter la relecture critique du brouillon par 3 à 5 médecins testeurs en 45-60 min. Sections : objectifs de la relecture, profil recherché, format pratique, 4 critères de validation, 5 pièges à invalider, 5 points sensibles à challenger explicitement (C5 IA, R-status junior/senior, R-bench-soloHero, R-bench-transmission 30-40 %, titres niveau "À risque"), template de feedback standardisé, modalités pratiques (e-mail à `sebastien@lugia.fr`, délai 7 jours), procédure interne de consolidation des retours.
+
+Le guide précède l'étape suivante (intégration technique V2.0 — création de `interview_protocol_v2.json`, `diagnostics_v2.json`, `modules_v2.json`, `src/v2/personalize.py` à partir du brouillon consolidé). La séquence retenue est : **pilote rédactionnel → intégration technique → sourcing benchmarks** (décision Sébastien 2026-05-19).
+
+### Pistes V3 et V6 versées en ROADMAP
+
+Deux notes externes `pistes_amelioration_v3.md` et `pistes_amelioration_v6.md` reçues aujourd'hui. Idées au-delà du périmètre V2.0 versées en ROADMAP V2.1+ (mode équipe, mini-vérifications de réalité, historique radar comparatif T0→T+3→T+6, capture d'engagement post-diagnostic, nomination explicite des limites de l'outil, 4ᵉ axe ancrage territorial via Q16 collectée mais non câblée).
+
+### État de la BDD
+
+Aucune migration nécessaire à ce stade — les livrables d'aujourd'hui sont 100 % rédactionnels et de cadrage. La cohabitation `protocol_version` (V1.1.9 / V2.0) sera mise en place à l'étape d'intégration technique.
+
+---
+
 ## 2026-05-19 — V1.1.9 : refonte UI questionnaire + page résultats + enrichissement contexte
 
 Vague visuelle V1.1.9 livrée. Refonte complète de l'apparence du questionnaire et de la page résultats dans une direction « moderne immersive métier », avec enrichissement du bloc Contexte de départ (3 nouvelles questions de qualification). Aucun changement de scoring, aucun câblage des nouvelles questions dans le rapport en V1.1.9 — substrat pour V1.2 SLM.

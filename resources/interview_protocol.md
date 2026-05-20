@@ -6,7 +6,7 @@ Protocole du questionnaire du démonstrateur Lugia Check-up. Dix-sept questions 
 
 > **Source de vérité technique :** `resources/interview_protocol.json`. Ce `.md` est la documentation humaine — toute évolution structurelle doit être faite dans le JSON et répercutée ici manuellement. Un test de cohérence (`src/questions.py::check_md_json_consistency`) vérifie au démarrage que les IDs de question et le compte sont alignés.
 
-> **Note v1.10 :** V1.1.9 — enrichissement du bloc Contexte de départ. (1) Q01 reformulé : `q01_b` devient "Cabinet de groupe — 2 à 3 médecins" (au lieu de 2-5), nouveau `q01_d` "Cabinet de groupe — 4 à 5 médecins" ajouté en fin de liste avant `q01_other`. `q01_c` (MSP) inchangé pour rétro-compat 100% des données prod. (2) Libellés Q02 légèrement reformulés sans toucher aux IDs. (3) Trois nouvelles questions ajoutées en positions 3, 4, 5 : `q15` statut d'installation, `q16` territoire et patientèle, `q17` horizon 3 ans. Toutes mode A, facette `context`, non scorées. Décalage des positions Q03-Q14 de +3. **IDs `q03..q14` strictement inchangés.** Les nouvelles questions sont collectées en BDD mais non câblées dans le rapport en V1.1.9 — substrat pour V1.2 SLM (cf D-020 et D-028).
+> **Note v1.11 :** V1.1.9 stricte — révision post-V2.0. Les questions `q15` (statut d'installation), `q16` (territoire), `q17` (horizon) initialement ajoutées en v1.10 sont **retirées** : elles étaient dormantes (collectées en BDD mais non câblées dans le rapport), et l'information équivalente est désormais portée par le mini-onboarding profil V2.0 (chips factuels + réflexifs sur `user_profile.cabinet_type / status / territoire / horizon / motivation`). Les autres modifications V1.1.9 sont préservées : (1) Q01 reformulé — `q01_b` devient "Cabinet de groupe — 2 à 3 médecins" (au lieu de 2-5), nouveau `q01_d` "Cabinet de groupe — 4 à 5 médecins" ajouté en fin de liste avant `q01_other`, `q01_c` (MSP) inchangé pour rétro-compat 100% des données prod. (2) Libellés Q02 légèrement reformulés sans toucher aux IDs. Le protocole reprend ses 14 questions avec positions 1..14, IDs `q01..q14` strictement préservés.
 
 > **Note v1.5 :** Vague 3.1d — six retours utilisateur sur le rendu : Q02_d "Aucun" → "Personne". Q05 open_prompt raccourci avec note séparée "courriers, ordonnances, certificats, suivi de dossiers" + reformulation "plus de temps" et "heures de travail prévues". Q09 qcm_prompt raccourci avec note séparée. Q11 libellés affinés : "Signalement automatique" au lieu de "Alerte automatique", "résultats" au lieu de "boîte de résultats". Q13_d : "IA grand public, en connaissance de cause" (plus pro que "sans illusion"). Le frontend `ModeAWidget` split désormais sur " Note :" comme `ModeBWidget` pour afficher la note en typographie atténuée sous le qcm_prompt.
 
@@ -42,29 +42,26 @@ Trois modes alternés à dessein pour préserver l'engagement du répondant. Le 
 - **Mode B — Hybride.** Une question ouverte courte d'abord, puis une relance QCM, puis un complément optionnel. Réservé aux questions où la réponse libre apporte un matériau verbatim irremplaçable.
 - **Mode C — Ouvert pur.** Réponse libre, sans relance structurée. En V1.1 : une seule question (Q14, clôture). Q06 (motivation) est passée en Mode A.
 
-### Distribution V1.1.9
+### Distribution V1.1.9 (révisée v1.11)
 
 | Position | ID | Mode | Facette | Sujet |
 |---|---|---|---|---|
 | 1 | Q01 | A | Contexte | Type de cabinet |
 | 2 | Q02 | A | Contexte | Prise des RDV et des appels |
-| 3 | Q15 | A | Contexte | Statut d'installation |
-| 4 | Q16 | A | Contexte | Territoire et patientèle |
-| 5 | Q17 | A | Contexte | Horizon 3 prochaines années |
-| 6 | Q03 | A | Participants | Cadre du secrétariat |
-| 7 | Q04 | A | Processus | Canaux d'entrée des demandes |
-| 8 | Q05 | B | Processus | Charge administrative en fin de journée |
-| 9 | Q06 | A | Motivation | Pourquoi ce check-up maintenant |
-| 10 | Q07 | A | Participants | Équipe étendue du cabinet |
-| 11 | Q08 | A | Participants | Continuité en cas d'absence |
-| 12 | Q09 | A | Information | Nombre d'outils numériques |
-| 13 | Q10 | A | Information | Suivi des patients chroniques |
-| 14 | Q11 | A | Information | Tri des résultats d'examens |
-| 15 | Q12 | A | Processus | Téléconsultation |
-| 16 | Q13 | B | Information | Usage de l'IA générative |
-| 17 | Q14 | C | Clôture | Ce qui vous aiderait le plus |
+| 3 | Q03 | A | Participants | Cadre du secrétariat |
+| 4 | Q04 | A | Processus | Canaux d'entrée des demandes |
+| 5 | Q05 | B | Processus | Charge administrative en fin de journée |
+| 6 | Q06 | A | Motivation | Pourquoi ce check-up maintenant |
+| 7 | Q07 | A | Participants | Équipe étendue du cabinet |
+| 8 | Q08 | A | Participants | Continuité en cas d'absence |
+| 9 | Q09 | A | Information | Nombre d'outils numériques |
+| 10 | Q10 | A | Information | Suivi des patients chroniques |
+| 11 | Q11 | A | Information | Tri des résultats d'examens |
+| 12 | Q12 | A | Processus | Téléconsultation |
+| 13 | Q13 | B | Information | Usage de l'IA générative |
+| 14 | Q14 | C | Clôture | Ce qui vous aiderait le plus |
 
-Alternance : **A A A A A A A B A A A A A A A B C** (15 A, 2 B, 1 C). Le bloc Contexte de départ enrichi (5 mode A consécutifs) ouvre le parcours sur des questions rapides à répondre. L'alternance reprend ensuite avec Q05 (Mode B) puis se stabilise.
+Alternance : **A A A A B A A A A A A A B C** (11 A, 2 B, 1 C). Configuration stable de la V1.1.9 stricte.
 
 ### Métadonnées des options
 
@@ -78,7 +75,7 @@ Le score de facette en V0/V1.1 reste la moyenne des scores santé des options s�
 
 ---
 
-## 3. Les 17 questions
+## 3. Les 14 questions
 
 Description courte par question. Les options et leurs métadonnées sont dans le JSON canonique.
 
@@ -89,18 +86,6 @@ Mode A · Contexte · non scoré. Qualification de la structure du cabinet. **Re
 ### Q02 — Prise des rendez-vous et des appels
 
 Mode A · Contexte · non scoré. Qui prend les RDV et les appels patients. Refonte V1.1 : l'option d'origine "Non, pas de secrétariat" est remplacée par **"Moi-même (pas de secrétariat dédié)"**, qui rend explicite le cas du libéral solo qui gère lui-même. V1.1.9 : libellés légèrement reformulés sans changement des IDs.
-
-### Q15 — Statut d'installation
-
-Mode A · Contexte · non scoré. **Ajoutée en V1.1.9** (position 3). Capture le moment de carrière du médecin : installation récente (<3 ans), installé (3-15 ans), senior (>15 ans), approche transmission (<5 ans), remplaçant. Non câblée dans le rapport en V1.1.9 — substrat pour V1.2 SLM (modulation cascade phrase choc selon horizon temporel).
-
-### Q16 — Territoire et patientèle
-
-Mode A · Contexte · non scoré. **Ajoutée en V1.1.9** (position 4). Capture le contexte d'exercice : urbain dense, périurbain, rural, zone sous-dotée. Non câblée dans le rapport en V1.1.9 — substrat pour V1.2 SLM (orientation chantiers selon contraintes territoriales).
-
-### Q17 — Horizon des 3 prochaines années
-
-Mode A · Contexte · non scoré. **Ajoutée en V1.1.9** (position 5). Capture la projection à court-moyen terme : reconduire à l'identique, renforcer l'équipe, déménager ou agrandir, préparer la transmission, encore incertain. Non câblée dans le rapport en V1.1.9 — substrat pour V1.2 SLM (croisement avec Q06 motivation pour adapter la voix de la recommandation).
 
 ### Q03 — Cadre du secrétariat
 
@@ -160,21 +145,18 @@ Pour calibration. La session V1.1 du persona doit produire les scores documenté
 |---|---|---|---|---|
 | 1 | Q01 | `q01_a` (solo) | A | Contexte |
 | 2 | Q02 | `q02_b` (télésecrétariat externalisé) | A | Contexte |
-| 3 | Q15 | `q15_c` (senior — plus de 15 ans) | A | Contexte |
-| 4 | Q16 | `q16_b` (périurbain ou ville moyenne) | A | Contexte |
-| 5 | Q17 | `q17_d` (préparer la transmission) | A | Contexte |
-| 6 | Q03 | `q03_d` (pas de cadre formel) | A | Participants |
-| 7 | Q04 | `q04_d` (canaux parallèles directs) | A | Processus |
-| 8 | Q05 | `q05_d` (débordement domicile) | B | Processus |
-| 9 | Q06 | `q06_c` (événement déclencheur) | A | Motivation |
-| 10 | Q07 | `q07_a` (porte seul) | A | Participants |
-| 11 | Q08 | `q08_c` (préparé planifié, fragile imprévu) | A | Participants |
-| 12 | Q09 | `q09_d` (plus de cinq outils, double saisie) | A | Information |
-| 13 | Q10 | `q10_d` (perte de vue des chroniques) | A | Information |
-| 14 | Q11 | `q11_c` (consulte plusieurs fois par jour) | A | Information |
-| 15 | Q12 | `q12_b` (téléconsultation non cadrée) | A | Processus |
-| 16 | Q13 | `q13_d` (IA grand public non conforme assumée) | B | Information |
-| 17 | Q14 | Texte libre — désir de temps pour la famille | C | Clôture |
+| 3 | Q03 | `q03_d` (pas de cadre formel) | A | Participants |
+| 4 | Q04 | `q04_d` (canaux parallèles directs) | A | Processus |
+| 5 | Q05 | `q05_d` (débordement domicile) | B | Processus |
+| 6 | Q06 | `q06_c` (événement déclencheur) | A | Motivation |
+| 7 | Q07 | `q07_a` (porte seul) | A | Participants |
+| 8 | Q08 | `q08_c` (préparé planifié, fragile imprévu) | A | Participants |
+| 9 | Q09 | `q09_d` (plus de cinq outils, double saisie) | A | Information |
+| 10 | Q10 | `q10_d` (perte de vue des chroniques) | A | Information |
+| 11 | Q11 | `q11_c` (consulte plusieurs fois par jour) | A | Information |
+| 12 | Q12 | `q12_b` (téléconsultation non cadrée) | A | Processus |
+| 13 | Q13 | `q13_d` (IA grand public non conforme assumée) | B | Information |
+| 14 | Q14 | Texte libre — désir de temps pour la famille | C | Clôture |
 
 Calcul indicatif V1.1 (à confronter au scoring effectif) :
 

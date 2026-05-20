@@ -6,6 +6,102 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-030 — Inversion de la séquence V2.0 : intégration technique avant pilote rédactionnel
+
+**Date :** 2026-05-19
+
+**Contexte :** D-029 acte la refonte V2.0 et inscrit en `TODO.md` une séquence **pilote rédactionnel → intégration technique → sourcing benchmarks**. Le pilote rédactionnel suppose un retour des médecins testeurs sur le seul brouillon texte (`resources/v2_editorial_draft.md`) accompagné de `resources/v2_editorial_review_guide.md`.
+
+**Décision :** Inversion de la séquence. On démarre l'intégration technique V2.0 immédiatement, on déploie en prod en cohabitation V1.1.9 / V2.0, et le pilote se fait sur le parcours réel — pas sur le texte seul. Les médecins testeurs vivront le parcours V2.0 plutôt que de relire un markdown. Le guide de relecture textuelle (`resources/v2_editorial_review_guide.md`) reste envoyé en parallèle pour ne pas perdre la boucle critique sur le wording — il sera consolidé avant publication finale.
+
+**Pourquoi cette inversion**
+
+*Effet vécu vs effet lu.* Le check-up Lugia est un parcours sensible, pas un document. Le ressenti d'une transition inter-blocs avec radar dynamique, le rythme imposé par les blocs successifs, l'effet d'ancrage de l'écran énergie — rien de tout cela ne se valide à la lecture d'un texte. Inverser permet aux testeurs de juger ce qui compte vraiment.
+
+*Le brouillon est figé, le code est itérable.* Les retours sur le wording resteront utilisables même si le code est déjà écrit — il suffit de mettre à jour les fichiers JSON. Le coût marginal d'une rééd JSON est très faible comparé au gain de tester un parcours vivant.
+
+*La cohabitation V1.1.9 / V2.0 est déjà prévue par D-029.* Le champ `protocol_version` et la page d'accueil à 2 cartes étaient inscrits dès D-029 pour permettre la comparaison terrain. Cette décision ne change que le moment où la mise en prod intervient — pas l'architecture.
+
+**Conséquences pour l'exécution**
+
+*Phasage en 7 sous-vagues techniques :*
+- **V2.0-T1** — Préparation des données (`interview_protocol_v2.json`, `diagnostics_v2.json`, `modules_v2.json`)
+- **V2.0-T2** — Scoring et personnalisation backend (`src/v2/scoring.py`, `src/v2/personalize.py`)
+- **V2.0-T3** — Migration BDD cohabitation (`protocol_version` sur `interview`)
+- **V2.0-T4** — Frontend Next.js V2 (intro V2 + profil 2 étapes + énergie + blocs + transition + résultats)
+- **V2.0-T5** — Page accueil 2 cartes pour basculer V1.1.9 / V2.0
+- **V2.0-T6** — Mise en prod + smoke test cohabitation
+- **V2.0-T7** — Pilote terrain : envoi de l'URL + guide adapté aux 3-5 médecins
+
+*Le guide `v2_editorial_review_guide.md` reste envoyé* en parallèle de l'intégration technique. Les retours rédactionnels viennent alimenter une révision JSON avant publication. Le guide sera complété par un mode d'emploi du parcours en prod pour le pilote.
+
+*Le brand kit Lugia reste en passe finale*, après V2.0-T6 et avant le tag V2.0.
+
+**Alternatives écartées**
+
+*Maintenir la séquence pilote rédactionnel → code (D-029).* Plus prudent rédactionnellement mais retarde de 2 à 3 semaines la mise à disposition d'un produit vivant pour les médecins. Le ressenti du parcours est ce qui valide ou invalide la refonte — il pèse plus que le wording.
+
+*Déployer le `checkup_v2_wireframe.html` en statique sur un sous-domaine.* Permet aux médecins de voir l'UI sans coder le backend, mais ne donne pas un vrai parcours scoré (mocké, switcher manuel). Insuffisant pour un retour terrain crédible.
+
+**Articulation avec D-029**
+
+D-029 reste valide sur tout son contenu structurel (rupture avec D-021, suspension de D-020, mode A pur, 13 règles déterministes, cohabitation BDD). D-030 ne modifie que l'**ordre d'exécution** des étapes finales.
+
+---
+
+## D-029 — Refonte V2.0 du check-up + cohabitation BDD V1.1.9 / V2.0
+
+**Date :** 2026-05-19
+
+**Décision :** Refonte structurelle du check-up en V2.0, qui rompt avec D-021 (alternance des modes B/C) et suspend D-020 (SLM hybride en V1.2). V2.0 intègre les leviers V3/V4/V6 analysés en série dans une conversation dédiée — reformulations terrain inline, benchmarks chiffrés, calibrage profil préliminaire en chips, ordre par blocs stricts (3 axes successifs), Mode A pur sur tout le parcours scoré, pages intermédiaires inter-blocs avec score-reveal animé, radar SVG dynamique permanent, modules d'approfondissement statiques. V1.1.9 reste accessible en cohabitation via un champ `protocol_version` sur `interview`. Page d'accueil à 2 cartes pour permettre la comparaison terrain.
+
+Specs complètes dans `wireframes/checkup_v2_specs.md` v1.1 (15 sections, 654 lignes, post-revue 8 amendements).
+
+**Pourquoi :**
+
+*Trois pistes V3/V4/V6 analysées.* La V3 propose un parcours HTML autonome avec reformulations inline, benchmarks chiffrés et 7 modules d'approfondissement statiques. La V4 ajoute un radar permanent dynamique pendant le questionnaire. La V6 (architecture React) ajoute une conversation IA chantier en Claude Sonnet 4 — délibérément exclue du périmètre V2.0 (différée V2.1+). La sélection des apports a été itérative sur 13 échanges, avec arbitrage question par question et 8 amendements de revue finale.
+
+*Rupture avec D-021 — alternance des modes B/C.* V1.1 (D-021) avait préservé une alternance A/B/C avec l'argument que la variation des modes maintenait l'engagement par variété cognitive. V2.0 inverse l'argument : sur un parcours de 25 min, la **cohérence de focus mental par axe** est plus précieuse que la variation des modes. Le médecin traite un sujet (parcours patient), le finit, passe au suivant. Trois blocs stricts × 6 questions Mode A pur. Disparition des modes B (Q05, Q13 V1.1.9) et C (Q14 V1.1.9). Perte de la richesse verbatim — assumée vu le bénéfice de focus mental, l'IA conversationnelle V2.1 captera le verbatim quand elle arrivera.
+
+*Suspension de D-020 — SLM hybride en V1.2 différé sine die.* D-020 prévoyait l'introduction d'un SLM pour personnaliser le rapport (cascade phrase choc dynamique, génération options QCM contextuelle, etc.). Sébastien a tranché : on maximise le méthodologique avant tout. V2.0 = ~13 règles déterministes nommées (motivation, status, énergie, profil × scores, territoire, remplaçant) qui personnalisent à 90% sans inférence. Le SLM viendra en V2.1+ sous une forme différente : **conversation IA de creusement de chantier** (pas IA de génération de diagnostic). Distinction stratégique qui sera tracée dans D-030 à son ouverture.
+
+*Cohabitation V1.1.9 / V2.0 pour tests terrain.* Plutôt que de remplacer V1.1.9 par V2.0, on les fait cohabiter via `interview.protocol_version`. Les médecins testeurs peuvent faire les 2 et comparer. V1.1.9 reste figée — plus de modifications sauf bug critique. Les deux versions partagent le même profil utilisateur (`user_profile` étendu). Cette stratégie permet de valider en terrain réel si la rupture V1.1.9 → V2.0 est productive avant de retirer V1.1.9.
+
+*Brand kit Lugia appliqué en passe finale.* La refonte fonctionnelle V2.0 conserve la palette/typo V1.1.9 actuelle (crème + serif Iowan/Georgia + sans système). Le brand kit Lugia, en cours de préparation côté track Communication, sera intégré avant le tag V2.0. Découplage volontaire entre cycles fonctionnel et identitaire.
+
+**Conséquences pour V2.0 :**
+
+*Backend.* Migration BDD légère et idempotente : `interview.protocol_version` (default `v1.1.9`), `interview.global_score`, extension `user_profile` avec 10 champs profil V2 (cabinet_type, volume, paramedical_team, logiciel_metier, rdv_canal, status, territoire, horizon, motivation, et logiciel_metier_other), `answer.scored` (flag pour l'ancrage énergie non scoré). Nouveau package `src/v2/` avec 7 modules dédiés (questions, scoring, signals, opportunities, modules, personalize, templates). Dispatcher dans `backend/main.py` route selon `interview.protocol_version`. Nouveau protocole `resources/interview_protocol_v2.json`, nouveau corpus `resources/modules_v2.json` (7 modules d'approfondissement statiques) et `resources/diagnostics_v2.json` (12 titres de diagnostic par couple axe × niveau). Mécanisme `entity_name` V1.1.5-i préservé sur 4 options du bloc B.
+
+*Frontend.* 4 pages nouvelles (`/profil`, `/checkup-v2`, `/resultats-v2`, `/modules/[id]`), 1 page modifiée (`/` à 2 cartes). 9 composants nouveaux (ProfilStep1, ProfilStep2, CheckupV2Block, OptionCardV2, BlockTransition, RadarLive, RadarResult, FacetCardV2, ChantierCardV2, ModuleV2). Tous les composants V1.1.9 restent en place pour servir le parcours V1.1.9 actuel.
+
+*Scoring.* Échelle `s` 1-4 par option (au lieu de health_score 0-10 V1.1.9), score % par bloc, mapping vers les niveaux qualitatifs Lugia (Maîtrisé / Opérationnel / À surveiller / À risque) avec seuils 35/55/78. Les seuils V3 sont adoptés tels quels, la sémantique Lugia est conservée. Plancher mathématique à 25%. Score global agrégé stocké en base, **non affiché** au médecin. Pour le routing solo, N_visible (questions effectivement servies) sert au calcul, pas l'ensemble des IDs déclarés.
+
+*Signaux croisés.* 6 patterns au lieu des 4 de V3 (post-revue) : `S-burnout` inhibé si C ≥ 55 pour éviter les faux positifs sur profils contrastés, `S-tech-vs-organisation` nouveau pour le cas A bas + B bas + C maîtrisé, `S-paradox` avec seuil assoupli (A ≥ 55 vs 78), `S-structured` positif pour les profils forts sur les 3 axes.
+
+*Personnalisation déterministe.* 13 règles nommées dans `src/v2/personalize.py` (post-revue avec ajout de `R-replacement` pour les médecins remplaçants). Toutes formulées **en levier d'action, jamais en culpabilité** — posture éditoriale documentée dans la spec. Les benchmarks chiffrés sont reformulés en positif (ex. *« un cabinet bien organisé se valorise 30-40% mieux à la transmission »* au lieu de la version anxiogène).
+
+*Volumétrie du parcours.* Profil 9 chips (5 + 4 en 2 étapes) + ancrage énergie (1 question non scorée) + 3 blocs × 6 questions scorées = **18 questions scorées + 1 ancrage + 9 chips profil**. Durée cible ~25 min.
+
+**Conséquences pour la trajectoire :**
+
+*V1.1.10 obsolète.* La V1.1.10 prévue dans la roadmap (câblage des CTAs Prochaine étape + construction du questionnaire d'approfondissement Path A) est absorbée par V2.0. Les 7 modules d'approfondissement V3 réécrits en ton Lugia constituent le Path A. Les CTAs branchent directement sur les modules.
+
+*V2.1 IA conversationnelle.* Une fois V2.0 validée en pilote (3-5 médecins testeurs), ouverture du chantier IA. Architecture prévue : endpoint backend `POST /chat/chantier/{interview_id}/{chantier_id}` qui proxie Claude (Anthropic Haiku ou Sonnet à arbitrer en V2.1), system prompt structuré 4 phases avec balises JSON intégrées, streaming SSE, persistance optionnelle des transcripts. À tracer dans D-030.
+
+*V2.2 et au-delà.* Historique des diagnostics, radar comparatif T0/T+3/T+6, plan d'action persistant cochable, export PDF, benchmarks positionnels chiffrés (si volumétrie de cohorte suffisante), mode équipe, 4e axe territorial.
+
+**Alternatives écartées :**
+
+- *Reprendre V6 en l'état (architecture React + conversation IA directe `api.anthropic.com`).* Architecture non portable en prod chez Lugia (clé API exposée côté client). Et conversation IA hors scope V2.0 (priorité au méthodologique enrichi déterministe).
+- *Refondre la V1.1.9 en place sans cohabitation BDD.* Aurait écrasé V1.1.9 et empêché les médecins testeurs de comparer les deux versions. La cohabitation a un coût de maintenance (deux ensembles de modules métier) mais le bénéfice de test terrain est élevé.
+- *Garder V1.1.9 5-questions + alternance A/B/C en V2.0.* La rupture méthodologique n'est pas un appauvrissement — c'est un changement de modèle (focus mental par axe au lieu de variation des modes), qui s'aligne mieux avec un parcours de 25 min cadré.
+- *Garder Q14 clôture Mode C + Q05 Mode B + Q13 Mode B.* La perte de verbatim libre est compensée par : (a) la conversation IA V2.1 captera le verbatim quand le médecin creuse un chantier ; (b) les nouvelles questions V2 ont des reformulations terrain qui parlent au médecin en retour, ce que les modes B/C ne faisaient pas.
+- *Sacrifier C4 pilotage par les données en passe de revue.* Décidé en revue — le pilotage par les données est très peu répandu en médecine générale, la question ne discrimine pas, et la dimension économique bascule dans les benchmarks personnalisés (`R-bench-volume-admin`, `R-bench-transmission`, etc.). Bloc C final à 6 questions : logiciel, dossiers, flux admin, outils numériques santé, IA, conformité.
+- *Conserver `c5` IA dans la formulation factuelle directe.* Reformulé en revue post-V1.0 specs car biais de désirabilité inverse trop fort. La nouvelle formulation mesure la maturité de positionnement, pas la pratique exposée — sans piège, sans perte d'information utile.
+
+---
+
 ## D-028 — Vague visuelle V1.1.9 : refonte UI questionnaire + page résultats + enrichissement contexte de départ (substrat V1.2)
 
 **Date :** 2026-05-19

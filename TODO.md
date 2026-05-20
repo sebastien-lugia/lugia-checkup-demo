@@ -4,6 +4,56 @@ Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court
 
 ---
 
+## V2.0 EN COURS — pilote rédactionnel avant intégration technique (19 mai 2026)
+
+Refonte structurelle V2.0 amorcée (cf `DECISIONS.md` D-029). Séquence retenue par Sébastien le 19 mai : **pilote rédactionnel → intégration technique → sourcing benchmarks**.
+
+### Livré aujourd'hui
+
+| Sous-vague | Livré |
+|---|---|
+| V2.0-specs | `wireframes/checkup_v2_specs.md` v1.9 (~625 lignes) — cadrage complet |
+| V2.0-wireframe | `wireframes/checkup_v2_wireframe.html` (~1300 lignes) — 9 écrans + switcher |
+| V2.0-editorial | `resources/v2_editorial_draft.md` v1.0 (5 lots, 967 lignes) — 76 reformulations + 12 titres + 21 benchmarks + 7 modules + 13 règles |
+| V2.0-pilote | `resources/v2_editorial_review_guide.md` v1.0 — guide pour 3-5 médecins testeurs |
+
+### Reste à faire avant tag V2.0
+
+> **Inversion de séquence — D-030 (2026-05-19) :** intégration technique d'abord, pilote sur le parcours en prod ensuite. Le guide de relecture reste envoyé en parallèle pour ne pas perdre la boucle critique sur le wording.
+
+1. **Intégration technique V2.0 — EN COURS (7 sous-vagues)**
+
+   | Sous-vague | Livrables |
+   |---|---|
+   | **V2.0-T1** | `resources/interview_protocol_v2.json` + `resources/diagnostics_v2.json` + `resources/modules_v2.json` extraits du brouillon |
+   | **V2.0-T2** | `src/v2/scoring.py` (scoring V2.0 avec routing solo b1b/b3, seuils 35/55/78) + `src/v2/personalize.py` (13 règles + 6 signaux croisés) |
+   | **V2.0-T3** | Migration BDD : champ `protocol_version` sur `interview` + dispatcher backend + Alembic |
+   | **V2.0-T4** | Frontend Next.js V2 : `web/app/checkup/v2/page.tsx` + composants IntroV2, ProfilStep1, ProfilStep2, Energie, BlocQuestion, RadarAside, Transition, Resultats |
+   | **V2.0-T5** | Page accueil 2 cartes (V1.1.9 / V2.0) + route `/protocol?version=v2` |
+   | **V2.0-T6** | Migration prod + déploiement Vercel/Render + smoke test cohabitation |
+   | **V2.0-T7** | Pilote terrain : envoi URL + guide adapté aux 3-5 médecins, retours sous 7-10 jours |
+
+2. **Pilote rédactionnel en parallèle** (non bloquant)
+   - Envoi de `resources/v2_editorial_draft.md` + `resources/v2_editorial_review_guide.md` à 3-5 médecins pendant que l'intégration technique avance.
+   - Délai souhaité : 7 jours après envoi.
+   - Centraliser les retours dans `resources/v2_editorial_reviews/` (un fichier par relecteur).
+   - Produire `resources/v2_editorial_review_consolidation.md` synthétisant les 3 catégories : à corriger sans débat / à arbitrer / à documenter en limite assumée.
+   - Appliquer la révision sur les fichiers JSON V2.0 **avant V2.0-T6** (mise en prod).
+
+3. **Sourcing des 21 benchmarks** marqués `[À CONFIRMER]` (peut se faire en parallèle de l'intégration)
+   - Sources cibles : DREES, CNAM, CMG, URPS, CPTS, ANS, CNOM, CNIL.
+   - Remplacer la mention `[À CONFIRMER]` par la citation précise, ou retirer le benchmark.
+
+4. **Brand kit Lugia** (passe finale, après V2.0-T6 et avant tag V2.0)
+   - Application du brand kit (palette / typo / icônes) prévue par track Communication.
+   - Découplage volontaire entre cycle fonctionnel V2.0 et cycle identitaire.
+
+### Pistes V3/V6 reçues aujourd'hui — versées en ROADMAP
+
+Notes externes `pistes_amelioration_v3.md` et `pistes_amelioration_v6.md` reçues. Idées au-delà du périmètre V2.0 versées en `ROADMAP.md` (V2.1+). Voir section dédiée du ROADMAP.
+
+---
+
 ## V1.1.9 LIVRÉE — refonte apparence questionnaire + page résultats + enrichissement contexte (19 mai 2026)
 
 Vague visuelle V1.1.9 livrée en 5 sous-vagues sur la journée du 19 mai. Voir `CHANGELOG.md` 2026-05-19 et `DECISIONS.md` D-028.

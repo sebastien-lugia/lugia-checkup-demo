@@ -21,6 +21,7 @@ Variables d'environnement utiles :
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -44,6 +45,13 @@ from src import scoring  # noqa: E402
 from src import templates  # noqa: E402
 from src import swot  # noqa: E402
 from src import workstreams  # noqa: E402
+
+# V2.0 — modules de scoring/personnalisation déterministes (cf D-029, D-030).
+# Importés inconditionnellement : le dispatcher backend les active uniquement
+# pour les interviews `protocol_version='v2.0'`. Aucun impact V1.1.9.
+from src.v2 import modules as v2_modules  # noqa: E402
+from src.v2 import report as v2_report  # noqa: E402
+from src.v2 import scoring as v2_scoring  # noqa: E402
 
 try:
     import resend  # type: ignore
@@ -264,22 +272,61 @@ async def auth_me(email: str = Depends(get_current_user_email)) -> dict[str, str
     return {"email": email}
 
 
-# ---- Profil utilisateur (V1.1.7-a) ----
+# ---- Profil utilisateur (V1.1.7-a + V2.0-T3) ----
 
 class UserProfileUpdate(BaseModel):
+    """Patch partiel du profil utilisateur.
+
+    V1.1.7-a : firstname.
+    V2.0-T3 (cf spec V2 §3) : 10 champs additionnels du mini-onboarding V2
+    (5 chips factuels étape 1 + 4 chips réflexifs étape 2 + free text
+    logiciel_metier_other). Tous optionnels — un PATCH n'écrase que les
+    champs explicitement fournis (cf db.upsert_user_profile_v2).
+    """
+
     firstname: Optional[str] = None
+    # Étape 1 — chips factuels (cabinet_type, volume, paramedical_team,
+    # logiciel_metier, logiciel_metier_other, rdv_canal)
+    cabinet_type: Optional[str] = None
+    volume: Optional[str] = None
+    paramedical_team: Optional[str] = None
+    logiciel_metier: Optional[str] = None
+    logiciel_metier_other: Optional[str] = None
+    rdv_canal: Optional[str] = None
+    # Étape 2 — chips réflexifs (status, territoire, horizon, motivation)
+    status: Optional[str] = None
+    territoire: Optional[str] = None
+    horizon: Optional[str] = None
+    motivation: Optional[str] = None
 
 
 @app.get("/me/profile", tags=["auth"])
 async def get_my_profile(
     email: str = Depends(get_current_user_email),
 ) -> dict[str, Optional[str]]:
-    """Retourne le profil du user authentifié (email + prénom)."""
-    profile = db.get_user_profile(email)
-    return {
+    """Retourne le profil du user authentifié (email + prénom + champs V2).
+
+    V2.0-T3 : étendu aux 10 champs du mini-onboarding V2.0 (cf spec V2 §3).
+    Les champs non saisis sont retournés à `null`. Les médecins qui n'ont
+    jamais ouvert le parcours V2 ont tous les champs V2 à null — le rendu
+    V1.1.9 ignore silencieusement ces champs.
+    """
+    profile = db.get_user_profile(email) or {}
+    out: dict[str, Optional[str]] = {
         "email": email,
-        "firstname": (profile or {}).get("firstname"),
+        "firstname": profile.get("firstname"),
     }
+    for field in db.USER_PROFILE_V2_FIELDS:
+        out[field] = profile.get(field)
+    return out
+
+
+def _normalize_text(v: Optional[str]) -> Optional[str]:
+    """Trim + chaîne vide → None. Helper partagé par tous les patchs profil."""
+    if v is None:
+        return None
+    cleaned = v.strip()
+    return cleaned if cleaned else None
 
 
 @app.patch("/me/profile", tags=["auth"])
@@ -287,20 +334,41 @@ async def patch_my_profile(
     body: UserProfileUpdate,
     email: str = Depends(get_current_user_email),
 ) -> dict[str, Optional[str]]:
-    """Met à jour le profil du user authentifié.
+    """Met à jour le profil du user authentifié — patch partiel.
 
-    V1.1.7-a : champ `firstname` optionnel. Sert à personnaliser l'en-tête
-    du rapport (sous-titre 'Dr Prénom — résultats du JJ mois AAAA').
+    V1.1.7-a : champ `firstname` (sous-titre 'Dr Prénom — résultats du …').
+    V2.0-T3 (cf spec V2 §3) : 10 champs additionnels du mini-onboarding
+    V2.0. Sémantique patch — seuls les champs explicitement passés dans le
+    body sont mis à jour ; les autres restent inchangés. Permet la saisie
+    en 2 étapes (5 chips factuels puis 4 chips réflexifs) sans devoir
+    renvoyer l'ensemble du profil à chaque étape.
     """
-    # Normalisation : trim et chaîne vide → None
-    firstname = body.firstname.strip() if body.firstname else None
-    if firstname == "":
-        firstname = None
-    db.upsert_user_profile(email, firstname)
-    return {
-        "email": email,
-        "firstname": firstname,
+    body_dict = body.model_dump(exclude_unset=True)
+
+    # V1.1.7-a : firstname séparé pour préserver la signature existante.
+    if "firstname" in body_dict:
+        firstname = _normalize_text(body_dict.pop("firstname"))
+        db.upsert_user_profile(email, firstname)
+
+    # V2.0-T3 : champs V2 — patch partiel via upsert_user_profile_v2.
+    v2_patch = {
+        k: _normalize_text(v)
+        for k, v in body_dict.items()
+        if k in db.USER_PROFILE_V2_FIELDS
     }
+    if v2_patch:
+        db.upsert_user_profile_v2(email, v2_patch)
+
+    # Réponse : profil complet relu après écriture, pour que le frontend
+    # voie l'état consolidé (utile pour la transition étape 1 → étape 2).
+    refreshed = db.get_user_profile(email) or {}
+    out: dict[str, Optional[str]] = {
+        "email": email,
+        "firstname": refreshed.get("firstname"),
+    }
+    for field in db.USER_PROFILE_V2_FIELDS:
+        out[field] = refreshed.get(field)
+    return out
 
 
 @app.post("/auth/logout", tags=["auth"])
@@ -331,27 +399,135 @@ async def delete_me(
 
 # ---- Protocole ----
 
+# V2.0-T3 — chemin du protocole V2.0 (chargé à la demande, mis en cache
+# par processus pour éviter de relire le fichier à chaque requête).
+_V2_PROTOCOL_PATH = ROOT / "resources" / "interview_protocol_v2.json"
+_V2_PROTOCOL_CACHE: Optional[dict[str, Any]] = None
+
+
+def _load_v2_protocol() -> dict[str, Any]:
+    """Charge le protocole V2.0 depuis le JSON (singleton par processus)."""
+    global _V2_PROTOCOL_CACHE
+    if _V2_PROTOCOL_CACHE is None:
+        with open(_V2_PROTOCOL_PATH, encoding="utf-8") as f:
+            _V2_PROTOCOL_CACHE = json.load(f)
+    return _V2_PROTOCOL_CACHE
+
+
 @app.get("/protocol", tags=["protocol"])
-async def get_protocol() -> dict[str, Any]:
-    """Retourne le protocole complet du questionnaire. Public (pas d'auth)."""
+async def get_protocol(version: Optional[str] = None) -> dict[str, Any]:
+    """Retourne le protocole du questionnaire selon la version demandée.
+
+    - `version=v2.0` (ou `v2`) → protocole V2.0 (cf
+      `resources/interview_protocol_v2.json`).
+    - `version=v1.1.9` ou non précisé → protocole V1.x existant (legacy,
+      `resources/interview_protocol.json`).
+
+    Public — pas d'auth requise.
+    """
+    if version is not None and version in ("v2.0", "v2", "2.0", "2"):
+        return _load_v2_protocol()
     return question_module.load_protocol()
+
+
+# ---- Modules d'approfondissement V2.0 ----
+
+@app.get("/modules", tags=["modules"])
+async def list_modules_v2() -> dict[str, Any]:
+    """Retourne la liste complète des 7 modules d'approfondissement V2.0
+    (cf `resources/modules_v2.json` + D-029). Public — pas d'auth requise.
+
+    V2.0-T4g.
+    """
+    return v2_modules.load_modules()
+
+
+@app.get("/modules/{module_id}", tags=["modules"])
+async def get_module_v2(module_id: str) -> dict[str, Any]:
+    """Retourne le détail d'un module V2.0 par id. Public — pas d'auth
+    requise. 404 si l'id n'existe pas.
+
+    IDs valides : urgences, chroniques, delegation, comm, logiciel, admin,
+    pilotage.
+
+    V2.0-T4g.
+    """
+    mod = v2_modules.get_module(module_id)
+    if mod is None:
+        raise HTTPException(status_code=404, detail=f"Module '{module_id}' inconnu")
+    return mod
 
 
 # ---- Gestion des interviews ----
 
+class CreateInterviewRequest(BaseModel):
+    """Body optionnel de POST /interviews.
+
+    V2.0-T3 : `protocol_version` permet de créer une interview V2.0 (cf
+    spec V2 §11.4 et D-029). Valeurs supportées : `v1.1.9` (défaut) et
+    `v2.0`. Toute autre valeur est rejetée en 400 — on ne crée pas
+    silencieusement de version inconnue.
+    """
+
+    protocol_version: Optional[str] = None
+
+
 class CreateInterviewResponse(BaseModel):
     interview_id: int
+    protocol_version: str
+
+
+_SUPPORTED_PROTOCOL_VERSIONS = ("v1.1.9", "v2.0")
 
 
 @app.post(
     "/interviews", response_model=CreateInterviewResponse, tags=["interview"]
 )
 async def create_interview(
+    body: Optional[CreateInterviewRequest] = None,
     email: str = Depends(get_current_user_email),
 ) -> CreateInterviewResponse:
-    """Crée une nouvelle interview rattachée au user authentifié."""
-    iid = db.create_interview(email=email)
-    return CreateInterviewResponse(interview_id=iid)
+    """Crée une nouvelle interview rattachée au user authentifié.
+
+    V2.0-T3 : le body peut spécifier `protocol_version` pour démarrer un
+    parcours V2.0. Sans body ou `protocol_version=null`, on conserve le
+    comportement V1.x (création en v1.1.9).
+    """
+    requested = (body.protocol_version if body else None) or "v1.1.9"
+    if requested not in _SUPPORTED_PROTOCOL_VERSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Unsupported protocol_version '{requested}'. "
+                f"Supported: {list(_SUPPORTED_PROTOCOL_VERSIONS)}."
+            ),
+        )
+    iid = db.create_interview(email=email, protocol_version=requested)
+    return CreateInterviewResponse(
+        interview_id=iid, protocol_version=requested
+    )
+
+
+@app.get("/interviews/actives", tags=["interview"])
+async def list_active_interviews(
+    email: str = Depends(get_current_user_email),
+) -> dict[str, Any]:
+    """Retourne les interviews in_progress du user indexées par
+    `protocol_version`.
+
+    V2.0-T5-fix : permet à la page d'accueil d'afficher séparément la
+    session V1.1.9 et la session V2.0 en cours. Si une version n'a pas
+    de session active, sa clé est absente du dict.
+
+    Exemple de réponse :
+    ```
+    {
+        "v1.1.9": { "id": 42, "created_at": "...", "current_question_index": 5, ... },
+        "v2.0":   { "id": 47, "created_at": "...", ... }
+    }
+    ```
+    """
+    return db.get_in_progress_interviews_by_version(email=email)
 
 
 @app.get("/interviews/active", tags=["interview"])
@@ -409,6 +585,9 @@ class SaveAnswerBody(BaseModel):
     # Optionnel. Déclenché côté frontend par les options portant
     # has_entity_field=true dans interview_protocol.json.
     entity_name: Optional[str] = None
+    # V2.0-T4a : marque les réponses non scorées (typiquement l'ancrage
+    # énergie). Par défaut True pour préserver le comportement V1.x.
+    scored: bool = True
 
 
 @app.put("/interviews/{interview_id}/answers/{question_id}", tags=["answer"])
@@ -428,6 +607,7 @@ async def save_answer(
         free_text=body.free_text,
         complement_text=body.complement_text,
         entity_name=body.entity_name,
+        scored=body.scored,
     )
     return {"ok": True}
 
@@ -448,7 +628,17 @@ async def get_scores(
     interview_id: int,
     email: str = Depends(get_current_user_email),
 ) -> dict[str, Any]:
-    _assert_user_owns_interview(email, interview_id)
+    """Retourne les scores d'axe selon `interview.protocol_version`.
+
+    V2.0-T4a : pour V2.0 retourne un payload léger (3 axes + niveaux +
+    completeness) suffisant pour mettre à jour le radar aside dynamique
+    après chaque réponse. Pour V1.x : comportement legacy.
+    """
+    interview = _assert_user_owns_interview(email, interview_id)
+    if interview.get("protocol_version") == "v2.0":
+        answers = db.get_answers(interview_id)
+        user_profile = db.get_user_profile(email) or {}
+        return v2_scoring.compute_all_scores(answers, user_profile)
     return scoring.compute_all_facet_scores(interview_id)
 
 
@@ -457,11 +647,27 @@ async def get_report(
     interview_id: int,
     email: str = Depends(get_current_user_email),
 ) -> dict[str, Any]:
+    """Retourne le rapport complet selon `interview.protocol_version`.
+
+    V2.0-T4a : dispatcher.
+    - `protocol_version == 'v2.0'` → payload V2 (cf `src/v2/report.build_report`).
+    - sinon → comportement V1.1.x existant (préservé bit-à-bit).
+    """
     interview = _assert_user_owns_interview(email, interview_id)
     answers = db.get_answers(interview_id)
-    # V1.1.7-a : prénom du médecin (si saisi via /me/profile) pour
-    # personnaliser le sous-titre du rapport.
     user_profile = db.get_user_profile(email) or {}
+
+    # V2.0-T4a — dispatcher protocole
+    if interview.get("protocol_version") == "v2.0":
+        payload = v2_report.build_report(interview, answers, user_profile)
+        # Persiste le global_score V2 sur l'interview (analyses cohortes,
+        # cf D-013/D-023 — non exposé au médecin malgré le retour ici).
+        gs = payload["scores"].get("global_score")
+        if gs is not None and interview.get("global_score") != gs:
+            db.set_global_score(interview_id, gs)
+        return payload
+
+    # ---- Comportement V1.1.x existant (inchangé) ----
     doctor_firstname = user_profile.get("firstname")
     facet_scores = scoring.compute_all_facet_scores(interview_id)
     facet_labels = question_module.get_facet_labels()

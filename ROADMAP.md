@@ -155,14 +155,80 @@ Vague visuelle livrée en 5 sous-vagues sur la journée du 19 mai. Voir `CHANGEL
 
 ---
 
-## V1.1.10 — Bloquants tests prospects (CTAs + questionnaire approfondissement Path A) — PROCHAIN CHANTIER
+## V1.1.10 — Bloquants tests prospects — ABSORBÉE PAR V2.0
 
-Deux chantiers non-visuels à traiter **avant** d'envoyer le démonstrateur à 3-5 médecins :
+V1.1.10 prévoyait le câblage des CTAs Prochaine étape et la construction d'un questionnaire d'approfondissement Path A. Ces deux chantiers sont absorbés par V2.0 (cf `DECISIONS.md` D-029) :
+- Les 7 modules d'approfondissement V2.0 (`resources/modules_v2.json` à créer) constituent le Path A — réécrits en ton Lugia dans `resources/v2_editorial_draft.md` lot 4.
+- Les CTAs branchent directement sur ces modules.
 
-1. **Câblage des CTAs Prochaine étape** sur `/resultats` — "Choisir un chantier" et "En parler avec Lugia" sont inertes. À câbler au minimum sur un `mailto:` ou un formulaire de contact pour ne pas perdre confiance instantanément.
-2. **Construction du questionnaire d'approfondissement (Path A)** — la carte "Approfondir un chantier, en autonomie" promet *"un questionnaire ciblé, ~15 min, gratuit"*. À construire (5-7 questions par chantier débouchant sur un plan d'action concret), sinon la promesse écrite ne tient pas.
+V1.1.10 n'a donc pas d'existence propre. Le travail bascule sur V2.0.
 
-V1.1.10 est indépendante de V1.1.9 (chantier non-visuel). Peut être traitée dans une conversation Claude dédiée. Cible : livraison avant tests prospects.
+---
+
+## V2.0 — Refonte structurelle du check-up — EN COURS
+
+Refonte de fond du check-up amorcée le 19 mai 2026 (cf `DECISIONS.md` D-029). Rompt avec D-021 (alternance des modes B/C) et suspend D-020 (SLM hybride en V1.2). Mode A pur sur l'ensemble du parcours scoré, 3 blocs successifs (Parcours patient / Équipe / Outils & information), radar dynamique permanent, modules d'approfondissement statiques, 13 règles déterministes de personnalisation, 6 signaux croisés inter-axes.
+
+### Livré au 19 mai 2026
+
+- `wireframes/checkup_v2_specs.md` v1.9 — note de cadrage complète.
+- `wireframes/checkup_v2_wireframe.html` — 9 écrans HTML autonomes avec switcher.
+- `resources/v2_editorial_draft.md` v1.0 — brouillon éditorial complet (5 lots).
+- `resources/v2_editorial_review_guide.md` v1.0 — guide de relecture pour pilote.
+
+### Séquence à venir (validée Sébastien 2026-05-19)
+
+1. **Pilote rédactionnel** — envoi du brouillon + guide à 3-5 médecins testeurs. Délai 7 jours. Consolidation des retours dans `resources/v2_editorial_review_consolidation.md`.
+2. **Intégration technique** — migration BDD `protocol_version`, création des fichiers `interview_protocol_v2.json` / `diagnostics_v2.json` / `modules_v2.json`, code `src/v2/personalize.py`, refonte frontend Next.js V2.
+3. **Sourcing des 21 benchmarks** marqués `[À CONFIRMER]` (sources : DREES, CNAM, CMG, URPS, CPTS, ANS, CNOM, CNIL).
+4. **Brand kit Lugia** appliqué en passe finale (palette / typo / icônes).
+5. **Tag V2.0** une fois la cohabitation V1.1.9 / V2.0 fonctionnelle en pilote terrain.
+
+---
+
+## V2.1+ — Capitalisation des pistes V3 et V6 — APRÈS V2.0
+
+Deux notes de pistes d'amélioration externes (`pistes_amelioration_v3.md` et `pistes_amelioration_v6.md`) ont été versées le 19 mai 2026. Les idées au-delà du périmètre V2.0 sont capitalisées ici, classées par axe d'impact.
+
+### Axe IA conversationnelle de creusement (V2.1 — déjà inscrit en D-029)
+
+- **Conversation IA chantier** : endpoint backend `POST /chat/chantier/{interview_id}/{chantier_id}` qui proxie Claude (Haiku ou Sonnet), system prompt structuré 4 phases avec balises JSON intégrées, streaming SSE, persistance optionnelle des transcripts. Couvre la piste V3 §12 ("conversation pas substitut") en plaçant l'IA en aval du diagnostic comme amorce de creusement.
+
+### Axe trajectoire et accompagnement persistant (V2.2)
+
+- **Historique des diagnostics avec radar comparatif T0 → T+3 mois → T+6 mois** (piste V6 §2). Stockage côté backend pour les médecins authentifiés, affichage d'un radar superposé montrant la progression sur les 3 axes. Transforme l'outil de "diagnostic ponctuel" en "outil d'accompagnement".
+- **Plan d'action persistant** (piste V6 §3) : les chantiers / modules ouverts depuis la page résultats deviennent une checklist persistante avec cases à cocher et rappel automatique 7 jours. Élargit la piste V3 §8 ("capturer un engagement post-diagnostic").
+- **Boucle de retour ciblée à 6 semaines** (piste V3 §3) : second mini-questionnaire de 5 questions sur l'axe choisi, mesurant la progression sans tout re-diagnostiquer. Crée la relation durable nécessaire à l'usage commercial.
+- **IA en posture de coach persistante entre sessions** (piste V6 §8) : "il y a 3 semaines vous aviez choisi de creuser la délégation et vous deviez tester X — où en êtes-vous ?". Mémoire entre conversations IA.
+
+### Axe rigueur méthodologique et anti-désirabilité (V2.1 / V2.2)
+
+- **Questions ouvertes contextuelles fin profil** (piste V6 §1) : 2-3 questions optionnelles libres ("ce qui vous épuise le plus en ce moment", "ce qui marche bien que vous aimeriez préserver") pour permettre à l'IA conversationnelle V2.1 de citer le médecin avec ses propres mots. Levier #1 selon la note V6.
+- **Mini-vérifications de réalité** (piste V6 §7) : 1 à 2 questions chiffrées approximatives qui croisent la perception avec une donnée objectivable ("sur vos 20 derniers patients diabétiques, combien ont eu leur HbA1c dans les 6 derniers mois ?"). Génère un signal "écart perception / réalité" — souvent le déclic d'un diagnostic.
+- **Questions indirectes pour contourner le biais de désirabilité sociale** (piste V3 §4) : reformuler certaines questions sur ce que le médecin **observe chez ses patients** plutôt que sur **ses propres pratiques**. La question C5 IA en V2.0 est un premier pas — à généraliser.
+- **Casser la linéarité des options** (piste V3 §5) : pour certaines questions, proposer des **profils organisationnels différents** plutôt que des niveaux de maturité ordonnés a→d. Plus difficile à construire éditorialement, beaucoup plus résistant au biais de désirabilité.
+- **Dimension émotionnelle** (piste V3 §1) : la V2.0 capture déjà l'énergie via les chips "Profil étape 2", mais une question d'ancrage supplémentaire (du type "sur une semaine normale, combien de soirs repartez-vous avec le sentiment d'avoir bien fait ?") pourrait approfondir.
+- **Nommer les limites de l'outil** (piste V3 §7) : phrase d'introduction explicite ("ce questionnaire capture un instantané — pas une vérité absolue ; si vous le refaites dans 3 semaines, certaines réponses changeront"). Désactive le perfectionnisme et augmente la franchise. Très peu d'effort, intégrable en V2.0 si arbitré rapidement.
+
+### Axe mode équipe et 360° cabinet (V2.3)
+
+- **Mode équipe — partage du diagnostic à un membre de l'équipe** (piste V6 §4 et V3 §10) : permettre au médecin d'envoyer le questionnaire au secrétariat ou à un associé, puis afficher une vue comparative des 3 radars superposés. Mesure l'écart entre perception du médecin et perception des autres acteurs. Ouvre un usage MSP / CPTS très différent.
+- **Restitution "équipe" en plus de la restitution "médecin"** (piste V3 §6) : générer une page synthétique sans scores ni langage analytique, formulée comme projet collectif pour réunion d'équipe. Deux sorties depuis le même diagnostic.
+
+### Axe positionnement et benchmarks contextuels (V2.3+)
+
+- **Benchmarks personnalisés positionnels** (piste V6 §5) : collecter 2-3 indicateurs chiffrés en début de questionnaire ("temps quotidien sur l'administratif", "nombre de rappels patients / jour") pour permettre des benchmarks de quartile ("vous êtes à 2 h 30 / jour — le quartile supérieur est à 1 h 15"). Frappe plus fort que les pourcentages génériques.
+- **Quatrième axe — Ancrage territorial** (piste V3 §9) : la Q16 V1.1.9 (territoire) est collectée mais non câblée. Un 4ᵉ axe complet "Ancrage territorial" (lien CPTS, protocoles de coordination, relations spécialistes et structures médico-sociales) alignerait le diagnostic avec les enjeux réels de la médecine générale 2026. Travail méthodologique majeur — études coûts/bénéfices à mener.
+
+### Axe partage et viralité (V2.2)
+
+- **Export PDF du diagnostic** (piste V6 §6) : permet d'imprimer radar + diagnostic + plan d'action pour discussion d'équipe ou point CPTS. Petit en effort, grand en perception dans un monde médical où beaucoup de choses se discutent en face-à-face.
+
+### Axe stratégique (à arbitrer)
+
+- **Collecte de données agrégées anonymisées** (piste V3 §11) : à 200 répondants on dispose d'une cartographie réelle de l'organisation des cabinets de médecine générale segmentée par type de structure et volume d'activité. Donnée à valeur intrinsèque pour CPTS, ARS, syndicats, éditeurs de logiciels médicaux. Suppose hébergement déjà en place (cas en V1) + arbitrage RGPD + finalité publiée.
+- **Connexions logicielles (Doctolib, Cegedim, Crossway)** (piste V6 §7 niveau 2) : horizon V8-V10 selon la note. Permettrait d'objectiver certaines réponses au-delà de l'auto-déclaration. Cap stratégique de long terme.
+- **Décider de l'ambition réelle de l'outil** (piste V3 §13) : V2.0 répond très bien à l'ambition "bel outil de diagnostic". L'ambition "levier de transformation" suppose hébergement, collecte de données, relances, accompagnement humain en aval, modèle économique. Arbitrage à porter avant V2.3+.
 
 ---
 

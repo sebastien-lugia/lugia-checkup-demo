@@ -77,11 +77,32 @@ export async function authMe(): Promise<{ email: string }> {
   return request<{ email: string }>("/auth/me");
 }
 
-// V1.1.7-a : profil utilisateur (prénom du médecin pour personnaliser le rapport)
+// V1.1.7-a + V2.0-T4b : profil utilisateur enrichi.
+// firstname → personnalise l'en-tête du rapport (les deux versions).
+// Les 10 champs V2.0 (cabinet_type, status, ...) ne sont saisis que dans le
+// parcours V2.0 via le mini-onboarding profil 2 étapes (chips). En V1.1.9
+// ces champs restent à null et sont silencieusement ignorés par le rapport
+// V1.x.
 export type UserProfile = {
   email: string;
   firstname: string | null;
+  // V2.0 — étape 1 (chips factuels)
+  cabinet_type?: string | null;
+  volume?: string | null;
+  paramedical_team?: string | null;
+  logiciel_metier?: string | null;
+  logiciel_metier_other?: string | null;
+  rdv_canal?: string | null;
+  // V2.0 — étape 2 (chips réflexifs)
+  status?: string | null;
+  territoire?: string | null;
+  horizon?: string | null;
+  motivation?: string | null;
 };
+
+// Patch partiel — seuls les champs explicitement fournis sont mis à jour
+// côté backend. Permet la saisie en 2 étapes sans réenvoyer l'ensemble.
+export type UserProfilePatch = Partial<Omit<UserProfile, "email">>;
 
 export async function getMyProfile(): Promise<UserProfile> {
   return request<UserProfile>("/me/profile");
@@ -91,6 +112,16 @@ export async function updateMyProfile(firstname: string | null): Promise<UserPro
   return request<UserProfile>("/me/profile", {
     method: "PATCH",
     body: JSON.stringify({ firstname }),
+  });
+}
+
+// V2.0-T4b — patch partiel multi-champs pour le mini-onboarding profil V2.
+export async function patchMyProfileV2(
+  patch: UserProfilePatch
+): Promise<UserProfile> {
+  return request<UserProfile>("/me/profile", {
+    method: "PATCH",
+    body: JSON.stringify(patch),
   });
 }
 
@@ -166,17 +197,45 @@ export type Interview = {
   current_question_index: number;
   // V1.1.7-a : prénom du médecin (du profil user) pour personnaliser l'en-tête.
   doctor_firstname?: string | null;
+  // V2.0-T5 : version du protocole rattachée à l'interview.
+  // 'v1.1.9' par défaut sur les interviews historiques (cf D-029),
+  // 'v2.0' pour les interviews créées via createInterviewV2.
+  protocol_version?: string;
 };
 
 export async function createInterview(): Promise<number> {
-  const data = await request<{ interview_id: number }>("/interviews", {
+  const data = await request<{ interview_id: number; protocol_version: string }>("/interviews", {
     method: "POST",
   });
   return data.interview_id;
 }
 
+// V2.0-T4b — crée une interview attachée au protocole V2.0.
+// Retourne l'id et la version (le backend valide la version supportée).
+export async function createInterviewV2(): Promise<{
+  interview_id: number;
+  protocol_version: string;
+}> {
+  return request<{ interview_id: number; protocol_version: string }>(
+    "/interviews",
+    {
+      method: "POST",
+      body: JSON.stringify({ protocol_version: "v2.0" }),
+    }
+  );
+}
+
 export async function getActiveInterview(): Promise<Interview | null> {
   return request<Interview | null>("/interviews/active");
+}
+
+// V2.0-T5-fix : retourne les interviews in_progress du user indexées par
+// protocol_version (max une par version). Permet à la page d'accueil
+// d'afficher séparément la session V1.1.9 et la session V2.0 en cours.
+export type ActiveInterviewsByVersion = Partial<Record<string, Interview>>;
+
+export async function getActiveInterviewsByVersion(): Promise<ActiveInterviewsByVersion> {
+  return request<ActiveInterviewsByVersion>("/interviews/actives");
 }
 
 export async function getInterview(id: number): Promise<Interview> {
@@ -209,6 +268,9 @@ export type Answer = {
   complement_text: string | null;
   // V1.1.5-i : prénom de l'entité associée à l'option choisie. Optionnel.
   entity_name?: string | null;
+  // V2.0-T4b : false pour les questions non scorées (ancrage énergie V2).
+  // Défaut conservatoire true côté backend si omis.
+  scored?: boolean;
 };
 
 export async function saveAnswer(
@@ -282,4 +344,294 @@ export type Report = {
 
 export async function getReport(id: number): Promise<Report> {
   return request<Report>(`/interviews/${id}/report`);
+}
+
+
+// =====================================================================
+// V2.0 — Protocole, scores et rapport (cf D-029, D-030, T4a/T4b)
+// =====================================================================
+
+// ---- Profil mini-onboarding V2 ----
+
+export type ProfileFieldOption = {
+  id: string;
+  label: string;
+  free_text_field?: string;
+};
+
+export type ProfileField = {
+  id: string;
+  label: string;
+  options: ProfileFieldOption[];
+  context_doc?: string;
+};
+
+export type ProfileStep = {
+  doc: string;
+  intro: string;
+  fields: ProfileField[];
+};
+
+// ---- Questions et options V2 ----
+
+export type V2OptionBenchmark = {
+  texte: string;
+  source_status: "to_confirm" | "confirmed" | "qualitative";
+  source_hint?: string | null;
+};
+
+export type V2Option = {
+  id: string;
+  label: string;
+  s: 1 | 2 | 3 | 4;
+  reformulation: string;
+  benchmark: V2OptionBenchmark | null;
+  has_entity_field?: boolean;
+  entity_field_label?: string;
+};
+
+export type V2Question = {
+  id: string;
+  label: string;
+  context: string | null;
+  options: V2Option[];
+  // Présent uniquement sur b1b / b3 (routing solo)
+  routing?: string;
+  position?: number;
+  // C4 : nommage dynamique de la plateforme via profile.rdv_canal
+  routing_doc?: string;
+  doc_anti_desirabilite?: string;
+  logiciel_dynamique?: boolean;
+};
+
+export type V2Block = {
+  id: "A" | "B" | "C";
+  label: string;
+  color_token: string;
+  questions: V2Question[];
+  routing_doc?: string;
+};
+
+export type V2EnergyQuestion = {
+  id: "energy";
+  scored: false;
+  doc: string;
+  label: string;
+  options: Array<{ id: string; label: string }>;
+};
+
+export type V2ScoringSpec = {
+  doc: string;
+  n_visible_per_block: number;
+  score_min_pct: number;
+  score_max_pct: number;
+  global_score_doc: string;
+};
+
+export type V2RoutingRule = {
+  id: string;
+  block: string;
+  position: number;
+  rule: string;
+  doc?: string;
+};
+
+export type V2RenderingHints = {
+  format: string;
+  auto_scroll_after_answer_ms: number;
+  respects_prefers_reduced_motion: boolean;
+  radar_aside_min_width_px: number;
+  radar_topbar_max_width_px: number;
+};
+
+export type ProtocolV2 = {
+  version: "2.0";
+  last_updated: string;
+  schema_doc?: string;
+  rendering_hints: V2RenderingHints;
+  profile: {
+    step1: ProfileStep;
+    step2: ProfileStep;
+  };
+  energy: V2EnergyQuestion;
+  blocks: V2Block[];
+  scoring: V2ScoringSpec;
+  routing_rules: V2RoutingRule[];
+};
+
+export async function getProtocolV2(): Promise<ProtocolV2> {
+  return request<ProtocolV2>("/protocol?version=v2.0");
+}
+
+// ---- Routing solo côté client (utilitaire pur) ----
+
+/**
+ * Filtre les questions visibles d'un bloc pour un profil donné, en
+ * appliquant R-routing-solo sur le bloc B (b1b XOR b3). Réplique la
+ * logique de `src/v2/questions.py` côté frontend pour pouvoir afficher
+ * les bonnes questions sans rappel backend.
+ */
+export function getVisibleQuestions(
+  block: V2Block,
+  profile: UserProfile | null
+): V2Question[] {
+  if (block.id !== "B") return block.questions;
+  const isSolo = (profile?.cabinet_type ?? "").toLowerCase() === "solo";
+  return block.questions.filter((q) => {
+    if (!q.routing) return true;
+    if (q.routing === "cabinet_type==solo") return isSolo;
+    if (q.routing === "cabinet_type!=solo") return !isSolo;
+    return true;
+  });
+}
+
+// ---- Scores V2 (radar live) ----
+
+export type V2Level = "a_risque" | "a_surveiller" | "operationnel" | "maitrise";
+
+export type V2AxisScore = {
+  pct: number;
+  level: V2Level;
+  label: "À risque" | "À surveiller" | "Opérationnel" | "Maîtrisé";
+  title: string;
+  axe_label: string;
+};
+
+export type V2Scores = {
+  A: V2AxisScore | null;
+  B: V2AxisScore | null;
+  C: V2AxisScore | null;
+  global_score: number | null;
+  completeness: { A: number; B: number; C: number };
+};
+
+export async function getScoresV2(interviewId: number): Promise<V2Scores> {
+  return request<V2Scores>(`/interviews/${interviewId}/scores`);
+}
+
+// ---- Rapport V2 complet (page résultats) ----
+
+export type V2Signal = {
+  id: string;
+  ordre_priorite: number;
+  titre: string;
+  tonalite: string;
+  message: string;
+};
+
+export type V2Tonality = {
+  status_junior: string | null;
+  status_senior: string | null;
+  motivation_intro: string;
+};
+
+export type V2EnergyPrio = {
+  energy: string | null;
+  max_effort: number;
+  tonalite: string | null;
+};
+
+export type V2MotivationPrio = {
+  motivation: string | null;
+  strategy: "lowest_first" | "low_effort_first" | "transmissibility_first" | "standard";
+  axes_order: string[] | null;
+  favor_efforts?: number[] | null;
+  favor_modules?: string[] | null;
+};
+
+export type V2HorizonPrio = {
+  horizon: string | null;
+  blocks_order: string[] | null;
+  favor_modules: string[] | null;
+};
+
+export type V2Prioritization = {
+  energy: V2EnergyPrio;
+  motivation: V2MotivationPrio;
+  horizon: V2HorizonPrio;
+};
+
+export type V2BenchmarkCombi = {
+  id: string;
+  message: string;
+  source_status: "to_confirm" | "qualitative" | "confirmed";
+  source_hint?: string | null;
+};
+
+export type V2RoutingMessages = {
+  rdv_message: string | null;
+};
+
+export type V2ReplacementPayload = {
+  active: true;
+  banner: string;
+  tonality_examples: string[];
+  excluded_modules: string[];
+  fallback_if_too_short: string;
+};
+
+export type V2ModuleStep = {
+  num: string;
+  titre: string;
+  body: string;
+  tag: "quick" | "medium" | "invest";
+};
+
+export type V2Module = {
+  id: string;
+  icone: string;
+  label: string;
+  effort: number;
+  impact: string;
+  etapes: V2ModuleStep[];
+  benchmark_conclusion: V2OptionBenchmark;
+  logiciel_dynamique?: boolean;
+};
+
+export type V2Report = {
+  protocol_version: "v2.0";
+  interview: {
+    id: number;
+    status: "in_progress" | "completed";
+    created_at: string;
+    updated_at: string;
+    global_score: number | null;
+    doctor_firstname: string | null;
+  };
+  profile: UserProfile;
+  scores: V2Scores;
+  signal: V2Signal | null;
+  tonality: V2Tonality;
+  prioritization: V2Prioritization;
+  benchmarks_combinatoire: V2BenchmarkCombi[];
+  routing_messages: V2RoutingMessages;
+  territoire_context: string | null;
+  replacement: V2ReplacementPayload | null;
+  modules: V2Module[];
+  opportunities_order: string[];
+  is_complete: boolean;
+};
+
+export async function getReportV2(interviewId: number): Promise<V2Report> {
+  return request<V2Report>(`/interviews/${interviewId}/report`);
+}
+
+// ---- Modules d'approfondissement (V2.0-T4g) ----
+
+export type V2ModulesPayload = {
+  version: string;
+  last_updated: string;
+  schema_doc?: string;
+  tag_temporalite_labels: Record<string, string>;
+  effort_levels: Record<string, string>;
+  impact_horizons: Record<string, string>;
+  modules: V2Module[];
+};
+
+export async function listModulesV2(): Promise<V2ModulesPayload> {
+  return request<V2ModulesPayload>("/modules");
+}
+
+export async function getModuleV2(moduleId: string): Promise<V2Module> {
+  return request<V2Module>(`/modules/${moduleId}`);
 }

@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wireframe V2.0 — check-up Lugia</title>
+<style>
+  /* ============================================================
+     Tokens Lugia V1.1.9 (palette crème + serif + bleu accent)
+     ============================================================ */
+  :root {
+    --lugia-bg: #faf9f5;
+    --lugia-bg-card: #ffffff;
+    --lugia-bg-soft: #f3f1ea;
+    --lugia-bg-pause: #f7f5ee;
+    --lugia-text: #111111;
+    --lugia-text-secondary: #555555;
+    --lugia-text-tertiary: #888780;
+    --lugia-text-faint: #c7c2b1;
+    --lugia-border: #e5e5e5;
+    --lugia-border-soft: #efece4;
+    --lugia-accent: #1a56a0;
+    --lugia-accent-soft: #eaf1fb;
+    --lugia-accent-border: #c9d9ee;
+    --lugia-axis-a: #2e7d4f;        /* parcours patient — vert forêt sobre */
+    --lugia-axis-a-soft: #eaf3ee;
+    --lugia-axis-b: #b45200;        /* équipe — orange cuivre sobre */
+    --lugia-axis-b-soft: #fbeae0;
+    --lugia-axis-c: #1a56a0;        /* outils — bleu Lugia */
+    --lugia-axis-c-soft: #eaf1fb;
+    --lugia-green: #2e7d4f;
+    --lugia-orange: #b45200;
+    --lugia-orange-soft: #fbeae0;
+    --lugia-warn: #8a4a1a;
+    --serif: "Iowan Old Style", "Apple Garamond", Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.02);
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--lugia-bg); color: var(--lugia-text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body { font-size: 15px; line-height: 1.6; }
+
+  /* ============================================================
+     Chrome maquette — switcher (non produit)
+     ============================================================ */
+  .wf-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #1a1a1a; color: #fff; padding: 10px 24px;
+    display: flex; gap: 10px; align-items: center; font-size: 12px;
+    border-bottom: 1px solid #333;
+  }
+  .wf-bar strong { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; }
+  .wf-bar button {
+    background: transparent; color: #aaa; border: 1px solid #444; padding: 5px 10px;
+    border-radius: 4px; font-size: 11px; cursor: pointer; font-family: inherit;
+    transition: all 120ms;
+  }
+  .wf-bar button:hover { color: #fff; border-color: #666; }
+  .wf-bar button.active { color: #fff; background: var(--lugia-accent); border-color: var(--lugia-accent); }
+  .wf-bar .meta { margin-left: auto; opacity: 0.5; font-size: 11px; }
+
+  /* ============================================================
+     Bandeau Lugia (AppHeader)
+     ============================================================ */
+  .lugia-nav {
+    background: var(--lugia-bg);
+    border-bottom: 1px solid var(--lugia-border);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 44px;
+  }
+  .lugia-logo {
+    font-family: var(--serif);
+    font-size: 18px; font-weight: 500;
+    color: var(--lugia-text); text-decoration: none; letter-spacing: -0.01em;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .lugia-logo::before {
+    content: ""; width: 18px; height: 18px;
+    background: var(--lugia-text); border-radius: 50%;
+  }
+  .lugia-nav-right { display: flex; gap: 18px; align-items: center; font-size: 13px; color: var(--lugia-text-tertiary); }
+  .lugia-nav-right a { color: var(--lugia-text-tertiary); text-decoration: none; }
+  .lugia-nav-right a:hover { color: var(--lugia-text-secondary); }
+
+  /* ============================================================
+     Topbar de progression (mode questionnaire)
+     ============================================================ */
+  .lugia-topbar {
+    background: var(--lugia-bg);
+    border-bottom: 1px solid var(--lugia-border);
+    padding: 14px 32px;
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 44px;
+  }
+  .lugia-tb-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--lugia-text-tertiary); font-weight: 600; white-space: nowrap; }
+  .lugia-tb-track { flex: 1; height: 3px; background: var(--lugia-bg-soft); border-radius: 2px; overflow: hidden; }
+  .lugia-tb-fill { height: 100%; background: var(--lugia-accent); border-radius: 2px; transition: width 400ms ease; }
+  .lugia-tb-pct { font-size: 11px; color: var(--lugia-text-tertiary); min-width: 32px; text-align: right; }
+
+  /* ============================================================
+     Écrans (switcher)
+     ============================================================ */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: block; }
+
+  /* ============================================================
+     ÉCRAN 1 — Accueil / à 2 cartes
+     ============================================================ */
+  .home {
+    max-width: 920px; margin: 0 auto; padding: 64px 32px 80px;
+  }
+  .home-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--lugia-text-tertiary); font-weight: 600; margin-bottom: 24px; }
+  h1.home-title { font-family: var(--serif); font-size: 44px; font-weight: 500; line-height: 1.15; letter-spacing: -0.015em; color: var(--lugia-text); margin: 0 0 18px 0; max-width: 680px; }
+  .home-sub { font-size: 17px; color: var(--lugia-text-secondary); line-height: 1.6; max-width: 580px; margin-bottom: 48px; }
+  .home-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .home-card {
+    background: var(--lugia-bg-card); border: 1px solid var(--lugia-border);
+    border-radius: 12px; padding: 32px 28px; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-card); transition: all 180ms ease;
+  }
+  .home-card:hover { box-shadow: var(--shadow-soft); transform: translateY(-1px); }
+  .home-card.recommended { border-color: var(--lugia-accent); border-width: 2px; background: linear-gradient(180deg, #fbfdff 0%, #fff 60%); }
+  .home-card-badge { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700; color: var(--lugia-text-tertiary); margin-bottom: 14px; }
+  .home-card.recommended .home-card-badge { color: var(--lugia-accent); }
+  .home-card-title { font-family: var(--serif); font-size: 22px; font-weight: 500; line-height: 1.3; color: var(--lugia-text); margin: 0 0 12px 0; letter-spacing: -0.005em; }
+  .home-card-desc { font-size: 14.5px; line-height: 1.6; color: var(--lugia-text-secondary); margin: 0 0 24px 0; flex: 1; }
+  .home-card-meta { font-size: 12px; color: var(--lugia-text-tertiary); margin-bottom: 16px; }
+  .home-card-cta { padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--lugia-border); background: #fff; color: var(--lugia-text-secondary); font-family: inherit; text-align: center; transition: all 140ms; }
+  .home-card.recommended .home-card-cta { background: var(--lugia-accent); color: #fff; border-color: var(--lugia-accent); }
+  .home-card.recommended .home-card-cta:hover { background: #144a8c; }
+
+  /* ============================================================
+     ÉCRAN 2 — Profil étape 1 (5 chips factuels)
+     ÉCRAN 3 — Profil étape 2 (4 chips réflexifs)
+     ÉCRAN 4 — Ancrage énergie
+     ============================================================ */
+  .profil-wrap { max-width: 680px; margin: 0 auto; padding: 48px 32px 80px; }
+  .profil-stepper { display: flex; gap: 8px; margin-bottom: 32px; }
+  .profil-step-pill { flex: 1; height: 4px; border-radius: 2px; background: var(--lugia-bg-soft); }
+  .profil-step-pill.done { background: var(--lugia-text-secondary); }
+  .profil-step-pill.current { background: var(--lugia-accent); }
+  .profil-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--lugia-text-tertiary); font-weight: 600; margin-bottom: 12px; }
+  h1.profil-title { font-family: var(--serif); font-size: 32px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em; color: var(--lugia-text); margin: 0 0 12px 0; }
+  .profil-sub { font-size: 16px; color: var(--lugia-text-secondary); line-height: 1.55; margin: 0 0 36px 0; max-width: 580px; }
+
+  .profil-question { margin-bottom: 32px; }
+  .profil-q-label { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--lugia-text); margin-bottom: 4px; }
+  .profil-q-hint { font-size: 13px; color: var(--lugia-text-tertiary); margin-bottom: 14px; }
+  .profil-q-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .profil-chip {
+    padding: 9px 16px; border: 1px solid var(--lugia-border);
+    background: var(--lugia-bg-card); color: var(--lugia-text-secondary);
+    font-size: 13.5px; border-radius: 999px; cursor: pointer; font-family: inherit;
+    transition: all 150ms;
+  }
+  .profil-chip:hover { border-color: var(--lugia-text-tertiary); color: var(--lugia-text); }
+  .profil-chip.selected {
+    border-color: var(--lugia-accent); background: var(--lugia-accent-soft);
+    color: var(--lugia-accent); font-weight: 500;
+  }
+
+  .profil-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--lugia-border); }
+  .btn-link { background: none; border: none; color: var(--lugia-text-tertiary); font-size: 13.5px; cursor: pointer; font-family: inherit; padding: 6px 8px; }
+  .btn-link:hover { color: var(--lugia-text-secondary); }
+  .btn-primary { background: var(--lugia-text); color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; font-family: inherit; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Ancrage énergie — un peu plus aéré que les chips */
+  .energy-wrap { max-width: 640px; margin: 0 auto; padding: 80px 32px; }
+  h1.energy-title { font-family: var(--serif); font-size: 28px; font-weight: 500; line-height: 1.3; margin: 0 0 36px 0; letter-spacing: -0.005em; }
+  .energy-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px; }
+  .energy-card { padding: 16px 20px; border: 1px solid var(--lugia-border); border-radius: 10px; background: var(--lugia-bg-card); cursor: pointer; font-size: 15px; color: var(--lugia-text); text-align: left; transition: all 140ms; font-family: inherit; }
+  .energy-card:hover { border-color: var(--lugia-text-tertiary); }
+  .energy-card.selected { border-color: var(--lugia-accent); background: var(--lugia-accent-soft); }
+  .energy-skip { display: block; margin: 0 auto; font-size: 12px; color: var(--lugia-text-tertiary); cursor: pointer; background: none; border: none; }
+
+  /* ============================================================
+     ÉCRAN 5 — Bloc avec radar dynamique
+     ============================================================ */
+  .bloc-layout {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 40px;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+  .bloc-main { min-width: 0; }
+  .bloc-eyebrow { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 600; color: var(--lugia-axis-a); }
+  .bloc-eyebrow::after { content: ""; flex: 1; height: 1px; background: var(--lugia-axis-a); opacity: 0.3; }
+  h1.bloc-title { font-family: var(--serif); font-size: 30px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em; color: var(--lugia-axis-a); margin: 0 0 6px 0; }
+  .bloc-sub { font-size: 13px; color: var(--lugia-text-tertiary); margin-bottom: 32px; font-style: italic; }
+
+  .q-card {
+    background: var(--lugia-bg-card); border: 1px solid var(--lugia-border);
+    border-radius: 10px; padding: 24px 26px; margin-bottom: 18px;
+    transition: border-color 200ms;
+  }
+  .q-card.answered { border-color: var(--lugia-axis-a); border-left: 3px solid var(--lugia-axis-a); }
+  .q-num { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--lugia-text-tertiary); font-weight: 600; margin-bottom: 6px; }
+  .q-text { font-family: var(--serif); font-size: 19px; font-weight: 500; line-height: 1.4; color: var(--lugia-text); margin: 0 0 6px 0; letter-spacing: -0.005em; }
+  .q-ctx { font-size: 13px; color: var(--lugia-text-tertiary); font-style: italic; margin-bottom: 18px; padding-left: 12px; border-left: 2px solid var(--lugia-border); }
+  .q-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .q-opt {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 16px; border: 1px solid var(--lugia-border);
+    background: var(--lugia-bg-card); border-radius: 8px;
+    cursor: pointer; text-align: left; font-size: 14px; color: var(--lugia-text);
+    line-height: 1.5; transition: all 140ms; font-family: inherit; width: 100%;
+  }
+  .q-opt:hover { border-color: var(--lugia-text-tertiary); }
+  .q-opt.selected { border-color: var(--lugia-axis-a); background: var(--lugia-axis-a-soft); }
+  .q-opt-letter { font-family: var(--sans); font-size: 11px; color: var(--lugia-text-tertiary); flex-shrink: 0; padding-top: 2px; min-width: 16px; font-weight: 600; letter-spacing: 0.06em; }
+  .q-opt.selected .q-opt-letter { color: var(--lugia-axis-a); }
+
+  .q-reformul {
+    margin-top: 10px; padding: 11px 16px; border-radius: 6px;
+    background: var(--lugia-axis-a-soft); border-left: 3px solid var(--lugia-axis-a);
+    font-size: 13.5px; line-height: 1.6; color: var(--lugia-axis-a);
+    animation: fadeIn 220ms ease-out both;
+  }
+  .q-bench {
+    margin-top: 8px; padding: 9px 16px; border-radius: 6px;
+    background: var(--lugia-orange-soft); border-left: 3px solid var(--lugia-orange);
+    font-size: 13px; line-height: 1.55; color: var(--lugia-warn);
+    animation: fadeIn 220ms ease-out 80ms both;
+  }
+  .q-bench::before { content: "📊 "; }
+
+  .bloc-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--lugia-border); }
+  .bloc-progress { font-size: 12.5px; color: var(--lugia-text-tertiary); }
+  .bloc-progress strong { color: var(--lugia-axis-a); font-weight: 600; }
+
+  /* Radar latéral dynamique — flottant (post-revue V4) :
+     plus de carte ni de bordure ni de fond, le radar et sa légende sont posés dans le flux
+     sur la couleur de fond globale. */
+  .radar-side {
+    position: sticky; top: 90px;
+    padding: 0; background: transparent; border: none; box-shadow: none;
+    align-self: flex-start;
+  }
+  /* .radar-side-title retiré post-revue : pas de header dans l'aside épuré */
+  .radar-side-svg {
+    width: 100%; max-width: 150px; height: auto; display: block;
+    margin: 0 auto; /* centré dans l'aside */
+  }
+  .radar-side-scores { display: flex; flex-direction: column; gap: 8px; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--lugia-border); }
+  .radar-side-row { display: flex; align-items: center; gap: 10px; }
+  .radar-side-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .radar-side-row.a .radar-side-dot { background: var(--lugia-axis-a); }
+  .radar-side-row.b .radar-side-dot { background: var(--lugia-axis-b); }
+  .radar-side-row.c .radar-side-dot { background: var(--lugia-axis-c); }
+  .radar-side-name { font-size: 11px; color: var(--lugia-text-tertiary); flex: 1; }
+  .radar-side-level { font-size: 11px; font-weight: 600; }
+  .radar-side-row.a .radar-side-level { color: var(--lugia-axis-a); }
+  .radar-side-row.b .radar-side-level { color: var(--lugia-axis-b); }
+  .radar-side-row.c .radar-side-level { color: var(--lugia-axis-c); }
+  .radar-side-row.muted .radar-side-level { color: var(--lugia-text-tertiary); font-weight: 500; }
+  /* Mini-barre de progression par axe dans l'aside (style V3 ls-track) */
+  .radar-side-row { flex-wrap: wrap; row-gap: 4px; }
+  .radar-side-bar {
+    flex-basis: 100%; height: 2px; background: var(--lugia-bg-soft);
+    border-radius: 1px; overflow: hidden; margin-left: 18px;
+  }
+  .radar-side-bar > div {
+    height: 100%; border-radius: 1px;
+    transition: width 400ms ease-out;
+  }
+  .radar-side-row.a .radar-side-bar > div { background: var(--lugia-axis-a); }
+  .radar-side-row.b .radar-side-bar > div { background: var(--lugia-axis-b); }
+  .radar-side-row.c .radar-side-bar > div { background: var(--lugia-axis-c); }
+  /* .radar-side-bench retiré post-revue : les benchmarks combinatoires R-bench-*
+     sont basculés dans la page résultats finale (cf §10.3 spec V2). */
+
+  /* ============================================================
+     ÉCRAN 6 — Transition inter-blocs (score-reveal)
+     ============================================================ */
+  .trans-wrap { max-width: 720px; margin: 0 auto; padding: 100px 32px; text-align: center; }
+  .trans-check { font-family: var(--serif); font-size: 56px; color: var(--lugia-green); margin-bottom: 20px; }
+  h1.trans-title { font-family: var(--serif); font-size: 32px; font-weight: 500; line-height: 1.3; letter-spacing: -0.01em; margin: 0 0 14px 0; }
+  .trans-sub { font-size: 16px; color: var(--lugia-text-secondary); line-height: 1.6; margin: 0 0 40px 0; }
+
+  .trans-scores { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+  .trans-score-card {
+    flex: 1; max-width: 200px; padding: 16px 18px;
+    border: 1px solid var(--lugia-border); border-radius: 10px;
+    background: var(--lugia-bg-card); text-align: center;
+  }
+  .trans-score-card.a { border-color: var(--lugia-axis-a); background: var(--lugia-axis-a-soft); }
+  .trans-score-card.muted { opacity: 0.6; }
+  .trans-score-name { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; color: var(--lugia-text-tertiary); margin-bottom: 6px; }
+  .trans-score-card.a .trans-score-name { color: var(--lugia-axis-a); }
+  .trans-score-level { font-family: var(--serif); font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+  .trans-score-card.a .trans-score-level { color: var(--lugia-axis-a); }
+  .trans-bar { height: 3px; background: var(--lugia-bg-soft); border-radius: 2px; overflow: hidden; }
+  .trans-bar > div { height: 100%; transition: width 800ms ease-out; }
+
+  /* ============================================================
+     ÉCRAN 7 — Résultats V2
+     ============================================================ */
+  .res-page { max-width: 920px; margin: 0 auto; padding: 48px 56px 80px; position: relative; }
+  .res-hero { margin-bottom: 56px; }
+  .res-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--lugia-text-tertiary); font-weight: 600; margin-bottom: 20px; }
+  h1.res-h1 { font-family: var(--serif); font-size: 44px; font-weight: 500; line-height: 1.15; letter-spacing: -0.015em; color: var(--lugia-text); margin: 0 0 14px 0; max-width: 720px; }
+  .res-subtitle { font-size: 17px; color: var(--lugia-text-tertiary); line-height: 1.5; }
+  .res-profil-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+  .res-profil-badge { padding: 6px 12px; border: 1px solid var(--lugia-border); background: var(--lugia-bg-card); color: var(--lugia-text-secondary); border-radius: 999px; font-size: 12px; }
+
+  .res-section { margin-bottom: 64px; }
+  .res-section-num { position: absolute; left: 16px; font-family: var(--serif); font-size: 13px; color: var(--lugia-text-faint); }
+  .res-section-eyebrow { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--lugia-text-tertiary); font-weight: 600; }
+  .res-section-eyebrow::after { content: ""; flex: 1; height: 1px; background: var(--lugia-border); }
+
+  /* Radar résultats grand */
+  .res-radar-wrap { display: flex; justify-content: center; margin-bottom: 28px; }
+  .res-radar-wrap svg { display: block; }
+
+  /* Signal croisé */
+  .res-signal {
+    background: var(--lugia-orange-soft); border: 1px solid #e8b070;
+    border-radius: 10px; padding: 18px 22px; margin-bottom: 28px;
+  }
+  .res-signal-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--lugia-warn); font-weight: 700; margin-bottom: 6px; }
+  .res-signal-title { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--lugia-warn); margin: 0 0 8px 0; line-height: 1.35; }
+  .res-signal-body { font-size: 14px; line-height: 1.6; color: #6a3a14; }
+
+  /* Cartes axe dépliables */
+  .axis-cards { display: flex; flex-direction: column; gap: 12px; }
+  .axis-card {
+    border-radius: 10px; padding: 22px 26px;
+    cursor: pointer; transition: all 200ms;
+    background: var(--lugia-bg-card); border: 1px solid var(--lugia-border);
+  }
+  .axis-card.a { border-color: var(--lugia-axis-a); background: var(--lugia-axis-a-soft); }
+  .axis-card.b { border-color: var(--lugia-axis-b); background: var(--lugia-axis-b-soft); }
+  .axis-card.c { border-color: var(--lugia-axis-c); background: var(--lugia-axis-c-soft); }
+  .axis-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .axis-card-name { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+  .axis-card.a .axis-card-name { color: var(--lugia-axis-a); }
+  .axis-card.b .axis-card-name { color: var(--lugia-axis-b); }
+  .axis-card.c .axis-card-name { color: var(--lugia-axis-c); }
+  .axis-card-badge { font-size: 10px; padding: 3px 9px; border-radius: 4px; font-weight: 600; white-space: nowrap; }
+  .axis-card-badge.l3 { background: #f0f0f0; color: #555; }
+  .axis-card-badge.l4 { background: var(--lugia-orange-soft); color: var(--lugia-warn); }
+  .axis-card-title { font-family: var(--serif); font-size: 20px; font-weight: 500; line-height: 1.35; margin: 0 0 8px 0; letter-spacing: -0.005em; color: var(--lugia-text); }
+  .axis-card-body { font-size: 14.5px; line-height: 1.65; color: var(--lugia-text-secondary); margin: 0 0 12px 0; }
+  .axis-card-hint { font-size: 12px; color: var(--lugia-text-tertiary); font-style: italic; }
+  .axis-card-detail { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.06); display: none; }
+  .axis-card.expanded .axis-card-detail { display: block; animation: fadeIn 220ms ease-out both; }
+  .axis-card-pistes { list-style: none; padding: 0; margin: 0; }
+  .axis-card-pistes li { font-size: 13.5px; line-height: 1.6; padding-left: 16px; position: relative; margin-bottom: 6px; color: var(--lugia-text-secondary); }
+  .axis-card-pistes li::before { content: "→"; position: absolute; left: 0; color: var(--lugia-text-tertiary); }
+  .axis-card-bench { margin-top: 12px; padding: 10px 14px; background: rgba(255,255,255,0.6); border-radius: 6px; font-size: 12.5px; font-style: italic; color: var(--lugia-text-secondary); }
+
+  /* Opportunités */
+  .opps-intro { font-size: 15px; color: var(--lugia-text-secondary); line-height: 1.65; max-width: 720px; margin-bottom: 28px; }
+  .opp-cards { display: flex; flex-direction: column; gap: 12px; }
+  .opp-card {
+    display: grid; grid-template-columns: 64px 1fr; gap: 18px;
+    padding: 22px 26px; background: var(--lugia-bg-card);
+    border: 1px solid var(--lugia-border); border-radius: 10px;
+    cursor: pointer; transition: all 180ms; box-shadow: var(--shadow-card);
+  }
+  .opp-card:hover { border-color: var(--lugia-text-tertiary); transform: translateX(3px); }
+  .opp-num { font-family: var(--serif); font-size: 42px; font-weight: 500; color: var(--lugia-text-faint); line-height: 1; letter-spacing: -0.02em; }
+  .opp-body { min-width: 0; }
+  .opp-title { font-family: var(--serif); font-size: 19px; font-weight: 500; color: var(--lugia-text); margin: 4px 0 12px 0; line-height: 1.35; letter-spacing: -0.005em; }
+  .opp-desc { font-size: 13.5px; color: var(--lugia-text-secondary); line-height: 1.55; margin: 0 0 14px 0; }
+  .opp-meta { display: flex; gap: 14px; align-items: center; font-size: 11px; color: var(--lugia-text-tertiary); }
+  .opp-effort { display: flex; gap: 3px; }
+  .opp-pip { width: 14px; height: 2px; border-radius: 1px; background: var(--lugia-border); }
+  .opp-pip.on { background: var(--lugia-text-secondary); }
+  .opp-impact { padding: 3px 9px; background: var(--lugia-axis-a-soft); color: var(--lugia-axis-a); border-radius: 4px; font-weight: 600; letter-spacing: 0.04em; }
+
+  /* ============================================================
+     ÉCRAN 8 — Module d'approfondissement
+     ============================================================ */
+  .module-wrap { max-width: 760px; margin: 0 auto; padding: 56px 32px 80px; }
+  .module-back { background: none; border: none; color: var(--lugia-text-tertiary); font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 32px; padding: 0; }
+  .module-back:hover { color: var(--lugia-text-secondary); }
+  .module-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--lugia-text-tertiary); font-weight: 600; margin-bottom: 12px; }
+  h1.module-title { font-family: var(--serif); font-size: 32px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 36px 0; }
+  .module-steps { display: flex; flex-direction: column; }
+  .module-step { padding: 22px 0; border-bottom: 1px solid var(--lugia-border-soft); display: grid; grid-template-columns: 40px 1fr; gap: 18px; }
+  .module-step:last-child { border-bottom: none; }
+  .module-step-num { font-family: var(--serif); font-size: 18px; color: var(--lugia-text-faint); font-weight: 500; }
+  .module-step-title { font-size: 15px; font-weight: 600; color: var(--lugia-text); margin: 0 0 6px 0; }
+  .module-step-body { font-size: 14px; color: var(--lugia-text-secondary); line-height: 1.65; margin: 0 0 10px 0; }
+  .module-step-tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; }
+  .module-step-tag.quick { background: var(--lugia-axis-a-soft); color: var(--lugia-axis-a); }
+  .module-step-tag.medium { background: var(--lugia-axis-c-soft); color: var(--lugia-axis-c); }
+  .module-step-tag.invest { background: var(--lugia-orange-soft); color: var(--lugia-warn); }
+  .module-bench {
+    margin-top: 36px; padding: 18px 22px;
+    background: var(--lugia-bg-pause); border-left: 3px solid var(--lugia-text-faint);
+    border-radius: 0 6px 6px 0;
+  }
+  .module-bench-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--lugia-text-tertiary); font-weight: 700; margin-bottom: 6px; }
+  .module-bench-text { font-size: 13.5px; line-height: 1.65; color: var(--lugia-text-secondary); font-style: italic; }
+
+
+
+  /* ============================================================
+     ÉCRAN INTRO V2 — page de présentation du parcours
+     (entre accueil 2 cartes et profil étape 1)
+     ============================================================ */
+  .intro-v2 {
+    max-width: 920px; margin: 0 auto;
+    padding: 56px 56px 96px;
+  }
+  .intro-v2-eyebrow {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--lugia-accent); font-weight: 600;
+    margin-bottom: 28px; display: flex; align-items: center; gap: 12px;
+  }
+  .intro-v2-eyebrow::before {
+    content: ""; width: 24px; height: 1px; background: var(--lugia-accent);
+  }
+  h1.intro-v2-title {
+    font-family: var(--serif);
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 500; line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--lugia-text);
+    margin: 0 0 28px 0; max-width: 820px;
+  }
+  h1.intro-v2-title em {
+    color: var(--lugia-accent);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .intro-v2-sub {
+    font-size: 17px; line-height: 1.65;
+    color: var(--lugia-text-secondary);
+    margin: 0 0 40px 0; max-width: 560px;
+  }
+  .intro-v2-chips {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 56px;
+  }
+  .intro-v2-chip {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 9px 18px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    border: 1px solid;
+  }
+  .intro-v2-chip.a { color: var(--lugia-axis-a); border-color: var(--lugia-axis-a); background: var(--lugia-axis-a-soft); }
+  .intro-v2-chip.b { color: var(--lugia-axis-b); border-color: var(--lugia-axis-b); background: var(--lugia-axis-b-soft); }
+  .intro-v2-chip.c { color: var(--lugia-axis-c); border-color: var(--lugia-axis-c); background: var(--lugia-axis-c-soft); }
+  .intro-v2-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .intro-v2-chip.a .dot { background: var(--lugia-axis-a); }
+  .intro-v2-chip.b .dot { background: var(--lugia-axis-b); }
+  .intro-v2-chip.c .dot { background: var(--lugia-axis-c); }
+  .intro-v2-promises {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin-bottom: 48px;
+  }
+  .intro-v2-promise {
+    padding: 22px 24px;
+    background: var(--lugia-bg-card);
+    border: 1px solid var(--lugia-border);
+    border-radius: 10px;
+    transition: border-color 180ms;
+  }
+  .intro-v2-promise:hover { border-color: var(--lugia-text-tertiary); }
+  .intro-v2-promise strong {
+    display: block;
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.12em; font-weight: 700;
+    color: var(--lugia-text); margin-bottom: 8px;
+  }
+  .intro-v2-promise span {
+    font-size: 14px; line-height: 1.6;
+    color: var(--lugia-text-secondary);
+  }
+  .intro-v2-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--lugia-text); color: #fff;
+    padding: 14px 28px; border: none; border-radius: 999px;
+    font-family: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.02em;
+  }
+  .intro-v2-cta:hover { opacity: 0.92; }
+  @media (max-width: 720px) {
+    .intro-v2 { padding: 36px 24px 64px; }
+    .intro-v2-promises { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================================
+     Mini-radar dans la topbar (toujours visible)
+     ============================================================ */
+  .lugia-topbar.with-radar { padding: 10px 32px; gap: 20px; }
+  .mini-radar { display: flex; align-items: center; gap: 14px; padding: 4px 0 4px 14px; border-left: 1px solid var(--lugia-border); flex-shrink: 0; }
+  /* Option 2 → 3 (post-revue) : pas de SVG en topbar, jamais.
+     Le mini-radar topbar ne s'affiche QUE quand l'aside est masqué (≤ 1080px).
+     Sur desktop large, l'aside suffit — pas de redondance topbar/aside. */
+  .mini-radar-svg { display: none; }
+  @media (min-width: 1081px) { .mini-radar { display: none !important; } }
+  .mini-radar-scores { display: flex; gap: 12px; align-items: center; }
+  .mini-radar-row { display: flex; align-items: center; gap: 6px; font-size: 11px; white-space: nowrap; }
+  .mini-radar-row .level { min-width: 64px; }
+  .mini-radar-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .mini-radar-row.a .mini-radar-dot { background: var(--lugia-axis-a); }
+  .mini-radar-row.b .mini-radar-dot { background: var(--lugia-axis-b); }
+  .mini-radar-row.c .mini-radar-dot { background: var(--lugia-axis-c); }
+  .mini-radar-row .label { color: var(--lugia-text-tertiary); font-weight: 500; letter-spacing: 0.02em; }
+  .mini-radar-row .level { color: var(--lugia-text); font-weight: 600; }
+  .mini-radar-row.muted .level { color: var(--lugia-text-tertiary); font-weight: 500; }
+  @media (max-width: 720px) {
+    .lugia-topbar.with-radar { flex-wrap: wrap; gap: 10px; padding: 10px 16px; }
+    .lugia-topbar.with-radar .lugia-tb-track { order: 3; flex-basis: 100%; }
+    .mini-radar { border-left: none; padding-left: 0; }
+    .mini-radar-svg { display: none; }
+    .mini-radar-row .label { display: none; }
+  }
+
+  /* ============================================================
+     Animations
+     ============================================================ */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .screen.active > * { animation: rise 350ms ease-out both; }
+
+  /* Responsive — masquage radar latéral sous 1080px */
+  @media (max-width: 1080px) {
+    .bloc-layout { grid-template-columns: 1fr; }
+    .radar-side { display: none; }
+  }
+  @media (max-width: 720px) {
+    .home-cards { grid-template-columns: 1fr; }
+    .res-page { padding: 32px 20px 60px; }
+    h1.home-title, h1.res-h1 { font-size: 30px; }
+    .trans-scores { flex-direction: column; align-items: center; }
+    .opp-card { grid-template-columns: 1fr; }
+    .opp-num { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====================================================== -->
+<!-- Chrome maquette (switcher des écrans)                  -->
+<!-- ====================================================== -->
+<div class="wf-bar">
+  <strong>V2.0</strong>
+  <button data-screen="home" class="active">1. Accueil</button>
+  <button data-screen="intro-v2">1bis. Intro V2</button>
+  <button data-screen="profil1">2. Profil étape 1</button>
+  <button data-screen="profil2">3. Profil étape 2</button>
+  <button data-screen="energy">4. Ancrage énergie</button>
+  <button data-screen="bloc">5. Bloc + radar</button>
+  <button data-screen="trans">6. Transition</button>
+  <button data-screen="results">7. Résultats</button>
+  <button data-screen="module">8. Module</button>
+  <span class="meta">Persona Chateau V2 mocké · Palette V1.1.9</span>
+</div>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 1 — Accueil à 2 cartes (V1.1.9 / V2.0)            -->
+<!-- ====================================================== -->
+<section class="screen active" id="screen-home">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <div class="lugia-nav-right">
+      <a href="#">Mon compte</a>
+      <span>dr.chateau@cabinet.fr</span>
+      <a href="#">Se déconnecter</a>
+    </div>
+  </header>
+
+  <div class="home">
+    <div class="home-eyebrow">Check-up préventif · diagnostic.lugia.fr</div>
+    <h1 class="home-title">Bonjour Dr Chateau,<br/>quel parcours souhaitez-vous suivre ?</h1>
+    <p class="home-sub">
+      Deux versions du check-up sont disponibles le temps de la phase pilote.
+      Vous pouvez faire l'une, l'autre, ou les deux pour comparer.
+    </p>
+
+    <div class="home-cards">
+      <div class="home-card">
+        <div class="home-card-badge">Version stable</div>
+        <h3 class="home-card-title">Check-up classique</h3>
+        <p class="home-card-desc">
+          17 questions sur le fonctionnement de votre cabinet, suivies d'un rapport
+          structuré en 3 angles d'analyse et 3 opportunités d'action.
+        </p>
+        <div class="home-card-meta">Durée ~30 min · Version actuelle en prod</div>
+        <button class="home-card-cta">Démarrer le check-up classique</button>
+      </div>
+
+      <div class="home-card recommended">
+        <div class="home-card-badge">Nouvelle version · pilote</div>
+        <h3 class="home-card-title">Check-up nouvelle version</h3>
+        <p class="home-card-desc">
+          18 questions structurées en 3 blocs, avec un diagnostic qui se construit
+          en direct. Reformulations terrain, benchmarks chiffrés, plan d'action
+          détaillé sur le chantier de votre choix.
+        </p>
+        <div class="home-card-meta">Durée ~25 min · Version en cours de pilote</div>
+        <button class="home-card-cta" onclick="goto('intro-v2')">Démarrer la nouvelle version</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 1bis — Intro V2 (entre accueil et profil)         -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-intro-v2">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <div class="lugia-nav-right"><span>dr.chateau@cabinet.fr</span></div>
+  </header>
+
+  <div class="intro-v2">
+    <div class="intro-v2-eyebrow">Diagnostic organisationnel</div>
+    <h1 class="intro-v2-title">
+      Comment fonctionne <em>vraiment</em> votre cabinet&nbsp;?
+    </h1>
+    <p class="intro-v2-sub">
+      25 minutes. 18 questions adaptées à votre profil. Une analyse qui se
+      construit en temps réel — pas un formulaire muet qui promet un résultat
+      à la fin.
+    </p>
+
+    <div class="intro-v2-chips">
+      <div class="intro-v2-chip a"><span class="dot"></span>Parcours patient</div>
+      <div class="intro-v2-chip b"><span class="dot"></span>Équipe &amp; secrétariat</div>
+      <div class="intro-v2-chip c"><span class="dot"></span>Outils &amp; dossiers</div>
+    </div>
+
+    <div class="intro-v2-promises">
+      <div class="intro-v2-promise">
+        <strong>Adaptatif</strong>
+        <span>Questions calibrées selon votre type de cabinet, votre logiciel et votre territoire.</span>
+      </div>
+      <div class="intro-v2-promise">
+        <strong>Terrain</strong>
+        <span>Reformulations en langage praticien, pas consultant. Reflets immédiats à chaque réponse.</span>
+      </div>
+      <div class="intro-v2-promise">
+        <strong>Croisé</strong>
+        <span>Détection de signaux entre les 3 axes organisationnels — ce que les scores isolés ne montrent pas.</span>
+      </div>
+      <div class="intro-v2-promise">
+        <strong>Actionnable</strong>
+        <span>Plan d'action en 4 étapes pour le chantier que vous choisirez d'engager en priorité.</span>
+      </div>
+    </div>
+
+    <button class="intro-v2-cta" onclick="goto('profil1')">
+      Commencer →
+    </button>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 2 — Profil étape 1 (5 chips factuels)            -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-profil1">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <div class="lugia-nav-right"><span>dr.chateau@cabinet.fr</span></div>
+  </header>
+
+  <div class="profil-wrap">
+    <div class="profil-stepper">
+      <div class="profil-step-pill current"></div>
+      <div class="profil-step-pill"></div>
+      <div class="profil-step-pill"></div>
+    </div>
+
+    <div class="profil-eyebrow">Calibrage · étape 1 sur 2</div>
+    <h1 class="profil-title">Cinq questions factuelles<br/>pour calibrer le diagnostic.</h1>
+    <p class="profil-sub">Deux minutes. Ces informations adaptent les questions qui vous seront posées et personnalisent le rapport final.</p>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Type de cabinet</div>
+      <div class="profil-q-hint">Votre situation actuelle</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip selected">Solo</button>
+        <button class="profil-chip">Groupe 2-3 médecins</button>
+        <button class="profil-chip">Groupe 4-5 médecins</button>
+        <button class="profil-chip">MSP</button>
+      </div>
+    </div>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Volume hebdomadaire</div>
+      <div class="profil-q-hint">Consultations par semaine en moyenne</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip">&lt; 80 actes</button>
+        <button class="profil-chip selected">80-120 actes</button>
+        <button class="profil-chip">&gt; 120 actes</button>
+      </div>
+    </div>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Équipe paramédicale sur place</div>
+      <div class="profil-q-hint">Au même endroit, pas dans le réseau territorial</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip selected">Non</button>
+        <button class="profil-chip">Infirmière(s)</button>
+        <button class="profil-chip">Plusieurs paramédicaux</button>
+        <button class="profil-chip">MSP complète</button>
+      </div>
+    </div>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Logiciel médical principal</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip">Médidoc</button>
+        <button class="profil-chip selected">Crossway</button>
+        <button class="profil-chip">Cegedim</button>
+        <button class="profil-chip">Doctolib Pro</button>
+        <button class="profil-chip">Maiia</button>
+        <button class="profil-chip">MédiStory</button>
+        <button class="profil-chip">HelloDoc</button>
+        <button class="profil-chip">Autre…</button>
+      </div>
+    </div>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Comment vos patients prennent-ils RDV ?</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip">Doctolib</button>
+        <button class="profil-chip">Maiia</button>
+        <button class="profil-chip">Plateforme dédiée du cabinet</button>
+        <button class="profil-chip selected">Téléphone via secrétariat</button>
+        <button class="profil-chip">Téléphone direct</button>
+        <button class="profil-chip">Mixte</button>
+      </div>
+    </div>
+
+    <div class="profil-nav">
+      <button class="btn-link" onclick="goto('home')">← Retour</button>
+      <button class="btn-primary" onclick="goto('profil2')">Continuer →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 3 — Profil étape 2 (4 chips réflexifs)           -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-profil2">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <div class="lugia-nav-right"><span>dr.chateau@cabinet.fr</span></div>
+  </header>
+
+  <div class="profil-wrap">
+    <div class="profil-stepper">
+      <div class="profil-step-pill done"></div>
+      <div class="profil-step-pill current"></div>
+      <div class="profil-step-pill"></div>
+    </div>
+
+    <div class="profil-eyebrow">Calibrage · étape 2 sur 2</div>
+    <h1 class="profil-title">Quatre questions<br/>pour personnaliser le diagnostic.</h1>
+    <p class="profil-sub">Ces réponses adaptent le ton du rapport, l'ordre des opportunités et les benchmarks chiffrés à votre situation.</p>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Depuis combien de temps exercez-vous ici ?</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip">Récent (&lt;3 ans)</button>
+        <button class="profil-chip">Installé (3-15 ans)</button>
+        <button class="profil-chip selected">Senior (&gt;15 ans)</button>
+        <button class="profil-chip">Approche transmission (&lt;5 ans)</button>
+        <button class="profil-chip">Remplaçant</button>
+      </div>
+    </div>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Comment décririez-vous votre territoire ?</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip">Urbain dense</button>
+        <button class="profil-chip selected">Périurbain</button>
+        <button class="profil-chip">Rural / semi-rural</button>
+        <button class="profil-chip">Zone sous-dotée</button>
+      </div>
+    </div>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Horizon 3 ans</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip">Reconduire à l'identique</button>
+        <button class="profil-chip">Renforcer l'équipe</button>
+        <button class="profil-chip">Déménager / agrandir</button>
+        <button class="profil-chip selected">Préparer la transmission</button>
+        <button class="profil-chip">Encore incertain</button>
+      </div>
+    </div>
+
+    <div class="profil-question">
+      <div class="profil-q-label">Pourquoi ce check-up ?</div>
+      <div class="profil-q-chips">
+        <button class="profil-chip selected">Réduire ma charge actuelle</button>
+        <button class="profil-chip">Anticiper un événement à venir</button>
+        <button class="profil-chip">Sécuriser un risque identifié</button>
+        <button class="profil-chip">Curiosité</button>
+      </div>
+    </div>
+
+    <div class="profil-nav">
+      <button class="btn-link" onclick="goto('profil1')">← Précédent</button>
+      <button class="btn-primary" onclick="goto('energy')">Continuer →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 4 — Ancrage énergie                              -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-energy">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <div class="lugia-nav-right"><span>dr.chateau@cabinet.fr</span></div>
+  </header>
+
+  <div class="profil-wrap" style="padding-top:64px;">
+    <div class="profil-stepper">
+      <div class="profil-step-pill done"></div>
+      <div class="profil-step-pill done"></div>
+      <div class="profil-step-pill current"></div>
+    </div>
+
+    <div class="profil-eyebrow">Avant de commencer</div>
+    <h1 class="profil-title">Une question pour situer<br/>votre état d'énergie.</h1>
+    <p class="profil-sub">Cette réponse ne compte pas dans le score — elle nous permet de hiérarchiser les opportunités à votre rythme.</p>
+
+    <h2 class="energy-title" style="margin-top:36px;">En fin de semaine ordinaire, à quel niveau d'énergie repartez-vous ?</h2>
+    <div class="energy-options">
+      <button class="energy-card">Bien — je tiens le rythme, c'est soutenable.</button>
+      <button class="energy-card">Tendu, mais ça passe — quelques semaines sont plus dures.</button>
+      <button class="energy-card selected">Souvent vidé — je récupère sur le week-end.</button>
+      <button class="energy-card">Au bord — je ne sais pas combien de temps je peux tenir.</button>
+    </div>
+
+    <div class="profil-nav">
+      <button class="btn-link" onclick="goto('profil2')">← Précédent</button>
+      <button class="btn-primary" onclick="goto('bloc')">Lancer le diagnostic →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 5 — Bloc A avec radar dynamique                  -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-bloc">
+  <header class="lugia-topbar with-radar">
+    <span class="lugia-tb-label">Bloc 1 / 3</span>
+    <div class="lugia-tb-track"><div class="lugia-tb-fill" id="bloc-tb-fill" style="width: 33%;"></div></div>
+    <span class="lugia-tb-pct" id="bloc-tb-pct">2 / 6</span>
+    <div class="mini-radar" aria-label="Votre cabinet — silhouette en cours de construction">
+      <svg class="mini-radar-svg" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="20,6 32,32 8,32" fill="none" stroke="#efece4" stroke-width="0.6"/>
+        <polygon points="20,12.5 28.5,28.5 11.5,28.5" fill="none" stroke="#efece4" stroke-width="0.4"/>
+        <polygon points="20,19 25,25 15,25" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="0.4"/>
+        <!-- Polygone Chateau A=33%, B=0%, C=0% (en cours) -->
+        <path id="mini-radar-polygon" d="M 20 17 L 22 26 L 18 26 Z" fill="rgba(46,125,79,0.15)" stroke="var(--lugia-axis-a)" stroke-width="1" stroke-linejoin="round"/>
+        <circle cx="20" cy="17" r="2" fill="var(--lugia-axis-a)"/>
+        <circle cx="22" cy="26" r="1.5" fill="var(--lugia-axis-b)" opacity="0.35"/>
+        <circle cx="18" cy="26" r="1.5" fill="var(--lugia-axis-c)" opacity="0.35"/>
+      </svg>
+      <div class="mini-radar-scores">
+        <div class="mini-radar-row a"><div class="mini-radar-dot"></div><span class="label">Parc.</span><span class="level" id="mini-level-a">À risque</span></div>
+        <div class="mini-radar-row b muted"><div class="mini-radar-dot"></div><span class="label">Équipe</span><span class="level" id="mini-level-b">—</span></div>
+        <div class="mini-radar-row c muted"><div class="mini-radar-dot"></div><span class="label">Outils</span><span class="level" id="mini-level-c">—</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="bloc-layout">
+    <div class="bloc-main">
+      <div class="bloc-eyebrow">Bloc 1 sur 3</div>
+      <h1 class="bloc-title">Parcours patient</h1>
+      <div class="bloc-sub">De la prise de rendez-vous aux transmissions vers les spécialistes</div>
+
+      <!-- Q1 — answered -->
+      <div class="q-card answered">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">Quand un patient appelle pour un motif urgent, que se passe-t-il ?</div>
+        <div class="q-ctx">Pensez à la semaine dernière.</div>
+        <div class="q-opts">
+          <button class="q-opt selected"><span class="q-opt-letter">A</span><span>Il est renvoyé aux urgences ou rappelle de lui-même.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">B</span><span>Le secrétariat évalue et propose un créneau si possible.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">C</span><span>Des créneaux dédiés sont bloqués chaque matin, avec des critères connus de tous.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">D</span><span>La régulation est partagée avec d'autres praticiens du territoire.</span></button>
+        </div>
+        <div class="q-reformul">La demande urgente sans filet interne est le premier point de tension dans un cabinet saturé.</div>
+        <div class="q-bench">60 % des passages aux urgences non programmés pourraient être absorbés avec un protocole de tri simple.</div>
+      </div>
+
+      <!-- Q2 — answered -->
+      <div class="q-card answered">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">Comment gérez-vous les demandes non programmées hors urgences ?</div>
+        <div class="q-ctx">Ordonnance à renouveler, résultat à commenter, question simple.</div>
+        <div class="q-opts">
+          <button class="q-opt"><span class="q-opt-letter">A</span><span>Tout passe par une consultation, je n'ai pas d'autre canal.</span></button>
+          <button class="q-opt selected"><span class="q-opt-letter">B</span><span>Je traite ces demandes au fil de l'eau, sans cadre formalisé.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">C</span><span>Le secrétariat absorbe les demandes simples avec des critères connus.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">D</span><span>Un canal asynchrone structuré traite ces demandes.</span></button>
+        </div>
+        <div class="q-reformul">Le « fil de l'eau » est efficace tant qu'il reste léger — au-delà, il devient un mode d'usure invisible.</div>
+      </div>
+
+      <!-- Q3 — unanswered -->
+      <div class="q-card">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">Comment le patient sait-il ce qu'il doit faire entre deux consultations ?</div>
+        <div class="q-ctx">Résultats d'analyses, ordonnances, surveillance de symptômes.</div>
+        <div class="q-opts">
+          <button class="q-opt"><span class="q-opt-letter">A</span><span>Il rappelle ou revient — on gère à ce moment-là.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">B</span><span>J'explique à l'oral en fin de consultation.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">C</span><span>Une consigne écrite part systématiquement avec lui.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">D</span><span>Le patient accède à son suivi en ligne.</span></button>
+        </div>
+      </div>
+
+      <!-- Q4 — placeholder -->
+      <div class="q-card">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">Comment gérez-vous le suivi de vos patients chroniques ?</div>
+        <div class="q-ctx">Diabète, HTA, insuffisance cardiaque…</div>
+        <div class="q-opts">
+          <button class="q-opt"><span class="q-opt-letter">A</span><span>Ils rappellent quand ils ont besoin — je les vois alors.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">B</span><span>J'essaie de programmer des renouvellements, sans système formalisé.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">C</span><span>Une liste est tenue à jour avec des rappels de suivi.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">D</span><span>Le suivi est intégré dans le logiciel avec alertes.</span></button>
+        </div>
+      </div>
+
+      <!-- Q5 — placeholder -->
+      <div class="q-card">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">Comment identifiez-vous les patients chroniques qui devraient revenir mais ne viennent plus ?</div>
+        <div class="q-opts">
+          <button class="q-opt"><span class="q-opt-letter">A</span><span>Je ne le fais pas — je ne vois pas comment m'y prendre.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">B</span><span>Je m'en rends compte par hasard, quand un patient revient après un long délai.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">C</span><span>Je relance ponctuellement les patients identifiés à risque.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">D</span><span>Une extraction logiciel régulière identifie les patients à relancer.</span></button>
+        </div>
+      </div>
+
+      <!-- Q6 — placeholder -->
+      <div class="q-card">
+        <div class="q-num">Question 6</div>
+        <div class="q-text">Comment êtes-vous alerté quand un résultat d'examen important arrive pour un patient ?</div>
+        <div class="q-opts">
+          <button class="q-opt"><span class="q-opt-letter">A</span><span>Vérification opportuniste — je consulte quand j'y pense.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">B</span><span>Tri délégué — le secrétariat vérifie et m'alerte.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">C</span><span>Vérification régulière à heures fixes plusieurs fois par jour.</span></button>
+          <button class="q-opt"><span class="q-opt-letter">D</span><span>Signalement automatique du logiciel sur les valeurs hors normes.</span></button>
+        </div>
+      </div>
+
+      <div class="bloc-nav">
+        <span class="bloc-progress"><strong>2</strong> / 6 réponses</span>
+        <button class="btn-primary" disabled>Bloc suivant →</button>
+      </div>
+    </div>
+
+    <!-- Radar latéral dynamique — épuré (post-revue) :
+         - Pas de header "Votre cabinet"
+         - Pas de labels axes (PARCOURS/ÉQUIPE/OUTILS) sur le SVG : la légende est portée par les 3 lignes en dessous
+         - Grille concentrique réduite à 1 polygone très discret (échelle visuelle minimale)
+         - Pas de bloc Repère terrain (basculé dans la page résultats finale, cf §10.3 spec V2) -->
+    <aside class="radar-side">
+      <svg class="radar-side-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Triangle tourné, sommet à droite (post-revue V4).
+             Sommets : A à droite (0°) = (180,100), C haut-gauche (120°) = (60,30.72), B bas-gauche (240°) = (60,169.28).
+             Polygones concentriques 25/50/75/100% du rayon (r=80).
+             Grille bien visible pour signaler les niveaux internes — opacité plus marquée que la version précédente.
+             3 points couleur affichés dès le départ, même taille (r=4), sans glow différencié. -->
+        <!-- Grille niveau 4 (extérieur, 100%) -->
+        <polygon points="180,100 60,30.72 60,169.28" fill="none" stroke="#d4cfbf" stroke-width="0.8"/>
+        <!-- Grille niveau 3 (75%) -->
+        <polygon points="160,100 70,47.04 70,152.96" fill="none" stroke="#dcd7c7" stroke-width="0.6"/>
+        <!-- Grille niveau 2 (50%) -->
+        <polygon points="140,100 80,65.36 80,134.64" fill="none" stroke="#e2ddcd" stroke-width="0.6"/>
+        <!-- Grille niveau 1 (25%) -->
+        <polygon points="120,100 90,82.68 90,117.32" fill="none" stroke="#e8e3d3" stroke-width="0.5"/>
+        <!-- Axes -->
+        <line x1="100" y1="100" x2="180" y2="100" stroke="#dcd7c7" stroke-width="0.5"/>
+        <line x1="100" y1="100" x2="60"  y2="30.72" stroke="#dcd7c7" stroke-width="0.5"/>
+        <line x1="100" y1="100" x2="60"  y2="169.28" stroke="#dcd7c7" stroke-width="0.5"/>
+        <!-- Polygone de scores Chateau en cours (A:33%, B:~4% visible, C:~4% visible) -->
+        <!-- A à 33% sur axe 0° : (100 + 0.33*80, 100) = (126.4, 100) -->
+        <!-- C à 4% sur axe 120° : (100 - 0.04*40, 100 - 0.04*69.28) = (98.4, 97.23) -->
+        <!-- B à 4% sur axe 240° : (100 - 0.04*40, 100 + 0.04*69.28) = (98.4, 102.77) -->
+        <path d="M 126.4 100 L 98.4 97.23 L 98.4 102.77 Z" fill="rgba(46,125,79,0.10)" stroke="var(--lugia-axis-a)" stroke-width="1.5" stroke-linejoin="round"/>
+        <!-- 3 points couleur même dimension, affichés dès le départ -->
+        <circle cx="126.4" cy="100" r="4" fill="var(--lugia-axis-a)"/>
+        <circle cx="98.4"  cy="97.23" r="4" fill="var(--lugia-axis-c)"/>
+        <circle cx="98.4"  cy="102.77" r="4" fill="var(--lugia-axis-b)"/>
+      </svg>
+      <div class="radar-side-scores">
+        <div class="radar-side-row a">
+          <div class="radar-side-dot"></div>
+          <div class="radar-side-name">Parcours patient</div>
+          <div class="radar-side-level">À risque</div>
+          <div class="radar-side-bar"><div style="width: 33%;"></div></div>
+        </div>
+        <div class="radar-side-row b muted">
+          <div class="radar-side-dot"></div>
+          <div class="radar-side-name">Équipe & secrétariat</div>
+          <div class="radar-side-level">—</div>
+          <div class="radar-side-bar"><div style="width: 0%;"></div></div>
+        </div>
+        <div class="radar-side-row c muted">
+          <div class="radar-side-dot"></div>
+          <div class="radar-side-name">Outils & dossiers</div>
+          <div class="radar-side-level">—</div>
+          <div class="radar-side-bar"><div style="width: 0%;"></div></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 6 — Transition inter-blocs (score-reveal)        -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-trans">
+  <header class="lugia-topbar with-radar">
+    <span class="lugia-tb-label">Bloc 1 / 3 terminé</span>
+    <div class="lugia-tb-track"><div class="lugia-tb-fill" style="width: 33%;"></div></div>
+    <span class="lugia-tb-pct">6 / 18</span>
+    <div class="mini-radar" aria-label="Votre cabinet — bloc 1 complété">
+      <svg class="mini-radar-svg" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="20,6 32,32 8,32" fill="none" stroke="#efece4" stroke-width="0.6"/>
+        <polygon points="20,12.5 28.5,28.5 11.5,28.5" fill="none" stroke="#efece4" stroke-width="0.4"/>
+        <polygon points="20,19 25,25 15,25" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="0.4"/>
+        <path d="M 20 14 L 22 26 L 18 26 Z" fill="rgba(46,125,79,0.15)" stroke="var(--lugia-axis-a)" stroke-width="1" stroke-linejoin="round"/>
+        <circle cx="20" cy="14" r="2" fill="var(--lugia-axis-a)"/>
+        <circle cx="22" cy="26" r="1.5" fill="var(--lugia-axis-b)" opacity="0.35"/>
+        <circle cx="18" cy="26" r="1.5" fill="var(--lugia-axis-c)" opacity="0.35"/>
+      </svg>
+      <div class="mini-radar-scores">
+        <div class="mini-radar-row a"><div class="mini-radar-dot"></div><span class="label">Parc.</span><span class="level">À surveiller</span></div>
+        <div class="mini-radar-row b muted"><div class="mini-radar-dot"></div><span class="label">Équipe</span><span class="level">—</span></div>
+        <div class="mini-radar-row c muted"><div class="mini-radar-dot"></div><span class="label">Outils</span><span class="level">—</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="trans-wrap">
+    <div class="trans-check">✓</div>
+    <h1 class="trans-title">Parcours patient — complété</h1>
+    <p class="trans-sub">Premier axe terminé. Votre diagnostic se construit, voici la première silhouette.</p>
+
+    <div class="trans-scores">
+      <div class="trans-score-card a">
+        <div class="trans-score-name">Parcours patient</div>
+        <div class="trans-score-level">À surveiller</div>
+        <div class="trans-bar"><div style="width:45%;background:var(--lugia-axis-a);"></div></div>
+      </div>
+      <div class="trans-score-card muted">
+        <div class="trans-score-name">Équipe & secrétariat</div>
+        <div class="trans-score-level">—</div>
+        <div class="trans-bar"></div>
+      </div>
+      <div class="trans-score-card muted">
+        <div class="trans-score-name">Outils & dossiers</div>
+        <div class="trans-score-level">—</div>
+        <div class="trans-bar"></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goto('bloc')">Continuer — Équipe & secrétariat →</button>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 7 — Résultats V2                                  -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-results">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <div class="lugia-nav-right">
+      <a href="#">Mon compte</a>
+      <span>dr.chateau@cabinet.fr</span>
+      <a href="#">Se déconnecter</a>
+    </div>
+  </header>
+
+  <div class="res-page">
+    <!-- Hero -->
+    <header class="res-hero">
+      <div class="res-eyebrow">Check-up préventif — votre diagnostic</div>
+      <h1 class="res-h1">Votre cabinet,<br/>en trois dimensions.</h1>
+      <div class="res-subtitle">Dr Chateau — résultats du 19 mai 2026</div>
+      <div class="res-profil-badges">
+        <span class="res-profil-badge">Solo · 80-120 actes</span>
+        <span class="res-profil-badge">Senior · Périurbain</span>
+        <span class="res-profil-badge">Prépare la transmission</span>
+      </div>
+    </header>
+
+    <!-- Radar grand -->
+    <section class="res-section">
+      <div class="res-section-eyebrow">Vue d'ensemble</div>
+      <div class="res-radar-wrap">
+        <svg width="340" height="340" viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg">
+          <!-- Radar résultats — orientation cohérente avec l'aside (pointe à droite).
+               SVG : Y augmente vers le bas, donc sin(120°) positif → bas, sin(240°) négatif → haut.
+               A (Parcours, vert)  à 0°   = (280.00, 170.00)  → droite
+               C (Outils, bleu)    à 240° = (115.00, 74.74)  → haut-gauche
+               B (Équipe, orange)  à 120° = (115.00, 265.26)  → bas-gauche
+               cx=170, cy=170, r=110. Grille 4 niveaux concentriques. -->
+          <polygon points="280.00,170.00 115.00,74.74 115.00,265.26" fill="none" stroke="#d4cfbf" stroke-width="0.9"/>
+          <polygon points="252.50,170.00 128.75,98.55 128.75,241.45" fill="none" stroke="#dcd7c7" stroke-width="0.7"/>
+          <polygon points="225.00,170.00 142.50,122.37 142.50,217.63" fill="none" stroke="#e2ddcd" stroke-width="0.6"/>
+          <polygon points="197.50,170.00 156.25,146.18 156.25,193.82" fill="none" stroke="#e8e3d3" stroke-width="0.5"/>
+          <line x1="170" y1="170" x2="280.00" y2="170.00" stroke="#dcd7c7" stroke-width="0.5"/>
+          <line x1="170" y1="170" x2="115.00" y2="74.74" stroke="#dcd7c7" stroke-width="0.5"/>
+          <line x1="170" y1="170" x2="115.00" y2="265.26" stroke="#dcd7c7" stroke-width="0.5"/>
+          <path d="M 219.50 170.00 L 142.50 122.37 L 151.85 201.44 Z"
+                fill="rgba(26,86,160,0.06)" stroke="var(--lugia-accent)" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="219.50" cy="170.00" r="5" fill="var(--lugia-axis-a)"/>
+          <circle cx="142.50" cy="122.37" r="5" fill="var(--lugia-axis-c)"/>
+          <circle cx="151.85" cy="201.44" r="5" fill="var(--lugia-axis-b)"/>
+          <text x="306.00" y="170.00" text-anchor="start" dominant-baseline="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="600" fill="var(--lugia-axis-a)" letter-spacing="0.04em">PARCOURS PATIENT</text>
+          <text x="102.00" y="52.22" text-anchor="end" dominant-baseline="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="600" fill="var(--lugia-axis-c)" letter-spacing="0.04em">OUTILS &amp; DOSSIERS</text>
+          <text x="102.00" y="287.78" text-anchor="end" dominant-baseline="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="600" fill="var(--lugia-axis-b)" letter-spacing="0.04em">ÉQUIPE &amp; SECRÉTARIAT</text>
+        </svg>
+      </div>
+
+      <!-- Signal croisé -->
+      <div class="res-signal">
+        <div class="res-signal-kicker">✦ Signal croisé</div>
+        <div class="res-signal-title">Surcharge administrative chronique</div>
+        <div class="res-signal-body">
+          L'absence de délégation combinée à des outils sous-optimisés crée une surcharge structurelle.
+          Vous gérez probablement des tâches qui pourraient être déléguées ou automatisées —
+          ensemble ces deux leviers peuvent libérer plus d'une heure par jour.
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 cartes axe -->
+    <section class="res-section">
+      <div class="res-section-eyebrow">Trois angles de votre cabinet</div>
+
+      <div class="axis-cards">
+        <div class="axis-card a">
+          <div class="axis-card-top">
+            <div class="axis-card-name">Parcours patient</div>
+            <div class="axis-card-badge l3">À surveiller</div>
+          </div>
+          <h3 class="axis-card-title">Des bases existent, mais elles restent fragiles.</h3>
+          <p class="axis-card-body">
+            Vous avez commencé à structurer — mais les processus dépendent encore trop des personnes.
+            Un absent et l'organisation vacille.
+          </p>
+          <div class="axis-card-hint">↓ Cliquer pour les pistes d'action</div>
+          <div class="axis-card-detail">
+            <ul class="axis-card-pistes">
+              <li>Formaliser le protocole de tri des urgences</li>
+              <li>Tester la consigne de sortie écrite sur 2 semaines</li>
+              <li>Programmer les renouvellements chroniques dans le logiciel</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="axis-card b">
+          <div class="axis-card-top">
+            <div class="axis-card-name">Équipe & secrétariat</div>
+            <div class="axis-card-badge l4">À risque</div>
+          </div>
+          <h3 class="axis-card-title">L'organisation repose sur vous seul.</h3>
+          <p class="axis-card-body">
+            Les rôles sont flous, la communication est ad hoc et les décisions se prennent dans l'urgence.
+            C'est soutenable à court terme — rarement sur la durée.
+          </p>
+          <div class="axis-card-hint">↓ Cliquer pour les pistes d'action</div>
+          <div class="axis-card-detail">
+            <ul class="axis-card-pistes">
+              <li>Identifier les 5 tâches non médicales les plus chronophages</li>
+              <li>Évaluer le dispositif assistant médical (financement CPAM)</li>
+              <li>Définir un protocole de communication minimal</li>
+            </ul>
+            <div class="axis-card-bench">📊 62 % des généralistes gèrent plus de 30 % de tâches non médicales faute d'organisation.</div>
+          </div>
+        </div>
+
+        <div class="axis-card c">
+          <div class="axis-card-top">
+            <div class="axis-card-name">Outils & dossiers</div>
+            <div class="axis-card-badge l3">À surveiller</div>
+          </div>
+          <h3 class="axis-card-title">Les outils sont là, mais pas encore au service du soin.</h3>
+          <p class="axis-card-body">
+            Vous avez les bons outils mais sans configuration adaptée. Le potentiel est là —
+            il attend d'être activé.
+          </p>
+          <div class="axis-card-hint">↓ Cliquer pour les pistes d'action</div>
+          <div class="axis-card-detail">
+            <ul class="axis-card-pistes">
+              <li>Créer 3 modèles de documents dans Crossway</li>
+              <li>Mettre en place des plages admin dédiées</li>
+              <li>Explorer la délégation de la saisie administrative</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Opportunités -->
+    <section class="res-section">
+      <div class="res-section-eyebrow">Trois opportunités d'action</div>
+      <p class="opps-intro">
+        Chacune répond aux points de vigilance relevés plus haut, en s'appuyant sur les
+        forces déjà en place. Vu votre horizon de transmission, les opportunités équipe
+        sont remontées en priorité.
+      </p>
+
+      <div class="opp-cards">
+        <article class="opp-card">
+          <div class="opp-num">1</div>
+          <div class="opp-body">
+            <h3 class="opp-title">Déléguer des tâches non médicales</h3>
+            <p class="opp-desc">
+              Cartographier les tâches non médicales chronophages, formaliser la délégation
+              avec votre équipe ou explorer le dispositif d'assistant médical.
+            </p>
+            <div class="opp-meta">
+              <div class="opp-effort">
+                <div class="opp-pip on"></div><div class="opp-pip on"></div><div class="opp-pip on"></div>
+              </div>
+              <span>Effort</span>
+              <span class="opp-impact">Moyen terme</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="opp-card">
+          <div class="opp-num">2</div>
+          <div class="opp-body">
+            <h3 class="opp-title">Instaurer un rituel de communication d'équipe</h3>
+            <p class="opp-desc">
+              Un point quotidien de 10 minutes, un outil de messages partagé, un protocole
+              d'escalade clair — la base pour qu'une équipe fonctionne sans dépendre de votre présence permanente.
+            </p>
+            <div class="opp-meta">
+              <div class="opp-effort">
+                <div class="opp-pip on"></div><div class="opp-pip"></div><div class="opp-pip"></div>
+              </div>
+              <span>Effort</span>
+              <span class="opp-impact">Immédiat</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="opp-card">
+          <div class="opp-num">3</div>
+          <div class="opp-body">
+            <h3 class="opp-title">Optimiser l'usage de Crossway</h3>
+            <p class="opp-desc">
+              Formation ciblée, création de modèles de documents, activation du module de
+              file active — quelques jours pour libérer 25 à 40 minutes par jour.
+            </p>
+            <div class="opp-meta">
+              <div class="opp-effort">
+                <div class="opp-pip on"></div><div class="opp-pip on"></div><div class="opp-pip"></div>
+              </div>
+              <span>Effort</span>
+              <span class="opp-impact">Court terme</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div style="margin-top: 32px; padding: 24px; background: var(--lugia-bg-soft); border-radius: 10px;">
+        <h3 style="font-family: var(--serif); font-size: 18px; font-weight: 500; margin: 0 0 10px 0;">Creuser un chantier</h3>
+        <p style="font-size: 14px; color: var(--lugia-text-secondary); line-height: 1.6; margin: 0 0 16px 0;">
+          Choisissez un chantier — vous obtenez un plan d'action en 4 étapes adapté à votre profil.
+          <em style="display: block; margin-top: 8px; font-size: 12px; color: var(--lugia-text-tertiary);">
+            En V2.0 : plan statique pré-écrit. En V2.1 : conversation IA personnalisée.
+          </em>
+        </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn-primary" style="padding: 9px 16px; font-size: 13px;" onclick="goto('module')">🤝 Déléguer les tâches non médicales</button>
+          <button style="padding: 9px 16px; border: 1px solid var(--lugia-border); background: #fff; color: var(--lugia-text-secondary); border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit;" onclick="goto('module')">💬 Rituel de communication</button>
+          <button style="padding: 9px 16px; border: 1px solid var(--lugia-border); background: #fff; color: var(--lugia-text-secondary); border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit;" onclick="goto('module')">💻 Optimiser Crossway</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- ÉCRAN 8 — Module d'approfondissement                   -->
+<!-- ====================================================== -->
+<section class="screen" id="screen-module">
+  <header class="lugia-nav">
+    <a href="#" class="lugia-logo">Lugia</a>
+    <div class="lugia-nav-right"><span>dr.chateau@cabinet.fr</span></div>
+  </header>
+
+  <div class="module-wrap">
+    <button class="module-back" onclick="goto('results')">← Retour au diagnostic</button>
+    <div class="module-eyebrow">Plan d'action — Bloc Équipe</div>
+    <h1 class="module-title">Déléguer les tâches non médicales</h1>
+
+    <div class="module-steps">
+      <div class="module-step">
+        <div class="module-step-num">01</div>
+        <div>
+          <h4 class="module-step-title">Cartographier vos tâches non médicales</h4>
+          <p class="module-step-body">
+            Passez une journée à noter tout ce que vous faites hors consultation directe.
+            60 à 70 % de ces tâches ne nécessitent pas votre expertise médicale.
+          </p>
+          <span class="module-step-tag quick">Action rapide — &lt; 1 semaine</span>
+        </div>
+      </div>
+
+      <div class="module-step">
+        <div class="module-step-num">02</div>
+        <div>
+          <h4 class="module-step-title">Identifier les tâches délégables en priorité</h4>
+          <p class="module-step-body">
+            Appels de résultats simples, préparation des renouvellements, saisie de courriers,
+            rappels de suivi. Commencez par une seule tâche, faites-la déléguer 2 semaines, évaluez.
+          </p>
+          <span class="module-step-tag quick">Action rapide — &lt; 1 semaine</span>
+        </div>
+      </div>
+
+      <div class="module-step">
+        <div class="module-step-num">03</div>
+        <div>
+          <h4 class="module-step-title">Formaliser avec l'équipe</h4>
+          <p class="module-step-body">
+            Réunion de 30 minutes : expliquez le pourquoi, montrez comment faire, définissez
+            le critère d'escalade (« dans quel cas tu me transmets »). Ce dernier point
+            sécurise la délégation.
+          </p>
+          <span class="module-step-tag medium">Projet court — 1 à 4 semaines</span>
+        </div>
+      </div>
+
+      <div class="module-step">
+        <div class="module-step-num">04</div>
+        <div>
+          <h4 class="module-step-title">Explorer le dispositif assistant médical</h4>
+          <p class="module-step-body">
+            Le cadre conventionnel permet un financement partiel.
+            Contactez votre CPAM ou votre CPTS — les délais sont souvent plus courts que prévu.
+            À votre horizon de transmission, un cabinet avec assistant médical se valorise nettement mieux.
+          </p>
+          <span class="module-step-tag invest">Investissement — 1 à 3 mois</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-bench">
+      <div class="module-bench-kicker">✦ Données terrain</div>
+      <div class="module-bench-text">
+        Les cabinets ayant formalisé la délégation sur 2 à 3 tâches récupèrent en moyenne
+        45 minutes de temps médical par jour. À votre profil senior solo, ce gain représente
+        l'équivalent de 4 consultations supplémentaires sur la semaine — ou autant de temps
+        personnel récupéré.
+      </div>
+    </div>
+
+    <div style="margin-top: 36px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn-primary" onclick="goto('results')">← Retour au diagnostic</button>
+      <button style="padding: 11px 20px; border: 1px solid var(--lugia-border); background: #fff; color: var(--lugia-text-secondary); border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit;" onclick="window.print()">Imprimer ce plan</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Switcher
+  const buttons = document.querySelectorAll('.wf-bar button[data-screen]');
+  const screens = document.querySelectorAll('.screen');
+
+  function goto(id) {
+    screens.forEach(s => s.classList.remove('active'));
+    buttons.forEach(b => b.classList.remove('active'));
+    const target = document.getElementById('screen-' + id);
+    const btn = document.querySelector(`.wf-bar button[data-screen="${id}"]`);
+    if (target) target.classList.add('active');
+    if (btn) btn.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  buttons.forEach(btn => btn.addEventListener('click', () => goto(btn.dataset.screen)));
+
+  // Cards axe — toggle expand
+  document.querySelectorAll('.axis-card').forEach(c => c.addEventListener('click', () => c.classList.toggle('expanded')));
+
+  // Profil chips — toggle selection (mode démo)
+  document.querySelectorAll('.profil-question').forEach(q => {
+    q.querySelectorAll('.profil-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        q.querySelectorAll('.profil-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+      });
+    });
+  });
+
+  // Energy options — toggle selection
+  document.querySelectorAll('.energy-card').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.energy-card').forEach(o => o.classList.remove('selected'));
+      c.classList.add('selected');
+    });
+  });
+
+  // === Auto-scroll après réponse à une question du bloc =====================
+  // Quand le médecin clique sur une option, on simule la sélection puis on déplace
+  // la fenêtre pour positionner le bas de la card répondue à ~30% du viewport.
+  // Effet : la reformulation + benchmark restent visibles, et le début de la
+  // question suivante apparaît juste en-dessous.
+  document.querySelectorAll('#screen-bloc .q-opt').forEach(opt => {
+    opt.addEventListener('click', (e) => {
+      const card = opt.closest('.q-card');
+      if (!card) return;
+      // Marquer la sélection (toggle local à la card)
+      card.querySelectorAll('.q-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      card.classList.add('answered');
+      // Auto-scroll fluide après court délai (laisse l'animation de reformul fade-in démarrer)
+      setTimeout(() => {
+        const cardRect = card.getBoundingClientRect();
+        const viewportH = window.innerHeight;
+        // Cible : positionner le bas de la card à ~70% du viewport (laisse 30% pour la suivante)
+        const targetCardBottom = viewportH * 0.7;
+        const currentCardBottom = cardRect.bottom;
+        const scrollDelta = currentCardBottom - targetCardBottom;
+        window.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+      }, 250);
+    });
+  });
+</script>
+
+</body>
+</html>

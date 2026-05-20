@@ -22,3 +22,4 @@ data/*.db
 .vscode/
 .idea/
 *.swp
+resources/external_inputs/
