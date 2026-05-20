@@ -17,15 +17,26 @@ export function BlockTransition({
   scores,
   nextBlockLabel,
   onContinue,
+  isFinal = false,
 }: {
-  completedBlock: "A" | "B";
+  completedBlock: "A" | "B" | "C";
   scores: V2Scores | null;
   nextBlockLabel: string;
   onContinue: () => void;
+  /**
+   * Si true (cas transition_C), le bouton dit « Voir vos résultats → »
+   * au lieu de « Continuer → » et l'en-tête de bloc suivant a un ton
+   * de clôture plutôt que de transition.
+   */
+  isFinal?: boolean;
 }) {
   const block: V2AxisScore | null = scores ? scores[completedBlock] : null;
   const completedLabel =
-    completedBlock === "A" ? "Parcours patient" : "Équipe & secrétariat";
+    completedBlock === "A"
+      ? "Parcours patient"
+      : completedBlock === "B"
+      ? "Équipe & secrétariat"
+      : "Outils & dossiers";
 
   return (
     <main className="max-w-[640px] mx-auto px-8 py-20 text-center">
@@ -65,7 +76,7 @@ export function BlockTransition({
 
       <div className="border-t border-[#e0dccc] pt-8">
         <div className="text-[12px] uppercase tracking-[0.14em] font-semibold text-[#888780] mb-2">
-          Suite
+          {isFinal ? "Parcours terminé" : "Suite"}
         </div>
         <div className="text-[18px] text-[#1a1a1a] font-medium mb-7">
           {nextBlockLabel}
@@ -75,7 +86,7 @@ export function BlockTransition({
           className="bg-[#1f1f1f] hover:bg-[#2c2c2c] text-white font-medium text-[15px] rounded-full px-7 py-3 transition-colors"
           type="button"
         >
-          Continuer →
+          {isFinal ? "Voir vos résultats →" : "Continuer →"}
         </button>
       </div>
 

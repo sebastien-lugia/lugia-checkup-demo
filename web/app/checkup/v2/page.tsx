@@ -241,20 +241,24 @@ function CheckupV2Content() {
       }
       if (block === "A") setStep("transition_A");
       else if (block === "B") setStep("transition_B");
-      else {
-        // Fin du parcours
-        if (interviewId) {
-          try {
-            await completeInterview(interviewId);
-          } catch {
-            /* on continue quand même vers les résultats */
-          }
-          router.push(`/resultats/v2?id=${interviewId}`);
-        }
-      }
+      else setStep("transition_C");
     },
-    [interviewId, router]
+    [interviewId]
   );
+
+  // ---- Fin de parcours : compléter l'interview puis rediriger vers résultats ----
+  const handleFinish = useCallback(async () => {
+    if (!interviewId) return;
+    setSaving(true);
+    try {
+      await completeInterview(interviewId);
+    } catch {
+      /* on continue quand même vers les résultats */
+    } finally {
+      setSaving(false);
+    }
+    router.push(`/resultats/v2?id=${interviewId}`);
+  }, [interviewId, router]);
 
   // ---- Reprise éventuelle (resumeStep) ----
   const answeredIds = useMemo(() => new Set(Object.keys(answers)), [answers]);
@@ -451,6 +455,15 @@ uvicorn backend.main:app --reload --port 8000`}
                 saving={saving}
               />
             </main>
+          )}
+          {step === "transition_C" && (
+            <BlockTransition
+              completedBlock="C"
+              scores={scores}
+              nextBlockLabel="Vos résultats du diagnostic"
+              isFinal
+              onContinue={handleFinish}
+            />
           )}
         </div>
 

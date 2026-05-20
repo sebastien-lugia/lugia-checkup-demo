@@ -24,6 +24,7 @@ export type V2Step =
   | "bloc_B"
   | "transition_B"
   | "bloc_C"
+  | "transition_C"
   | "resultats";
 
 /** Ordre canonique des étapes — utilisé par la barre de progression. */
@@ -37,6 +38,7 @@ export const V2_STEP_ORDER: V2Step[] = [
   "bloc_B",
   "transition_B",
   "bloc_C",
+  "transition_C",
   "resultats",
 ];
 
@@ -84,6 +86,20 @@ export function isBlockComplete(
 }
 
 /**
+ * Un bloc est « commencé » dès qu'au moins une question visible a été
+ * répondue. Sert à la logique de reprise : si le bloc suivant n'est pas
+ * commencé, on ramène le médecin à la page de transition entre blocs
+ * (qui donne le contexte du bloc à venir) plutôt que directement au bloc.
+ */
+export function isBlockStarted(
+  scores: V2Scores | null,
+  blockId: "A" | "B" | "C"
+): boolean {
+  if (!scores) return false;
+  return (scores.completeness?.[blockId] ?? 0) > 0;
+}
+
+/**
  * Étape suivante naturelle (avancée linéaire — pas de retour en arrière).
  *
  * Ne fait pas de side-effect (network, scroll, etc.). Le composant qui
@@ -119,10 +135,26 @@ export function resumeStep(
   if (!isProfileStep1Complete(profile)) return "intro";
   if (!isProfileStep2Complete(profile)) return "profil_step2";
   if (!isEnergyAnswered(answeredQuestionIds)) return "energy";
+
+  // Bloc A en cours
   if (!isBlockComplete(scores, "A")) return "bloc_A";
+  // Bloc A complet, bloc B pas encore commencé → on ramène le médecin
+  // à la page de transition_A (qui montre le score-reveal de A et
+  // prépare le passage à B). Évite de sauter directement au bloc B
+  // alors que l'utilisateur s'était peut-être arrêté sur la transition.
+  if (!isBlockStarted(scores, "B")) return "transition_A";
   if (!isBlockComplete(scores, "B")) return "bloc_B";
+
+  // Bloc B complet, bloc C pas encore commencé → transition_B.
+  if (!isBlockStarted(scores, "C")) return "transition_B";
   if (!isBlockComplete(scores, "C")) return "bloc_C";
-  return "resultats";
+
+  // Bloc C complet — l'utilisateur s'était arrêté soit sur transition_C
+  // (avant d'avoir cliqué « Voir vos résultats »), soit sur la page
+  // résultats elle-même. On ramène vers transition_C dans le doute :
+  // si l'interview est déjà completed, la page d'accueil aura routé
+  // directement vers /resultats/v2 plutôt que /checkup/v2.
+  return "transition_C";
 }
 
 /** Label humain pour la barre de progression. */
@@ -142,6 +174,7 @@ export function stepLabel(step: V2Step): string {
     case "transition_B":
       return "Équipe & secrétariat";
     case "bloc_C":
+    case "transition_C":
       return "Outils & dossiers";
     case "resultats":
       return "Résultats";
@@ -169,6 +202,7 @@ export function stepChapter(step: V2Step): {
     bloc_B: 4,
     transition_B: 4,
     bloc_C: 5,
+    transition_C: 5,
     resultats: 6,
   };
   const number = chapters[step];
