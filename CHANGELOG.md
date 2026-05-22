@@ -4,6 +4,939 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-22 — V3-charte : alignement des dénominateurs visuels avec le routing
+
+Le compteur footer affichait `6 / 9 réponses` pour un profil routé (vrai dénominateur visible : 6). Refactor pour que **tout l'écosystème visuel** (compteur footer, completeness, barre Topbar, radar live, transitions) utilise le même dénominateur — celui des questions effectivement présentées au médecin après application du routing solo / non-solo / secrétariat.
+
+- **`filterQuestionsByRouting`** déplacé de `screens_blocs.tsx` vers `lib/v3/protocol_data.ts` (utilitaire partagé) — `screens_blocs.tsx` consomme l'import.
+- **Compteur footer bloc** : `bloc.questions.length` → `visibleQuestions.length` (ligne 402 de `screens_blocs.tsx`).
+- **`buildLocalScores`** dans `app/checkup/v3-charte/page.tsx` accepte désormais `cabinetType / secretariat / paramedicalTeam` et filtre les questions avant de calculer `completeness`. Avant ce fix, `completeness` ne pouvait jamais atteindre 1 pour les profils filtrés (ex : 6/9 = 0.67), ce qui cassait silencieusement `isBlockComplete`, le radar `numScoresIfComplete`, et la barre Topbar.
+- **`UserProfile`** (`lib/api.ts`) : ajout du champ `secretariat?: string | null` — le backend ignore les champs non reconnus, on ne casse pas V1.x / V2.0.
+- **`STEP1_REQUIRED`** (`lib/v3/state.ts`) : ajout de `secretariat` → 6 chips étape 1 (au lieu de 5). `V3_TOTAL_PROGRESS_STEPS` passe de 28 à 29 micro-étapes. Commentaires arithmétiques de `stepProgressLowerBound` / `stepProgressUpperBound` actualisés.
+- **Validation manuelle** : 6 profils testés (`solo isolé`, `solo + paramédical`, `solo + secrétariat`, `cabinet groupe`, `cabinet groupe seul`, `MSP complète`). 4 profils donnent exactement 6 questions par bloc B, 2 edge-cases en donnent 5 — désormais affiché honnêtement comme `x / 5` (cohérent avec la règle "6 max par bloc").
+
+### Bloc B — labels resserrés en 1 ligne (12 réécritures)
+
+Pari de lisibilité : faire tenir chaque option en une ligne (≤ 82 caractères à Onest 13 px sur 582 px utiles) sans diluer le message. b1_b, b1_d, b3_a, b3_d, b4_d, b5_a, b5_c, b7_a, b7_c, b7_d, b9_d, b10_d réécrits. Cas extrêmes assumés sur 2 lignes uniquement quand la précision pédagogique l'exige.
+
+### Bloc C — labels resserrés (11 réécritures) + Q04 et Q06 réorganisées
+
+- Suppression du palier irréaliste « Aucun outil numérique » sur Q04 outils numériques (carte Vitale obligatoire pour tous) ; ajout d'un palier intermédiaire « J'ai testé quelques outils en plus… sans régularité » entre « par obligation » et « activement plusieurs ».
+- Q05 et Q06 harmonisées en « Je » : c5_b, c5_c, c6_d repassent en première personne — cohérence d'écriture sur les 4 options de chaque question.
+- « workflow » remplacé par « organisation » dans 6 occurrences du bloc C (c1_d, c4_d, c5_d).
+- Contexte de Q06 (conformité) condensé de 127c → 30c : « RGPD, HDS, DMP, CCAM, MSSanté… » (au lieu d'une énumération exhaustive).
+
+### Harmonisation POV médecin — passage en « Je » de 7 labels supplémentaires
+
+b7_c, b7_d, b9_d, b10_d, c2_c, c2_d, c4_d réécrits en première personne pour éviter les débuts nominaux (« Trame cohérente », « Dossiers structurés », etc.) qui faisaient moins naturels et créaient une inhomogénéité dans les questions où les autres options étaient déjà en « Je ».
+
+### Page transition après bloc C
+
+- « Bloc 1/2/3 terminé » → « Bloc A/B/C terminé » (cohérent avec l'eyebrow `Q06 · BLOC B` des questions).
+- nextBlocLabel « Votre profil et trois leviers à votre main » → « Votre profil et les actions à votre portée » (suppression d'une formulation inexacte — la page résultats affiche jusqu'à 4 chantiers, pas 3).
+
+### Page résultats — entête + back + lisibilité radar
+
+- Ajout de l'IntroHeaderShortcuts (Mon compte / email / Se déconnecter), de la Topbar (progression 100 % avec étiquette « Résultats ») et d'un bouton « ← Précédent » discret en haut de la page (pattern aligné sur ListChantiersV3) qui ramène à `transition_C`.
+- Eyebrow « DIAGNOSTIC COMPLET », « CARTOGRAPHIE ORGANISATIONNELLE » et « PROCHAINE ÉTAPE » repassées en variante « petit trait à gauche » (alignement sur l'eyebrow d'accueil). Les autres eyebrows de la page (axes A/B/C) conservent le filet à droite par contraste.
+- Radar grand format enrichi : labels CLIENTS / ÉQUIPE / OUTILS aux 3 vertices (alignés sur le radar live du parcours, décalage vertical -18 px sur A pour éviter la collision avec la ligne d'annotation BC), phrase de lecture sous l'eyebrow (« Plus chaque axe s'éloigne du centre, plus l'organisation est mature sur cet aspect. »), échelle simplifiée à 100 % seul (suppression des 25/50/75 flottants).
+- Section dédiée « Votre motivation de départ » créée autour de la motivPhrase (eyebrow + filet à droite, même pattern que « Ce que révèle votre diagnostic »). Taille typo alignée sur la PhraseChoc (clamp 15-18 px) avec opacité 0.72.
+- Items Forces & Pistes d'actions explicitement en `fontFamily: fonts.sans` (avant : héritage Lora du parent).
+- Renommage : « Marges de progression » → « Pistes d'actions », hint dépli « ↓ Forces & pistes d'action » → « ↓ Cliquer pour Forces et pistes d'actions ».
+
+### RiskBadge — 3 niveaux différenciés visuellement
+
+- Le 3e niveau `opt` « OPTIMISABLE » (palette argent neutre) est exposé via 3 items de démo (un par axe) — il était dans le type mais pas dans les démo-data.
+- `warn` désaturé par transparence sur les 3 dimensions (texte ~69 %, bg ~6 %, border ~25 % via suffixes hexa) pour créer un écart visuel net avec `crit` qui reste pleine intensité signalWarn.
+- Suppression du `marginTop: 5` qui poussait la pastille vers le bas → remplacé par `verticalAlign: "middle"` pour alignement propre sur la baseline du texte voisin.
+
+### Page chantier — mini-encart « Avec Lugia » + KPIs en langage naturel
+
+- Mini-encart « AVEC LUGIA » ajouté en bas de chaque feuille de route (D-035) : 7 textes spécifiques (un par chantier), ton respectueux de l'autonomie (« Lugia peut… »), filet argent à gauche pour signaler visuellement que c'est une option, pas un avertissement.
+- Footnote « * Estimations calculées sur la base de votre profil cabinet… » déplacée depuis la page résultats vers le ChantierHeader de la page détail (cohérent : le `*` apparaît dans la même vue que sa note). Taille 9 px → 11 px pour la lisibilité.
+- KPIs EFFORT / DÉLAI / GAIN reformulés en langage naturel via un transform de présentation (« Facile à mettre en place. », « Quelques jours suffisent. », « Environ 20 minutes libérées par jour, soit ~10 k€ par an. ») — le catalogue `opps_catalog.ts` reste structuré pour radar/tri/agrégation.
+- Filet sous le titre + borderTop du ChantierHeader retirés (header plus aéré). Description de l'effort 18 px → 15 px (cohérence avec les 2 autres lignes). Couleur de l'effort harmonisée sur navy plein.
+- StepCard : background `palette.ivoryLight/ivory` + border retirés → étapes en transparent sur fond paper (lecture épurée).
+
+### Console errors — 6 conflits `border` shorthand + `borderLeft` longhand
+
+React 18 / Next 16 warning « Updating a style property during rerender (border) when a conflicting property is set (borderLeft) ». Migration de 6 endroits vers la forme longhand explicite (`borderTop` + `borderRight` + `borderBottom` + `borderLeft`) : `app/checkup/v3-charte/error.tsx`, `components/v3/ModuleV3.tsx`, `components/v3/ResultatsV3.tsx` (3 occurrences), `components/v3/ListChantiersV3.tsx`. Les fichiers `v3-snapshot/*` (route gelée) conservent les conflits — cohérent avec le pattern de cohabitation.
+
+---
+
+## 2026-05-21 — V3-charte : audit règle par règle contre la charte d'application questionnaire v1.0
+
+Audit méthodique des 45 règles de la charte v1.0, regroupées en 10 axes A-J. Méthode : présentation règle par règle → analyse → proposition → validation utilisateur → correction. Toutes les corrections appliquées sur la route active `/checkup/v3-charte` (la version pré-charte reste accessible en lecture sur `/checkup/v3-snapshot`).
+
+### Axe A — Palette & couleurs (3 lots)
+
+- **Lot 1** — Suppression complète des couleurs d'axes vert/bleu/orange. `dayAxes` et `nightAxes` aplaties sur argent uniforme (`A = B = C = #B5B5B8`). Refactor 7 usages dans `ResultatsV3.tsx`, 1 dans `ModuleV3.tsx`, propagation automatique sur radars et axis cards.
+- **Lot 2** — Consolidation `signalWarn.default` sur `#C8A04A` (charte). Suppression des 5 valeurs candidates héritées de T-V3-1 (terreux/brûlé/saturé).
+- **Lot 3** — Alignement variants navy : `navy = #1A2333`, ajout `navy3 = #2D365A` (token charte manquant). Surfaces Nuit : `paper = #1A2333`, `ivory = #232B41` (navy-2), `ivory2 = #2D365A` (navy-3).
+- **Page résultats — solution visuelle Forces/Risques** : remplacement des pastilles vertes/oranges par filets argent (Forces) et `signalWarn` (Risques) + labels mono caps. Pastille « Recommandé pour commencer » passe en argent neutre. RiskBadge `crit` unifié sur `signalWarn`.
+
+### Axe A1-bis et A1-ter — Ajustements post-test visuel
+
+- **RadarLiveV3** refonte : labels PARCOURS/ÉQUIPE/OUTILS posés sur les 3 angles du triangle, retrait de la liste de niveaux qualitatifs en dessous, viewBox élargie pour éviter le truncate de PARCOURS, restauration du titre PROFIL EN COURS. Container passé à 260 px de large.
+- **Cartes chantier** (`ListChantiersV3` + `ResultatsV3`) : retrait des emojis à gauche, suppression du bloc EFFORT/DÉLAI/GAIN, ajout d'un tag temporel `RAPIDE / POSÉ / APPROFONDI` (palette navy / argentDeep / signalWarn). POSÉ utilise `argentDeep` pour rester lisible sur fond ivoire en Mode Jour.
+- **Page module** : retrait de l'emoji devant le titre, ajout d'un `ChantierHeader` avec EFFORT/DÉLAI/GAIN en 3 lignes verticales (label mono 11 caps + valeur Onest 16 px / 500). Effort visualisé par 3 segments 22×3 px.
+- **Page résultats — radar grand format** : trou central des points argent retiré (les points deviennent des disques argent pleins), légende sous le radar supprimée (les AxisCards en dessous suffisent).
+- **Page transition entre blocs** : ajout du titre h1 « Bloc X terminé. » sous le logo, score cards repassées en `palette.ivory2 + lineStrong` pour visibilité Mode Jour, niveau de maturité passé en Lora navy 500 22 px.
+
+### Axe B — Modes Nuit / Jour
+
+- **B2 — Bascule auto vers Day** : effect React qui détecte l'entrée sur les écrans livrables (`step === "resultats"`, `listChantiersOpen`, `openModuleId`) et bascule le thème vers Day une seule fois (via `useRef`). Toggle utilisateur préservé.
+- **B3** — 0 gradient navy↔ivoire dans le code, 0 mix Day/Night dans une même vue. Cleanup `error.tsx` : alignement `#192030`→`#1A2333` et warn rgba.
+- **B6 — Logo Lugia** : wordmark « Lugia & Co » retiré de la Topbar (picto seul). SVG monochrome qui hérite de `palette.navy` → s'inverse automatiquement Day/Night.
+
+### Axe C — Encodage des blocs (badges A/B/C)
+
+- Création de l'atome `<BlocBadge id="A|B|C" theme size="sm|md" />` dans `atoms.tsx` :
+  - A : fond `#232B41` (navy-2), lettre ivoire
+  - B : transparent, bordure `argent` ou `argentDeep` selon mode, lettre argent
+  - C : Nuit = fond ivoire/lettre navy. Jour = inversion fond navy/lettre ivoire (sinon invisible sur fond ivoire).
+- **Effet de reflet argent au survol** : CSS `::before` avec gradient blanc translucide (rgba 0.32) qui glisse en 720 ms (cubic-bezier ease-out). Respecte `prefers-reduced-motion`.
+- Injecté à 4 endroits : transition score cards, AxisCard, OppCard (résultats), ChantierCard (Tous les chantiers).
+
+### Axe D — Polices
+
+- **D5** — Reset CSS global ajouté à `app/globals.css` : `em, i, cite, address { font-style: normal; }`. Verrouillage italique à 3 niveaux (inline + reset + token).
+- D1-D6 conformes par construction (Lora sur titres de page validé en option a — D-031 #1).
+
+### Axe E — Échelle typographique
+
+- Consolidation 13 → 11 tailles (toutes alignées charte) :
+  - `8 → 9` (1), `12 → 11` (6), `17 → 18` (6), `16 → 18` (3 instances texte)
+  - Le `<span fontSize: 16>+</span>` UI dans ChipsField laissé (symbole icône)
+- Clamps responsive alignés sur bornes charte : `(14-17)→(14-18)`, `(15-17)→(15-18)`, `(22-26)→(22-28)`, `(28-36)→(28-32)`, `(32-40)→(32-48)`, `(34-54)→(32-56)`.
+
+### Axe F — Voix & ton
+
+- **F3 vocabulaire** : 7 remplacements (`optimisation/optimiser → réglage/rodé/fluidifier`, `KPI → indicateurs`, `écosystème → numérique`).
+- **F1 conditionnels → affirmatif** : 10 reformulations dans benchmarks et signaux (`pourraient être X → sont X-ables`).
+
+### Axe G — Anatomie de la question
+
+- **G3 contexte** : Mono 11 → **Lora 15 / lh 1.45** + filet gauche conservé.
+- **G4 reformulation** : ajout `fontFamily: fonts.serif` + `fontSize: 15 / lh 1.55` + filet argent (au lieu de filet axe-coloré) + texte navy (au lieu d'axisColor).
+- **G5 benchmark** : Mono 11 → **Onest 13 / lh 1.6** + surface warn + filet 2 px warn.
+- **G6 container** : padding 24 → **28** (charte).
+- **G7 numéro** : `Q1` → **`Q01 · Bloc A`** en Mono caps 11 px / 0.16em.
+- **G1 — 3 questions reformulées** : b5 (ajout `?`), b6 et b7 (raccourcies + détails en `context`).
+
+### Axe H — Composants
+
+- **H1 — Bouton primaire** : statu quo Onest 14 (option a, lisibilité web-standard préférée à mono 11 caps).
+- **H3 — Chips profil** : `fontFamily: fonts.mono`, `fontSize: 13`, `padding: 9px 18px`, `letterSpacing: 0.02em`.
+- **H8 — État loading** : création de l'atome `<TypingDots>` (3 cercles argent 6 px, animation `v3DotPulse` 1200 ms avec décalage de 200 ms, respect `prefers-reduced-motion`). Early return dans la route v3-charte quand `isHydrating` est vrai.
+
+### Axe I — Forme & traitement visuel
+
+- **I2 — D-034 écart documenté** : conservation des 14 hover box-shadows sur les cartes cliquables (affordance interactive). Statu quo motivé par UX feedback.
+- I1, I3, I4, I5 conformes.
+
+### Axe J — Iconographie
+
+- **Suppression des champs `icon` / `icone` orphelins** : retrait du type et des 14 entrées dans `opps_catalog.ts` et `modules_data.ts` (déjà débranchés en A1-bis, dette technique nettoyée).
+- J2 numérotation `01-07` paddée déjà conforme.
+
+### D-034 (nouvelle décision)
+
+Conservation des box-shadows hover sur les cartes cliquables comme exception charte I2 — affordance interactive forte sur les CTA. À revisiter si le pilote terrain (T7) le justifie.
+
+### Vérifications
+
+- `npx tsc --noEmit` : 0 erreur applicative à chaque palier
+- 0 italique dans le code applicatif, 0 emoji rendu, 0 couleur d'axe vert/bleu/orange, 0 conditionnel `pourrait/seraient` dans les fichiers data, 0 mot interdit (optimiser, KPI, écosystème) dans les fichiers data
+- 11 tailles typo distinctes, toutes alignées charte
+- 4 badges `BlocBadge` injectés (transition + axis card + 2× cartes chantier)
+- 1 atome `TypingDots` créé
+- Reset CSS `em, i, cite, address { font-style: normal; }` ajouté à `app/globals.css`
+
+---
+
+## 2026-05-21 — V3-charte-snapshot : gel pré-charte + cohabitation v3-snapshot / v3-charte
+
+Avant d'attaquer la refonte selon la charte d'application questionnaire v1.0, on gèle l'état actuel V3-brand pour conserver une version comparable. La route active migre en `/checkup/v3-charte`, et la version pré-charte reste accessible en lecture sur `/checkup/v3-snapshot`. Backend inchangé : `protocol_version="v3-brand-0"` reste l'identifiant en BDD pour les deux routes.
+
+### D-033 — Cohabitation v3-snapshot / v3-charte
+
+Pattern déjà éprouvé sur V1.1.9 ↔ V2.0 ↔ V3-brand : on duplique côté frontend (composants, lib, route) pour permettre la comparaison côte à côte pendant la refonte. Backend partagé car la charte est essentiellement un travail visuel/typographique (le scoring, les blocs A/B/C, le protocole sont inchangés).
+
+### Livrables
+
+| Livrable | Description |
+|---|---|
+| `web/components/v3-snapshot/` | 11 fichiers (`atoms.tsx`, `ChipsFieldV3.tsx`, `ListChantiersV3.tsx`, `ModuleV3.tsx`, `RadarLiveV3.tsx`, `RadarResultV3.tsx`, `ResultatsV3.tsx`, `screens.tsx`, `screens_blocs.tsx`, `ThemeToggleV3.tsx`, `Topbar.tsx`). Copie figée des composants v3 pré-charte. Imports internes réécrits pour pointer vers `@/components/v3-snapshot/` et `@/lib/v3-snapshot/`. |
+| `web/lib/v3-snapshot/` | 9 fichiers (`axis_details_data.ts`, `links.ts`, `modules_data.ts`, `opps_catalog.ts`, `opps_data.ts`, `protocol_data.ts`, `signals_data.ts`, `state.ts`, `tokens.ts`). Copie figée de la lib v3 pré-charte. |
+| `web/app/checkup/v3-snapshot/` | Copie figée de la route (`page.tsx`, `error.tsx`), imports pointant vers les copies snapshot. |
+| `web/app/checkup/v3-charte/` | Route active renommée depuis `v3-brand`. Imports inchangés vers `@/components/v3/` et `@/lib/v3/` (qui évolueront avec la charte). |
+| `web/app/checkup/v3-brand/page.tsx` | Alias rétro-compatible : redirige vers `/checkup/v3-charte` en préservant la query string (`interview=`, `view=`, etc.). Garantit que les signets et URL partagées avant la bascule continuent de fonctionner. |
+| `web/app/page.tsx` | Liens des handlers `handleStartV3` / `handleResumeV3` pointent maintenant vers `/checkup/v3-charte`. Ajout d'un lien discret en-dessous des 3 cartes vers `/checkup/v3-snapshot` pour accès à la version pré-charte. La clé backend `actives["v3-brand-0"]` reste inchangée (protocol_version BDD). |
+
+### Vérifications
+
+- 32 réécritures d'imports dans 22 fichiers (composants + lib + route snapshot).
+- Aucun import croisé v3 ↔ v3-snapshot (vérifié par grep dans les deux sens).
+- `npx tsc --noEmit` : aucune erreur applicative (seul bruit résiduel : artefacts `.next/types/*d 2.ts` stale).
+- Empreinte disque : ~25 fichiers dupliqués, taille négligeable (~150 ko).
+
+### Prochaine étape
+
+Démarrage de la passe règle par règle contre la charte (45 règles extraites, regroupées en 10 axes A-J). Première règle traitée : A1 — palette autorisée.
+
+---
+
+## 2026-05-20 — V3-brand : amorçage (D-031 + T-V3-1 tokens design)
+
+Amorçage de la V3-brand — 3ème carte « beta » alignée brand kit Lugia (cf D-031).
+
+### D-031 — 9 arbitrages de cadrage figés
+
+Familles typo (2 éditoriales + mono utilitaire), proportions de surface différenciées jour/nuit, ambre promu `--signal-warn` (token fonctionnel séparé avec 3 règles intangibles), niveaux V2.0 conservés (« Fragile / En transition / Solide / Mature »), scoring backend en % + rendu V3 en niveaux 0-3, topbar 28 micro-étapes avec étiquette de chapitre, analyse croisée toujours affichée, angles radar -90°/30°/150°, route séparée `/checkup/v3-brand` avec `protocol_version = "v3-brand-0"` et cohabitation V2.0 maintenue.
+
+### V3-brand-T-V3-1 — Tokens design + test lisibilité ambre
+
+| Livrable | Description |
+|---|---|
+| `web/lib/v3/tokens.ts` | 341 lignes — palette jour + nuit, polices, axes A/B/C, signal-warn (avec usages canoniques typés), shimmers, échelle typo, niveaux, angles radar, helper `paletteFor(theme)`, fonction `levelOf(score)` 0-3. Compile sans erreur (`tsc --noEmit`). |
+| `wireframes/v3_tokens_ambre_test.html` | Page autonome qui compare 3 candidats `--signal-warn` (terreux #7a6030/#c4a055 = modèle cible, brûlé #b5780a/#d68f1a, saturé #c8851a/#e8a035) sur les deux surfaces canoniques (jour ivoire + nuit navy), avec 4 composants en contexte : benchmark critique, chip signal, titre de module à fort enjeu, recommandation sur surface diluée. Valeur de départ retenue dans tokens.ts : **terreux** (modèle cible). À substituer en T-V3-1 fin si Sébastien préfère brûlé ou saturé. |
+
+
+### V3-brand-T-V3-2 — Atomes partagés livrés
+
+| Livrable | Description |
+|---|---|
+| `web/components/v3/atoms.tsx` | 377 lignes — DVMono, DVCorners, LevelBar (avec variantes colorées par axe), EffortBadge (low/med/high), GainBadge (fast/mid/slow), Em (argent/warn — relais visuel à l'italique interdit), Divider, SurfaceShimmer. Tous consomment `paletteFor(theme)`, aucun ne code en dur une couleur. Compile sans erreur. |
+| `wireframes/v3_atoms_test.html` | 453 lignes — vue côte à côte mode jour / mode nuit des 8 atomes, avec démos de cas réels (benchmark, citations du brand-master en emphase argent ou warn). |
+
+Règle « jamais d'italique » du brand-master encodée à 3 endroits : reset CSS global dans les pages standalone, `fontRules.italicAllowed: false` dans les tokens, `fontStyle: "normal"` explicite dans Em. Mémoire mise à jour (`feedback-brand-lugia-pas-d-italique`).
+
+
+### V3-brand-T-V3-3 — State machine V3 (28 micro-étapes)
+
+`web/lib/v3/state.ts` (391 lignes, compile vert). Indépendant de `lib/v2/state.ts` — les deux machines cohabitent comme prévu D-031 #9.
+
+| Apport vs V2.0 | Détail |
+|---|---|
+| `V3_TOTAL_PROGRESS_STEPS = 28` | 5 chips profil step1 + 4 chips step2 + 1 énergie + 3 blocs × 6 questions. Constante dérivée des `STEP1_REQUIRED.length` etc., pas hardcodée — toute modif du profil ou du nombre de questions/bloc se propage. |
+| `progressIndex(profile, scores, answeredIds)` | NEW — entier 0-28 calculé à partir des réponses *réelles* (cumulatif, ne diminue pas si l'utilisateur recule). |
+| `progressRatio(...)` | NEW — équivalent en 0-1 pour styler la barre. |
+| `stepProgressLowerBound(step)` / `stepProgressUpperBound(step)` | NEW — bornes par étape pour faciliter le rendu de segments « passés / en cours / à venir » dans la topbar T-V3-4. |
+| `resumeStep` | Reprise V2.0 reportée (T6-fix-2/3 inclus) : ramène à la transition entre blocs si le bloc suivant n'a pas démarré. |
+| `stepChapter` | 5 chapitres (Profil / Ancrage / Parcours / Équipe / Outils) — l'étiquette qui surmontera la barre 28-étapes. |
+
+Pas de page de test visuelle à ce stade (T-V3-3 = logique pure). Les visus arrivent en T-V3-4 (topbar) qui consomme cette state machine.
+
+
+### V3-brand-T-V3-4 — Topbar V3 + page de test multi-états
+
+| Livrable | Description |
+|---|---|
+| `web/components/v3/Topbar.tsx` | 298 lignes — barre continue 28 micro-étapes, étiquette de chapitre (X/5 · label), logo Lugia path SVG inline, toggle thème jour/nuit (lune/soleil 14×14). Position `fixed`, fond semi-transparent + `backdrop-filter: saturate(140%) blur(12px)`, transitions 350-500 ms. Sur step `intro`, la zone progression fade à `opacity:0` (cohérent modèle cible). ARIA `progressbar` avec `aria-valuenow/min/max`. Consomme `progressIndex`, `progressRatio`, `stepChapter` de la state machine, et `paletteFor(theme)` des tokens. Compile vert. |
+| `wireframes/v3_topbar_test.html` | 390 lignes — 5 états (intro / profil step1 3 chips / bloc B 4 questions / transition_C 100 % / résultats) sur les deux thèmes côte à côte. Reset global `em { font-style: normal; }` appliqué — aucun italique. |
+
+Toggle thème conditionnel : ne s'affiche que si `onToggleTheme` est fourni en prop. Permet de rendre la topbar « lecture seule » pour les écrans qui ne portent pas le state du thème.
+
+
+### V3-brand-T-V3-5 — Écrans intro + profil step1/step2 + énergie
+
+| Livrable | Description |
+|---|---|
+| `web/components/v3/ChipsFieldV3.tsx` | 115 lignes — atome chips réutilisable, rectangulaire (no border-radius), bordure 1 px, surface ivoire diluée sur sélectionné. ARIA `radiogroup`. Theme-aware. |
+| `web/components/v3/screens.tsx` | 578 lignes — quatre écrans (IntroV3, ProfilStep1V3, ProfilStep2V3, EnergyV3) + helpers internes (Shell, Eyebrow, Title, Body, PrimaryCta) + export des constantes `PROFIL_STEP1_FIELDS` (5), `PROFIL_STEP2_FIELDS` (4), `ENERGY_FIELD`. Libellés et options copiés du `interview_protocol_v2.json` (D-031 #9, scoring partagé). Tout consomme `paletteFor(theme)`, aucune couleur en dur, aucun italique. |
+| `wireframes/v3_intro_profil_energy_test.html` | 409 lignes — 4 écrans empilés avec topbar fixe, toggle thème jour/nuit fonctionnel (script JS qui switche les classes `night` ↔ `day` et l'icône lune/soleil). Pré-sélections représentatives sur chaque écran. |
+
+Pattern emphase non-italique appliqué partout via le composant `Em` (couleur argent dans les titres : « votre cabinet », « vous », « là où vous en êtes »). Reset CSS global `em { font-style: normal; }` dans la page de test.
+
+
+### V3-brand-T-V3-5-fix — 5 corrections suite revue Sébastien
+
+| Correction | Détail |
+|---|---|
+| Intro alignée sur le modèle cible | Eyebrow « Diagnostic organisationnel », titre serif sur 3 lignes (« Où en est / votre cabinet / aujourd'hui ? » — mot du milieu en argent via Em), body « 25 minutes. 15 questions adaptées… », 4 promises en grille 2×2 (Adaptatif / Métier / Croisé / Opérationnel) chacune avec son SVG icon repris fidèlement du modèle, CTA « Commencer le diagnostic → ». Le titre est celui demandé (« Où en est votre cabinet aujourd'hui ? »). |
+| Toggle thème séparé en composant dédié | Nouveau `web/components/v3/ThemeToggleV3.tsx` : deux pastilles JOUR / NUIT avec icônes soleil / lune, séparateur 1 px, fond ivoire, position fixed top-right au-dessus de la topbar. L'option active a fond plein navy + couleur navy ; l'inactive est tamisée (opacity 45 %). Affordance visuelle évidente — on voit immédiatement que c'est un toggle entre deux états. |
+| Retrait du toggle de la Topbar | `web/components/v3/Topbar.tsx` simplifié : retrait de la prop `onToggleTheme`, de la fonction `ThemeIcon` interne et du bouton encadré. La topbar ne porte plus que la barre de progression. 228 lignes (vs 298 avant). |
+| CalibProgress restauré dans profil step1/step2 | Composant interne `CalibProgress({done, total, theme})` qui rend une barre 2 px + label mono « X / 5 » (step1) ou « X / 4 » (step2), inséré juste après le body de chaque écran. Anime à 350 ms ease-out, ARIA `role="status" aria-live="polite"`. |
+| Page de test mise à jour | `wireframes/v3_intro_profil_energy_test.html` reprend les 3 corrections : toggle deux pastilles fonctionnel (script JS qui switche les classes), intro modèle cible avec 4 promises, calib-progress visible sur les 2 étapes profil. |
+
+
+### V3-brand-T-V3-5-fix-2 — 7 micro-corrections suite revue Sébastien
+
+| # | Correction | Détail |
+|---|---|---|
+| 1 | « 18 questions » dans intro | Aligné sur la state machine (3 blocs × 6 = 18). « 15 questions » du modèle cible était hérité d'une version avant routing solo — corrigé. |
+| 2 | ProfilSub restauré sous les titres | Nouveau helper `<ProfilSub theme={...}>` (mono 12 px, navy400, letter-spacing 0.04 em, max-width 540 px). Step1 : « Ces informations calibrent les questions et personnalisent le diagnostic. ». Step2 : « Quatre repères réflexifs qui éclairent la suite — pas un test, juste un cadrage. ». Énergie : « Cette question n'entre pas dans le score. Elle aide à formuler les retours de manière utile. ». |
+| 3 | Chip sélectionné en argent semi-transparent | `background: color-mix(in srgb, var(--argent) 18%, transparent); border-color: color-mix(in srgb, var(--argent) 60%, transparent); color: var(--navy)`. Effet beaucoup plus subtil que navy plein, cohérent avec « l'argent frappe, ne décore pas ». Idem pour energy-card sélectionnée (14 % surface). |
+| 4 | CTA intro = « Commencer le diagnostic → » | Déjà en place depuis T-V3-5-fix. Confirmé. |
+| 5 | CTA énergie renommé | « Aborder les blocs → » remplacé par « Commencer les questions → » — plus clair, plus direct. |
+| 6 | Ligne confidentialité + icône bouclier | Ajoutée juste avant le CTA intro : SVG bouclier 13×15 avec coche intérieure, texte mono 11 px « Vos réponses sont traitées confidentiellement et ne sont jamais revendues. », couleur navy400. Tonalité rassurante sans alarme. |
+| 7 | ThemeToggle = pill qui glisse | `ThemeToggleV3.tsx` refondu : pill (rectangle plein ivory2, no border-radius, brand-compliant) qui translate de 0 à 76 px via `transform: translateX(...)` avec `cubic-bezier(.4, 0, .2, 1)` sur 250 ms. Les labels Jour/Nuit restent statiques, leur couleur passe de navy400 (inactif) à navy (sous la pill) via transition 250 ms. Bordure de la pill bascule droite ↔ gauche selon position pour rester séparateur. |
+
+Page de test `wireframes/v3_intro_profil_energy_test.html` reprend les 7 corrections, en interactif (le toggle fonctionne réellement).
+
+
+### V3-brand-T-V3-5-fix-3 — Rollback commentaires titres + hints sous questions
+
+| Correction | Détail |
+|---|---|
+| Rollback du point 2 de fix-2 | Les ProfilSub mono restaurés en T-V3-5-fix-2 sous les titres principaux sont annulés. On revient aux Body originaux (« Cinq éléments factuels… » / « Quatre questions qui éclairent… » / « Cette question n'entre pas dans le score… ») — Sébastien préférait. Le helper `ProfilSub` reste dans le code pour usage futur. |
+| Hints sous chaque question | Nouveau champ `hint?: string` sur le type `V3Field`. Rendu sous chaque label de question dans `ChipsFieldV3` en mono 11 px navy400, letter-spacing 0.04 em. Les 9 questions de profil ont reçu une hint courte. |
+
+Hints ajoutés (extraits) : « Configuration actuelle du cabinet » sous *Type de cabinet*, « Consultations par semaine en moyenne » sous *Volume hebdomadaire d'actes*, « L'outil que vous ouvrez tous les jours » sous *Logiciel médical principal*, « Le canal principal, là où passe l'essentiel du flux » sous *Comment vos patients prennent-ils RDV ?*, « À ce poste précisément, pas la durée totale d'exercice » sous *Depuis combien de temps exercez-vous ici ?*, « Ce qui vous a fait cliquer en premier » sous *Pourquoi ce check-up ?*.
+
+Page de test `wireframes/v3_intro_profil_energy_test.html` reprend les changements — Body restaurés en gros sous les titres principaux, hints mono small sous chacune des 9 questions de profil.
+
+
+### V3-brand-T-V3-5-fix-4 — Multi-select sur 4 questions + retrait options status
+
+| Évolution | Détail |
+|---|---|
+| `ChipsFieldV3` supporte multi-select | Nouvelles props `multi?: boolean` et `allowFreeAdd?: boolean` sur `V3Field`. En multi : value devient `string[]`, click toggle au lieu de remplacer, plusieurs chips peuvent être sélectionnées en argent semi-transparent simultanément. ARIA `role="group"` + `role="checkbox"` sur chaque chip. |
+| Chip « + Ajouter » avec saisie libre | Si `multi && allowFreeAdd`, une chip dashed « + Ajouter » ouvre un input texte (Enter pour valider, Escape pour annuler, blur committe). Les items libres apparaissent comme des chips sélectionnées avec un × pour les retirer. |
+| 4 questions passent en multi | `logiciel_metier` (rename « Logiciels que vous utilisez » + allowFreeAdd, hint « Sélectionnez tous ceux que vous utilisez vraiment — ajoutez les autres au besoin »), `rdv_canal` (hint « Tous les canaux par lesquels passent les patients »), `horizon` (hint « Plusieurs réponses possibles si vous avez plusieurs objectifs »), `motivation` (hint « Toutes les raisons qui comptent pour vous »). |
+| Status épuré | « Approche transmission » et « Remplaçant » retirés (ambigus, hors cible pilote V3-brand). Question redevient mono-select propre avec 3 paliers exclusifs (Récent / Installé / Senior). |
+| Type draft adapté | `Record<string, string \| string[]>` dans ProfilStep1V3 et ProfilStep2V3. Nouveau helper `isFieldFilled(field, value)` qui gère mono (truthy) et multi (array non-vide). CalibProgress branché dessus. |
+| Suppression de `logiciel_metier_other` | L'ancienne saisie libre dédiée à « Autre » n'est plus nécessaire — la chip « + Ajouter » absorbe ce cas. |
+| ROADMAP entrée V3+ | Ajout section « V3+ — Extension des statuts du profil — REPORTÉ (post pilote V3-brand) » avec 3 pistes (reprise en cours d'un confrère, remplaçant longue durée, approche transmission clarifiée). |
+
+Page de test `wireframes/v3_intro_profil_energy_test.html` affiche désormais des multi-sélections représentatives : Médidoc + Doctolib Pro + une entrée libre « Ordoclic » sur la question logiciels, deux canaux RDV cumulés, deux horizons cumulés, deux motivations cumulées, et la chip dashed « + Ajouter » visible.
+
+
+### V3-brand-T-V3-6 — Blocs A/B/C + transitions inter-blocs + radar live sticky
+
+Le gros morceau de V3 : 4 livrables, tout compile vert.
+
+| Livrable | Description |
+|---|---|
+| `web/lib/v3/protocol_data.ts` | 188 lignes — questions des 3 blocs extraites de `resources/interview_protocol_v2.json` (18 questions au total, sans `b1b` qui est routing solo). Types `V3Bloc`, `V3BlocQuestion`, `V3Option` exportés, plus une constante `V3_BLOCS` et un helper `getBloc(id)`. À remplacer par un fetch backend en phase d'intégration. |
+| `web/components/v3/RadarLiveV3.tsx` | 253 lignes — SVG sticky desktop (≥1140 px, masqué sinon via media query injectée), polygones concentriques (4 paliers), lignes d'axes, polygone des scores en argent semi-transparent, 3 points lumineux avec `feGaussianBlur` + `feFlood` + `feComposite` + `feMerge`. Niveaux qualitatifs sous le radar par axe (Fragile / En transition / Solide / Mature). Angles -90°/30°/150° (D-031 #8). |
+| `web/components/v3/screens_blocs.tsx` | 606 lignes — `BlocQuestionV3` (card avec Q-num mono, label serif, contexte mono optionnel à gauche du filet, 4 options A/B/C/D, reformulation colorée par axe à la sélection avec `feFadeSlide` animation, benchmark ambre optionnel) ; `BlocV3` (écran complet : eyebrow colorée par axe avec trait, titre coloré, sous-titre mono, liste de questions, nav bas avec progression « X / 6 réponses ») ; `BlockTransitionV3` (séparateur « · » Lora 56 px en argent, tag mono, titre bloc fermé, niveau de maturité avec serif 22 px, 3 cards de scores par axe, suite vers le bloc suivant ou résultats). |
+| `wireframes/v3_blocs_test.html` | 490 lignes — 4 états interactifs : Bloc A avec Q1 répondue + reformulation + benchmark visibles, transition A→B avec niveau Solide, Bloc B en cours Q4 répondue, transition C finale vers résultats avec les 3 niveaux. Radar live sticky desktop fonctionnel (visible ≥1140 px) avec polygone réel + 3 dots glow + niveaux par axe. Toggle thème jour/nuit fonctionnel. |
+
+**Conventions appliquées dans tous les composants :**
+- Aucune couleur en dur — toutes via `palette.axes.A/B/C` ou `palette.signalWarn.*`.
+- Aucun italique — `fontStyle: "normal"` explicite partout, reset CSS dans la page de test.
+- Animations 250-300 ms ease-out, `prefers-reduced-motion` respecté.
+- ARIA `radio` sur les options, `progressbar` implicite via le ratio dans la topbar.
+
+
+### V3-brand-T-V3-6-fix — 11 corrections sur blocs / radar / transitions / toggle
+
+| # | Correction | Détail |
+|---|---|---|
+| 1 | Icône Jour 8 rayons restaurée | Le SVG du `tg-opt.day` repris avec ses 8 lignes (4 cardinales + 4 diagonales) comme T-V3-5. |
+| 2 | Surbrillance option = argent semi-transparent | Plus de coloration par axe sur l'option sélectionnée. `background: color-mix(in srgb, argent 18%, transparent)` + `border-color: color-mix(in srgb, argent 60%, transparent)`. Cohérent avec les chips de profil. |
+| 3 | Reformulation + benchmark restent colorés | Comportement inchangé : reformulation en couleur d'axe (`axes.A/B/C`), benchmark en `signal-warn`. |
+| 4 | Maths radar corrigées | Formule `a = angle * π / 180` (et plus `(angle - 90) * π / 180`). Avec angles -90 / 30 / 150, le triangle pointe en HAUT (A sommet, B bas-droite, C bas-gauche). L'ancienne formule donnait un sommet à gauche — bug visuel du modèle cible reporté. |
+| 5 | Radar visible en mode jour | Couleurs hardcodées `rgba(255,255,255,0.10)` remplacées par `var(--line)` et `var(--line-strong)`. Bonus : opacité de `--line` augmentée de 0.12 à 0.18 en mode jour pour plus de lisibilité. |
+| 6 | Filet sous titre de bloc | Reprise du pattern modèle cible `bloc-title::after` : div 60×1 px de la couleur d'axe à 30 % opacité, juste sous le titre h2. Appliqué dans `BlocV3` (sous le titre du bloc) et dans `BlockTransitionV3` (sous le titre du bloc fermé). |
+| 7 | TOUTES les questions affichées | La page de test affiche désormais les 6 questions du bloc A et les 6 du bloc B, générées par script Python à partir du JSON V2 (3 réponses pré-cochées sur A, 4 sur B, avec reformulations et benchmarks visibles). |
+| 8 | Page de transition refondue | Reprise fidèle du modèle cible : logo Lugia centré 56×47 navy, eyebrow mono avec nom du bloc + dots `●○○`, titre serif coloré par axe, filet 60 px sous le titre, body court qui contextualise. Plus de séparateur « · » Lora 56 px. |
+| 9 | Plus de radar live sur transitions | Le radar live sticky est rendu une seule fois en haut de page de test — il n'apparaît visuellement que sur les écrans de bloc, pas sur les écrans de transition (cadrage central qui occupe toute la zone). En prod V3, c'est le composant parent qui gère son montage. |
+| 10 | Suite + bouton Continuer maintenus | Pattern existant conservé : eyebrow « Suite », label du bloc suivant en serif 17 px, CTA navy plein « Continuer → » (ou « Voir mon diagnostic → » en finale). Pas de nom de bloc dans le bouton. |
+| 11 | Eyebrow transition = dots de progression | `Nom du bloc — ●○○` (3 cercles 7×7, bordure navy400, fond navy plein pour les axes complétés). Animation neutre. Donne immédiatement la position du parcours sans avoir à dire « Bloc A terminé ». |
+| 12 | Bouton « ← Précédent » partout | Nouveau composant `BackButton` (mono 11 px, navy400, hover navy, transparent). Ajouté à `BlocV3`, `BlockTransitionV3`, `ProfilStep1V3`, `ProfilStep2V3`, `EnergyV3` via prop optionnelle `onBack?: () => void` — le bouton n'apparaît que si la prop est fournie. |
+
+Pages mises à jour : `wireframes/v3_blocs_test.html` (615 lignes — 4 écrans avec radar live correct, transitions refondues, 12 questions visibles). Composants TS : `RadarLiveV3.tsx` (formule), `screens_blocs.tsx` (surbrillance argent, trait sous titre, transition refondue avec logo + dots, BackButton, prop onBack), `screens.tsx` (BackButtonV3 helper local + prop onBack sur ProfilStep1V3 / ProfilStep2V3 / EnergyV3).
+
+
+### V3-brand-T-V3-6-fix-2 — Transition épurée + radar incliné + toggle no-op + filet à droite
+
+| # | Correction | Détail |
+|---|---|---|
+| 1 | Transition épurée — fin des redondances | Eyebrow ●○○ retiré, body « Vous venez de terminer ce bloc. Niveau de maturité : Solide. » retiré, filet 60 px sous le titre retiré. Reste : logo Lugia + titre h2 coloré par axe + 3 score cards + Suite + Continuer. La complétion se lit naturellement sur les 3 score cards (le bloc fermé a un niveau, les autres ont « — »). |
+| 2 | Opacités du radar atténuées | Grilles concentriques à `opacity=0.3`, axe extérieur à `opacity=0.4`, lignes d'axes à `opacity=0.4`. On devine la structure plutôt que de la voir distinctement — cohérent avec le minimalisme brand. |
+| 3 | Toggle Jour/Nuit no-op si déjà actif | Le composant devient un `<div role="group">` qui contient deux `<button>` distincts. `goDay` ne fait rien si on est déjà en jour, idem pour `goNight`. Cursor passe à `default` quand l'option est déjà active. Contraste renforcé : actif = `color: navy` + `fontWeight: 600` + `opacity: 1`, inactif = `color: navy400` + `fontWeight: 400` + `opacity: 0.45`. Différence immédiatement lisible. |
+| 4 | Radar incliné | `transform: rotate(20deg)` appliqué au SVG du radar (origin: center). Les axes restent à -90 / 30 / 150 dans la state machine, c'est juste le rendu visuel qui s'incline. |
+| 5 | Filet à DROITE de l'eyebrow bloc | Pseudo-élément `::after` avec `flex: 1` + `height: 1px` + opacité 0.4 — le filet s'étend depuis le texte de l'eyebrow jusqu'à la marge droite du shell. Plus de `::before` 20 px à gauche, plus de filet 60 px sous le titre h2. |
+| 6 | Continuer centré + Précédent en absolu à gauche | `.trans-actions` devient `position: relative` avec un `min-height: 48px`. Continuer (`<button class="cta">`) reste centré via flex parent. Précédent (`<button class="btn-back">`) en `position: absolute; left: 0; top: 50%; translateY(-50%)`. Visuellement, on enchaîne en lisant le Continuer central, et Précédent reste accessible mais discret. |
+
+Page de test `wireframes/v3_blocs_test.html` reprend les 6 corrections : toggle pill avec contraste fort + click no-op, radar incliné 20° avec traits estompés, transition épurée à logo + titre + scores, filet eyebrow à droite, Continuer centré sous le bloc suivant.
+
+
+### V3-brand-T-V3-6-fix-3 — Phrase encourageante sur transition + inclinaison radar du modèle cible
+
+| # | Correction | Détail |
+|---|---|---|
+| 1 | Titre du bloc fermé → phrase encourageante | Sur la page de transition, le `<h2>` qui répétait le nom du bloc (« Parcours patient ») est remplacé par une phrase serif 40 px qui contextualise la progression et encourage. Calculée à partir du nombre de blocs avec un score : 1 bloc → « Un premier axe posé. Le profil commence à se dessiner. », 2 blocs → « Deux axes sur trois. Le profil prend forme. », 3 blocs ou `isFinal` → « Les trois axes sont posés. Votre profil est prêt. ». Plus humain, plus lisible, et le nom du bloc reste présent dans la score card juste en dessous. |
+| 2 | Radar : inclinaison du modèle cible restaurée | Retour à la formule originale `a = (angle - 90) * π / 180`. Avec angles -90 / 30 / 150 : A sommet à GAUCHE, B haut-droite, C bas-droite. Triangle qui pointe à GAUCHE — c'est l'inclinaison brand voulue depuis le départ (cf `lugia-survey-model.html`). Le `transform: rotate(20deg)` ajouté en fix-2 est retiré : l'inclinaison vient naturellement de la formule. |
+
+Recalcul complet des coordonnées dans la page de test : grilles concentriques (4 paliers) à `(67,80) (86.5,68.74) (86.5,91.26)` etc., points de score à `(44.64, 80)` pour A à 68%, `(90.92, 61.09)` pour B à 42%, `(94.30, 104.77)` pour C à 55%. Lignes d'axes du centre vers chaque sommet.
+
+
+### V3-brand-T-V3-6-fix-4 — Phrase mieux dimensionnée + texte ivoire en mode nuit
+
+| Correction | Détail |
+|---|---|
+| Taille phrase encourageante | `font-size: clamp(28px, 4vw, 40px)` était trop grand sur écran large (paraissait crier). Réduit à `clamp(22px, 2.6vw, 28px)` avec `line-height: 1.35` (plus de respiration) et `max-width: 480px`. Plus discret, plus classe. |
+| Texte mode nuit en ivoire chaleureux | `nightPalette.navy` passait de `#fbfaf6` (paper presque-blanc, clinique) à `#f4efe5` (ivoire chaleureux de la canvas brand). Plus aligné avec « le canvas est la marque » du brand-master. Propagé dans tous les HTML tests V3 (5 fichiers). Le modèle cible utilisait `#fbfaf6` qui paraissait trop blanc en contexte nuit — on garde la nuance ivoire pour conserver la chaleur de la marque. |
+
+
+### V3-brand-T-V3-audit + T-V3-audit-fix — Repasse conformité brand kit
+
+**Audit exhaustif effectué** sur 10 fichiers V3 (tokens, state, atoms, ChipsFieldV3, Topbar, ThemeToggleV3, RadarLiveV3, screens, screens_blocs, protocol_data) + 5 wireframes HTML. Verdict :
+
+| Règle brand | État avant audit | Après audit |
+|---|---|---|
+| Pas d'italique | OK partout, juste mentions dans les commentaires | inchangé |
+| Pas de border-radius | OK (`50%` uniquement sur cercles sémantiques : dots radar, dots progression, ac::before) | inchangé |
+| Pas de couleurs hex hardcodées | OK (palette via `paletteFor()`, var(--*) partout) | inchangé |
+| Vocabulaire à éviter | OK (un faux positif « verticale » dans un commentaire JS) | inchangé |
+| Reset CSS `em { font-style: normal }` | OK sur les 5 wireframes | inchangé |
+| Esperluette avec `&nbsp;` | ❌ 18 occurrences `Lugia &amp; Co` au lieu de `Lugia&nbsp;&amp;&nbsp;Co` | ✓ corrigé partout (Topbar.tsx + 4 wireframes) |
+| Lora ≥ 22 px | ❌ 4 violations dans le code TS + 8 dans les wireframes | ✓ documenté via D-032 (exception éditoriale) |
+
+**D-032 inscrit dans DECISIONS.md** — « V3-brand : exception Lora < 22 px pour le contenu éditorial du parcours ». Le brand-master garde sa règle « Lora ≥ 22 px » pour toute la marque, sauf sur 4 usages précisément bornés : `q-text` (16 px), `energy-card` (17 px), `tsc-level` score cards (17 px), `trans-next-label` (17 px). Justifié par la posture « voix du confrère » du parcours et l'alignement avec le modèle cible.
+
+### V3-brand-T-V3-6-fix-5 — Phrase sur une ligne + bloc C ajouté + transition B→C
+
+| Correction | Détail |
+|---|---|
+| Phrase encourageante sur 1 ligne | Réduction à `clamp(18-22px)` + retrait de `max-width` (le shell de transition borné à 560 px fait office de limite naturelle). `<br>` retirés du HTML test. Les 3 phrases (« Un premier axe posé. Le profil commence à se dessiner. » / « Deux axes sur trois. Le profil prend forme. » / « Les trois axes sont posés. Votre profil est prêt. ») tiennent désormais sur une ligne unique sur écran moyen et large. |
+| Bloc C ajouté + transition B→C | Le `wireframes/v3_blocs_test.html` montrait A + transition A→B + B + transition C → manquait toute la portion C. Ajout du **bloc C (Outils & dossiers, 6 questions, 4 pré-répondues)** + de la **transition B→C** avec la phrase « Deux axes sur trois. Le profil prend forme. ». Parcours complet de 6 écrans : A → trans A→B → B → trans B→C → C → trans C→résultats. |
+
+
+### V3-brand-T-V3-6-fix-6 — Phrase transition à 17 px max pour tenir sur 1 ligne
+
+`clamp(18px, 2.2vw, 22px)` était trop grand : la phrase « Un premier axe posé. Le profil commence à se dessiner. » (54 caractères) wrappait à 22 px dans le shell de transition borné à 560 px. Réduit à `clamp(15px, 1.6vw, 17px)` avec `letter-spacing: 0` (plus de spacing négatif qui resserrait). Les 3 phrases tiennent désormais sur une ligne unique, de façon homogène. Appliqué dans `screens_blocs.tsx` et `wireframes/v3_blocs_test.html`.
+
+
+### V3-brand-T-V3-7 — Page résultats V3 complète
+
+Le dernier gros morceau d'écran avant les modules. 5 livrables, tout compile vert.
+
+| Livrable | Description |
+|---|---|
+| `web/lib/v3/signals_data.ts` | 98 lignes — 6 signaux croisés (triple_faiblesse, outils_ok_humain_fragile, equipe_outils_faibles, parcours_ok_equipe_fragile, pratique_ok_outils_faibles, tout_bon) + fallback toujours-affiché (D-031 #7). Chaque signal porte une condition typée `(s: AxisLevels) => boolean` sur les niveaux 0-3, un titre et un corps éditorial. Helper `pickSignal(scores)` qui rend le premier signal qui matche, ou le fallback. |
+| `web/lib/v3/opps_data.ts` | 112 lignes — 7 opportunités/modules (urgences, chroniques, délégation, comm, logiciel, admin, pilotage) avec icon, label, desc, effort (low/med/high), gain (fast/mid/slow), condition d'activation. Helper `pickOpportunities(levels, max=4)`. |
+| `web/components/v3/RadarResultV3.tsx` | 207 lignes — SVG grand format 380×340 avec viewBox élargi, cx=200/cy=170 (décalé pour laisser la place aux labels), r=108. Polygones concentriques 4 paliers + glow filter par axe (stdDeviation 5) + points 5.5px + labels d'axes mono caps sur 2 lignes positionnés à r+40px de chaque sommet, text-anchor adapté à la position gauche/droite/milieu. |
+| `web/components/v3/ResultatsV3.tsx` | 548 lignes — page résultats complète : eyebrow filet-droite, hero serif 50px « Votre cabinet en trois dimensions », phrase de motivation contextualisée, radar grand format, **analyse croisée TOUJOURS affichée** (signal qui matche ou fallback), 3 axis cards (un par axe avec niveau qualitatif + phrase contextuelle parmi les 12 du tableau AXIS_PHRASES), liste OpportunityCard avec icon + label serif + desc Onest + badges Effort/Gain mono, CTA-block « Creuser un chantier » avec les 4 boutons mêmes opportunités. |
+| `wireframes/v3_resultats_test.html` | 463 lignes — profil-exemple complet : Dr Chateau, motivation = charge, scores A=68 / B=42 / C=55 (Solide / En transition / En transition). Radar grand format SVG inline avec polygone scores réel + 3 dots glow + labels d'axes. Analyse croisée + 3 axis cards + 4 opportunités prioritaires + CTA-block. Toggle thème jour/nuit fonctionnel. |
+
+Conventions appliquées : aucun italique, aucune couleur hex hardcodée hors palette, palette utilisée pour les axes (jamais hors radar/cards d'axe), Lora ≥ 22 px sauf les exceptions D-032 (q-text, energy-card, tsc-level, trans-next-label — n'apparaissent pas dans cette page), filet eyebrow à droite, rectangulaire partout (no border-radius hors cercles sémantiques), animations ≤ 250 ms.
+
+
+### V3-brand-T-V3-7-fix — Date+durée, signal ambre, axis cards dépliantes, chantiers cliquables
+
+| # | Correction | Détail |
+|---|---|---|
+| 1 | Méta date + durée sous le titre | Props `completedAt?: Date \| string` et `durationMinutes?: number` ajoutées à `ResultatsV3`. Rendu en mono 11 px navy400 sous le titre h1 sous forme « Dr Chateau · Réalisé le 20 mai 2026 · Durée 18 min ». Démontre le suivi intelligent du temps par Lugia. |
+| 2 | Analyse croisée en signal-warn (ambre) | Le bloc d'analyse croisée passe de fond ivoire neutre à `background: signalWarn.surface` (rgba ambre 10 %) + `border: 1px signalWarn.border` (rgba ambre 32 %) + `borderLeft: 2px signalWarn.default`. Eyebrow « Analyse croisée » en couleur ambre. C'est l'usage canonique #2 de D-031 #3 (« signal croisé d'alerte ») — un seul ambre par écran respecté. |
+| 3 | Axis cards dépliantes | Nouveau composant `AxisCardExpandable` qui remplace les 3 div statiques. État initial collapsed (titre + niveau qualitatif + phrase contextuelle). Click sur la card → expand vers détail « Forces » (puces couleur axe) et « Marges de progression » (puces argent). Toggle « + » qui rote à 45° quand expanded. Tableau `AXIS_DETAILS` qui contient 12 paires forces/marges (3 axes × 4 niveaux) avec contenu éditorial. Dans la page de test HTML, utilisation de `<details>`/`<summary>` natifs pour la même UX sans JS. |
+| 4 | Chantiers cliquables (avec placeholder module) | Page de test : chaque opp-card et chaque cta-btn déclenche un `openModule(name)` JS qui affiche un placeholder « Plan d'action — bientôt » avec scroll smooth. La vraie page module arrive en T-V3-8. Côté composant React, `onOpenModule(oppId)` était déjà branché. |
+
+**Audit V2.0 vs V3-brand-0 — ce qui reste à arbitrer :**
+
+| Section V2 | V3 actuel | Décision en attente |
+|---|---|---|
+| Aparté tonalité status junior/senior | Absent | À garder ou non en V3 ? |
+| Section II « Repères terrain personnalisés » (benchmarks combinatoires ambrés) | Absent | À réintégrer ? (utile pour cas spécifiques d'usage) |
+| Section IV « Tous les chantiers » (grid 2 col tous modules) | Absent | À réintégrer en lien expand ? |
+| Ranking 1er/2e/3e + flag « recommandé » sur l'opp principale | Absent | À ajouter ? |
+| Sections numérotées I/II/III/IV en serif | Absent | À garder absent ou réintroduire ? |
+
+Page de test `wireframes/v3_resultats_test.html` (600 lignes) reflète les 4 corrections. Composant `ResultatsV3.tsx` à 856 lignes après ajout d'`AxisCardExpandable` (~200 lignes de détails forces/marges typés par axe × niveau).
+
+
+### V3-brand-T-V3-7-fix-2 — Invite à cliquer + méta plus visible
+
+| Correction | Détail |
+|---|---|
+| Phrase d'invitation au-dessus des axis cards | Nouvelle phrase mono caps « ↓ Cliquez sur un axe pour voir les pistes d'action » posée juste au-dessus de la grille des 3 axis cards. Couleur navy600, flèche ↓ en 14 px. Annonce l'interaction de dépli. |
+| Méta sous le titre plus visible | Couleur passée de `palette.navy400` (gris-bleu terne) à `palette.navy600` (plus clair, plus proche de l'ivoire en mode nuit). La méta « Dr Chateau · Réalisé le 20 mai 2026 · Durée 18 min » est désormais lisible sans avoir à chercher. |
+| Phrase de motivation plus visible | Passe de `navy600` plein à `navy` avec `opacity: 0.85` — un cran plus lumineux, garde une légère hiérarchie sous le titre h1 mais sans paraître éteint. |
+
+
+### V3-brand-T-V3-7-fix-3 — 5 corrections page résultats
+
+| Correction | Détail |
+|---|---|
+| Invite à cliquer DANS chaque axis card | Phrase « ↓ Cliquer pour les pistes d'action » déplacée du haut de la grille vers le summary de chaque axis card. Mono 11 px navy400, visible uniquement quand la card est collapsed (`[open]` la masque automatiquement). Plus contextuel, plus lisible. |
+| Doublon Analyse croisée + Lecture croisée retiré | Plus d'eyebrow mono + titre h2 redondants. Un seul titre h2 « Analyse croisée » serif `clamp(26-32px)`, couleur signal-warn (ambre). Le titre devient l'objet du bloc, le body éditorial reste en dessous. |
+| Forces ET marges en ivoire | Les puces de marges de progression passent de `navy600` (gris-bleu) à `navy` (ivoire en mode nuit). Plus visibles, plus présentes. Forces et marges ont désormais la même valeur de texte, seule la puce les différencie (couleur axe vs argent). |
+| Descriptions opp-cards raccourcies | Toutes les desc de `opps_data.ts` ramenées à ~50-60 caractères pour tenir sur une ligne. Ex. : « Périmètre clair de l'équipe sur ce qui ne nécessite pas le médecin — gain typique : 45 min/jour. » → « Périmètre clair de l'équipe — gain typique 45 min/jour. ». |
+| Pips d'effort + libellé alignés | `vertical-align: middle` sur les pips + `align-items: center` + `line-height: 1` sur le libellé. Les 3 traits sont désormais sur la même ligne horizontale que « EFFORT SOUTENU ». |
+
+
+### V3-brand-T-V3-7-fix-4 + audit comparatif V1.1.9 / V2.0 / V3-brand
+
+**Corrections page résultats V3 :**
+
+| Correction | Détail |
+|---|---|
+| Bloc Analyse croisée aligné sur axis cards | Padding passé de `28px 32px` à `20px 24px` (même que axis-card). Titre h2 passé de `clamp(26-32px)` à `22px` fixe (même que axis-card-title). Margins ajustés (10 px sous le titre, plus 18 px). Visuellement, le bloc warn et les 3 axis cards forment maintenant une suite cohérente, même grammaire visuelle. |
+| Phrases revenues en argent (navy600) | Rollback du fix-3 sur l'« ivoirisation » : axis-card-body, forces et marges reviennent en `navy600`. Cohérent avec l'esprit brand-master « argent = signature ». La phrase d'invite reste en navy400 (plus discrète). |
+
+**Livrables comparatifs V1.1.9 / V2.0 / V3-brand :**
+
+| Livrable | Description |
+|---|---|
+| `wireframes/v3_audit_comparatif_resultats.md` | 64 lignes — tableau Markdown des différences section par section (Hero, méta, radar, signal, status, axes, benchmarks, opportunités, tous les chantiers, prochaine étape, sections numérotées), des différences éditoriales (ton, synthèse, lexique niveaux), des différences visuelles (palette, typo, forme, toggle, italique). Liste les 5 éléments perdus en V3 et les 7 éléments ajoutés. |
+| `wireframes/v3_audit_comparatif_resultats.html` | 527 lignes — vue 3 colonnes côte à côte des trois versions de page résultats avec wireframes simplifiés mais représentatifs. Chaque colonne reproduit la structure d'origine : V1.1.9 avec 4 sections romaines + pause narrative + 2 prochaines étapes, V2.0 avec radar + signal + apartés + 4 sections + benchmarks + tous les chantiers, V3-brand avec radar incliné + analyse croisée warn toujours-affichée + axis cards dépliantes + chantiers prioritaires + CTA-block. Légende synthèse en pied de page avec 5 décisions à prendre. |
+
+
+### V3-brand-T-V3-7-fix-5 — Bloc autonomie/Lugia + badge 1ère reco + lien « tous les chantiers »
+
+Arbitrages Sébastien sur l'audit V2→V3 et logique business intégrée :
+
+| Décision | Application |
+|---|---|
+| Aparté status junior/senior | À arbitrer séparément (italique interdit en V3, à adapter ou retirer). |
+| Repères terrain personnalisés | Pas en section séparée, **à intégrer en bas du détail des chantiers** (page module T-V3-8). |
+| Ranking opportunités | Pas de numérotation 1/2/3/4, mais **badge « ★ Recommandé pour commencer »** en mono argent sur la 1ère opp-card. Tri global par pertinence conservé (cond + ordre dans `opps_data.ts`). |
+| Accès aux autres chantiers | Lien discret **« → Voir tous les chantiers »** en mono navy400 sous le bloc Prochaine étape, qui ouvrira une page placeholder (vraie page T-V3-9). |
+| Sections numérotées I/II/III/IV | Pas de numéros en V3 — confirmé. |
+
+**Refonte du bloc final selon la logique business Lugia :**
+
+Remplace le « Creuser un chantier » (qui faisait double emploi avec les opp-cards juste au-dessus) par le pattern V1.1.9 adapté brand V3 — deux cartes côte à côte :
+
+| Carte | Eyebrow | Titre | Description |
+|---|---|---|---|
+| Autonomie | « En autonomie · 1er chantier gratuit » (argent) | « Approfondir un chantier de votre choix » | « Une discussion ciblée avec un assistant Lugia — 15 minutes, à votre rythme. Le premier chantier est offert ; les suivants sont accessibles sur abonnement. » |
+| Lugia (recommandé) | « ★ Recommandé · Avec Lugia, en réel » (navy 600) | « Avancer avec Lugia, dans votre cabinet » | « Vous choisissez un chantier, on le traite ensemble dans votre cabinet. Pas un appel d'identification — le chantier lui-même, structuré à partir de dispositifs éprouvés chez d'autres confrères. » |
+
+La carte Lugia a une bordure-gauche 2 px navy pour marquer le badge « Recommandé ». Logique business respectée : 1er chantier en autonomie gratuit (LLM), suivants payants pour la version autonomie ; expérience accompagnée pour la version Lugia.
+
+
+### V3-brand-T-V3-7-fix-6 — Restructuration narrative (accroche + Forces/Risques + personnalisation)
+
+Refonte structurelle de la page résultats selon la lecture narrative V1.1.9 et la logique éditoriale Lugia.
+
+**Nouvelle structure de la page :**
+
+1. Hero (titre + méta date/durée)
+2. **Phrase de motivation enrichie** — fusionne motivation déclarée + ton status (junior/installé/senior) + prénoms des associés s'ils sont saisis. Plus d'aparté séparé en italique comme V2.0.
+3. **Phrase d'accroche choc** — serif `clamp(24-30px)` en couleur argent, **sans encadré** (citation visuelle pure), juste avant le radar. Reprend `signal.title` (« Paradoxe : bon parcours patient, équipe fragile. » par ex.). Résume tout le questionnaire en une déclaration.
+4. Radar grand format
+5. **Bloc « Pourquoi cette lecture »** — body de l'analyse croisée en signal-warn ambre, complète l'accroche.
+6. **Section « Forces »** (axes au niveau Solide ou Mature) — axis cards dépliantes.
+7. **Section « Risques »** (axes au niveau Fragile ou En transition) — axis cards dépliantes.
+8. Chantiers prioritaires
+9. Prochaine étape (autonomie / Lugia)
+10. → Voir tous les chantiers
+
+**Personnalisation V1.1.9 amorcée :**
+
+| Élément | Détail |
+|---|---|
+| Prop `associateNames?: string[]` | Liste de prénoms des associés du cabinet. La phrase d'accroche bascule de « Vous avez démarré » à « Vous, Marie et Pierre avez démarré » (avec gestion de l'oxford-comma : « Vous, Marie, Pierre et Sophie »). |
+| Prop `status?: "recent" \| "installe" \| "senior"` | Le ton bascule en fin de phrase : « à un moment où poser de bonnes bases compte particulièrement » (recent), « à un moment où le cabinet a son rythme — c'est le bon moment pour le clarifier » (installe), « avec une vue d'ensemble qui mérite d'être outillée » (senior). |
+| Aparté status retiré | Le ton est désormais fondu dans la phrase de motivation principale (fusion B confirmée). |
+
+**Composant `SectionHeading`** ajouté — eyebrow mono 11 px navy400 avec filet horizontal à droite, utilisé pour « Forces » et « Risques ».
+
+Page de test mise à jour avec un profil exemple personnalisé : Dr Chateau, status `installe`, associés Marie + Pierre, motivation `charge`, scores A=68 (Force) / B=42 + C=55 (Risques). La phrase d'accroche affichée : « Paradoxe : bon parcours patient, équipe fragile. ». La phrase de motivation : « Vous, Marie et Pierre avez démarré ce check-up pour réduire votre charge actuelle, à un moment où le cabinet a son rythme — c'est le bon moment pour le clarifier. »
+
+**Note** : la personnalisation complète (prénoms associés dans les reformulations des questions, situations territoriales adaptées) reste à compléter en T-V3-7-fix-7 ou en phase d'intégration backend. Les emplacements sont préparés via les props.
+
+
+### V3-brand-T-V3-7-fix-7 — Rollback haut + double bloc gauche/droite + boutons CTA + effort/gain interactif
+
+**Rollback fix-6** (le haut de la page revient à l'état fix-5 — Sébastien souhaite rediscuter de la structure narrative) :
+
+- Phrase d'accroche choc serif argent retirée
+- Bloc Analyse croisée renommé back de « Pourquoi cette lecture » → « Analyse croisée », avec `signal.title` restauré en serif 17 px sous le titre h2
+- Sections « Forces » et « Risques » retirées — retour aux 3 axis cards ensemble (toujours dépliantes)
+- Phrase de motivation enrichie (status + associateNames) **conservée** — la fusion B reste
+
+**Évolutions bas appliquées sur le rollback :**
+
+| Évolution | Détail |
+|---|---|
+| Prochaine étape en gauche/droite | Le bloc passe d'une stack verticale à un `grid-template-columns: 1fr 1fr` avec gap 16 px. Sur mobile (≤ 640 px), retour automatique en stack vertical via media query. |
+| CTA cliquable sous chaque carte | Chaque carte autonomie/Lugia est un `<div>` (plus un `<button>` global) avec un bouton CTA en bas qui dépasse via `margin-top: auto`. Autonomie : bouton outline navy « Choisir un chantier ». Lugia : bouton plein navy « En parler avec Lugia → » avec hover qui ajoute un box-shadow argent diffus + lift de 1 px — donne envie d'être cliqué. |
+| Effort/Gain réorganisé sur opp-cards | Nouveau layout en 3 zones : (a) pips d'effort + label « Effort » à gauche, (b) séparateur vertical 1×14 px, (c) label « Gain » + rectangle outline cliquable avec la durée chiffrée (« < 1 semaine », « 2 à 4 semaines »). Le rectangle s'éclaire au survol — fond ivory2 + bordure navy400. Le hover est déclenché par la card entière. |
+
+**Livrables :**
+
+| Fichier | Description |
+|---|---|
+| `web/components/v3/ResultatsV3.tsx` | 1140 lignes — rollback fix-6 + 3 évolutions bas. Compile vert. |
+| `wireframes/v3_resultats_test.html` | (inchangé — archive de fix-6 pour comparaison) |
+| `wireframes/v3_resultats_test_v2.html` | Nouvelle page de test 750 lignes — rollback + évolutions bas, prête à comparer avec l'ancienne. |
+
+
+### V3-brand-T-V3-7-fix-8 — Taille titre réduite + phrase motivation sans associés
+
+| Correction | Détail |
+|---|---|
+| Titre h1 plus mesuré | `clamp(34px, 5vw, 50px)` → `clamp(32px, 3.5vw, 40px)`. Plafond à 40 px sur grand écran. Plus aligné avec la hiérarchie des autres titres de la page. |
+| Phrase de motivation sans associés | Sujet redevient toujours « Vous » — plus de « Vous, Marie et Pierre avez démarré ». La prop `associateNames` est conservée dans l'API du composant (pour usage futur dans les reformulations des questions ou les analyses d'axes) mais n'est plus utilisée dans la phrase d'accroche. |
+
+
+### V3-brand-T-V3-7-fix-9 — Harmonisation chantiers + tous chantiers + hover durée + pastille reco
+
+| # | Correction | Détail |
+|---|---|---|
+| 1 | Tailles harmonisées entre Chantiers prioritaires et Prochaine étape | `opp-card-title` passe de 17 px à **18 px** (= même taille que `next-card-title`). Mêmes titres h3, mêmes desc 13 px navy600. Cohérence visuelle entre les deux blocs. |
+| 2 | « Voir tous les chantiers » déplacé + visibilité renforcée | Le lien sous-souligné navy400 sous Prochaine étape est **retiré**, remplacé par un **bouton outline navy** posé en bas de la section Chantiers prioritaires (juste avant Prochaine étape). Taille 13 px Onest, padding 11×22 px, bordure 1 px `line-strong`, hover bordure navy + fond argent 8 %. |
+| 3 | Hover du rectangle Gain plus marqué | Au survol de la card : (a) fond passe de `transparent` à **`ivory` plein** (au lieu de `ivory2`), (b) bordure passe en `navy` plein (au lieu de `navy400`), (c) `transform: translateY(-1px)` léger lift, (d) `font-weight: 500` en permanence. L'interaction est désormais clairement visible — on voit que c'est cliquable. |
+| 4 | Pastille « Recommandé pour commencer » plus visible | Passe de texte mono argent à **mini pill** : padding 3×9 px, fond `color-mix(argent 25%, transparent)`, bordure 1 px argent, texte navy gras (fontWeight 600), icône ★. Inline-flex avec gap 5 px. Pour la card recommandée, ajout d'une **bordure-gauche 3 px de la couleur d'axe** (vert axe A, bleu axe B, orange axe C — selon le chantier). L'œil va directement dessus. |
+
+
+### V3-brand-T-V3-7-spec — Refonte complète page résultats selon spec finale
+
+Sébastien a livré la **spec finale** + une **maquette HTML cible** travaillées dans une autre fenêtre. Réécriture intégrale de la page résultats pour s'aligner.
+
+| Livrable | Description |
+|---|---|
+| `wireframes/v3_resultats_test_v3.html` | 1051 lignes — maquette de Sébastien déposée telle quelle comme nouvelle référence. Toutes les versions précédentes (`v3_resultats_test.html`, `_v2.html`) restent comme archives. |
+| `resources/v3_resultats_specs.md` | 348 lignes — spec finale Sébastien (chartes, structure, eyebrows, blocs, radar SVG annoté, signaux, topbar, toggle, interactions, points d'extension). |
+| `web/components/v3/ResultatsV3.tsx` | 1483 lignes — refonte complète qui matche la maquette pixel-perfect. Compile vert. |
+
+**Changements structurels majeurs vs la version précédente :**
+
+| Section | Nouveauté |
+|---|---|
+| **Phrase choc** | Plus de bloc encadré : phrase serif `clamp(15-17px)` avec début neutre + fin clé en `<strong>` couleur `--warn` (ambre). Eyebrow « Ce que révèle votre diagnostic ». |
+| **Bilan global** (NEW) | Grid 2 colonnes égales : « Ce qui tient » (vert, items sans badge) / « Ce qui fragilise » (rouge, items avec `risk-badge` Critique / À surveiller / Optimisable). Sur la maquette : 3 forces + 3 risques. |
+| **Risk badges** | 3 niveaux normalisés : `crit` (orange axe C), `warn` (ambre warn), `opt` (argent). Mini pill avec dot 5×5 px + texte mono 9 px caps 600. Apparaissent dans bilan global + marges des axis cards + annotations radar SVG. |
+| **Radar SVG annoté** | Refonte complète. Format 860×480, viewBox élargi pour laisser la place aux annotations latérales. **Annotations latérales** : 3 callouts reliés aux points du radar (B, C, midBC) par traits argent dashed, chacune avec titre Lora 17 px gras + sous-titre Onest 14 px + badge SVG aux dimensions calculées dynamiquement. Point midBC (cercle creux argent) pour les signaux croisés inter-axes. |
+| **Niveaux de maturité** | Élargis à **5 paliers** : En construction / En transition / Stabilisé / **Maîtrisé** / Optimisé (« Maîtrisé » ajouté pour matcher la maquette). À refléter dans tokens.ts en T-V3-7-spec-fix si besoin. |
+| **Axis cards** | Borderline navy400 / shadow soft `0 4px 16px -6px rgba(0,0,0,0.15)` + `translateY(-1px)` au hover. Badges risque **inline** dans les puces de marges. |
+| **Opp-cards** | Effort + **Délai** (nouveau, séparé) + **Gain double** (temps « -45 min/j » + euros « +22 k€/an* »). Astérisque relié à une **note de calcul** sous les chantiers : « * Estimations calculées sur la base de votre profil cabinet (220 jours, taux horaire médecin). ». Hover : `translateX(2px)` (latéral). |
+| **CTA final** | Carte Autonomie avec **pastille « 1er chantier gratuit »** dans l'eyebrow row (argent outline). Carte Lugia &amp; Co intitulée « Débriefing avec un consultant » + bouton plein « Prendre rendez-vous → » (au lieu de « En parler avec Lugia »). |
+| **Bouton « Voir tous les chantiers » plus loin** | Posé après la note astérisque, format mono caps 10 px (et plus Onest 13 px). |
+
+**Conventions confirmées :**
+
+- `border-radius: 0` strict (sauf `rx: 2` sur badges SVG du radar).
+- Lora jamais en italique (`em, i, cite, address { font-style: normal }`).
+- Trait pointillé radar en argent `#8E8E91`, badge SVG couleur **par sévérité** (jamais par axe).
+- Animations 180-250 ms ease-out.
+
+**Reste à faire / à arbitrer :**
+
+- Page de test interactive utilisant le composant React (la maquette HTML statique de Sébastien tient lieu de référence visuelle pour l'instant).
+- Mise à jour de `LEVELS` dans `tokens.ts` pour passer de 4 à 5 paliers (avec « Maîtrisé » entre Solide et Mature).
+- Brancher `radarAnnotations` sur les signaux + scores dynamiquement (cf `points d'extension` de la spec).
+- Calcul des gains €/an depuis le profil (volume hebdo, taux horaire).
+
+
+### V3-brand-T-V3-8 — Page module (plan d'action en 4 étapes + données terrain)
+
+Le dernier écran du parcours V3-brand est posé. Avec lui, le parcours est complet bout en bout : intro → profil → énergie → blocs → résultats → **module**.
+
+| Livrable | Description |
+|---|---|
+| `web/lib/v3/modules_data.ts` | 305 lignes — 7 modules × 4 étapes = 28 étapes typées + tag temporel (quick/medium/invest) + benchmark de conclusion avec source. Extrait de `resources/modules_v2.json`. Helper `getModule(id)`. |
+| `web/components/v3/ModuleV3.tsx` | 404 lignes — page module complète. Bouton retour discret, eyebrow « Plan d'action », titre serif coloré par axe avec icône émoji 32 px, filet 60 px sous, **4 StepCards** (numéro mono + titre serif 17 px + body Onest + tag temporel coloré quick=vert / medium=ambre / invest=argent), section **« Données terrain »** en bas (warn ambre avec benchmark + source), CTA bas page avec bouton Retour + Imprimer + « En parler avec Lugia → » plein navy avec shimmer hover. |
+| `wireframes/v3_module_test.html` | 336 lignes — page de test autonome avec un exemple complet : Rituel de communication d'équipe (axe B). Toggle Jour/Nuit fonctionnel. Print prêt. |
+
+**Conventions appliquées :**
+
+- Aucun italique nulle part (relais argent / couleur pour l'emphase)
+- Bordures rectangulaires (no border-radius)
+- Tag temporel : couleur par sévérité (quick/medium/invest), jamais par axe
+- Données terrain : signal-warn ambre (cohérent avec usage canonique #3 « module à fort enjeu »)
+- Hover du CTA Lugia : `box-shadow: 0 0 0 1px argent, 0 8px 24px -8px argent` + `translateY(-1px)`
+
+**Le parcours V3-brand est désormais complet bout-en-bout côté composants React :**
+
+| Étape | Composant |
+|---|---|
+| Intro + Profil + Énergie | `web/components/v3/screens.tsx` |
+| Blocs A/B/C + transitions | `web/components/v3/screens_blocs.tsx` + `RadarLiveV3.tsx` |
+| Résultats | `web/components/v3/ResultatsV3.tsx` (refonte spec finale) |
+| **Module** | `web/components/v3/ModuleV3.tsx` (livré T-V3-8) |
+| Topbar progression | `web/components/v3/Topbar.tsx` |
+| Toggle thème | `web/components/v3/ThemeToggleV3.tsx` |
+
+**Reste à faire pour la 3ème carte beta sur la page d'accueil :**
+
+- T-V3-9 : page d'accueil V3 (route `/checkup/v3-brand`), 3ème carte « beta » sur la home avec accès au parcours V3
+- T-V3-10 : page « Tous les chantiers » liste complète (placeholder pour l'instant)
+- T-V3-11 : intégration backend (protocol_version, persistance, scoring) — phase suivante
+- Élargir `LEVELS` dans `tokens.ts` à 5 paliers si Sébastien valide (ajout « Maîtrisé »)
+
+
+### V3-brand-T-V3-9 — Page d'accueil avec 3ème carte beta V3-brand
+
+3 livrables. Le parcours V3-brand devient accessible depuis la home en cohabitation avec V1.1.9 et V2.0.
+
+| Livrable | Description |
+|---|---|
+| `wireframes/v3_home_test.html` | 305 lignes — maquette HTML autonome de la nouvelle home avec 3 cartes côte à côte. Carte V3-brand en style brand kit : fond ivoire, titre Lora, badge « Beta · Brand » en argent shimmer (linear-gradient), hover qui déclenche un shadow argent diffus + lift -2 px. Mini-preview interne navy nuit pour donner un avant-goût. Garde-fous communs en pied de page. |
+| `web/app/page.tsx` | +63 lignes — modification de la home Next.js existante : élargissement du type `variant` de `"classic" \| "v2"` à `"classic" \| "v2" \| "v3"`, ajout d'un `handleStartV3` qui route vers `/checkup/v3-brand`, élargissement de la grille `md:grid-cols-2` → `md:grid-cols-3`, et adaptation du composant `VersionCard` pour rendre la 3ème variante avec son look brand. Le wording d'intro passe de « Deux versions… » à « Trois versions… ». Compile vert. |
+| `web/app/checkup/v3-brand/page.tsx` | 111 lignes — route Next.js placeholder qui affiche un écran intro V3 fonctionnel (mode nuit + toggle Jour/Nuit). Le bouton `Commencer` ouvre une alert qui prévient que l'orchestration interactive complète arrive en T-V3-10/11. Lien retour vers la home. |
+
+**Décisions implémentées (D-031 #9) :**
+
+- Route séparée `/checkup/v3-brand` accessible uniquement depuis la 3ème carte beta — pas de modification du parcours V1.1.9 ou V2.0.
+- `protocol_version` sera « v3-brand-0 » côté backend (T-V3-11 quand on intégrera).
+- Pas de cohabitation BDD pour l'instant — la route placeholder n'écrit pas en base.
+
+**Pattern visuel de la 3ème carte (différenciation brand) :**
+
+| Élément | V1.1.9 | V2.0 | **V3-brand** |
+|---|---|---|---|
+| Fond | white | white | **ivoire `#f4efe5`** |
+| Bordure | crème 1 px | bleu 2 px | **argent 1 px** |
+| Border-radius | 12 px | 12 px | **0 (rectangulaire brand)** |
+| Titre | Lora 22 px navy | Lora 22 px navy | Lora 22 px navy brand `#1a2333` |
+| Badge | aucun | « Pilote » bleu rounded | **« Beta · Brand » argent shimmer rectangulaire** |
+| Hover | bordure plus sombre | fond légèrement teinté | **lift -2 px + shadow argent diffus** |
+| CTA | bleu V1 | bleu V2 | **navy brand `#1a2333`** |
+
+**Reste à faire :**
+
+- T-V3-10 : orchestration interactive de la route `/checkup/v3-brand` (state machine 28 étapes + dispatch des composants V3 selon `V3Step`)
+- T-V3-11 : intégration backend (créer un endpoint `POST /v3-brand/interviews`, scoring partagé V2, persistance avec `protocol_version = "v3-brand-0"`)
+- T-V3-12 : page « Tous les chantiers » liste étendue accessible depuis la page résultats
+
+
+### V3-brand-T-V3-10 — Orchestration interactive complète de /checkup/v3-brand
+
+La route placeholder créée en T-V3-9 devient un **parcours complet bout-en-bout** avec state machine fonctionnelle.
+
+| Livrable | Description |
+|---|---|
+| `web/app/checkup/v3-brand/page.tsx` | 558 lignes — orchestration React qui assemble tous les composants V3 livrés (T-V3-1 à T-V3-8) dans une state machine locale. Compile vert. |
+
+**Parcours implémenté** (sans backend, state purement React) :
+
+```
+intro ─→ profil_step1 ─→ profil_step2 ─→ energy ─→
+  bloc_A ─→ transition_A ─→ bloc_B ─→ transition_B ─→ bloc_C ─→ transition_C ─→
+    resultats ─→ [module ouvert] ─→ retour resultats
+```
+
+**Helpers locaux (T-V3-10) :**
+
+- `buildLocalScores(answers)` — calcule les scores 0-100 par axe depuis les options sélectionnées du `protocol_data`. Formule : moyenne(opt.score) / 4 × 100. Renvoie aussi `completeness` (ratio 0-1 par bloc).
+- `buildV2ScoresShim(local)` — wrappe les scores locaux en `V2Scores` minimal (A/B/C = null, completeness rempli) pour satisfaire la signature de `Topbar` qui consomme `progressIndex` (lequel n'utilise que `completeness`).
+- `buildMotivPhrase(motivation, status)` — assemble la phrase de motivation enrichie depuis les chips du profil step1/2 (fusion B confirmée en T-V3-7-fix-6).
+- `OPPS_CATALOG` + `pickOpps(local, max)` — catalogue local de 7 opportunités avec conditions sur les niveaux 0-3 + gains chiffrés (temps + €). Retourne les 4 premières qui matchent, la 1ère étant `recommended`.
+
+**State (useState) :**
+
+| Variable | Rôle |
+|---|---|
+| `theme` | jour / nuit (toggle global) |
+| `step` | V3Step courant — pilote le rendu |
+| `profile` | `UserProfile` partiel (chips factuels en mono-select) |
+| `extras` | `Record<string, string \| string[]>` — chips multi-select (logiciels, RDV, horizon, motivation) + energy |
+| `answers` | qid → optionId pour les 18 questions des blocs |
+| `openModuleId` | si non-null, on bascule en mode module au-dessus des résultats |
+| `startedAt` | timestamp pour calculer la durée affichée sur les résultats |
+
+**Handlers de navigation** : 5 onSubmit par écran + onBlocAnswer + onTransitionNext, tous compatibles avec les composants V3 qui gèrent leur propre validation locale. Bouton « Précédent » câblé partout.
+
+**Mode résultats** assemble dynamiquement toutes les props de `ResultatsV3` :
+- Date de complétion + durée calculée
+- Phrase motivation enrichie
+- Phrase choc + body en signal-warn (3 annotations radar codées en dur pour la démo : 2 critiques + 1 warn croisé BC)
+- Bilan global (3 forces + 3 risques avec risk-badge)
+- 12 phrases AXIS_PHRASES par niveau (forces + marges) — fournies depuis le composant `ResultatsV3` lui-même
+- `pickOpps` qui filtre dynamiquement les opportunités selon les scores
+
+**Mode module** (cliquer un chantier) :
+- `setOpenModuleId(oppId)` bascule en mode module
+- `ModuleV3` rendu en pleine page avec onBack pour revenir aux résultats
+- Le tag temporel des étapes (quick/medium/invest) est coloré par sévérité
+
+**Limites assumées (à compléter en T-V3-11) :**
+
+- Aucun appel backend — toute la state est en mémoire React, perdue à chaque refresh.
+- Phrase choc, bilan global et annotations radar sont **codés en dur** pour la démo (à dériver des signaux croisés en T-V3-11 selon les scores réels).
+- Boutons « En autonomie », « Lugia », « Tous les chantiers » ouvrent juste une alert (Calendly + page liste viendront en T-V3-11 / T-V3-12).
+- `print()` pour le module fonctionne nativement mais sans feuille print dédiée.
+
+**Le parcours V3-brand est désormais fonctionnel** : Sébastien peut tester la route `/checkup/v3-brand` localement (`npm run dev` dans `web/`) et naviguer de bout en bout.
+
+
+### V3-brand-T-V3-10-fix — Régénérer protocol_data.ts (options des questions étaient vides)
+
+Bug T-V3-6 trouvé en testant T-V3-10 : impossible de répondre aux questions des blocs A/B/C, parce que toutes les options de réponse étaient vides dans `lib/v3/protocol_data.ts`. Les libellés des questions étaient OK, donc le bug est passé inaperçu jusqu'au premier test interactif.
+
+**Cause** : le script Python d'extraction utilisait les anciens noms de champs (`q.get('opts')`, `o.get('t')`) alors que le JSON `interview_protocol_v2.json` utilise `q.options` et `o.label`. Toutes les itérations sur `q.get('opts', [])` retournaient `[]`, donc les options finissaient dans un tableau vide côté TS.
+
+**Fix** : `lib/v3/protocol_data.ts` régénéré avec les bons noms de champs (`options`, `label`, `s`, `reformulation`, `benchmark.texte`). 18 questions × 4 options = **72 options** correctement importées. La page `/checkup/v3-brand` est désormais navigable bout-en-bout.
+
+
+### V3-brand-T-V3-10-fix-2 — Scores null pour blocs non démarrés + radar live sticky pendant les blocs
+
+| Bug | Cause | Fix |
+|---|---|---|
+| À transition_A, les axes B et C non démarrés s'affichaient « Fragile » (axe rouge dans la card score) au lieu de « — » | `numScores` retournait `{ A, B, C: 0 }` quand un bloc n'avait pas commencé. `BlockTransitionV3` reçoit `scores: { A: number \| null }` et n'affiche « — » que si null — un 0 numérique est traité comme un score réel et `levelOf(0)` retourne « Fragile ». | Nouveau `numScoresOrNull` calculé en `useMemo` qui retourne `null` quand `completeness === 0`, sinon le score numérique. Passé aux 3 `BlockTransitionV3` (transition_A/B/C). |
+| Radar live sticky absent pendant les blocs A/B/C alors qu'il fait partie de l'UX V3 (« radar qui se construit pendant qu'on répond ») | `RadarLiveV3` n'était pas monté dans l'orchestration de la route. Oubli T-V3-10. | Ajout de `<RadarLiveV3 theme={theme} scores={numScoresOrNull} />` conditionnel sur `step === bloc_A/B/C`. Visible uniquement pendant les blocs (masqué sur intro/profil/energy/transitions). Le composant lui-même reste auto-masqué sous 1140 px de viewport via media query interne. |
+
+Le radar live consomme aussi `numScoresOrNull` (null = point au centre, sinon point sur l'axe à `ratio = score/100`). Cohérent avec ce qui est attendu — au début du bloc A, A monte mais B et C restent au centre ; au cours du bloc B, B commence à se déplacer ; etc.
+
+
+### V3-brand-T-V3-10-fix-3 — Logo cliquable + scroll-top + boundary d'erreur pour debug du crash résultats
+
+| # | Bug | Correction |
+|---|---|---|
+| 1 | Logo Lugia dans la Topbar non cliquable | Nouvelle prop `onHomeClick?: () => void` ajoutée à `Topbar.tsx`. Si fournie, la marque (logo + nom) devient un `<button>` cliquable avec opacity 0.7 au hover. Sur la route `/checkup/v3-brand`, on passe `() => router.push("/")` qui ramène à la home. |
+| 2 | Scroll restait là où il était au changement d'étape | `useEffect` ajouté dans la page V3-brand qui appelle `window.scrollTo({ top: 0, behavior: "instant" })` à chaque changement de `step` ou de `openModuleId`. Les écrans commencent maintenant tous en haut. |
+| 3 | Crash runtime sur la page résultats (cause inconnue, build Next ne tourne pas dans la sandbox pour le reproduire) | Création d'un boundary d'erreur Next.js `app/checkup/v3-brand/error.tsx` qui capture les crashes runtime au lieu de la page blanche. Affiche : message d'erreur en mono, stack trace dans un `<details>` repliable, digest, deux boutons « Réessayer » + « Retour à l'accueil ». Quand le crash se produit, Sébastien verra l'erreur précise pour qu'on puisse cibler le fix dans une passe suivante. |
+
+**Note debug** : le tsc passe vert et l'audit défensif (vérification des `as const`, fallbacks pour scores nullables, types stricts) n'a rien révélé. Le crash est très probablement sur un cas spécifique de rendu (ex. un index dynamique sur palette ou un cas null non couvert). L'error boundary va exposer l'erreur précise au prochain run.
+
+
+### V3-brand-T-V3-10-fix-4 — Radar agrandi + retrait du + sur axis cards + vignettes niveaux
+
+| # | Correction | Détail |
+|---|---|---|
+| 1 | Radar trop petit / polygone écrasé | `R` passé de 155 à 200 dans le SVG 860×480. Le polygone occupe désormais une part bien plus visible du viewBox, et reste lisible quand le SVG est contraint à 680 px par le shell de page. Dots agrandis de r=8→10 (avec trou central r=3.5→4.5) et midBC de r=6→7 — meilleure proportion visuelle. |
+| 2 | Toggle « + » retiré sur les axis cards | L'affordance de dépli reste portée par la phrase « ↓ Forces & pistes d'action » qui apparaît quand la card est collapsed. Visuellement plus calme — le niveau de maturité devient l'élément focal à droite du titre. |
+| 3 | Niveaux de maturité en vignette pill | Le simple texte mono caps coloré devient une vignette : padding 3×10 px, bordure 1 px couleur axe, background `color-mix(axe, 12%, transparent)`, font-weight 600, et un petit dot 5×5 px à gauche (currentColor). Format aligné sur les `RiskBadge` et le badge de pastille recommandé — cohérence visuelle des badges dans la page. |
+
+Compile vert. Recharge `/checkup/v3-brand` jusqu'à la page résultats — radar plus présent, axis cards plus calmes, niveaux mieux signalés.
+
+
+### V3-brand-T-V3-11 — Phase 1 : branchement éditorial dynamique page résultats
+
+Le contenu de la page résultats est maintenant **entièrement dérivé** des scores réels et du profil. Plus de contenu figé sur le scénario type — chaque médecin avec un profil différent verra une analyse différente.
+
+| Livrable | Description |
+|---|---|
+| `web/lib/v3/axis_details_data.ts` | 217 lignes — référentiel central des 12 combinaisons axe × niveau (3 axes A/B/C × 4 niveaux Fragile / En transition / Solide / Mature). Chaque combo porte : `summary` (1 phrase contextuelle), `forces[]` (2-3 bullets), `marges[{text, risk}]` (2-3 bullets avec niveau de risque). Helper `getAxisDetail(axis, level)`. |
+| `web/lib/v3/signals_data.ts` | Étendu de 98 → 226 lignes. Chaque signal porte désormais 5 nouveaux champs : `phraseChocBefore` + `phraseChocAfter` (texte de la phrase choc avec emphase en --warn), `bilanForces[]` + `bilanRisques[]` (items du bilan global), `radarAnnotations[]` (jusqu'à 3 callouts radar). 7 signaux entièrement remplis (6 conditionnels + fallback). |
+| `web/app/checkup/v3-brand/page.tsx` | Section « Mode résultats » réécrite : 50 lignes de contenu hardcodé remplacées par 10 lignes qui appellent `pickSignal(numScores)` et `getAxisDetail(axis, level)`. Tout le contenu vient désormais des data files. |
+
+**Avant / après :**
+
+| Élément | Avant T-V3-11 | Après T-V3-11 |
+|---|---|---|
+| Phrase choc | Texte fixe « Paradoxe : bon parcours patient... » | Dérivée du signal qui matche (7 variantes éditoriales) |
+| Bilan global | 3 forces + 3 risques fixes | Forces/risques agrégés du signal détecté |
+| Annotations radar | 3 callouts fixes (B, C, BC) | Annotations dynamiques selon le signal (jusqu'à 3) |
+| AxisDetail (forces + marges par axe) | 3 axisXDetail fixes pour le scénario Solide/Transition/Transition | 12 combinaisons axe × niveau, sélectionnées par `levelOf(score)` |
+| Niveau qualitatif (« Fragile », « Solide », ...) | Déjà dynamique | Inchangé (depuis levelOf) |
+| Scores numériques + opportunités | Déjà dynamiques | Inchangé |
+
+**Couverture éditoriale du premier jet :**
+
+- 7 signaux × 5 champs (title, body, phraseChoc avant/après, bilan forces, bilan risques, radar annotations) ≈ 35 paragraphes ou listes
+- 12 axis_details × (summary + forces + marges) ≈ 36 entrées
+- Total : ~70 unités de contenu écrites en premier jet à passer au filtre brand (charte questionnaire + voix confrère)
+
+**Reste à faire (Phase 1) :**
+
+- **Passe éditoriale** : Sébastien repasse les ~70 unités pour les aligner sur le ton brand (« confrère expérimenté », vocabulaire à privilégier, pas de jargon, pas d'italique)
+- Possible affinage des conditions des signaux si certains profils ne matchent pas le bon scénario
+
+**Reste à faire (Phases 2-5) :**
+
+- Phase 2 : pages « Tous les chantiers », « Discussion autonome », intégration Calendly
+- Phase 3 : backend V3-brand (persistance, scoring partagé, reprise de session)
+- Phase 4 : sourcing benchmarks + pilote terrain
+- Phase 5 : mise en prod
+
+
+### V3-brand-T-V3-12 — Page « Tous les chantiers » + extraction opps_catalog
+
+Phase 2 amorcée. Le bouton « Voir tous les chantiers » de la page résultats ouvre désormais une vraie page listant les 7 chantiers groupés par axe.
+
+| Livrable | Description |
+|---|---|
+| `web/lib/v3/opps_catalog.ts` | 146 lignes — catalogue partagé des 7 chantiers (extrait du `OPPS_CATALOG` local de la page V3-brand). Type `V3OppEntry` complet (icon, axis, title, desc, effort, delai, gainTime, gainEuros, cond). 3 helpers : `pickOppsFromScores(scores, max)` pour la page résultats (filtrée), `getOpp(id)` pour la page module, `listAllOpps()` pour la liste complète (triée par axe puis effort croissant). |
+| `web/components/v3/ListChantiersV3.tsx` | 296 lignes — page liste avec bouton retour discret, eyebrow « Tous les chantiers », titre « Sept chantiers, trois axes. », phrase contextuelle, **3 sections par axe** (Parcours patient vert, Équipe bleu, Outils orange) avec eyebrow coloré + filet à droite, et `ChantierCard` par chantier (icon, titre serif, desc, métadonnées Effort/Délai/Gain avec hover translateX 2px + shadow). |
+| `web/app/checkup/v3-brand/page.tsx` | Refactor : (a) OPPS_CATALOG local supprimé (113 lignes en moins), `pickOpps` réduit à 18 lignes qui délègue à `pickOppsFromScores`, (b) nouveau state `listChantiersOpen: boolean`, (c) nouveau sub-mode prioritaire avant `module` qui rend `<ListChantiersV3>`, (d) le bouton « Voir tous les chantiers » bascule en `setListChantiersOpen(true)`, (e) click sur un chantier dans la liste → ferme la liste + ouvre le module correspondant, (f) bouton retour ramène à la page résultats. |
+
+**Navigation depuis la page résultats :**
+
+```
+Résultats
+  │
+  ├─ click sur opp-card prioritaire ────→ ModuleV3 (plan d'action)
+  │
+  └─ click « Voir tous les chantiers » ──→ ListChantiersV3
+                                              │
+                                              ├─ click sur un chantier ──→ ModuleV3
+                                              └─ click « ← Retour » ─────→ Résultats
+```
+
+Le sub-mode `listChantiersOpen` prend le pas sur tout le reste (intro, profil, blocs, résultats, module) pour éviter les flashes d'écran intermédiaires lors de la navigation. Le scroll-top automatique gère le passage entre sub-modes.
+
+**Reste Phase 2 :**
+
+- Page « Discussion autonome avec assistant Lugia » (parcours LLM-chat avec le chantier choisi) — nécessite un backend LLM
+- Intégration Calendly pour le bouton « Prendre rendez-vous »
+
+
+### V3-brand-T-V3-13 — Intégration Calendly sur les boutons Lugia
+
+Les boutons « Prendre rendez-vous → » (page résultats) et « En parler avec Lugia → » (page module) ouvrent désormais Calendly dans un nouvel onglet.
+
+| Livrable | Description |
+|---|---|
+| `web/lib/v3/links.ts` | 49 lignes — `LUGIA_CALENDLY_URL` configurable via `NEXT_PUBLIC_LUGIA_CALENDLY_URL` avec fallback placeholder `https://calendly.com/lugia-and-co/diagnostic`. Helper `openCalendly({ chantierId?, firstname? })` qui ouvre dans un nouvel onglet avec `noopener,noreferrer`. Ajoute automatiquement `utm_source=v3-brand` et `utm_content=<chantierId>` quand un chantier est ouvert — permettra côté Calendly de savoir d'où vient la prise de rendez-vous (page résultats globale vs. module spécifique). Ajoute aussi `name=<firstname>` pour pré-remplir le formulaire Calendly. |
+| `web/app/checkup/v3-brand/page.tsx` | 2 `alert()` placeholder remplacés par des appels à `openCalendly()`. Le bouton Lugia du module passe l'id du chantier, celui de la page résultats passe juste le prénom. |
+
+**Configuration côté prod :**
+
+Pour pointer vers le vrai Calendly Lugia, ajouter dans `.env.local` (dev) ou les variables d'environnement Vercel (prod) :
+
+```
+NEXT_PUBLIC_LUGIA_CALENDLY_URL=https://calendly.com/<slug>/<event>
+```
+
+Sans cette variable, l'URL placeholder est utilisée (renvoie un 404 Calendly tant que le slug n'existe pas). Pas de blocage UX — le bouton fonctionne, mais arrive sur une page 404 jusqu'à ce que Sébastien crée le bon créneau côté Calendly et fixe la variable.
+
+**Pas de widget embed** — ouverture dans un nouvel onglet. Évite l'ajout d'un script externe (Calendly Widget JS), préserve les performances et la confidentialité (pas de tracker Calendly chargé tant que l'utilisateur ne clique pas).
+
+**Reste de la Phase 2 :**
+
+- Discussion autonome avec assistant Lugia (LLM-chat) — nécessite un backend LLM, attente Phase 3.
+
+
+### V3-brand-T-V3-14 — Backend V3-brand : extension protocol_version + dispatchers scoring/report
+
+Phase 3 amorcée. Le backend FastAPI accepte désormais `protocol_version = "v3-brand-0"` et dispatch correctement scoring + report. La home Next.js crée une vraie interview V3 en BDD au lieu de juste router.
+
+| Livrable | Description |
+|---|---|
+| `backend/main.py` | (a) `_SUPPORTED_PROTOCOL_VERSIONS` étendu à `("v1.1.9", "v2.0", "v3-brand-0")`, (b) dispatcher scoring V3 réutilise `v2_scoring.compute_all_scores` (D-031 #9 — scoring partagé V2/V3), (c) dispatcher report V3 retourne un payload **minimal** : `interview` meta + `profile` + `scores` + `answers`. Volontairement pas de phrase choc / bilan / axis_details / opps côté backend — ils sont assemblés côté client via `lib/v3/signals_data.ts`, `axis_details_data.ts`, `opps_catalog.ts`. Évite de dupliquer le référentiel éditorial en Python. |
+| `web/lib/api.ts` | Ajout de `createInterviewV3()` (POST /interviews avec `protocol_version: "v3-brand-0"`), `getReportV3(interviewId)` (GET /interviews/{id}/report typé `V3BrandReport`), et du type `V3BrandReport`. |
+| `web/app/page.tsx` | `handleStartV3` passe d'un simple `router.push` à un `await createInterviewV3()` qui crée la session en BDD puis route avec `?interview=<id>`. Ajout de `handleResumeV3()` qui route vers `/checkup/v3-brand?interview=<id>&view=results` si la session est completed, sinon juste avec l'id. Lecture de `actives["v3-brand-0"]` pour afficher l'état de la session V3 sur la 3ème carte. |
+
+**Architecture confirmée (D-031 #9) :**
+- **Scoring** : 100% partagé V2 / V3-brand (même 18 questions, même barème 1-4, mêmes seuils 0-100)
+- **Référentiel éditorial** : côté frontend uniquement (signals, axis_details, opps_catalog en TS dans `lib/v3/`)
+- **Backend V3-brand** : minimaliste — il ne sert qu'à persister les réponses et restituer les scores. Pas de logique éditoriale dupliquée en Python.
+
+**Migration BDD** : aucune nécessaire. La colonne `protocol_version` accepte déjà n'importe quelle valeur texte (ajoutée en V2.0-T3). Il suffit de lui passer `v3-brand-0` côté backend.
+
+**Pas encore branché (T-V3-15) :**
+- Persistance dans `app/checkup/v3-brand/page.tsx` : lire `?interview=<id>` depuis l'URL, charger le profil + answers existants, persister à chaque action (PUT /interviews/{id}/answers/{qid}, PATCH /me/profile). La state machine actuelle reste 100 % React local — quand l'utilisateur refresh, il perd tout. Le branchement vient en T-V3-15.
+
+
+### V3-brand-T-V3-15 — Persistance backend dans /checkup/v3-brand
+
+Le parcours V3-brand passe en mode persistant : si l'utilisateur refresh, ferme l'onglet ou revient plus tard, son interview est retrouvée (profil + réponses + énergie).
+
+**Mécanique** :
+- `app/page.tsx` : `handleStartV3()` devient async — il appelle d'abord `createInterviewV3()`, puis fait `router.push("/checkup/v3-brand?interview=<id>")`. `handleResumeV3` ajoute juste le paramètre `?interview=<id>` à l'URL pour reprendre une session existante (lue depuis `getActiveInterviewsByVersion()`).
+- `app/checkup/v3-brand/page.tsx` : nouveau `useEffect` de bootstrap au mount :
+  1. Lit `?interview=` dans la query string. Si absent, crée une interview V3 et met l'URL à jour via `window.history.replaceState` (pas de history push — on conserve l'URL propre).
+  2. Charge le profil via `getMyProfile()` et merge sur le state local (préserve `firstname` et chips déjà saisies dans une session précédente).
+  3. Charge les réponses persistées via `listAnswers(id)` (tableau `(Answer & { question_id, id })[]`) et reconstruit un `Record<question_id, option_id>` exploitable par le state local. Au passage, si `energy` a été répondue, elle est restaurée dans `extras`.
+  4. Si `?view=results` est présent, bascule directement sur l'étape `resultats` (utilisé par la 3ème carte de l'accueil quand on vient revoir une interview complétée).
+  5. Si le backend est KO (mode démo offline), `console.warn` silencieux — le parcours continue 100 % local. L'utilisateur n'est jamais bloqué par une panne backend.
+- Chaque handler (`onStep1Submit`, `onStep2Submit`, `onEnergySubmit`, `onBlocAnswer`) déclenche un appel best-effort en parallèle :
+  - profil → `patchMyProfileV2(updates)` (ne réenvoie que les champs modifiés).
+  - énergie → `saveAnswer(id, "energy", { mode: "A", scored: false, ... })` avec label retrouvé dans `ENERGY_FIELD`.
+  - bloc → `saveAnswer(id, qid, { mode: A|B|C dérivé du préfixe qid, scored: true, ... })` avec label retrouvé via `getBloc(blocId).questions`.
+- Le passage à `transition_C` déclenche `completeInterview(id)` en best-effort pour que la session passe en `status=completed` côté backend.
+
+**Choix de design** :
+- Le scoring + le contenu éditorial restent calculés **côté frontend** (à partir de `lib/v3/*`) — le backend ne stocke que les réponses brutes. Cela évite de dupliquer signals_data, axis_details_data et opps_catalog en Python. Le frontend assemble la page résultats dynamiquement à partir des scores locaux.
+- Tous les appels backend sont best-effort (`.catch(console.warn)`) : on ne bloque jamais le parcours sur une panne réseau. Une connexion intermittente ne casse pas l'expérience utilisateur — la persistance reprendra dès que possible.
+- Le bootstrap utilise une variable `cancelled` pour éviter les setState après unmount (cleanup proprement). `isHydrating` est tenue à jour mais pas (encore) utilisée pour bloquer l'UI — le mode démo doit pouvoir avancer même sans backend.
+
+**Fichiers modifiés** :
+- `web/lib/api.ts` : ajout de `createInterviewV3()`, `getReportV3()`, type `V3BrandReport` (déjà fait en T-V3-14 — rappel).
+- `web/app/page.tsx` : `handleStartV3` async + `handleResumeV3` + lecture `actives["v3-brand-0"]`.
+- `web/app/checkup/v3-brand/page.tsx` : +90 lignes (imports `useSearchParams`, `Answer`, `ENERGY_FIELD`, `createInterviewV3`, `getMyProfile`, `patchMyProfileV2`, `listAnswers`, `saveAnswer`, `completeInterview` ; state `interviewId` + `isHydrating` ; useEffect bootstrap ; instrumentation des 4 handlers ; `completeInterview` au passage de transition_C).
+
+**Vérifié** : `npx tsc --noEmit` passe sans erreur (les seules sorties sont les TS6053 sur `.next/types/*.d 2.ts` — artefacts du cache build, sans rapport avec notre code).
+
+
 ## 2026-05-19 — V2.0 : passe éditoriale complète + guide de relecture pour pilote
 
 Refonte V2.0 du check-up amorcée (cf D-029). Trois livrables rédactionnels produits dans la journée + démarrage de l'intégration technique en soirée (sous-vague T1 livrée) suite à l'inversion de séquence D-030.

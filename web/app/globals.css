@@ -15,6 +15,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Charte D5 — Brand kit Lugia : jamais d'italique.
+   Reset des balises HTML qui rendent en italique par défaut.
+   La V3-brand utilise <em> seulement via le composant <Em> qui ajoute
+   un fond shimmer argent (atomes.tsx). Toute autre apparition d'<em>
+   ou <i> doit donc rester en normal — pas d'italique nulle part. */
+em, i, cite, address {
+  font-style: normal;
+}
+
 /* V1.1.6-f : la reco italique a migré dans un bloc dédié (border-left bleu)
    entre les facettes et les opportunités. Plus de règle spécifique sur les
    <em> de .lugia-synthesis — l'italique standard suffit pour le HTML restant. */

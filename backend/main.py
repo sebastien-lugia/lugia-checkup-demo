@@ -477,7 +477,7 @@ class CreateInterviewResponse(BaseModel):
     protocol_version: str
 
 
-_SUPPORTED_PROTOCOL_VERSIONS = ("v1.1.9", "v2.0")
+_SUPPORTED_PROTOCOL_VERSIONS = ("v1.1.9", "v2.0", "v3-brand-0")
 
 
 @app.post(
@@ -635,7 +635,10 @@ async def get_scores(
     après chaque réponse. Pour V1.x : comportement legacy.
     """
     interview = _assert_user_owns_interview(email, interview_id)
-    if interview.get("protocol_version") == "v2.0":
+    pv = interview.get("protocol_version")
+    # V3-brand-T-V3-14 : V3-brand utilise le même scoring que V2.0 (D-031 #9
+    # scoring partagé — mêmes 18 questions, mêmes options scorées 1-4).
+    if pv == "v2.0" or pv == "v3-brand-0":
         answers = db.get_answers(interview_id)
         user_profile = db.get_user_profile(email) or {}
         return v2_scoring.compute_all_scores(answers, user_profile)
@@ -658,7 +661,8 @@ async def get_report(
     user_profile = db.get_user_profile(email) or {}
 
     # V2.0-T4a — dispatcher protocole
-    if interview.get("protocol_version") == "v2.0":
+    pv = interview.get("protocol_version")
+    if pv == "v2.0":
         payload = v2_report.build_report(interview, answers, user_profile)
         # Persiste le global_score V2 sur l'interview (analyses cohortes,
         # cf D-013/D-023 — non exposé au médecin malgré le retour ici).
@@ -666,6 +670,32 @@ async def get_report(
         if gs is not None and interview.get("global_score") != gs:
             db.set_global_score(interview_id, gs)
         return payload
+
+    # V3-brand-T-V3-14 — dispatcher V3 : payload minimal.
+    # Contrairement à V2 (qui retourne TOUT le rapport monté côté backend), pour
+    # V3-brand on retourne juste les scores + answers + profil. Le frontend
+    # assemble la phrase choc, le bilan global, les annotations radar, les
+    # axis details, et les opportunités via `lib/v3/signals_data.ts`,
+    # `lib/v3/axis_details_data.ts` et `lib/v3/opps_catalog.ts`.
+    # Justification : éviter de dupliquer le référentiel éditorial en Python.
+    if pv == "v3-brand-0":
+        scores_payload = v2_scoring.compute_all_scores(answers, user_profile)
+        # Persiste le global_score si présent (cohorte / analytics)
+        gs = scores_payload.get("global_score")
+        if gs is not None and interview.get("global_score") != gs:
+            db.set_global_score(interview_id, gs)
+        return {
+            "interview": {
+                "id": interview["id"],
+                "protocol_version": pv,
+                "created_at": interview.get("created_at"),
+                "completed_at": interview.get("completed_at"),
+                "doctor_firstname": user_profile.get("firstname"),
+            },
+            "profile": user_profile,
+            "scores": scores_payload,
+            "answers": answers,
+        }
 
     # ---- Comportement V1.1.x existant (inchangé) ----
     doctor_firstname = user_profile.get("firstname")

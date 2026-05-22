@@ -1,0 +1,216 @@
+"use client";
+
+/**
+ * V3-brand — topbar de progression.
+ *
+ * Barre continue 28 micro-étapes (D-031 #6) avec étiquette de chapitre
+ * au-dessus. Sticky en haut, fond semi-transparent + backdrop-filter.
+ *
+ * Sur l'écran `intro`, la partie progression est masquée (opacity 0) ;
+ * elle apparaît dès qu'on entre dans le parcours (cohérent avec le modèle
+ * cible `lugia-survey-model.html`).
+ *
+ * Pas de side-effect au-delà du DOM rendu — le state du thème est porté
+ * par le parent. Le toggle thème est rendu séparément (ThemeToggleV3).
+ *
+ * V3-brand-T-V3-4 — Sébastien.
+ */
+
+import type { CSSProperties } from "react";
+import type { UserProfile, V2Scores } from "@/lib/api";
+import {
+  type V3Step,
+  progressIndex,
+  progressRatio,
+  stepChapter,
+  V3_TOTAL_PROGRESS_STEPS,
+} from "@/lib/v3/state";
+import { paletteFor, fonts, type V3Theme } from "@/lib/v3/tokens";
+
+// Note : V3Theme est défini dans tokens.ts, on le ré-exporte depuis state.ts
+// si jamais on veut découpler.
+
+type TopbarProps = {
+  step: V3Step;
+  profile: UserProfile | null;
+  scores: V2Scores | null;
+  answeredQuestionIds: ReadonlySet<string>;
+  theme: V3Theme;
+  /**
+   * Callback quand l'utilisateur clique sur le logo / la marque — sert
+   * typiquement à revenir à la home (`router.push("/")`). Si non fourni,
+   * la marque reste affichée mais n'est pas interactive.
+   */
+  onHomeClick?: () => void;
+  /**
+   * Permet de figer une valeur de progression (utile en preview / page de test).
+   * Par défaut, on calcule via `progressIndex(...)`.
+   */
+  forceIndex?: number;
+};
+
+/** Logo Lugia (mark navy) — path SVG hérité de uploads/logo-mark-*.svg. */
+function LugiaMark({ color = "currentColor", size = 22 }: { color?: string; size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={Math.round(size * (220 / 261))}
+      viewBox="0 0 261 220"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M4.89203 214.075C19.1426 199.271 37.0201 179.22 46.4715 167.44C52.3767 160.08 53.9276 158.048 60.2051 149.445C83.8782 117.005 103.023 82.0726 116.337 47.0247C120.033 37.2956 125.447 19.4831 127.971 8.75085L130.028 0L130.837 4.08933C133.48 17.4491 140.016 38.487 146.67 55.0528C163.069 95.8803 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.57C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.57 171.235C197.603 169.472 194.441 166.644 192.543 164.95C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.46 107.082 125.742C90.6617 142.615 78.1358 154.929 69.6629 162.527C66.1685 165.66 62.4203 169.04 61.3336 170.037C45.4767 184.585 27.0938 199.743 8.44852 213.643C-2.01646 221.445 -2.22738 221.471 4.89203 214.075Z"
+        fill={color}
+      />
+    </svg>
+  );
+}
+
+export function Topbar({
+  step,
+  profile,
+  scores,
+  answeredQuestionIds,
+  theme,
+  onHomeClick,
+  forceIndex,
+}: TopbarProps) {
+  const palette = paletteFor(theme);
+  const idx =
+    forceIndex !== undefined
+      ? Math.max(0, Math.min(forceIndex, V3_TOTAL_PROGRESS_STEPS))
+      : progressIndex(profile, scores, answeredQuestionIds);
+  const ratio =
+    forceIndex !== undefined
+      ? idx / V3_TOTAL_PROGRESS_STEPS
+      : progressRatio(profile, scores, answeredQuestionIds);
+  const pct = Math.round(ratio * 100);
+  const chapter = stepChapter(step);
+
+  // Sur intro, on masque les éléments de progression mais on garde la topbar
+  // pour ne pas créer de saut visuel au passage suivant.
+  const showProgress = step !== "intro";
+  const fadedStyle: CSSProperties = showProgress
+    ? { opacity: 1, transition: "opacity 350ms ease-out" }
+    : { opacity: 0, transition: "opacity 350ms ease-out", pointerEvents: "none" };
+
+  // Couleur du fond de la topbar — semi-transparente avec backdrop-filter.
+  // Topbar bg = exactement le paper du theme courant (uniforme partout)
+  const topbarBg = palette.paper;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 200,
+        background: topbarBg,
+        padding: "12px 0",
+        transition: "background 350ms ease-out, color 350ms ease-out",
+        color: palette.navy,
+      }}
+      role="banner"
+      aria-label="Progression du check-up"
+    >
+      <div
+        style={{
+          maxWidth: 720,
+          margin: "0 auto",
+          padding: "0 24px",
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+        }}
+      >
+        {/* Marque — charte B6 : picto seul, sans wordmark accompagnant */}
+        <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <LugiaMark color={palette.navy} size={22} />
+        </div>
+
+        {/* Séparateur */}
+        <span
+          style={{
+            width: 1,
+            height: 14,
+            background: palette.lineStrong,
+            flexShrink: 0,
+            ...fadedStyle,
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Étiquette de chapitre */}
+        <span
+          style={{
+            fontFamily: fonts.mono,
+            fontSize: 10,
+            color: palette.navy400,
+            whiteSpace: "nowrap",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            ...fadedStyle,
+          }}
+        >
+          {chapter.number > 0 && chapter.number <= chapter.total ? (
+            <>
+              {chapter.number} / {chapter.total} · {chapter.label}
+            </>
+          ) : (
+            <>{chapter.number > chapter.total ? "Résultats" : "Présentation"}</>
+          )}
+        </span>
+
+        {/* Barre */}
+        <div
+          style={{
+            flex: 1,
+            height: 1,
+            background: palette.lineStrong,
+            overflow: "hidden",
+            ...fadedStyle,
+          }}
+          aria-valuemin={0}
+          aria-valuemax={V3_TOTAL_PROGRESS_STEPS}
+          aria-valuenow={idx}
+          aria-label={`Progression : ${idx} sur ${V3_TOTAL_PROGRESS_STEPS}`}
+          role="progressbar"
+        >
+          <div
+            style={{
+              height: "100%",
+              width: `${pct}%`,
+              background: palette.navy,
+              transition: "width 500ms ease-out",
+            }}
+          />
+        </div>
+
+        {/* Pourcentage */}
+        <span
+          style={{
+            fontFamily: fonts.mono,
+            fontSize: 10,
+            color: palette.navy400,
+            minWidth: 32,
+            textAlign: "right",
+            ...fadedStyle,
+          }}
+        >
+          {pct} %
+        </span>
+
+        {/* Toggle thème */}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Re-export du type V3Theme pour confort.
+ * (Évite aux composants de devoir importer depuis 2 endroits.)
+ */
+export type { V3Theme };

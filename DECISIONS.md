@@ -6,6 +6,176 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-035 — V3-charte : mini-encart « Avec Lugia » par chantier (autonomie + visibilité de la valeur ajoutée)
+
+**Date :** 2026-05-22
+
+**Décision :**
+
+Chaque page de détail de chantier (`/checkup/v3-charte` → ModuleV3) affiche désormais, en bas de la feuille de route en 4 étapes, un mini-encart « AVEC LUGIA » qui décrit en 2-3 lignes ce que Lugia peut sécuriser ou accélérer sur **ce chantier précis**.
+
+7 textes spécifiques ont été rédigés (un par chantier : urgences, chroniques, délégation, communication, logiciel, admin, pilotage). Le ton reste explicitement respectueux de l'autonomie : « Lugia **peut** vous aider à… » jamais « vous devez ». Le filet argent à gauche (vs le filet ambre du benchmark « Données terrain » juste au-dessous) signale visuellement qu'il s'agit d'une option, pas d'un avertissement.
+
+Le champ `avecLugia?: string` est ajouté au type `V3Module` (`lib/v3/modules_data.ts`), optionnel pour préserver la souplesse — on peut désactiver l'encart par chantier sans casser le contrat de type.
+
+**Pourquoi :** Tension entre deux exigences du positionnement.
+
+D'un côté, le projet pose explicitement que **le produit analyse le système de travail, pas les individus** (cf instructions générales du dossier `lugia-checkup-demo`) et que l'autonomie est le mode par défaut — d'où l'absence initiale de mention Lugia dans la roadmap des chantiers et le simple CTA générique « En parler avec Lugia → » en bas de page.
+
+De l'autre, ce silence faisait rater une opportunité éditoriale : le médecin qui parcourt la feuille de route ne comprend pas concrètement **ce que Lugia apporterait en plus** s'il choisit cette option. Le CTA générique en pied de page n'a pas de contexte spécifique au chantier, donc valeur ajoutée invisible.
+
+Le mini-encart résout la tension : autonomie 100 % préservée (4 étapes que le médecin peut suivre seul, sans Lugia), mais on lie la valeur ajoutée Lugia au chantier en question. Le ton « peut » + le filet argent + la position **après** la feuille de route (et non au milieu) signale clairement que Lugia est une accélérateur facultatif, pas une condition.
+
+**Alternatives écartées :**
+
+1. **Statu quo (autonomie pure, CTA générique seul)** — préserve le mieux le positionnement « système, pas individu » mais ne montre pas la valeur ajoutée Lugia spécifiquement. Risque : le médecin perçoit Lugia comme un coach générique, pas comme un partenaire opérationnel.
+
+2. **Mention par étape (icône argent sur les étapes où Lugia peut aider)** — plus granulaire mais alourdit visuellement la feuille de route et brouille la ligne entre « ce que vous faites » et « ce que Lugia fait ». Risque de paraître intrusif.
+
+3. **Section CTA forte en bas (« Faire ça avec Lugia » bouton primary)** — trop commercial pour le ton du produit, transformerait la feuille de route en pitch commercial.
+
+L'option retenue (encart discret en fin de roadmap, ton « peut », filet argent neutre) est l'équilibre qui maximise l'information utile sans dénaturer le positionnement autonomie.
+
+**Conséquences :**
+
+- Les 7 textes `avecLugia` doivent rester **spécifiques** au chantier (pas génériques) — sinon ils perdent leur valeur informative. Lors d'évolutions des modules, vérifier la cohérence du texte `avecLugia` avec les 4 étapes.
+- Le pattern reste optionnel par chantier (`avecLugia?:`) — si un chantier futur n'a pas de valeur ajoutée Lugia spécifique, on peut omettre le champ et l'encart ne s'affichera pas.
+- Si on déploie commercialement et que les retours montrent que le CTA générique en pied de page suffit, on pourra retirer l'encart sans casser d'autre logique (champ optionnel).
+
+---
+
+## D-034 — V3-charte : conservation des box-shadows hover (écart documenté à la règle I2)
+
+**Date :** 2026-05-21
+
+**Décision :**
+
+La charte d'application questionnaire v1.0 (règle I2) interdit toute box-shadow : « Aucun. Bordure 1 px + change de fond suffit. »
+
+Néanmoins, V3-charte conserve des hover box-shadows discrètes (15 occurrences) sur les éléments cliquables :
+- Cartes chantier (`ListChantiersV3`, section « Par où commencer » de `ResultatsV3`, `OppCard`) : `0 2px 12px -4px rgba(0,0,0,0.12)` au hover
+- Cartes d'axe (`AxisCard`) : `0 4px 16px -6px rgba(0,0,0,0.15)` au hover
+- Cartes module / next-step (`ModuleV3`) : `0 0 0 1px argent, 0 8px 24px -8px argent` au hover (lift argent signature)
+- 1 indicateur permanent : `boxShadow 0 0 6px argent` sur dot 8 px du légendaire radar
+
+**Pourquoi :** Deux raisons.
+
+D'abord, **le feedback d'affordance interactif**. Sur les cartes chantier qui sont des CTA cliquables vers le module détail, l'ombre hover indique de manière forte « cet élément est cliquable et va vous emmener ailleurs ». Le simple changement de bordure (en navy400) + `translateY(-1px)` reste perceptible mais moins explicite — risque que les médecins testeurs ne réalisent pas que les cartes sont cliquables.
+
+Ensuite, **la sobriété de l'application est déjà très forte** : pas de couleur d'axe, pas de pill, pas de gradient sur boutons, alternance Nuit/Jour franche, etc. Une ombre hover discrète (≤16 px de spread, ≤0.15 d'opacité) ne casse pas la discipline brand — c'est de la matière interactive, pas de la décoration.
+
+**Alternatives écartées :**
+
+- *Option a (strict charte)* : retirer toutes les box-shadows. Risque de perte d'affordance sur les cartes cliquables ; le feedback hover devient subtile au point que certains utilisateurs pourraient ne pas comprendre l'interactivité.
+- *Option b (mixte)* : retirer seulement les ombres fortes, garder les discrètes. Ambigu à appliquer (où mettre la limite ?) ; complique la maintenance.
+
+À surveiller : si le pilote terrain (T7) révèle que les utilisateurs trouvent les ombres « trop produit / pas brand Lugia », on revisite cette décision en option a.
+
+---
+
+## D-033 — Cohabitation v3-snapshot / v3-charte : gel avant refonte selon la charte questionnaire v1.0
+
+**Date :** 2026-05-21
+
+**Décision :**
+
+Avant d'attaquer la refonte du parcours V3-brand selon la charte d'application questionnaire v1.0 (45 règles regroupées en 10 axes A-J), on gèle l'état actuel pour permettre une comparaison côte à côte pendant la refonte.
+
+**Routes Next.js après gel :**
+- `/checkup/v3-charte` — route active, où la charte sera appliquée règle par règle.
+- `/checkup/v3-snapshot` — route gelée (lecture seule, ne reçoit plus de modifications) qui préserve l'état V3-brand pré-charte.
+- `/checkup/v3-brand` — alias rétro-compatible, redirige vers `/checkup/v3-charte` en préservant la query string (signets et URL partagées avant la bascule restent fonctionnels).
+
+**Périmètre du gel :**
+- `components/v3-snapshot/` (11 fichiers) et `lib/v3-snapshot/` (9 fichiers) — copies figées avec imports internes réécrits.
+- `app/checkup/v3-snapshot/` — copie de la route.
+- Aucun import croisé entre `v3/` et `v3-snapshot/` (vérifié par grep).
+
+**Backend inchangé :** `protocol_version="v3-brand-0"` reste l'identifiant en BDD pour les deux routes. Pas de duplication backend.
+
+**Pourquoi :** Trois raisons.
+
+D'abord, **la charte va significativement transformer le rendu** : palette resserrée, italique banni partout, échelle typo compressée à ~5 tailles, border-radius à 0, suppression des emoji, refonte de l'encodage des blocs. Sans gel, impossible de comparer une décision charte vs son équivalent pré-charte pendant la refonte.
+
+Ensuite, **le pattern est déjà éprouvé dans le projet**. V1.1.9, V2.0 et V3-brand cohabitent déjà sur trois routes distinctes. Ajouter `v3-snapshot` à côté de `v3-charte` ne fait que prolonger ce schéma — pas d'invention d'architecture.
+
+Enfin, **garantie de retour arrière**. Si la refonte charte introduit une régression UX qu'on découvre tard (par exemple un titre Lora < 22 px qui devient illisible une fois compressé en 14 px Onest), la version pré-charte reste accessible et fonctionnelle pour comparaison ou rollback ciblé.
+
+**Alternatives écartées :**
+
+- *Snapshot HTML autonome (style wireframe V2.0-snapshot)* : pure référence visuelle figée, pas interactif. Comparaison limitée car pas de scoring réel ni de bout-en-bout. Bien pour la conservation long terme, pas pour la phase de refonte active.
+- *Branche git pure (`feat/v3-charte`)* : un seul environnement déployable à la fois. Pour le pilote terrain prévu (V2.0-T7), incapable de montrer les deux versions en parallèle à un médecin testeur.
+- *Garder `/checkup/v3-brand` comme route active et ajouter seulement `/checkup/v3-snapshot` en frozen* : variante valable. Renommer en `/checkup/v3-charte` rend la lineage plus lisible (v3-brand devient un alias historique, la nouvelle identité éditoriale s'appelle « charte »).
+
+---
+
+## D-032 — V3-brand : exception « Lora < 22 px » pour le contenu éditorial du parcours
+
+**Date :** 2026-05-20
+
+**Décision :** Le brand-master Lugia pose la règle « Lora regular jamais < 22 px ». Cette règle est respectée par défaut sur V3-brand pour les titres, les hero, les leads et tout texte de marque. Une **exception explicite** est inscrite pour le contenu éditorial du parcours diagnostic :
+
+- **Texte des questions scorées** (`q-text`) — Lora 16 px, conformément au modèle cible.
+- **Options de la question d'énergie** (`energy-card`) — Lora 17 px, phrases-réponses entières.
+- **Niveau qualitatif dans les score cards de transition** (`tsc-level`) — Lora 17 px.
+- **Label du bloc suivant sur transition** (`trans-next-label`) — Lora 17 px.
+
+Pour tous ces usages, Lora reste **regular** (pas d'italique, pas de caps), seule la taille déroge à la règle ≥ 22 px.
+
+**Pourquoi :**
+
+La règle brand « Lora ≥ 22 px » vise à préserver le caractère typographique de Lora (légèrement contrasté, élégant) qui se dilue dans les petites tailles. Mais le parcours diagnostic V3 a une posture éditoriale spécifique inscrite dans la charte questionnaire : « voix d'un confrère expérimenté qui pose les bonnes questions ». Cette posture appelle un serif même à 16 px — basculer en Onest sur les questions transformerait la voix en celle d'un formulaire administratif, ce qui contredirait la posture revendiquée.
+
+Trois arguments cumulés :
+1. **Cohérence éditoriale.** Les questions sont la voix du confrère. Lora porte cette voix mieux qu'Onest, à n'importe quelle taille.
+2. **Cohérence avec le modèle cible.** Le HTML cible utilise déjà Lora 16 px sur `q-text` — l'aligner sur ce point évite un écart visible avec la référence design validée.
+3. **Périmètre limité.** L'exception ne couvre que 4 usages précis du parcours diagnostic, tous documentés ici. Le reste de V3 et de la marque restent sous la règle ≥ 22 px.
+
+**Alternatives écartées :**
+
+- *Respecter strictement la règle (bascule en Onest 16-17 px)* : perdrait le caractère éditorial du parcours, glisserait vers un ton plus technique / SaaS.
+- *Augmenter les tailles à 22 px minimum* : impact visuel important (questions à 22 px = volumineuses, scoreboard à 22 px = écrasant), rupture forte avec le modèle cible.
+- *Étendre l'exception à toute la marque* : dilue la règle brand-master et ouvre la porte à des dérives. La règle reste, l'exception est bornée.
+
+---
+
+## D-031 — V3-brand : arbitrages de cadrage pour la 3ème carte beta
+
+**Date :** 2026-05-20
+
+**Décision :** Une troisième carte « beta » est ouverte sur la page d'accueil pour héberger un parcours V3 entièrement aligné sur le brand kit Lugia (specs `lugia-survey-specs.md`, modèle `lugia-survey-model.html`, brand-master/brand-kit/charte questionnaire). Avant tout code, les 9 arbitrages suivants sont figés :
+
+1. **Familles typographiques.** Deux familles éditoriales (Onest sans + Lora serif) et un rôle utilitaire distinct (IBM Plex Mono pour eyebrows, codes, méta). Le titre du brand-kit « Deux familles. Pas une de plus. » est conservé tel quel, le mono est traité comme outil de mise en page, pas comme famille.
+
+2. **Proportions de surface : différenciées mode jour / mode nuit.** Le ratio 65/25/5 (brand-master) reste la cible pour les surfaces *mode jour* (corporate, synthèse, plan d'action). Le ratio sera adapté pour le mode nuit du parcours questionnaire — proposition à valider quand on codera la première carte : navy ~75 % / ivoire ~20 % / argent ~5 %. Les deux ratios coexistent légitimement parce qu'ils décrivent des contextes d'usage distincts.
+
+3. **Ambre = couleur fonctionnelle officielle (token `--signal-warn`).** Promue au statut de token officiel à côté de navy / ivoire / argent, mais **classée séparément** comme couleur fonctionnelle (sémantique, pas décorative). Trois règles intangibles : (a) un seul ambre par écran maximum ; (b) trois usages canoniques autorisés — benchmark critique avec dépassement de seuil, signal croisé d'alerte, modules à fort enjeu ; (c) jamais en aplat de marque (toujours bordure fine + surface très diluée — paramètres charte questionnaire : bordure 32 %, surface 10 %). Tout autre usage doit faire l'objet d'une décision. Valeur hex précise à fixer en T-V3-1 (proposition de départ : `#b5780a` ou `#c8851a` à tester en lisibilité jour + nuit).
+
+4. **Niveaux qualitatifs : on garde la nomenclature V2.0.** « Fragile / En transition / Solide / Mature » est préservé. Le renommage du modèle cible (« En construction / En transition / Stabilisé / Optimisé ») est écarté pour deux raisons : (a) cohérence avec V2.0 en prod, les exports PDF et les transitions de bloc ; (b) « Mature » est plus aligné « hauteur de confrère » du brand-master que « Optimisé » qui glisse vers le vocabulaire process.
+
+5. **Scoring final : pourcentage 0-100 conservé en backend, conversion en 4 niveaux (0-3) au rendu V3.** Le scoring V2.0 (% par axe) reste la donnée canonique stockée. Au rendu V3, on convertit via une fonction de seuils (équivalent du `lvl(s) = s<35?0:s<55?1:s<78?2:3` du modèle cible) pour piloter l'apparition des signaux, des modules et l'affichage radar. Le V2.0 actuel n'est pas modifié.
+
+6. **Topbar progression : barre continue 28 micro-étapes (9 profil + 1 énergie + 18 questions).** Adoptée pour V3, mais avec étiquette de chapitre conservée au-dessus pour garder le repère structurel.
+
+7. **Analyse croisée toujours affichée.** Affichage systématique avec fallback éditorial. Pas d'apparition conditionnelle qui donnerait l'impression d'un produit fragile.
+
+8. **Angles radar : -90° / 30° / 150°.** Adoption du modèle cible — axe A pointant vers le haut, rotation horaire — plus naturel à lire. Remplace le 0° / 120° / 240° de V2.0.
+
+9. **Route et cohabitation.** Route séparée `/checkup/v3-brand` accessible uniquement depuis la 3ème carte beta. `protocol_version = "v3-brand-0"`. Scoring partagé avec V2.0 (mêmes axes A/B/C, mêmes 18 questions au départ), layout/copy/state machine indépendants. V2.0 reste stable pour les pilotes ; dépréciation planifiée *après* validation V3.
+
+**Pourquoi :**
+
+L'arbitrage repose sur trois principes. **Cohérence éditoriale d'abord** : le brand-master (« hauteur d'équipe », vocabulaire à privilégier / à éviter, posture « confrère expérimenté » de la charte questionnaire) fixe le ton ; les choix typographiques et de couleur découlent de cette posture, pas l'inverse. **Conservation de l'acquis V2.0** : niveaux qualitatifs et scoring backend sont stables et compris des testeurs ; les changer aurait un coût en cohérence cross-version sans gain produit. **Hiérarchie des couleurs** : navy + ivoire + argent forment la palette de marque ; ambre est un token fonctionnel séparé. Ne pas confondre les deux niveaux évite la dérive observée dans la plupart des design systems où les couleurs sémantiques finissent décoratives.
+
+**Alternatives écartées :**
+
+- *Renommer les niveaux selon le modèle cible* (« En construction / Optimisé ») : rompt l'acquis V2.0, glisse vers un vocabulaire process moins aligné avec la posture « hauteur de confrère ».
+- *Promouvoir ambre comme 3ème couleur de marque au même rang que navy/ivoire/argent* : risque de dérive décorative (cf. fréquent dans les design systems), perte de pouvoir sémantique. Le statut « token fonctionnel séparé » protège son signal.
+- *Réécrire V2.0 plutôt qu'ouvrir une route V3 dédiée* : risque de régression sur le parcours servi aux pilotes actuels. La cohabitation est moins risquée et permet une dépréciation maîtrisée.
+- *Topbar par chapitres (comme V2.0) sans micro-étapes* : moins engageant, moins de signal de progression à chaque clic — point d'UX où le modèle cible est démontrablement meilleur.
+
+---
+
 ## D-030 — Inversion de la séquence V2.0 : intégration technique avant pilote rédactionnel
 
 **Date :** 2026-05-19

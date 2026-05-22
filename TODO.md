@@ -4,6 +4,68 @@ Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court
 
 ---
 
+## V3-brand EN COURS — 3ème carte beta alignée brand kit (20 mai 2026)
+
+Phase d'amorçage de la V3-brand : parcours entièrement aligné sur le brand kit Lugia (navy / ivoire / argent + signal ambre, Onest+Lora+IBM Plex Mono, layout angulaire, mode nuit par défaut). Route séparée `/checkup/v3-brand`, cohabitation avec V2.0 maintenue, dépréciation V2.0 après validation V3 (cf `DECISIONS.md` D-031).
+
+### Arbitrages figés (D-031)
+
+| # | Arbitrage | Décision |
+|---|---|---|
+| 1 | Familles typo | 2 éditoriales (Onest + Lora) + 1 utilitaire (IBM Plex Mono) |
+| 2 | Proportions surface | 65/25/5 jour, ~75/20/5 nuit (à valider en T-V3-1) |
+| 3 | Ambre | Token `--signal-warn` séparé — 1/écran max, 3 usages canoniques |
+| 4 | Niveaux | « Fragile / En transition / Solide / Mature » conservés (V2.0) |
+| 5 | Scoring | % backend conservé, conversion 0-3 au rendu V3 (`lvl()`) |
+| 6 | Topbar | Barre continue 28 micro-étapes + étiquette de chapitre |
+| 7 | Analyse croisée | Toujours affichée (avec fallback éditorial) |
+| 8 | Angles radar | -90° / 30° / 150° (axe A vers le haut) |
+| 9 | Route | `/checkup/v3-brand`, `protocol_version = "v3-brand-0"`, scoring partagé |
+
+### Reste à faire — sous-vagues V3-brand
+
+| Sous-vague | Livrables prévus |
+|---|---|
+| **T-V3-1** | Tokens design : extraire `web/lib/v3/tokens.ts` (couleurs, polices, surfaces jour/nuit, signal ambre, shimmers) — premiers tests lisibilité ambre `#b5780a` vs `#c8851a` sur navy + ivoire. |
+| **T-V3-2** | Atomes partagés : `DVMono`, `DVCorners`, surfaces shimmer, niveau qualitatif, badge effort/gain. |
+| **T-V3-3** | State machine V3 : extension `web/lib/v3/state.ts` — 28 étapes + transitions + reprise. |
+| **T-V3-4** | Topbar progression + chapitre + énergie / radar live sticky ≥1140 px. |
+| **T-V3-5** | Écrans intro / profil_step1 / profil_step2 / energy (mode nuit par défaut, toggle jour optionnel). |
+| **T-V3-6** | Blocs A/B/C + transitions inter-blocs (filet argent, fondu, Lora 56 px « · »). |
+| **T-V3-7** | Page résultats V3 (radar SVG glow filter, niveaux par axe, analyse croisée systématique, signaux 6 + fallback). |
+| **T-V3-8** | Modules : 7 modules avec conditions d'activation (`OPPS` du modèle cible), page détail. |
+| **T-V3-9** | 3ème carte « beta » sur page d'accueil + bouton accès `/checkup/v3-brand`. |
+| **T-V3-10** | Smoke test bout en bout V3-brand + non-régression V2.0 et V1.1.9. |
+| **T-V3-11** | ✅ Branchement éditorial dynamique page résultats (signals + axis_details + buildResultatsContent). |
+| **T-V3-12** | ✅ Page « Tous les chantiers » + extraction opps_catalog partagé. |
+| **T-V3-13** | ✅ Intégration Calendly sur boutons « Prendre rendez-vous » et « En parler avec Lugia ». |
+| **T-V3-14** | ✅ Backend V3-brand (extension `protocol_version=v3-brand-0` + dispatchers scoring/report minimaux). |
+| **T-V3-15** | ✅ Persistance backend dans `/checkup/v3-brand` — query string + listAnswers + saveAnswer + patchMyProfileV2 + completeInterview. |
+| **T-V3-audit-final** | ✅ Revue de cohérence visuelle + propreté code + responsive mobile (#73). |
+| **T-V3-snapshot** | ✅ Gel pré-charte : `/checkup/v3-snapshot` figé, `/checkup/v3-charte` actif, alias rétro-compatible `/checkup/v3-brand`. D-033. |
+| **T-V3-charte** | ✅ Audit règle par règle contre charte v1.0 terminé. 45 règles validées (axes A-J). Refactor : palette axes argent uniforme, badges A/B/C avec reflet hover, contexte/reformulation/benchmark migrés, échelle typo alignée, reset CSS italique, TypingDots, tags FR Rapide/Posé/Approfondi. Écart documenté en D-034 (box-shadows hover). Tests visuels à valider. |
+| **T-V3-charte-refinement** | ✅ Refonte post-charte (2026-05-22) : routing dénominateurs alignés (compteur footer + buildLocalScores + Topbar + radar), 23 labels bloc B/C resserrés en 1 ligne, Q04 outils numériques re-paliérisée, harmonisation POV médecin (7 labels), transition « Bloc A/B/C terminé », page résultats avec entête + back + radar enrichi (labels + phrase de lecture + échelle 100%), section motivPhrase dédiée, RiskBadge 3 niveaux différenciés par transparence, mini-encart « Avec Lugia » par chantier (D-035), KPIs langage naturel, footnote estimations déplacée, 6 conflits border/borderLeft corrigés. Voir CHANGELOG 2026-05-22. |
+| **T-V3-pilote-visuel** | ⏳ Smoke test visuel global sur les 5 écrans clés (intro, blocs, transition, résultats, module) en Nuit et Jour, après tous les changements axes A-J. |
+| **T-V3-responsive** | ⏳ Audit responsive mobile (INTRO_PROMISES collapse 480px, Topbar tightness ≤360px, smoke test à 375×667 et 320×568). Identifié en audit-final, reporté à post-charte. |
+
+### Reste à faire — V3-brand
+
+- Smoke test bout en bout V3-brand (parcours complet en mode persistant : refresh entre les étapes doit reprendre au bon endroit).
+- Non-régression V2.0 + V1.1.9 (les 3 versions cohabitent — vérifier qu'on peut basculer librement entre les 3 cartes de l'accueil sans interférence).
+- (Différé) Discussion autonome avec un assistant LLM en page résultats — nécessite un endpoint LLM backend qui n'existe pas encore. Capturé en ROADMAP.
+
+### Chantiers éditoriaux complémentaires (parallèle technique)
+
+1. **Passe rédactionnelle au filtre de la charte questionnaire** sur les 18 questions actuelles : appliquer le test OK/BAD (verbe au présent, sujet concret, conditionnel évité, phrase courte, fermée) ; reformulation au filet argent à gauche, Lora regular, sans jugement.
+2. **Glossaire à privilégier / à éviter** du brand-master ajouté en `RESOURCES.md` ou nouveau `resources/v3_glossaire_marque.md` (vocabulaire OK : *travail réel, mettre en place, aller jusqu'au bout, clarifier, ce qui freine* ; vocabulaire NOK : *synergies, disruptif, stack, game-changer, capacitaire, verticales*).
+3. **Phrases-types canoniques** (« Partir du réel. Traiter les causes. Aller jusqu'à la mise en place. ») à placer dans l'intro et la conclusion V3.
+
+### Points à valider quand on codera
+
+- Valeur hex précise de `--signal-warn` (ambre brûlé) : `#b5780a` vs `#c8851a` — test contraste sur navy `#1a2333` + ivoire `#f4efe5`.
+- Mode jour / nuit : toggle utilisateur ou nuit-only ? Décision lors de T-V3-5.
+- Inscription du token `--signal-warn` dans le brand-master (amendement à proposer à la direction com — niveau projet, non bloquant pour V3).
+
 ## V2.0 EN COURS — pilote rédactionnel avant intégration technique (19 mai 2026)
 
 Refonte structurelle V2.0 amorcée (cf `DECISIONS.md` D-029). Séquence retenue par Sébastien le 19 mai : **pilote rédactionnel → intégration technique → sourcing benchmarks**.

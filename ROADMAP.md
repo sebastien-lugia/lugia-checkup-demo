@@ -165,6 +165,24 @@ V1.1.10 n'a donc pas d'existence propre. Le travail bascule sur V2.0.
 
 ---
 
+## V3+ — Extension des statuts du profil — REPORTÉ (post pilote V3-brand)
+
+Décidé le 2026-05-20 avec Sébastien dans le cadre de V3-brand (cf `DECISIONS.md` D-031 + section V3-brand de `TODO.md`).
+
+En V3-brand-0, la question « Depuis combien de temps exercez-vous ici ? » est volontairement épurée aux 3 paliers de durée mutuellement exclusifs (Récent / Installé / Senior). Deux options envisagées au départ ont été retirées parce qu'elles soulevaient des ambiguïtés non résolues :
+
+- **« Approche transmission »** était ambigu — deux lectures possibles (médecin en place qui prépare son départ vs médecin qui débute en transition avec un confrère partant). Ce sont deux situations qui appellent des diagnostics différents. À reformuler en deux options distinctes plus explicites quand on aura observé les cas réels.
+- **« Remplaçant »** pose une question de cible produit : un remplaçant n'a pas la main sur l'organisation et les chantiers Lugia sortent de son périmètre d'action. Mais son regard neuf sur une organisation reste une matière intéressante — éventuellement à exploiter dans une variante du diagnostic avec des modules adaptés (analyse croisée, observation tierce).
+
+À ré-aborder quand : (a) le pilote V3-brand aura tourné, (b) on aura des retours qualitatifs sur les profils de répondants, (c) on saura mieux quels cas de bord la base actuelle ne capte pas.
+
+Pistes à explorer le moment venu :
+1. **Reprise en cours d'un confrère** — option séparée avec ses propres modules (continuité d'organisation, négociation des évolutions avec le médecin sortant).
+2. **Remplaçant longue durée** — variante du diagnostic en posture observateur, livrables centrés sur le regard neuf et les diagnostics croisés.
+3. **Approche transmission (médecin sortant)** — option remise mais clarifiée, déclenchant les modules de transmission/structuration documentaire.
+
+---
+
 ## V2.0 — Refonte structurelle du check-up — EN COURS
 
 Refonte de fond du check-up amorcée le 19 mai 2026 (cf `DECISIONS.md` D-029). Rompt avec D-021 (alternance des modes B/C) et suspend D-020 (SLM hybride en V1.2). Mode A pur sur l'ensemble du parcours scoré, 3 blocs successifs (Parcours patient / Équipe / Outils & information), radar dynamique permanent, modules d'approfondissement statiques, 13 règles déterministes de personnalisation, 6 signaux croisés inter-axes.

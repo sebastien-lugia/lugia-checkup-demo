@@ -21,6 +21,7 @@ import {
   type ActiveInterviewsByVersion,
   createInterview,
   createInterviewV2,
+  createInterviewV3,
   getActiveInterviewsByVersion,
   type Interview,
 } from "@/lib/api";
@@ -77,6 +78,7 @@ export default function AccueilPage() {
 
   const activeV1 = actives["v1.1.9"];
   const activeV2 = actives["v2.0"];
+  const activeV3 = actives["v3-brand-0"];
 
   async function handleStartClassic() {
     setWorkingPath("classic");
@@ -106,6 +108,22 @@ export default function AccueilPage() {
     }
   }
 
+  async function handleStartV3() {
+    // V3-brand-T-V3-14 : on crée une vraie interview en BDD (protocol_version
+    // = "v3-brand-0") et on route en passant l'id en query string.
+    setWorkingPath("v3");
+    setError(null);
+    try {
+      const { interview_id } = await createInterviewV3();
+      router.push(`/checkup/v3-charte?interview=${interview_id}`);
+    } catch {
+      setError(
+        "Impossible de démarrer la version V3-brand. Vérifiez que le backend est accessible."
+      );
+      setWorkingPath(null);
+    }
+  }
+
   function handleResumeV1() {
     if (!activeV1) return;
     router.push(pathForResumeV1(activeV1));
@@ -114,6 +132,17 @@ export default function AccueilPage() {
   function handleResumeV2() {
     if (!activeV2) return;
     router.push(pathForResumeV2(activeV2));
+  }
+
+  function handleResumeV3() {
+    if (!activeV3) return;
+    // V3-brand : on route avec l'id de l'interview, la page se chargera
+    // de reprendre l'état à partir des answers persistés.
+    const path =
+      activeV3.status === "completed"
+        ? `/checkup/v3-charte?interview=${activeV3.id}&view=results`
+        : `/checkup/v3-charte?interview=${activeV3.id}`;
+    router.push(path);
   }
 
   if (!isAuthReady) {
@@ -136,13 +165,13 @@ export default function AccueilPage() {
           </h1>
 
           <p className="text-base text-lugia-text-secondary leading-relaxed mb-10 max-w-[640px]">
-            Deux versions du check-up sont disponibles aujourd&apos;hui.
-            Choisissez celle que vous voulez tester — vous pourrez faire
-            l&apos;autre par la suite.
+            Trois versions sont disponibles aujourd&apos;hui — la version
+            actuelle, la nouvelle version pilote, et la version brand kit en
+            beta. Choisissez celle que vous voulez tester.
           </p>
 
-          {/* Les 2 cartes — chacune avec son propre état "session en cours" */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+          {/* Les 3 cartes — chacune avec son propre état "session en cours" */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
             {/* Carte V1.1.9 — version classique */}
             <VersionCard
               variant="classic"
@@ -164,12 +193,34 @@ export default function AccueilPage() {
               onStart={handleStartV2}
               onResume={handleResumeV2}
             />
+
+            {/* Carte V3-brand — beta brand kit (T-V3-9 / T-V3-14) */}
+            <VersionCard
+              variant="v3"
+              loading={isLoadingActives}
+              active={activeV3}
+              working={workingPath === "v3"}
+              workingPathSet={workingPath !== null}
+              onStart={handleStartV3}
+              onResume={handleResumeV3}
+            />
+          </div>
+
+          {/* Accès à la version pré-charte (figée pour comparaison) */}
+          <div className="mb-6 text-[12px] text-[#888780]">
+            Version pré-charte (figée) :{" "}
+            <a
+              href="/checkup/v3-snapshot"
+              className="underline hover:text-[#1A2333] transition-colors"
+            >
+              /checkup/v3-snapshot
+            </a>
           </div>
 
           {/* Garde-fous communs */}
           <div className="rounded-xl border border-lugia-border bg-lugia-bg-card p-5 mb-6">
             <div className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#888780] mb-3">
-              Vos garde-fous (les deux versions)
+              Vos garde-fous (les trois versions)
             </div>
             <ul className="text-[13px] leading-[1.55] text-[#595959] space-y-1.5 list-none p-0 m-0">
               <li>— Aucune donnée patient identifiable ne vous est demandée.</li>
@@ -203,7 +254,7 @@ function VersionCard({
   onStart,
   onResume,
 }: {
-  variant: "classic" | "v2";
+  variant: "classic" | "v2" | "v3";
   loading: boolean;
   active: Interview | undefined;
   working: boolean;
@@ -212,26 +263,56 @@ function VersionCard({
   onResume: () => void;
 }) {
   const isV2 = variant === "v2";
-  const title = isV2 ? "Diagnostic organisationnel V2" : "Check-up classique";
-  const eyebrow = isV2 ? "Nouvelle version" : "Version actuelle";
-  const eyebrowColor = isV2 ? "text-[#1a56a0]" : "text-[#888780]";
-  const description = isV2
-    ? "Mini-profil en chips, 18 questions sur 3 axes, radar dynamique qui se construit en direct. Reformulations terrain inline, benchmarks chiffrés, 7 modules d'approfondissement."
-    : "14 questions, ~25 min. Format question par question. Rapport en 3 facettes, 3 chantiers proposés.";
-  const pills = isV2
-    ? ["18 questions", "~25 min", "Radar live"]
-    : ["14 questions", "~25 min"];
+  const isV3 = variant === "v3";
+  const title =
+    isV3
+      ? "Check-up V3 — brand kit"
+      : isV2
+      ? "Diagnostic organisationnel V2"
+      : "Check-up classique";
+  const eyebrow =
+    isV3
+      ? "Direction brand · Mode nuit"
+      : isV2
+      ? "Nouvelle version"
+      : "Version actuelle";
+  const eyebrowColor =
+    isV3
+      ? "text-[#8E8E91]"
+      : isV2
+      ? "text-[#1a56a0]"
+      : "text-[#888780]";
+  const description =
+    isV3
+      ? "Refonte visuelle complète selon le brand kit Lugia. Mode nuit par défaut, radar incliné, analyse croisée signalée, plans d'action chiffrés (gain temps + euros)."
+      : isV2
+      ? "Mini-profil en chips, 18 questions sur 3 axes, radar dynamique qui se construit en direct. Reformulations terrain inline, benchmarks chiffrés, 7 modules d'approfondissement."
+      : "14 questions, ~25 min. Format question par question. Rapport en 3 facettes, 3 chantiers proposés.";
+  const pills =
+    isV3
+      ? ["18 questions", "~25 min", "Gains chiffrés"]
+      : isV2
+      ? ["18 questions", "~25 min", "Radar live"]
+      : ["14 questions", "~25 min"];
 
-  const borderClass = isV2
-    ? "border-2 border-[#1a56a0]"
-    : "border border-lugia-border";
+  const borderClass =
+    isV3
+      ? "border border-[#8E8E91] bg-[#f4efe5]"
+      : isV2
+      ? "border-2 border-[#1a56a0]"
+      : "border border-lugia-border";
 
   const resumeIsResults =
     !!active &&
     (isV2
       ? active.status === "completed"
       : active.current_question_index >= 14);
-  const startLabel = isV2 ? "Essayer la nouvelle version →" : "Commencer →";
+  const startLabel =
+    isV3
+      ? "Découvrir la version beta →"
+      : isV2
+      ? "Essayer la nouvelle version →"
+      : "Commencer →";
   const resumeLabel = resumeIsResults
     ? "Voir mes résultats →"
     : "Reprendre →";
@@ -244,10 +325,13 @@ function VersionCard({
       onClick={handleClick}
       disabled={disabled || loading}
       className={
-        "text-left rounded-xl bg-lugia-bg-card transition-colors p-7 disabled:opacity-50 disabled:cursor-not-allowed group relative " +
+        "text-left transition-all p-7 disabled:opacity-50 disabled:cursor-not-allowed group relative " +
+        (isV3 ? "" : "rounded-xl bg-lugia-bg-card ") +
         borderClass +
         (active ? " bg-[#fbf9f1]" : "") +
-        (isV2 ? " hover:bg-white/70" : " hover:border-lugia-text-tertiary")
+        (isV2 ? " hover:bg-white/70" : "") +
+        (isV3 ? " hover:border-[#1a2333] hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_#8E8E91,0_12px_32px_-10px_rgba(142,142,145,0.4)]" : "") +
+        (!isV2 && !isV3 ? " hover:border-lugia-text-tertiary" : "")
       }
       type="button"
     >
@@ -256,10 +340,20 @@ function VersionCard({
           Pilote
         </span>
       )}
+      {isV3 && (
+        <span
+          className="absolute top-3 right-3 text-[9px] uppercase tracking-[0.18em] font-bold text-[#1a2333] px-2.5 py-1 border border-[#8E8E91]"
+          style={{
+            background: "linear-gradient(90deg, #D2D2D5 0%, #faf7f1 50%, #D2D2D5 100%)",
+          }}
+        >
+          Beta · Brand
+        </span>
+      )}
       <div className={"text-[10px] uppercase tracking-[0.16em] font-semibold mb-3 " + eyebrowColor}>
         {eyebrow}
       </div>
-      <h2 className="font-serif text-[22px] font-medium text-[#111] mb-3">
+      <h2 className={"font-serif text-[22px] font-medium mb-3 " + (isV3 ? "text-[#1a2333]" : "text-[#111]")}>
         {title}
       </h2>
       <p className="text-[13px] leading-[1.55] text-[#444] mb-5">{description}</p>
@@ -288,7 +382,7 @@ function VersionCard({
         </div>
       )}
 
-      <div className="text-[14px] font-medium text-[#1a56a0] group-hover:underline">
+      <div className={"text-[14px] font-medium group-hover:underline " + (isV3 ? "text-[#1a2333]" : "text-[#1a56a0]")}>
         {loading
           ? "…"
           : working

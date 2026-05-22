@@ -90,6 +90,10 @@ export type UserProfile = {
   cabinet_type?: string | null;
   volume?: string | null;
   paramedical_team?: string | null;
+  // Ajouté avec la refonte charte questionnaire v1.0 — V3-charte routing
+  // (secretariat==seul ↔ has_team). Le backend ignore le champ si non
+  // reconnu, on ne casse rien côté V1.x / V2.0.
+  secretariat?: string | null;
   logiciel_metier?: string | null;
   logiciel_metier_other?: string | null;
   rdv_canal?: string | null;
@@ -223,6 +227,45 @@ export async function createInterviewV2(): Promise<{
       body: JSON.stringify({ protocol_version: "v2.0" }),
     }
   );
+}
+
+// V3-brand-T-V3-14 — crée une interview V3-brand-0.
+// Scoring partagé avec V2.0 (D-031 #9), mais le rapport est minimal côté
+// backend — le contenu éditorial (phrase choc, bilan, axis_details) est
+// assemblé côté frontend via lib/v3/*.
+export async function createInterviewV3(): Promise<{
+  interview_id: number;
+  protocol_version: string;
+}> {
+  return request<{ interview_id: number; protocol_version: string }>(
+    "/interviews",
+    {
+      method: "POST",
+      body: JSON.stringify({ protocol_version: "v3-brand-0" }),
+    }
+  );
+}
+
+/**
+ * V3-brand — payload retourné par GET /interviews/{id}/report quand
+ * protocol_version === "v3-brand-0". Volontairement minimal : juste les
+ * scores + answers + meta. Le rapport éditorial est monté côté client.
+ */
+export type V3BrandReport = {
+  interview: {
+    id: number;
+    protocol_version: "v3-brand-0";
+    created_at: string;
+    completed_at: string | null;
+    doctor_firstname: string | null;
+  };
+  profile: UserProfile;
+  scores: V2Scores;
+  answers: Record<string, string>;
+};
+
+export async function getReportV3(interviewId: number): Promise<V3BrandReport> {
+  return request<V3BrandReport>(`/interviews/${interviewId}/report`);
 }
 
 export async function getActiveInterview(): Promise<Interview | null> {
