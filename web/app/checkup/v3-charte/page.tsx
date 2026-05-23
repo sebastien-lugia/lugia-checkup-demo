@@ -1,5 +1,10 @@
 "use client";
 
+// Désactive le prerender statique de Next : la page dépend de useSearchParams
+// (interview_id, step, view), de l'auth user et du profil cabinet — pas
+// d'intérêt à pré-générer une page vide.
+export const dynamic = "force-dynamic";
+
 /**
  * V3-brand — orchestration interactive complète du parcours.
  *
