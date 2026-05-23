@@ -583,7 +583,7 @@ function PlanCard({ plan, theme }: { plan: ChatPlanStep[]; theme: V3Theme }) {
           fontSize: 10,
           letterSpacing: "0.16em",
           textTransform: "uppercase",
-          color: palette.argentDeep ?? palette.argent,
+          color: palette.argentDeep,
           fontStyle: "normal",
         }}
       >

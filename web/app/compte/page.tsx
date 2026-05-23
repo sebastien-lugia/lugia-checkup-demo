@@ -228,7 +228,7 @@ function ComptePageContent() {
         <p
           style={{
             fontFamily: fonts.mono, fontSize: 9, letterSpacing: "0.18em",
-            textTransform: "uppercase", color: palette.argentDeep ?? palette.argent,
+            textTransform: "uppercase", color: palette.argentDeep,
             margin: "0 0 10px", fontStyle: "normal",
           }}
         >
@@ -264,7 +264,7 @@ function ComptePageContent() {
             {firstnameStatus === "saving" ? "Enregistrement…" : "Enregistrer"}
           </PrimaryButton>
           {firstnameStatus === "saved" && (
-            <span style={{ fontFamily: fonts.mono, fontSize: 11, color: palette.argentDeep ?? palette.argent, letterSpacing: "0.08em" }}>
+            <span style={{ fontFamily: fonts.mono, fontSize: 11, color: palette.argentDeep, letterSpacing: "0.08em" }}>
               ✓ Enregistré
             </span>
           )}

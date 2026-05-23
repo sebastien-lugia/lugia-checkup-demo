@@ -169,7 +169,7 @@ export function ModuleV3({
                 fontSize: 9,
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
-                color: palette.argentDeep ?? palette.argent,
+                color: palette.argentDeep,
                 margin: "0 0 10px",
                 fontStyle: "normal",
               }}
