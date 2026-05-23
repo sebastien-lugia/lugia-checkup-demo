@@ -118,30 +118,41 @@ export function Topbar({
     >
       <div
         style={{
-          maxWidth: 720,
+          maxWidth: 680,
           margin: "0 auto",
-          padding: "0 24px",
+          padding: "0 160px 0 24px",
           display: "flex",
           alignItems: "center",
           gap: 16,
         }}
       >
-        {/* Marque — charte B6 : picto seul, sans wordmark accompagnant */}
-        <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
-          <LugiaMark color={palette.navy} size={22} />
-        </div>
-
-        {/* Séparateur */}
-        <span
-          style={{
-            width: 1,
-            height: 14,
-            background: palette.lineStrong,
-            flexShrink: 0,
-            ...fadedStyle,
-          }}
-          aria-hidden="true"
-        />
+        {/* Marque — cliquable pour revenir à l'accueil global.
+            Charte B6 : picto seul, sans wordmark accompagnant. */}
+        {onHomeClick ? (
+          <button
+            type="button"
+            onClick={onHomeClick}
+            aria-label="Retour à l'accueil"
+            style={{
+              background: "transparent",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              flexShrink: 0,
+              transition: "opacity 180ms ease-out",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            <LugiaMark color={palette.navy} size={22} />
+          </button>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+            <LugiaMark color={palette.navy} size={22} />
+          </div>
+        )}
 
         {/* Étiquette de chapitre */}
         <span

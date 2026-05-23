@@ -6,6 +6,176 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-039 — V3-charte : trois pages éditoriales distinctes (check-up / accompagnement / à propos)
+
+**Date :** 2026-05-22
+
+**Décision :**
+
+Trois pages auxiliaires distinctes en charte V3, chacune adressant un public et un propos différents :
+
+- **`/le-checkup`** — Méthodologie du diagnostic préventif. Eyebrow « Méthode ». Pour un visiteur qui veut comprendre comment fonctionne le questionnaire (3 axes, 18 questions, 4 niveaux, rythme 12-15 min).
+- **`/notre-accompagnement`** — Offre médecin-centric. Eyebrow « Une offre sur mesure ». Pour un médecin libéral qui veut comprendre ce que Lugia fait pour son cabinet (mission cabinet médecin / positionnement vs autres acteurs / méthode / engagements).
+- **`/lugia`** — À propos de Lugia & Co, ton vision élargie. Eyebrow « À propos ». Pour un visiteur qui veut comprendre l'entreprise Lugia au-delà du médical (mission entreprises toute taille, ruptures organisationnelles, différenciation vs consulting + SaaS, à qui s'adresse Lugia avec 4 profils-cibles, engagement final).
+
+Liens dans **AppHeader** (Tailwind, home) et **IntroHeaderShortcuts** (parcours V3) en monospace caps.
+
+**Pourquoi :** Une page « à propos » unique mêlait trois propos qui parlent à trois moments différents du parcours :
+1. Le médecin qui clique « Présentation » depuis le parcours veut comprendre la **méthode du check-up** (avant ou pendant de répondre).
+2. Le médecin qui clique « Mon accompagnement » veut comprendre ce que Lugia **livre en pratique** sur son cabinet.
+3. Le visiteur professionnel qui clique « À propos » veut comprendre la **vision de l'entreprise** — au-delà du médical.
+
+Distinguer les 3 permet de tenir un ton ciblé sur chaque page sans la noyer dans des objectifs contradictoires.
+
+**Alternatives écartées :**
+
+1. **Une seule page « À propos »** — risque de mélanger les niveaux (technique méthode + commercial médecin + vision entreprise) et de perdre chaque lectorat.
+2. **Deux pages (méthode + à propos)** — manque l'angle commercial médecin, le visiteur dirigeant tombe directement sur la vision sans détail métier.
+
+**Conséquences :**
+
+- Les contenus restent maintenables indépendamment — modifier la vision entreprise ne touche pas la méthode du check-up.
+- Les 3 liens dans le header rendent la nav un peu plus large ; raccourcis utilisés dans IntroHeaderShortcuts (« À propos » au lieu de « À propos de Lugia & Co ») pour rester compact.
+- Le visiteur qui veut comprendre l'offre médecin spécifiquement doit cliquer « Notre accompagnement », pas « Le check-up » ni « À propos ». Le label éclaire cette intention.
+
+---
+
+## D-038 — V3-charte : estimations gain € personnalisées par formule explicite
+
+**Date :** 2026-05-22
+
+**Décision :**
+
+Les estimations « +X k€/an » par chantier sont calculées dynamiquement à partir du profil cabinet, plus en dur. Formule :
+
+```
+gainEuros_an = (gainTime_min/jour) × 220 × (70/60) × 0.7 × volumeFactor
+```
+
+avec :
+- `220` jours travaillés par an
+- `70 € TTC/h` taux horaire médian d'un généraliste libéral
+- `0.7` proportion du temps libéré effectivement réinvestie en activité productive (le reste sert de marge cognitive)
+- `volumeFactor` : `lt_80=0.8`, `80_120=1.0`, `gt_120=1.25` (le cabinet à plus fort volume captera plus de gain en valeur absolue)
+
+Les unités hétérogènes du catalogue (`min/j`, `h/j`, `min/sem`, `h/sem`, `min/consult`) sont normalisées en minutes/jour équivalent via `parseGainTimeToMinutesPerDay`.
+
+**Pourquoi :** Les anciennes valeurs gainEuros codées en dur (« +10 k€/an », « +22 k€/an ») étaient optimistes (souvent ×3 supérieures aux valeurs calculées avec la formule), et le footnote « *Estimations calculées sur la base de votre profil cabinet* » était techniquement faux puisque le profil n'entrait pas dans le calcul. Faille de crédibilité.
+
+La formule explicite avec hypothèses chiffrées (70 €/h, 70 % réinvesti, 220 j/an) est à la fois défendable en cohérence interne, et auditable par un médecin testeur qui voudrait vérifier.
+
+**Conséquences :**
+
+- Les gains affichés sont nettement plus bas (3-10 k€/an au lieu de 10-22 k€/an pour les chantiers majeurs). Plus crédibles mais moins « vendeurs ».
+- Compensé par le comparatif Auto vs Lugia (D-036) qui montre l'écart entre les deux scénarios — le « avec Lugia » reste attractif relativement à l'autonomie.
+- Le footnote du chantier est honnête : « *Estimation à partir de votre volume hebdomadaire — taux horaire 70 € TTC, 220 jours/an, 70 % du temps libéré réinvesti.* »
+
+**Alternative écartée :** Garder les valeurs catalog optimistes avec un wording moins explicite. Risque de réputation si un médecin testeur fait la vérification arithmétique.
+
+---
+
+## D-037 — V3-charte : comparatif Autonomie vs Avec Lugia sur chaque chantier
+
+**Date :** 2026-05-22
+
+**Décision :**
+
+Sur chaque page chantier, remplacer le bloc EFFORT / DÉLAI / GAIN unique par un **comparatif à deux colonnes** :
+
+| | EN AUTONOMIE | AVEC LUGIA |
+|---|---|---|
+| **Gain attendu** | ~auto_taux × gain_théorique | ~lugia_taux × gain_théorique (gras) |
+| **Délai** | catalog × 1.5 | catalog |
+| **Votre temps** | EFFORT_HOURS.AUTO[effort] (~6/15/30 h) | EFFORT_HOURS.LUGIA[effort] (~2/4/7 h) |
+| **Taux d'aboutissement** | « 1 cabinet sur N » | « X cabinets sur Y » |
+
+Probabilités par chantier (issues de la littérature change management organisationnel) :
+- comm : auto 30 % / lugia 80 %
+- delegation : auto 15 % / lugia 85 %
+- chroniques : auto 18 % / lugia 80 %
+- logiciel : auto 20 % / lugia 80 %
+- urgences : auto 20 % / lugia 75 %
+- admin : auto 20 % / lugia 75 %
+- pilotage : auto 35 % / lugia 75 %
+
+Footnote : « *Gain attendu = gain théorique × probabilité d'aboutir. Probabilités issues de la littérature change management organisationnel. Hypothèses : 70 € TTC/h, 220 jours/an, 70 % du temps libéré réinvesti.* »
+
+**Pourquoi :** L'ancien affichage EFFORT / DÉLAI / GAIN d'un seul scénario laissait l'utilisateur démarrer une logique « OK je peux faire seul, pas besoin de Lugia ». Le mini-encart « Avec Lugia » en bas (D-035) n'était pas assez fort pour faire le lien entre **présence de Lugia** et **atteinte effective du gain**.
+
+La littérature change management montre qu'un changement organisationnel mené en autonomie a un taux d'aboutissement de 20-30 %, contre 60-90 % accompagné. C'est cette réalité statistique qui rend le comparatif honnête et utile :
+
+- Un médecin lit « 1 cabinet sur 7 mène la délégation au bout en autonomie, contre 6 sur 7 avec Lugia » et peut faire son arbitrage en connaissance de cause.
+- Le gain attendu (probabilité × théorique) montre que l'autonomie « rapporte » moins en espérance même si le gain théorique est le même — argument logique sans surpromesse.
+
+**Conséquences :**
+
+- Lugia se positionne comme **partenaire d'aboutissement**, pas comme prestataire de services. La proposition de valeur devient « on transforme une intention en réalité », pas « on fait à votre place ».
+- Le médecin garde l'option autonomie complète — les 4 étapes du plan d'action sont toujours actionnables seul.
+- Le pivot demande une honnêteté sur les taux d'aboutissement publiés : si les chiffres ne sont pas étayés par notre propre cohorte, on s'appuie sur la littérature (à sourcer dans la doc commerciale).
+
+**Alternatives écartées :**
+
+1. **Statu quo (autonomie pure)** — cohérent avec le positionnement « système, pas individu » mais commercialement faible (rien ne pousse vers Lugia).
+2. **Position partenariat explicite** — sans comparatif chiffré, paraît auto-promo non démontrable.
+
+---
+
+## D-036 — V3-charte : mécanique chat assistant 4 phases structurées
+
+**Date :** 2026-05-22
+
+**Décision :**
+
+L'assistant Lugia (chat sur chantier offert, A.2) suit un **system prompt structuré en 5 tours** :
+
+1. **Tour 1 — Ouverture** : Claude pose une question ouverte sur le quotidien du médecin face au chantier + 3 suggestions courtes de réponse rapide.
+2. **Tours 2-3 — Creusement** : reformulation en une phrase + question de creusement (cause racine / contrainte / ressource) + 3 suggestions.
+3. **Tour 4 — Plan d'action** : récap en une phrase + plan d'action 3-4 étapes structuré (PLAN_JSON) + question finale « Par quoi commenceriez-vous concrètement cette semaine ? » + 3 suggestions correspondant aux étapes.
+4. **Tour 5 — Clôture** : message d'encouragement personnalisé + balise `END_CONVERSATION:true`. Pas de suggestions.
+
+Format de retour structuré (Claude écrit ces blocs dans sa réponse) :
+- `SUGG_JSON:{"items":["...","...","..."]}` aux tours 1-4
+- `PLAN_JSON:{"steps":[{"num":"01","title":"...","body":"...","tag":"quick|medium|invest"}]}` au tour 4
+- `END_CONVERSATION:true` au tour 5
+
+Parsé côté backend (`parse_assistant_reply`) puis envoyé au frontend comme dict typé. Le frontend rend les suggestions comme boutons cliquables, le plan comme carte structurée, et bascule en mode « Conversation clôturée » sur END.
+
+**Modèle :** Claude Haiku 4.5 (`claude-haiku-4-5-20251001`), max_tokens 1000.
+
+**Limites produit :**
+- 1 conversation par (interview × module × email).
+- 20 messages user max par conversation (HTTP 429 si dépassé).
+- Message ≤ 2000 caractères.
+
+Init auto : à la 1ère ouverture du modal, le frontend envoie automatiquement « Je veux creuser le chantier : X » comme premier message user, ce qui déclenche le tour 1 de Claude.
+
+**Pourquoi :** Sans structure, un chat libre avec Claude produit :
+- Des réponses trop longues / verbeuses (médecin qui décroche)
+- Pas de progression vers un plan d'action concret (le médecin finit la conversation sans rien d'actionnable)
+- Pas de point de sortie clair (la conversation peut tourner indéfiniment)
+
+La structure 4 phases force :
+- Une progression dirigée (ouverture → creusement → plan → clôture)
+- Un livrable concret (le plan d'action en tour 4)
+- Une clôture explicite (END_CONVERSATION en tour 5)
+- Une UX cliquable (les suggestions évitent au médecin de taper, mais le texte libre reste possible)
+
+Les suggestions sont essentielles : elles transforment la conversation d'un Q/R passif vers un dialogue conduit où le médecin clique 80 % du temps. Très utile pour démarrer (« je ne sais pas quoi demander »).
+
+**Alternatives écartées :**
+
+1. **Chat libre sans structure** — risque de produire un assistant générique, sans valeur ajoutée par rapport à ChatGPT.
+2. **Conversation à tour fixe stricte (« quizz »)** — perd la richesse du langage naturel et la possibilité de questions hors script.
+3. **Streaming sans suggestions** — UX moins guidée. Les suggestions sont la valeur ajoutée principale par rapport à un chat brut.
+
+**Conséquences :**
+
+- Le system prompt est rigide (Claude doit produire les bonnes balises JSON). Tests : si Claude oublie SUGG_JSON, le frontend dégrade gracieusement (pas de suggestions affichées mais le texte reste lisible).
+- Le format de persistance (table `chat_message`, content text avec suffixe `__LUGIA_META__`) permet de re-parser les métadonnées (suggestions / plan / ended) à chaque chargement de l'historique, sans dépendre de Claude.
+- Le tour 5 cloture la conversation — pour aller plus loin, le médecin doit prendre RDV via Calendly (footer « Conversation clôturée »). C'est la limite par chantier offert.
+
+---
+
 ## D-035 — V3-charte : mini-encart « Avec Lugia » par chantier (autonomie + visibilité de la valeur ajoutée)
 
 **Date :** 2026-05-22

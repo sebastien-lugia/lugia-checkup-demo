@@ -13,12 +13,12 @@
  * « En parler avec Lugia ». Surchargeable via `NEXT_PUBLIC_LUGIA_CALENDLY_URL`
  * dans `.env.local` ou les variables d'environnement de prod.
  *
- * Placeholder : `https://calendly.com/lugia-and-co/diagnostic` — à remplacer
- * par l'URL réelle dès qu'elle est créée côté Lugia.
+ * Valeur par défaut : `https://calendly.com/sebastien-lugia/30min`
+ * (event-type Calendly de Sébastien Lugia, 30 minutes — validé 2026-05-22).
  */
 export const LUGIA_CALENDLY_URL =
   process.env.NEXT_PUBLIC_LUGIA_CALENDLY_URL ||
-  "https://calendly.com/lugia-and-co/diagnostic";
+  "https://calendly.com/sebastien-lugia/30min";
 
 /**
  * Email de contact Lugia — pour les liens `mailto:` (fallback si Calendly KO).
@@ -37,7 +37,7 @@ export const LUGIA_CONTACT_EMAIL =
 export function openCalendly(opts?: { chantierId?: string; firstname?: string }) {
   if (typeof window === "undefined") return;
   const url = new URL(LUGIA_CALENDLY_URL);
-  url.searchParams.set("utm_source", "v3-brand");
+  url.searchParams.set("utm_source", "v3-charte");
   if (opts?.chantierId) {
     url.searchParams.set("utm_content", opts.chantierId);
   }

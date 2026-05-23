@@ -91,8 +91,8 @@ export type UserProfile = {
   volume?: string | null;
   paramedical_team?: string | null;
   // Ajouté avec la refonte charte questionnaire v1.0 — V3-charte routing
-  // (secretariat==seul ↔ has_team). Le backend ignore le champ si non
-  // reconnu, on ne casse rien côté V1.x / V2.0.
+  // (secretariat==seul ↔ has_team). Backend aligné le 2026-05-22 :
+  // colonne user_profile.secretariat + Pydantic UserProfileUpdate.
   secretariat?: string | null;
   logiciel_metier?: string | null;
   logiciel_metier_other?: string | null;
@@ -678,3 +678,90 @@ export async function listModulesV2(): Promise<V2ModulesPayload> {
 export async function getModuleV2(moduleId: string): Promise<V2Module> {
   return request<V2Module>(`/modules/${moduleId}`);
 }
+
+/**
+ * Télécharge le PDF d'un chantier généré côté backend (H.4).
+ * Déclenche un download du fichier via un <a> temporaire.
+ */
+export async function downloadChantierPdf(
+  interviewId: number,
+  moduleId: string,
+): Promise<void> {
+  const url = `${API_URL}/interviews/${interviewId}/modules/${moduleId}/pdf`;
+  const token = localStorage.getItem("lugia-session-token");
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error(`PDF non disponible (${res.status})`);
+  }
+  const blob = await res.blob();
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = `chantier-${moduleId}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+// ─── A.2 — Chat assistant chantier (v2 — 4 phases structurées) ────────────
+
+export type ChatPlanStep = {
+  num: string;
+  title: string;
+  body: string;
+  tag: "quick" | "medium" | "invest";
+};
+
+export type ChatMessageItem = {
+  role: "user" | "assistant";
+  text: string;
+  suggestions?: string[] | null;
+  plan?: ChatPlanStep[] | null;
+  ended?: boolean;
+  created_at?: string;
+};
+
+export type ChatHistory = {
+  messages: ChatMessageItem[];
+  user_message_count: number;
+  max_user_messages: number;
+  remaining: number;
+};
+
+export type ChatMessageResponse = {
+  text: string;
+  suggestions?: string[] | null;
+  plan?: ChatPlanStep[] | null;
+  ended: boolean;
+  user_message_count: number;
+  max_user_messages: number;
+  remaining: number;
+};
+
+export async function getChatHistory(
+  interviewId: number,
+  moduleId: string,
+): Promise<ChatHistory> {
+  return request<ChatHistory>(
+    `/interviews/${interviewId}/modules/${moduleId}/chat`
+  );
+}
+
+export async function postChatMessage(
+  interviewId: number,
+  moduleId: string,
+  message: string,
+): Promise<ChatMessageResponse> {
+  return request<ChatMessageResponse>(
+    `/interviews/${interviewId}/modules/${moduleId}/chat`,
+    {
+      method: "POST",
+      body: JSON.stringify({ message }),
+    }
+  );
+}
+

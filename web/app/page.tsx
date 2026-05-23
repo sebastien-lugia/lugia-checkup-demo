@@ -206,16 +206,8 @@ export default function AccueilPage() {
             />
           </div>
 
-          {/* Accès à la version pré-charte (figée pour comparaison) */}
-          <div className="mb-6 text-[12px] text-[#888780]">
-            Version pré-charte (figée) :{" "}
-            <a
-              href="/checkup/v3-snapshot"
-              className="underline hover:text-[#1A2333] transition-colors"
-            >
-              /checkup/v3-snapshot
-            </a>
-          </div>
+          {/* Version pré-charte conservée pour démo (accessible directement
+              via /checkup/v3-snapshot — entrée UI retirée 2026-05-22). */}
 
           {/* Garde-fous communs */}
           <div className="rounded-xl border border-lugia-border bg-lugia-bg-card p-5 mb-6">

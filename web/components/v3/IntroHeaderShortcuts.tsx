@@ -50,9 +50,9 @@ export function IntroHeaderShortcuts({ theme = "night" }: { theme?: V3Theme }) {
 
   const linkStyle: React.CSSProperties = {
     fontFamily: fonts.mono,
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: 500,
-    letterSpacing: "0.10em",
+    letterSpacing: "0.08em",
     textTransform: "uppercase",
     color: palette.navy400,
     textDecoration: "none",
@@ -71,14 +71,41 @@ export function IntroHeaderShortcuts({ theme = "night" }: { theme?: V3Theme }) {
     <div
       style={{
         position: "fixed",
-        top: 14,
+        top: 17,
         right: 28,
         zIndex: 250, // au-dessus du Topbar (z=200) pour visibilité partout
         display: "flex",
         alignItems: "center",
-        gap: 18,
+        gap: 14,
       }}
     >
+      <Link
+        href="/le-checkup"
+        style={linkStyle}
+        onMouseEnter={onHoverIn}
+        onMouseLeave={onHoverOut}
+      >
+        Le check-up
+      </Link>
+
+      <Link
+        href="/notre-accompagnement"
+        style={linkStyle}
+        onMouseEnter={onHoverIn}
+        onMouseLeave={onHoverOut}
+      >
+        Notre accompagnement
+      </Link>
+
+      <Link
+        href="/lugia"
+        style={linkStyle}
+        onMouseEnter={onHoverIn}
+        onMouseLeave={onHoverOut}
+      >
+        À propos
+      </Link>
+
       <Link
         href="/compte"
         style={linkStyle}
@@ -91,6 +118,7 @@ export function IntroHeaderShortcuts({ theme = "night" }: { theme?: V3Theme }) {
       {email && (
         <>
           <span
+            className="v3-shortcuts-email"
             style={{
               ...linkStyle,
               color: palette.navy400,

@@ -290,6 +290,8 @@ class UserProfileUpdate(BaseModel):
     cabinet_type: Optional[str] = None
     volume: Optional[str] = None
     paramedical_team: Optional[str] = None
+    # V3-charte (2026-05-22) — gestion du secrétariat (page 1 profil)
+    secretariat: Optional[str] = None
     logiciel_metier: Optional[str] = None
     logiciel_metier_other: Optional[str] = None
     rdv_canal: Optional[str] = None
@@ -572,6 +574,35 @@ async def complete_interview(
     db.mark_interview_completed(interview_id)
     return {"ok": True}
 
+@app.get("/interviews/{interview_id}/modules/{module_id}/pdf", tags=["interview"])
+async def export_module_pdf(
+    interview_id: int,
+    module_id: str,
+    email: str = Depends(get_current_user_email),
+):
+    """Génère et renvoie le PDF d'un chantier (H.4, 2026-05-22).
+
+    Le PDF reprend la structure de la page chantier frontend :
+    titre, mécanique, comparatif Autonomie vs Lugia, 4 étapes,
+    encart Avec Lugia, données terrain. Les gains € sont
+    personnalisés selon le volume cabinet du profil utilisateur.
+    """
+    from fastapi.responses import Response
+    from src.pdf_exporter import build_chantier_pdf
+
+    _assert_user_owns_interview(email, interview_id)
+    user_profile = db.get_user_profile(email) or {}
+    try:
+        pdf_bytes = build_chantier_pdf(module_id, profile=user_profile)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    filename = f"chantier-{module_id}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
 
 # ---- Réponses ----
 
@@ -588,6 +619,177 @@ class SaveAnswerBody(BaseModel):
     # V2.0-T4a : marque les réponses non scorées (typiquement l'ancrage
     # énergie). Par défaut True pour préserver le comportement V1.x.
     scored: bool = True
+
+
+
+
+# ─── A.2 — Chat assistant Lugia sur chantier ──────────────────────────────
+
+
+class ChatHistoryItem(BaseModel):
+    role: str  # "user" | "assistant"
+    content: str
+
+
+class ChatMessageBody(BaseModel):
+    """Requête : message user + historique reconstruit côté frontend."""
+    message: str
+
+
+class ChatMessageResponse(BaseModel):
+    """Réponse parsée du chat assistant (V2 — 4 phases avec suggestions/plan/end)."""
+    text: str                                     # message principal nettoyé
+    suggestions: Optional[list[str]] = None       # 3 réponses rapides cliquables
+    plan: Optional[list[dict[str, Any]]] = None   # étapes du plan d'action
+    ended: bool = False                           # True si END_CONVERSATION détecté
+    user_message_count: int
+    max_user_messages: int
+    remaining: int
+
+
+@app.get("/interviews/{interview_id}/modules/{module_id}/chat", tags=["chat"])
+async def get_chat_history(
+    interview_id: int,
+    module_id: str,
+    email: str = Depends(get_current_user_email),
+) -> dict[str, Any]:
+    """Retourne l'historique parsé pour ce chantier (avec suggestions/plan/ended)."""
+    _assert_user_owns_interview(email, interview_id)
+    messages_raw = db.list_chat_messages(interview_id, module_id, email)
+    user_count = sum(1 for m in messages_raw if m["role"] == "user")
+    from src.chat_assistant import MAX_USER_MESSAGES
+    import json as _json
+
+    enriched: list[dict[str, Any]] = []
+    for m in messages_raw:
+        if m["role"] == "user":
+            enriched.append({"role": "user", "text": m["content"], "created_at": m.get("created_at")})
+        else:
+            # Re-parse the persisted content : "text\n\n__LUGIA_META__:{json}"
+            content = m["content"]
+            meta_idx = content.rfind("\n\n__LUGIA_META__:")
+            if meta_idx > 0:
+                text = content[:meta_idx]
+                try:
+                    meta = _json.loads(content[meta_idx + len("\n\n__LUGIA_META__:"):])
+                except Exception:
+                    meta = {"suggestions": None, "plan": None, "ended": False}
+            else:
+                text = content
+                meta = {"suggestions": None, "plan": None, "ended": False}
+            enriched.append({
+                "role": "assistant",
+                "text": text,
+                "suggestions": meta.get("suggestions"),
+                "plan": meta.get("plan"),
+                "ended": meta.get("ended", False),
+                "created_at": m.get("created_at"),
+            })
+    return {
+        "messages": enriched,
+        "user_message_count": user_count,
+        "max_user_messages": MAX_USER_MESSAGES,
+        "remaining": max(0, MAX_USER_MESSAGES - user_count),
+    }
+
+
+@app.post("/interviews/{interview_id}/modules/{module_id}/chat", tags=["chat"])
+async def post_chat_message(
+    interview_id: int,
+    module_id: str,
+    body: ChatMessageBody,
+    email: str = Depends(get_current_user_email),
+) -> ChatMessageResponse:
+    """Envoie un message user, appelle Claude Haiku, persiste + renvoie la réponse.
+
+    Limites produit V1 :
+     - 1 conversation par chantier (groupée par (interview, module, email))
+     - 20 messages user max par conversation
+     - modèle Claude Haiku, max_tokens=800
+    """
+    from src.chat_assistant import send_message, MAX_USER_MESSAGES
+    from src.pdf_exporter import _MODULES_FALLBACK
+
+    _assert_user_owns_interview(email, interview_id)
+
+    # Validation : module existe
+    module = _MODULES_FALLBACK.get(module_id)
+    if module is None:
+        raise HTTPException(status_code=404, detail=f"Module inconnu : {module_id}")
+
+    # Validation : message non vide
+    user_message = (body.message or "").strip()
+    if not user_message:
+        raise HTTPException(status_code=400, detail="Message vide")
+    if len(user_message) > 2000:
+        raise HTTPException(status_code=400, detail="Message trop long (max 2000 caractères)")
+
+    # Limite produit : 20 messages user max
+    current_count = db.count_user_messages(interview_id, module_id, email)
+    if current_count >= MAX_USER_MESSAGES:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Limite de {MAX_USER_MESSAGES} questions par conversation atteinte. Pour aller plus loin, contactez Sébastien via Calendly.",
+        )
+
+    # Récupère l'historique pour le prompt
+    history_raw = db.list_chat_messages(interview_id, module_id, email)
+    history = [{"role": m["role"], "content": m["content"]} for m in history_raw]
+
+    # Profil + scores (best effort)
+    user_profile = db.get_user_profile(email) or {}
+    scores = None
+    try:
+        answers = db.get_answers(interview_id)
+        from src.v2 import scoring as v2_scoring
+        scores = v2_scoring.compute_all_scores(answers, user_profile, "v3-brand-0")
+    except Exception:
+        # eslint-disable-next-line — scoring KO ne doit pas bloquer le chat
+        scores = None
+
+    # Persiste le message user AVANT l'appel Claude (auditabilité)
+    db.add_chat_message(interview_id, module_id, email, "user", user_message)
+
+    # Appel Claude (renvoie un dict parsé : text/suggestions/plan/ended)
+    try:
+        parsed = send_message(
+            user_message=user_message,
+            history=history,
+            module=module,
+            profile=user_profile,
+            scores=scores,
+        )
+    except Exception:
+        import logging
+        logging.exception("Erreur lors de l'appel Claude")
+        raise HTTPException(
+            status_code=502,
+            detail="L'assistant Lugia est indisponible pour le moment. Réessayez dans un instant.",
+        )
+
+    # Persiste la réponse assistant — on stocke le TEXTE NETTOYÉ + un suffixe
+    # JSON pour préserver suggestions/plan/ended dans l'historique. Le frontend
+    # re-parsera à l'affichage.
+    text_clean = parsed.get("text") or ""
+    meta_payload = {
+        "suggestions": parsed.get("suggestions"),
+        "plan": parsed.get("plan"),
+        "ended": parsed.get("ended", False),
+    }
+    import json as _json
+    persisted_content = text_clean + "\n\n__LUGIA_META__:" + _json.dumps(meta_payload, ensure_ascii=False)
+    db.add_chat_message(interview_id, module_id, email, "assistant", persisted_content)
+
+    new_count = current_count + 1
+    return ChatMessageResponse(
+        text=text_clean,
+        suggestions=parsed.get("suggestions"),
+        plan=parsed.get("plan"),
+        ended=parsed.get("ended", False),
+        user_message_count=new_count,
+        max_user_messages=MAX_USER_MESSAGES,
+        remaining=max(0, MAX_USER_MESSAGES - new_count),
+    )
 
 
 @app.put("/interviews/{interview_id}/answers/{question_id}", tags=["answer"])
@@ -641,7 +843,7 @@ async def get_scores(
     if pv == "v2.0" or pv == "v3-brand-0":
         answers = db.get_answers(interview_id)
         user_profile = db.get_user_profile(email) or {}
-        return v2_scoring.compute_all_scores(answers, user_profile)
+        return v2_scoring.compute_all_scores(answers, user_profile, pv)
     return scoring.compute_all_facet_scores(interview_id)
 
 
@@ -679,7 +881,7 @@ async def get_report(
     # `lib/v3/axis_details_data.ts` et `lib/v3/opps_catalog.ts`.
     # Justification : éviter de dupliquer le référentiel éditorial en Python.
     if pv == "v3-brand-0":
-        scores_payload = v2_scoring.compute_all_scores(answers, user_profile)
+        scores_payload = v2_scoring.compute_all_scores(answers, user_profile, pv)
         # Persiste le global_score si présent (cohorte / analytics)
         gs = scores_payload.get("global_score")
         if gs is not None and interview.get("global_score") != gs:

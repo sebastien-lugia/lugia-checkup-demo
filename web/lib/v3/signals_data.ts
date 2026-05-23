@@ -224,3 +224,108 @@ export function pickSignal(scores: { A: number; B: number; C: number }): V3Signa
   };
   return V3_SIGNALS.find((sig) => sig.cond(levels)) ?? V3_SIGNAL_FALLBACK;
 }
+
+/* ───────────────────────────────────────────────────────────
+ * Personnalisation de la phrase choc — A.1bis
+ *
+ * Le cœur diagnostic (les 7 signaux) reste piloté par les scores A/B/C.
+ * On lui ajoute en tête un OPENER qui contextualise la lecture avec :
+ *   - les motivations de départ (multi-select : 1 à 4)
+ *   - le status d'exercice (récent / installé / senior) — page 3 du profil
+ *   - le niveau d'énergie (4 paliers) — ancrage avant les blocs
+ *
+ * L'opener est composé à la volée — pas de table multidimensionnelle.
+ * Option (A) validée par Sébastien le 2026-05-22 : modulation de l'opener seul,
+ * le cœur diagnostique des 7 signaux reste inchangé.
+ * ─────────────────────────────────────────────────────────── */
+
+export type MotivationId = "charge" | "evenement" | "risque" | "curiosite";
+export type StatusId = "recent" | "installe" | "senior";
+export type EnergyId = "energy_a" | "energy_b" | "energy_c" | "energy_d";
+
+/** Préfixe contextuel selon la stabilité du cabinet (page 3 du profil). */
+const STATUS_PREFIX: Record<StatusId, string> = {
+  recent: "Cabinet récent",
+  installe: "Cabinet installé",
+  senior: "Avec votre expérience d'exercice",
+};
+
+/** Clauses qui se composent : "vous venez pour [clause(s)]". */
+const MOTIVATION_CLAUSE: Record<MotivationId, string> = {
+  charge: "réduire votre charge actuelle",
+  evenement: "anticiper un événement à venir",
+  risque: "sécuriser un risque identifié",
+  curiosite: "voir où en est l'organisation",
+};
+
+/**
+ * Clause d'énergie qui se greffe sur l'opener. Adapte le ton :
+ *  - a : neutre confiant
+ *  - b : vigilant
+ *  - c : compatissant
+ *  - d : urgent contenu (ne pas verser dans le dramatique)
+ */
+const ENERGY_CLAUSE: Record<EnergyId, string> = {
+  energy_a: ", avec une énergie qui tient le rythme",
+  energy_b: ", dans un moment où l'énergie est tendue par moments",
+  energy_c: ", à un moment où l'énergie commence à peser",
+  energy_d: ", à un moment où l'énergie est sur le fil",
+};
+
+/** Assemble les motivations en une expression naturelle. */
+function joinMotivations(motivs: MotivationId[]): string {
+  const clauses = motivs.map((m) => MOTIVATION_CLAUSE[m]);
+  if (clauses.length === 0) return "";
+  if (clauses.length === 1) return `vous venez pour ${clauses[0]}`;
+  if (clauses.length === 2) return `vous venez pour ${clauses[0]} et ${clauses[1]}`;
+  if (clauses.length === 3) {
+    return `vous venez pour ${clauses[0]}, ${clauses[1]} et ${clauses[2]}`;
+  }
+  // 4 motivs : on évite la phrase à rallonge
+  return `vous venez sur plusieurs angles — ${clauses.slice(0, -1).join(", ")} et ${clauses.at(-1)}`;
+}
+
+/** Construit l'opener complet : "[Status —] vous venez pour … [, énergie]." */
+function buildOpener(args: {
+  motivations: MotivationId[];
+  status: StatusId | null;
+  energy: EnergyId | null;
+}): string {
+  const motivPart = joinMotivations(args.motivations);
+  const statusPart = args.status ? STATUS_PREFIX[args.status] : "";
+  const energyPart = args.energy ? ENERGY_CLAUSE[args.energy] : "";
+
+  // Composition selon ce qui est disponible.
+  if (!motivPart && !statusPart) return ""; // Pas d'opener si rien à dire.
+  if (!motivPart) return `${statusPart}${energyPart}.`;
+  if (!statusPart) {
+    // Capitalise la première lettre puisqu'on attaque la phrase ici.
+    const cap = motivPart.charAt(0).toUpperCase() + motivPart.slice(1);
+    return `${cap}${energyPart}.`;
+  }
+  return `${statusPart} — ${motivPart}${energyPart}.`;
+}
+
+/**
+ * Renvoie le couple (before, after) prêt à passer à ResultatsV3.
+ * - `before` = [opener] [signal.phraseChocBefore] (avec espace propre)
+ * - `after`  = [signal.phraseChocAfter] (inchangé)
+ *
+ * Le signal lui-même est sélectionné en amont via pickSignal(scores).
+ */
+export function buildPhraseChoc(args: {
+  signal: V3Signal;
+  motivations: MotivationId[];
+  status: StatusId | null;
+  energy: EnergyId | null;
+}): { before: string; after: string } {
+  const opener = buildOpener({
+    motivations: args.motivations,
+    status: args.status,
+    energy: args.energy,
+  });
+  const before = opener
+    ? `${opener} ${args.signal.phraseChocBefore}`
+    : args.signal.phraseChocBefore;
+  return { before, after: args.signal.phraseChocAfter };
+}

@@ -16,60 +16,111 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Optional
 
-_PROTOCOL_PATH = Path(__file__).resolve().parent.parent.parent / "resources" / "interview_protocol_v2.json"
+_RESOURCES = Path(__file__).resolve().parent.parent.parent / "resources"
+_PROTOCOL_PATHS = {
+    "v2.0": _RESOURCES / "interview_protocol_v2.json",
+    "v3-brand-0": _RESOURCES / "interview_protocol_v3.json",
+}
 
 
-@lru_cache(maxsize=1)
-def load_protocol() -> dict[str, Any]:
-    """Charge le protocole V2.0 (cache singleton par processus)."""
-    with open(_PROTOCOL_PATH, encoding="utf-8") as f:
+@lru_cache(maxsize=4)
+def load_protocol(protocol_version: str = "v2.0") -> dict[str, Any]:
+    """Charge un protocole pour une version donnée (cache singleton par version).
+
+    V3-charte (2026-05-22) : ajout du routing par `secretariat` et `has_team`.
+    Le JSON V3 (`interview_protocol_v3.json`) est structurel uniquement —
+    les labels/reformulations restent dans le frontend (`lib/v3/protocol_data.ts`).
+    """
+    path = _PROTOCOL_PATHS.get(protocol_version, _PROTOCOL_PATHS["v2.0"])
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def _cabinet_is_solo(profile: Optional[dict[str, Any]]) -> bool:
-    """Retourne True si le profil indique un cabinet solo.
-
-    Tolérant à un profil absent ou partiel : par défaut considéré non-solo
-    (servira la branche `b3` qui est la majorité des cabinets en France).
-    """
+    """True si le profil indique un cabinet solo. Défaut : non-solo."""
     if not profile:
         return False
     return (profile.get("cabinet_type") or "").lower() == "solo"
 
 
+def _secretariat_is_seul(profile: Optional[dict[str, Any]]) -> bool:
+    """True si le médecin gère son secrétariat seul. Défaut : non-seul (V3-charte)."""
+    if not profile:
+        return False
+    return (profile.get("secretariat") or "").lower() == "seul"
+
+
+def _paramedical_is_none(profile: Optional[dict[str, Any]]) -> bool:
+    """True si pas de paramédical sur place. Défaut : None (V3-charte)."""
+    if not profile:
+        return False
+    return (profile.get("paramedical_team") or "").lower() == "non"
+
+
+def _has_team(profile: Optional[dict[str, Any]]) -> bool:
+    """Au moins un signal d'équipe : cabinet non-solo, paramédical présent,
+    ou secrétariat non géré seul.
+
+    Miroir de la logique frontend `filterQuestionsByRouting` dans
+    `lib/v3/protocol_data.ts`.
+    """
+    if not profile:
+        return True  # défaut large : on suppose une équipe
+    return (
+        not _cabinet_is_solo(profile)
+        or not _paramedical_is_none(profile)
+        or not _secretariat_is_seul(profile)
+    )
+
+
+def _check_routing(routing: str, profile: Optional[dict[str, Any]]) -> bool:
+    """Évalue une chaîne de routing contre un profil. Routings supportés :
+       - cabinet_type==solo / cabinet_type!=solo
+       - secretariat==seul / secretariat!=seul   (V3-charte)
+       - has_team==true   / has_team==false      (V3-charte)
+    """
+    if routing == "cabinet_type==solo":
+        return _cabinet_is_solo(profile)
+    if routing == "cabinet_type!=solo":
+        return not _cabinet_is_solo(profile)
+    if routing == "secretariat==seul":
+        return _secretariat_is_seul(profile)
+    if routing == "secretariat!=seul":
+        return not _secretariat_is_seul(profile)
+    if routing == "has_team==true":
+        return _has_team(profile)
+    if routing == "has_team==false":
+        return not _has_team(profile)
+    return True  # routing inconnu : on n'exclut pas (fail-open)
+
+
 def get_visible_questions(
     block_id: str,
     profile: Optional[dict[str, Any]] = None,
+    protocol_version: str = "v2.0",
 ) -> list[dict[str, Any]]:
     """Retourne la liste des questions visibles d'un bloc pour un profil.
 
-    Applique le routing R-routing-solo sur le bloc B (position 2 = b1b
-    XOR b3). Pour A et C, retourne toutes les questions.
+    V2.0 : bloc B applique le routing R-routing-solo (b1b XOR b3 selon
+    cabinet_type), A et C servent toutes les questions.
 
-    Toujours 6 questions par bloc, dans l'ordre d'affichage attendu côté
-    frontend.
+    V3-charte (`v3-brand-0`) : bloc B applique les 3 axes de routing
+    (cabinet_type, secretariat, has_team). 6 questions visibles par défaut,
+    parfois 5 sur des edge-cases mixtes (solo+paraméd, groupe+seul) — cf
+    `filterQuestionsByRouting` côté frontend.
     """
-    proto = load_protocol()
+    proto = load_protocol(protocol_version)
     block = next((b for b in proto["blocks"] if b["id"] == block_id), None)
     if block is None:
-        raise ValueError(f"Bloc inconnu : {block_id}")
+        raise ValueError(f"Bloc inconnu : {block_id} (protocole {protocol_version})")
 
-    if block_id != "B":
-        return list(block["questions"])
-
-    # Bloc B : appliquer le routing solo
-    solo = _cabinet_is_solo(profile)
     visible: list[dict[str, Any]] = []
     for q in block["questions"]:
         routing = q.get("routing")
         if routing is None:
             visible.append(q)
-            continue
-        if routing == "cabinet_type==solo" and solo:
+        elif _check_routing(routing, profile):
             visible.append(q)
-        elif routing == "cabinet_type!=solo" and not solo:
-            visible.append(q)
-        # Sinon : question masquée pour ce profil
     return visible
 
 

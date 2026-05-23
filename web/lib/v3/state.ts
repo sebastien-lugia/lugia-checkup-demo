@@ -221,9 +221,18 @@ export function prevStep(current: V3Step): V3Step {
 /**
  * Étape initiale à servir à un médecin qui ouvre le parcours.
  *
- * Logique : on saute les étapes déjà complétées ; quand un bloc est terminé
- * mais que le bloc suivant n'a pas été démarré, on ramène l'utilisateur
- * à la page de transition (cf T6-fix-2/3 sur V2.0).
+ * Principe : on ne va JAMAIS plus loin que ce que l'utilisateur a explicitement
+ * navigué. Si toutes les questions d'un bloc sont répondues mais que le bloc
+ * suivant n'a aucune réponse, c'est que l'utilisateur n'a pas cliqué « Bloc
+ * suivant » — on le ramène donc sur le bloc qu'il vient de finir (avec ses
+ * réponses pré-cochées), pas sur la page de transition qu'il n'a pas encore
+ * vue.
+ *
+ * La page de transition n'est servie que si on a la preuve que l'utilisateur
+ * l'a vue : au moins une réponse dans le bloc suivant.
+ *
+ * Modifié 2026-05-22 (E.3 fix : "on ne peut pas aller plus vite que la
+ * navigation de l'utilisateur").
  */
 export function resumeStep(
   profile: UserProfile | null,
@@ -234,17 +243,21 @@ export function resumeStep(
   if (!isProfileStep2Complete(profile)) return "profil_step2";
   if (!isEnergyAnswered(answeredQuestionIds)) return "energy";
 
+  // Bloc A
   if (!isBlockComplete(scores, "A")) return "bloc_A";
-  if (!isBlockStarted(scores, "B")) return "transition_A";
+  // A complet : passer à transition_A SEULEMENT si l'utilisateur a démarré B
+  if (!isBlockStarted(scores, "B")) return "bloc_A";
   if (!isBlockComplete(scores, "B")) return "bloc_B";
 
-  if (!isBlockStarted(scores, "C")) return "transition_B";
+  // B complet : passer à transition_B SEULEMENT si l'utilisateur a démarré C
+  if (!isBlockStarted(scores, "C")) return "bloc_B";
   if (!isBlockComplete(scores, "C")) return "bloc_C";
 
-  // Bloc C complet — utilisateur soit sur transition_C, soit déjà sur résultats.
+  // Bloc C complet — utilisateur soit déjà sur transition_C, soit sur résultats.
   // La page d'accueil aura routé directement vers /resultats/v3 si l'interview
-  // est marqué `completed`. Dans le doute, on tombe sur transition_C.
-  return "transition_C";
+  // est marqué `completed`. Sinon on reste sur bloc_C — l'utilisateur cliquera
+  // « Voir mon diagnostic → » pour avancer.
+  return "bloc_C";
 }
 
 /* ───────────────────────────────────────────────────────────

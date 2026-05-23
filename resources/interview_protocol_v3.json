@@ -1,0 +1,469 @@
+{
+  "version": "v3-brand-0",
+  "schema_doc": "Protocole V3-charte (structure scoring uniquement). Labels/reformulations/benchmarks restent dans lib/v3/protocol_data.ts côté frontend (source of truth éditoriale). Le backend lit ce JSON pour : ids questions valides, scores options, et routing par profil.",
+  "routing_doc": "Bloc B utilise 3 axes de routing : cabinet_type==solo / cabinet_type!=solo, secretariat==seul / secretariat!=seul, has_team==true / has_team==false. has_team = !solo OR paramedical!=non OR secretariat!=seul.",
+  "blocks": [
+    {
+      "id": "A",
+      "questions": [
+        {
+          "id": "a1",
+          "options": [
+            {
+              "id": "a1_a",
+              "s": 1
+            },
+            {
+              "id": "a1_b",
+              "s": 2
+            },
+            {
+              "id": "a1_c",
+              "s": 3
+            },
+            {
+              "id": "a1_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "a2",
+          "options": [
+            {
+              "id": "a2_a",
+              "s": 1
+            },
+            {
+              "id": "a2_b",
+              "s": 2
+            },
+            {
+              "id": "a2_c",
+              "s": 3
+            },
+            {
+              "id": "a2_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "a3",
+          "options": [
+            {
+              "id": "a3_a",
+              "s": 1
+            },
+            {
+              "id": "a3_b",
+              "s": 2
+            },
+            {
+              "id": "a3_c",
+              "s": 3
+            },
+            {
+              "id": "a3_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "a4",
+          "options": [
+            {
+              "id": "a4_a",
+              "s": 1
+            },
+            {
+              "id": "a4_b",
+              "s": 2
+            },
+            {
+              "id": "a4_c",
+              "s": 3
+            },
+            {
+              "id": "a4_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "a5",
+          "options": [
+            {
+              "id": "a5_a",
+              "s": 1
+            },
+            {
+              "id": "a5_b",
+              "s": 2
+            },
+            {
+              "id": "a5_c",
+              "s": 3
+            },
+            {
+              "id": "a5_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "a6",
+          "options": [
+            {
+              "id": "a6_a",
+              "s": 1
+            },
+            {
+              "id": "a6_b",
+              "s": 2
+            },
+            {
+              "id": "a6_c",
+              "s": 3
+            },
+            {
+              "id": "a6_d",
+              "s": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "questions": [
+        {
+          "id": "b1",
+          "routing": "has_team==true",
+          "options": [
+            {
+              "id": "b1_a",
+              "s": 1
+            },
+            {
+              "id": "b1_b",
+              "s": 2
+            },
+            {
+              "id": "b1_c",
+              "s": 3
+            },
+            {
+              "id": "b1_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "b3",
+          "routing": "secretariat!=seul",
+          "options": [
+            {
+              "id": "b3_a",
+              "s": 1
+            },
+            {
+              "id": "b3_b",
+              "s": 2
+            },
+            {
+              "id": "b3_c",
+              "s": 3
+            },
+            {
+              "id": "b3_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "b4",
+          "routing": "has_team==true",
+          "options": [
+            {
+              "id": "b4_a",
+              "s": 1
+            },
+            {
+              "id": "b4_b",
+              "s": 2
+            },
+            {
+              "id": "b4_c",
+              "s": 3
+            },
+            {
+              "id": "b4_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "b5",
+          "options": [
+            {
+              "id": "b5_a",
+              "s": 1
+            },
+            {
+              "id": "b5_b",
+              "s": 2
+            },
+            {
+              "id": "b5_c",
+              "s": 3
+            },
+            {
+              "id": "b5_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "b6",
+          "options": [
+            {
+              "id": "b6_a",
+              "s": 1
+            },
+            {
+              "id": "b6_b",
+              "s": 2
+            },
+            {
+              "id": "b6_c",
+              "s": 3
+            },
+            {
+              "id": "b6_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "b7",
+          "options": [
+            {
+              "id": "b7_a",
+              "s": 1
+            },
+            {
+              "id": "b7_b",
+              "s": 2
+            },
+            {
+              "id": "b7_c",
+              "s": 3
+            },
+            {
+              "id": "b7_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "b8",
+          "routing": "has_team==false",
+          "options": [
+            {
+              "id": "b8_a",
+              "s": 1
+            },
+            {
+              "id": "b8_b",
+              "s": 2
+            },
+            {
+              "id": "b8_c",
+              "s": 3
+            },
+            {
+              "id": "b8_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "b9",
+          "routing": "has_team==false",
+          "options": [
+            {
+              "id": "b9_a",
+              "s": 1
+            },
+            {
+              "id": "b9_b",
+              "s": 2
+            },
+            {
+              "id": "b9_c",
+              "s": 3
+            },
+            {
+              "id": "b9_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "b10",
+          "routing": "has_team==false",
+          "options": [
+            {
+              "id": "b10_a",
+              "s": 1
+            },
+            {
+              "id": "b10_b",
+              "s": 2
+            },
+            {
+              "id": "b10_c",
+              "s": 3
+            },
+            {
+              "id": "b10_d",
+              "s": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "questions": [
+        {
+          "id": "c1",
+          "options": [
+            {
+              "id": "c1_a",
+              "s": 1
+            },
+            {
+              "id": "c1_b",
+              "s": 2
+            },
+            {
+              "id": "c1_c",
+              "s": 3
+            },
+            {
+              "id": "c1_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "options": [
+            {
+              "id": "c2_a",
+              "s": 1
+            },
+            {
+              "id": "c2_b",
+              "s": 2
+            },
+            {
+              "id": "c2_c",
+              "s": 3
+            },
+            {
+              "id": "c2_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "options": [
+            {
+              "id": "c3_a",
+              "s": 1
+            },
+            {
+              "id": "c3_b",
+              "s": 2
+            },
+            {
+              "id": "c3_c",
+              "s": 3
+            },
+            {
+              "id": "c3_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "options": [
+            {
+              "id": "c4_a",
+              "s": 1
+            },
+            {
+              "id": "c4_b",
+              "s": 2
+            },
+            {
+              "id": "c4_c",
+              "s": 3
+            },
+            {
+              "id": "c4_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "options": [
+            {
+              "id": "c5_a",
+              "s": 1
+            },
+            {
+              "id": "c5_b",
+              "s": 2
+            },
+            {
+              "id": "c5_c",
+              "s": 3
+            },
+            {
+              "id": "c5_d",
+              "s": 4
+            }
+          ]
+        },
+        {
+          "id": "c6",
+          "options": [
+            {
+              "id": "c6_a",
+              "s": 1
+            },
+            {
+              "id": "c6_b",
+              "s": 2
+            },
+            {
+              "id": "c6_c",
+              "s": 3
+            },
+            {
+              "id": "c6_d",
+              "s": 4
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

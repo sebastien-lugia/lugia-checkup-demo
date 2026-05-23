@@ -228,3 +228,54 @@ em, i, cite, address {
     line-height: 1.4;
   }
 }
+
+/* === V3-charte — responsive mobile =====================================
+   Règles ciblées sur les composants v3-charte qui risquent de déborder
+   sur les petits viewports (≤ 640 px : iPhone SE 1st gen 320 px et
+   iPhone SE 2/3 375 px).
+   ========================================================================= */
+/* IntroHeaderShortcuts : l'email est masqué par défaut (info disponible
+   dans Mon compte). Il s'affichait avant la révision Topbar 540 mais créait
+   un chevauchement avec la barre de progression sur viewports moyens. */
+.v3-shortcuts-email {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  /* ChantierHeader : le comparatif 3 colonnes "140px 1fr 1fr" devient
+     un stack — chaque row affiche le label sur sa propre ligne puis
+     les deux valeurs Autonomie / Lugia côte à côte. */
+  .v3-chantier-comparatif-head,
+  .v3-chantier-comparatif-row {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: auto auto;
+    gap: 4px 12px !important;
+    align-items: baseline !important;
+  }
+  .v3-chantier-comparatif-head > :first-child,
+  .v3-chantier-comparatif-row > :first-child {
+    grid-column: 1 / -1;
+    margin-bottom: 2px;
+  }
+  .v3-chantier-comparatif-row {
+    margin-bottom: 6px;
+  }
+}
+
+/* === V3-charte A.2 — chat modal responsive =============================
+   Sur viewports étroits, le header (titre + bouton fermer) et la zone
+   d'input se compactent pour éviter le overflow horizontal.
+   ========================================================================= */
+@media (max-width: 640px) {
+  .v3-chat-modal-header,
+  .v3-chat-modal-footer,
+  .v3-chat-modal-list {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .v3-chat-modal-header {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+  }
+}
+

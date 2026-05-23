@@ -62,6 +62,115 @@ b7_c, b7_d, b9_d, b10_d, c2_c, c2_d, c4_d réécrits en première personne pour 
 
 React 18 / Next 16 warning « Updating a style property during rerender (border) when a conflicting property is set (borderLeft) ». Migration de 6 endroits vers la forme longhand explicite (`borderTop` + `borderRight` + `borderBottom` + `borderLeft`) : `app/checkup/v3-charte/error.tsx`, `components/v3/ModuleV3.tsx`, `components/v3/ResultatsV3.tsx` (3 occurrences), `components/v3/ListChantiersV3.tsx`. Les fichiers `v3-snapshot/*` (route gelée) conservent les conflits — cohérent avec le pattern de cohabitation.
 
+### Branchement éditorial dynamique de la page résultats (A.1)
+
+- `pickSignal(scores)` et `getAxisDetail(axis, level)` désormais branchés dans `page.tsx`. Plus de phrase choc / bilan / annotations radar / axis details en dur — tout vient des fichiers `lib/v3/signals_data.ts` et `lib/v3/axis_details_data.ts`.
+- 6 signaux conditionnels + 1 fallback couvrent 64 combinaisons de niveaux (4^3) ; 12 axis details (3 axes × 4 niveaux) alimentent les cards dépliantes.
+- Validation simulation : 5/6 profils types hitent un signal spécifique, 1/6 le fallback.
+
+### Phrase choc personnalisée par motivation + status + énergie (A.1bis)
+
+- `buildPhraseChoc({signal, motivations, status, energy})` dans `signals_data.ts` compose un opener qui contextualise le diagnostic avec :
+  - motivations multi-select (charge / evenement / risque / curiosite) — gère 1, 2, 3+ motivations naturellement
+  - status d'exercice (recent / installe / senior) — préfixe « Cabinet récent — », « Cabinet installé — », « Avec votre expérience d'exercice — »
+  - énergie (4 paliers) — clause adaptive « avec une énergie qui tient le rythme » à « à un moment où l'énergie est sur le fil »
+- Le cœur diagnostic des 7 signaux reste inchangé ; seul l'opener varie. Option (A) validée — pas d'explosion combinatoire.
+
+### Estimations gain € calculées depuis le profil (A.1ter)
+
+- Formule : `gainEuros_an = gainTime_min/j × 220 × (70/60) × 0.7 × volumeFactor` (taux horaire 70 € TTC, 70 % réinvesti, 220 j/an, factor volume lt_80=0.8 / 80_120=1.0 / gt_120=1.25).
+- Les anciennes valeurs `gainEuros` du catalogue (souvent ×3 supérieures) sont retirées : `computeGainEurosPerYear` calcule dynamiquement. `formatGainEuros` formate en français (« 3 600 € » / « 12,4 k€ »).
+- Footnote du chantier reformulé honnêtement : « *Estimation à partir de votre volume hebdomadaire — taux horaire 70 € TTC, 220 jours/an, 70 % du temps libéré réinvesti.* »
+
+### Comparatif Autonomie vs Avec Lugia sur chaque chantier (D-036)
+
+- ChantierHeader remplacé par un tableau 2 colonnes : Gain attendu × Délai × Votre temps × Taux d'aboutissement, comparant « En autonomie » et « Avec Lugia ».
+- Probabilités par chantier (auto 15-35 %, lugia 75-85 %) issues de la littérature change management organisationnel. Effort cumulé : effort 1 → 6 h auto / 2 h lugia, effort 2 → 15 h / 4 h, effort 3 → 30 h / 7 h. Délai autonomie = catalog × 1.5.
+- `tauxToRatio(p)` produit du « 1 cabinet sur 7 » / « 4 cabinets sur 5 » selon la probabilité.
+- StepCard du plan d'action transparente sans bordure (épure post charte).
+- Mini-encart « Avec Lugia » conservé en bas du chantier (D-035), reformulé pour 7 chantiers spécifiques.
+
+### Calendly branché et configuré (C.1)
+
+- URL Calendly réelle posée par défaut : `https://calendly.com/sebastien-lugia/30min`.
+- Override possible via env var `NEXT_PUBLIC_LUGIA_CALENDLY_URL`.
+- Tracking automatique : `utm_source=v3-charte`, `utm_content=<module_id>` quand vient d'un chantier, `name=<firstname>` pour pré-remplir le prénom.
+- `.env.local.example` documenté.
+
+### Persistance refresh complète (E.3 — 4 fixes successifs)
+
+Bootstrap V3-charte hydratait mal la session au refresh. Fix complet :
+
+1. **`extras` hydraté** depuis `userProfile` à chaque bootstrap (sinon chips profil pages 1-2 vides au refresh).
+2. **`resumeStep` appelé** au bootstrap pour calculer le bon step à partir des données chargées (avant : restait sur "intro" indéfiniment).
+3. **URL `?step=` étendue** aux transitions A/B/C + résultats + module détail + liste complète des chantiers. Validation cohérence systématique (completeness ≥ 1 avant d'autoriser une page enfant de résultats).
+4. **Thème persisté en localStorage**, et auto-bascule Day vers livrable « gated » par hydrationSnapped pour ne pas écraser la préférence utilisateur au refresh.
+
+### Backend V3-charte aligné (E.1 / E.2)
+
+- `secretariat` ajouté à `UserProfile` (Pydantic) + colonne `user_profile.secretariat` + migration auto + `USER_PROFILE_V2_FIELDS`.
+- `interview_protocol_v3.json` créé (21 questions structurelles : 6A + 9B + 6C, routings has_team / secretariat / cabinet_type).
+- `src/v2/questions.py` étendu avec `load_protocol(version)` multi-version, helpers `_has_team`, `_secretariat_is_seul`, `_paramedical_is_none`, `_check_routing` (6 strings supportés), `get_visible_questions(block_id, profile, protocol_version)`.
+- `src/v2/scoring.py` : `score_block` et `compute_all_scores` acceptent `protocol_version`.
+- `backend/main.py` : les deux endpoints `v3-brand-0` (scores + report) passent `pv` au scoring.
+- Tests Python : 2 profils contrastés (solo isolé / cabinet groupe) donnent les 6 bonnes questions B chacun.
+
+### Refonte pages auxiliaires charte V3 (B.1 / B.2 / B.3 / B.4 / B.5)
+
+- **`/login`** : refonte complète palette navy/ivoire, Lora/Onest/Mono, ThemeToggle, brand mark navy plein. Logique magic link préservée.
+- **`/le-checkup`** (anciennement `/presentation` qui devient un alias redirect 308) : titre « Le check-up préventif. », sections approche / 3 axes BlocBadges / 4 principes / rythme. Eyebrow « Méthode ».
+- **`/notre-accompagnement`** (nouveau) : contenu médecin-centric, mission + positionnement + méthode + 4 engagements. Eyebrow « Une offre sur mesure ».
+- **`/lugia`** (À propos de Lugia & Co) : contenu vision élargie d'après brief utilisateur — mission entreprises toute taille, approche progressive, différenciation (vs consulting / vs SaaS / techno au service du métier), à qui s'adresse Lugia (4 profils-cibles), engagements, phrase d'engagement avec filet argent (pas d'italique).
+- **`/compte`** : refonte 4 vues (loading / deleted / onboarding / default). Zone de suppression passée du rouge agressif vers le signalWarn ambre charte. Encart « Notre engagement » filet argent au-dessus. État ✓ Enregistré après save firstname.
+- **`/legal`** : 6 sections RGPD, listes ListItem argent.
+- **`/confidentialite`** : 11 sections RGPD. L'unique `<em>` interdit par la charte remplacé par `<strong>`.
+- **Bouton retour ← Retour** discret en haut des pages auxiliaires (history.back() avec fallback `/`).
+- **Header** repensé : 3 liens « LE CHECK-UP / NOTRE ACCOMPAGNEMENT / À PROPOS DE LUGIA & CO » dans AppHeader (Tailwind, home) et version compactée « Le check-up · Notre accompagnement · À propos » dans IntroHeaderShortcuts (mono caps 9px).
+
+### Topbar ajustements
+
+- Séparateur vertical entre logo et chapter label retiré.
+- maxWidth interne 720 → 680 puis aligné avec le bloc central de contenu (margin 0 auto).
+- paddingRight 160 pour éviter le chevauchement avec IntroHeaderShortcuts sur viewports moyens.
+- Logo cliquable → router.push("/") avec aria-label.
+- Email caché par défaut dans IntroHeaderShortcuts pour libérer la place des 3 nouveaux liens.
+
+### Cleanup home (F)
+
+- Lien visible vers `/checkup/v3-snapshot` retiré de la home. Le code V3-snapshot (8700 lignes) reste accessible via URL directe pour démo localhost (commentaire dans le code).
+
+### Export PDF des chantiers (H.4)
+
+- Backend `reportlab>=4.0` ajouté. `src/pdf_exporter.py` (~280 lignes) génère le PDF d'un chantier avec polices natives Helvetica/Times et palette charte Lugia.
+- Structure : en-tête marque + plan d'action + mécanique + comparatif Auto/Lugia tableau + 4 étapes + encart Avec Lugia + données terrain + footer (lugia.fr + page X).
+- Endpoint `GET /interviews/{id}/modules/{module_id}/pdf` avec auth + ownership check.
+- Frontend `downloadChantierPdf(interviewId, moduleId)` dans `lib/api.ts` + bouton « Télécharger en PDF » à côté de « Imprimer » sur ModuleV3.
+
+### Assistant Lugia — chat 4 phases structurées (A.2 + A.2 v2, D-036)
+
+- `anthropic>=0.40` ajouté. Modèle Claude Haiku 4.5.
+- **System prompt 5 tours structurés** (inspiré du wireframe utilisateur) :
+  - T1 : ouverture par question ouverte + 3 suggestions SUGG_JSON
+  - T2-T3 : reformulation + creusement + 3 suggestions
+  - T4 : récap + plan d'action PLAN_JSON 3-4 étapes + 3 suggestions
+  - T5 : clôture personnalisée + END_CONVERSATION:true (pas de suggestions)
+- 7 règles absolues : pas de conseil médical, pas de données patient, pas de jargon consulting, pas de morale, ton confrère, une question à la fois, vouvoiement.
+- **Parsing structuré côté backend** (`parse_assistant_reply`) : 3 regex extraient suggestions / plan / ended du raw Claude. Renvoie un dict typé.
+- **Persistance complète** : table `chat_message` (id, interview_id, module_id, email, role, content, created_at). Le contenu assistant inclut un suffixe `\n\n__LUGIA_META__:{json}` pour préserver les métadonnées (suggestions/plan/ended) à travers le reload.
+- **Rate limiting** : 20 messages user max par conversation (HTTP 429 si dépassé). 1 conversation par chantier (groupée par (interview × module × email)).
+- **Modal plein écran frontend** (`ChatChantierModal.tsx`) :
+  - Auto-init au 1er ouvrir (envoie automatiquement « Je veux creuser le chantier : X »).
+  - Suggestions cliquables (3 boutons sous le dernier message assistant).
+  - Carte plan d'action structurée avec numéro + titre + body + tag temporel.
+  - État clôturé : footer « Conversation clôturée » avec CTAs Calendly + Retour, input désactivé.
+  - Compteur visible dans le header + récap en bas.
+- **Bouton « Discuter avec l'assistant »** sur la page chantier (argent, distinctif).
+- Responsive : padding réduit sur ≤640px (header / list / footer).
+
+### Guide de relecture pour testeurs (G.1)
+
+- `resources/v3_charte_review_guide.md` (189 lignes, 8 sections) : profils recherchés, parcours à dérouler, points à valider/invalider (ton, routing, comparatif, chantiers), template de retour structuré, cadre RGPD.
+
 ---
 
 ## 2026-05-21 — V3-charte : audit règle par règle contre la charte d'application questionnaire v1.0

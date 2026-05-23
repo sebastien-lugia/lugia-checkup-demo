@@ -63,6 +63,7 @@ def score_block(
     block_id: str,
     answers: list[dict[str, Any]],
     profile: Optional[dict[str, Any]] = None,
+    protocol_version: str = "v2.0",
 ) -> Optional[int]:
     """Calcule le score d'un bloc en %.
 
@@ -76,7 +77,7 @@ def score_block(
     Score arrondi à l'entier (cf D-013 : on n'expose pas le chiffré au
     médecin mais on garde la précision entière en interne).
     """
-    visible = v2_questions.get_visible_questions(block_id, profile)
+    visible = v2_questions.get_visible_questions(block_id, profile, protocol_version)
     if not visible:
         return None
     visible_ids = {q["id"] for q in visible}
@@ -113,6 +114,7 @@ def score_block(
 def compute_all_scores(
     answers: list[dict[str, Any]],
     profile: Optional[dict[str, Any]] = None,
+    protocol_version: str = "v2.0",
 ) -> dict[str, Any]:
     """Calcule les 3 scores d'axe + niveaux qualitatifs + global_score.
 
@@ -141,7 +143,7 @@ def compute_all_scores(
     block_scores: list[int] = []
 
     for block_id in ("A", "B", "C"):
-        visible = v2_questions.get_visible_questions(block_id, profile)
+        visible = v2_questions.get_visible_questions(block_id, profile, protocol_version)
         visible_ids = {q["id"] for q in visible}
         answered = sum(
             1 for a in answers
@@ -150,7 +152,7 @@ def compute_all_scores(
         )
         completeness[block_id] = (answered / len(visible)) if visible else 0.0
 
-        pct = score_block(block_id, answers, profile)
+        pct = score_block(block_id, answers, profile, protocol_version)
         if pct is None:
             out[block_id] = None
             continue

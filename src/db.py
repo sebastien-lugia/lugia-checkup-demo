@@ -110,6 +110,22 @@ answer_table = Table(
     Column("scored", Integer, nullable=False, server_default="1"),
 )
 
+# V3-charte A.2 (2026-05-22) — discussions chantier avec assistant Lugia.
+# Une ligne par message. Conversation groupée par (interview_id, module_id, email).
+# Limit produit : 20 messages user max par conversation.
+chat_message_table = Table(
+    "chat_message",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("interview_id", Integer, nullable=False),
+    Column("module_id", String, nullable=False),
+    Column("email", String, nullable=False),
+    Column("role", String, nullable=False),  # "user" | "assistant"
+    Column("content", String, nullable=False),
+    Column("created_at", String, nullable=False),
+)
+
+
 facet_score_table = Table(
     "facet_score",
     metadata,
@@ -176,6 +192,8 @@ user_profile_table = Table(
     Column("cabinet_type", String, nullable=True),
     Column("volume", String, nullable=True),
     Column("paramedical_team", String, nullable=True),
+    # V3-charte (2026-05-22) — gestion du secrétariat
+    Column("secretariat", String, nullable=True),
     Column("logiciel_metier", String, nullable=True),
     Column("logiciel_metier_other", String, nullable=True),
     Column("rdv_canal", String, nullable=True),
@@ -312,6 +330,7 @@ def _ensure_profile_v2_columns() -> None:
         "cabinet_type",
         "volume",
         "paramedical_team",
+        "secretariat",
         "logiciel_metier",
         "logiciel_metier_other",
         "rdv_canal",
@@ -592,6 +611,7 @@ USER_PROFILE_V2_FIELDS: tuple[str, ...] = (
     "cabinet_type",
     "volume",
     "paramedical_team",
+    "secretariat",
     "logiciel_metier",
     "logiciel_metier_other",
     "rdv_canal",
@@ -822,3 +842,69 @@ def delete_user_data(email: str) -> dict[str, int]:
         "auth_tokens": auth_tokens_deleted,
         "sessions": sessions_deleted,
     }
+
+def list_chat_messages(
+    interview_id: int, module_id: str, email: str
+) -> list[dict[str, Any]]:
+    """Renvoie l'historique chronologique d'une conversation chantier.
+
+    V3-charte A.2 — pour pouvoir reprendre une conversation existante ou
+    construire le prompt avec l'historique complet.
+    """
+    engine = get_engine()
+    with engine.connect() as conn:
+        rows = conn.execute(
+            chat_message_table.select()
+            .where(
+                (chat_message_table.c.interview_id == interview_id)
+                & (chat_message_table.c.module_id == module_id)
+                & (chat_message_table.c.email == email)
+            )
+            .order_by(chat_message_table.c.id.asc())
+        ).fetchall()
+        return [
+            {"id": r.id, "role": r.role, "content": r.content, "created_at": r.created_at}
+            for r in rows
+        ]
+
+
+def add_chat_message(
+    interview_id: int, module_id: str, email: str, role: str, content: str
+) -> int:
+    """Persiste un message (user ou assistant) dans la conversation."""
+    if role not in ("user", "assistant"):
+        raise ValueError(f"role invalide : {role}")
+    engine = get_engine()
+    now = datetime.utcnow().isoformat() + "Z"
+    with engine.begin() as conn:
+        result = conn.execute(
+            chat_message_table.insert().values(
+                interview_id=interview_id,
+                module_id=module_id,
+                email=email,
+                role=role,
+                content=content,
+                created_at=now,
+            )
+        )
+        return int(result.inserted_primary_key[0])
+
+
+def count_user_messages(
+    interview_id: int, module_id: str, email: str
+) -> int:
+    """Compte les messages 'user' déjà envoyés sur cette conversation.
+
+    Limite produit A.2 : 20 questions max par conversation chantier.
+    """
+    engine = get_engine()
+    with engine.connect() as conn:
+        from sqlalchemy import func as sa_func, select
+        stmt = select(sa_func.count()).select_from(chat_message_table).where(
+            (chat_message_table.c.interview_id == interview_id)
+            & (chat_message_table.c.module_id == module_id)
+            & (chat_message_table.c.email == email)
+            & (chat_message_table.c.role == "user")
+        )
+        return int(conn.execute(stmt).scalar() or 0)
+

@@ -40,15 +40,38 @@ export function AppHeader() {
 
   return (
     <nav className="w-full border-b border-[#e5e5e5] bg-lugia-bg">
-      <div className="max-w-[840px] mx-auto px-8 py-4 flex items-center justify-between lugia-nav-inner">
+      <div className="max-w-[1180px] mx-auto px-8 py-4 flex items-center justify-between gap-4 lugia-nav-inner">
         <Link href="/" className="text-base font-semibold text-lugia-text">
           Lugia
         </Link>
+
+        {/* Liens vers les 3 pages "à propos" — visibles quel que soit l'auth */}
+        <div className="flex items-center gap-6 text-[12px]">
+          <Link
+            href="/le-checkup"
+            className="text-[#555] hover:text-[#111] uppercase tracking-[0.08em] font-mono whitespace-nowrap"
+          >
+            Le check-up
+          </Link>
+          <Link
+            href="/notre-accompagnement"
+            className="text-[#555] hover:text-[#111] uppercase tracking-[0.08em] font-mono whitespace-nowrap"
+          >
+            Notre accompagnement
+          </Link>
+          <Link
+            href="/lugia"
+            className="text-[#555] hover:text-[#111] uppercase tracking-[0.08em] font-mono whitespace-nowrap"
+          >
+            À propos de Lugia &amp; Co
+          </Link>
+        </div>
+
         {email ? (
           <div className="flex items-center gap-3 text-xs">
             <Link
               href="/compte"
-              className="text-[#555] hover:text-[#111]"
+              className="text-[#555] hover:text-[#111] whitespace-nowrap"
             >
               Mon compte
             </Link>
@@ -58,7 +81,7 @@ export function AppHeader() {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="text-[#555] hover:text-[#111] underline underline-offset-2 disabled:opacity-50"
+              className="text-[#555] hover:text-[#111] underline underline-offset-2 disabled:opacity-50 whitespace-nowrap"
             >
               {isLoggingOut ? "Déconnexion…" : "Se déconnecter"}
             </button>

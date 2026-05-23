@@ -18,7 +18,15 @@
 import * as React from "react";
 import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
 import { V3_TAG_LABELS, type V3Module, type V3ModuleTag } from "@/lib/v3/modules_data";
-import { getOpp } from "@/lib/v3/opps_catalog";
+import {
+  getOpp,
+  computeGainEurosPerYear,
+  formatGainEuros,
+  computeChantierStats,
+  tauxToRatio,
+  type VolumeId,
+  ESTIMATION,
+} from "@/lib/v3/opps_catalog";
 
 export type AxisId = "A" | "B" | "C";
 
@@ -30,6 +38,9 @@ export function ModuleV3({
   onBack,
   onLugia,
   onPrint,
+  onDownloadPdf,
+  onOpenChat,
+  volume,
 }: {
   theme?: V3Theme;
   module: V3Module;
@@ -37,6 +48,12 @@ export function ModuleV3({
   onBack?: () => void;
   onLugia?: () => void;
   onPrint?: () => void;
+  /** H.4 : télécharger le chantier en PDF généré côté backend. */
+  onDownloadPdf?: () => void;
+  /** A.2 : ouvrir le modal de discussion avec l'assistant Lugia. */
+  onOpenChat?: () => void;
+  /** Volume hebdomadaire du cabinet — alimente le calcul des gains €. */
+  volume?: VolumeId | null;
 }) {
   const palette = paletteFor(theme);
   const axisColor = palette.axes[axis];
@@ -121,7 +138,7 @@ export function ModuleV3({
 
         {/* En-tête : EFFORT / DÉLAI / GAIN (cf charte composant 12 — méta du chantier).
             Données récupérées par jointure id ↔ V3_OPPS_CATALOG (les ids matchent 1:1). */}
-        <ChantierHeader theme={theme} moduleId={mod.id} />
+        <ChantierHeader theme={theme} moduleId={mod.id} volume={volume ?? null} />
 
         {/* Liste des étapes */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 48 }}>
@@ -292,6 +309,52 @@ export function ModuleV3({
                 Imprimer
               </button>
             )}
+            {onOpenChat && (
+              <button
+                type="button"
+                onClick={onOpenChat}
+                style={{
+                  background: palette.argent,
+                  color: palette.navy,
+                  border: `1px solid ${palette.argent}`,
+                  padding: "10px 18px",
+                  fontFamily: fonts.sans,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  letterSpacing: "0.02em",
+                  cursor: "pointer",
+                  transition: "opacity 180ms ease-out",
+                  fontStyle: "normal",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+              >
+                Discuter avec l&apos;assistant
+              </button>
+            )}
+            {onDownloadPdf && (
+              <button
+                type="button"
+                onClick={onDownloadPdf}
+                style={{
+                  background: "transparent",
+                  color: palette.navy,
+                  border: `1px solid ${palette.lineStrong}`,
+                  padding: "10px 18px",
+                  fontFamily: fonts.sans,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  letterSpacing: "0.02em",
+                  cursor: "pointer",
+                  transition: "border-color 180ms ease-out",
+                  fontStyle: "normal",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = palette.navy)}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = palette.lineStrong)}
+              >
+                Télécharger en PDF
+              </button>
+            )}
           </div>
           {onLugia && (
             <button
@@ -337,148 +400,207 @@ export function ModuleV3({
  * relevées. Charte A1-ter : pas côte à côte, chaque info sur sa propre
  * ligne avec label mono caps + valeur Onest 500.
  */
-function ChantierHeader({ theme, moduleId }: { theme: V3Theme; moduleId: string }) {
+function ChantierHeader({ theme, moduleId, volume }: { theme: V3Theme; moduleId: string; volume: VolumeId | null }) {
   const palette = paletteFor(theme);
   const opp = getOpp(moduleId);
   if (!opp) return null;
 
-  // Reformulation langage naturel des chaînes télégraphiques du catalogue.
-  // On laisse opps_catalog en données structurées (utile pour le radar, le tri,
-  // les éventuelles agrégations), on adapte juste à l'affichage.
-  const effortPhrase: Record<1 | 2 | 3, string> = {
-    1: "Facile à mettre en place",
-    2: "Demande un peu d'organisation",
-    3: "Investissement plus profond",
-  };
+  const stats = computeChantierStats(opp, volume);
 
-  function naturalDelai(s: string): string {
-    // "< 1 semaine"  → "Quelques jours suffisent."
-    // "2–4 semaines" → "Entre 2 et 4 semaines."
-    if (s.startsWith("<")) return "Quelques jours suffisent.";
-    const m = s.match(/^(\d+)\D+(\d+)\s*(\w+)/);
-    if (m) return `Entre ${m[1]} et ${m[2]} ${m[3]}.`;
-    return s + ".";
-  }
-
-  function naturalGain(time: string, euros: string): React.ReactNode {
-    // time: "−20 min/j", "−1h/j", "−15 min/consult", "−2h/sem"
-    // euros: "+10 k€/an"
+  // Reformulation langage naturel du gainTime — partagée par les deux scénarios.
+  function naturalGainTime(time: string): string {
     let timePart = time;
     const mDay = time.match(/^−(\d+)\s*min\/j$/);
     const mHourDay = time.match(/^−(\d+)\s*h\/j$/);
     const mConsult = time.match(/^−(\d+)\s*min\/consult$/);
     const mWeek = time.match(/^−(\d+)\s*h\/sem$/);
-    if (mDay) timePart = `Environ ${mDay[1]} minutes libérées par jour`;
-    else if (mHourDay) timePart = `Environ ${mHourDay[1]} h libérée${parseInt(mHourDay[1]) > 1 ? "s" : ""} par jour`;
-    else if (mConsult) timePart = `Environ ${mConsult[1]} minutes par consultation`;
-    else if (mWeek) timePart = `Environ ${mWeek[1]} h libérée${parseInt(mWeek[1]) > 1 ? "s" : ""} par semaine`;
-
-    let eurosPart = euros;
-    const mE = euros.match(/^\+(\d+)\s*k€\/an$/);
-    if (mE) eurosPart = `~${mE[1]} k€ par an`;
-
-    return (
-      <>
-        {timePart}, soit {eurosPart}
-        <sup style={{ fontSize: 10, color: palette.navy400 }}>*</sup>.
-      </>
-    );
+    const mWeekMin = time.match(/^−(\d+)\s*min\/sem$/);
+    if (mDay) timePart = `Environ ${mDay[1]} min libérées/jour`;
+    else if (mHourDay) timePart = `Environ ${mHourDay[1]} h libérée${parseInt(mHourDay[1]) > 1 ? "s" : ""}/jour`;
+    else if (mConsult) timePart = `Environ ${mConsult[1]} min gagnées/consultation`;
+    else if (mWeek) timePart = `Environ ${mWeek[1]} h libérée${parseInt(mWeek[1]) > 1 ? "s" : ""}/semaine`;
+    else if (mWeekMin) timePart = `Environ ${mWeekMin[1]} min libérées/semaine`;
+    return timePart;
   }
 
-  const rows: { label: string; value: React.ReactNode }[] = [
+  type Row = {
+    label: string;
+    auto: React.ReactNode;
+    lugia: React.ReactNode;
+  };
+  const rows: Row[] = [
     {
-      label: "Effort",
-      value: (
-        <span style={{ display: "inline-flex", gap: 12, alignItems: "center" }}>
-          <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-            {[1, 2, 3].map((i) => (
-              <span
-                key={i}
-                style={{
-                  display: "inline-block",
-                  width: 22,
-                  height: 3,
-                  background: i <= opp.effort ? palette.navy : palette.lineStrong,
-                }}
-              />
-            ))}
-          </span>
-          <span style={{ fontWeight: 400 }}>
-            {effortPhrase[opp.effort]}.
-          </span>
-        </span>
-      ),
+      label: "Gain attendu",
+      auto:
+        stats.gainAttenduAuto !== null
+          ? `~${formatGainEuros(stats.gainAttenduAuto)}/an`
+          : "—",
+      lugia:
+        stats.gainAttenduLugia !== null ? (
+          <strong style={{ color: palette.navy, fontWeight: 600 }}>
+            ~{formatGainEuros(stats.gainAttenduLugia)}/an
+          </strong>
+        ) : (
+          "—"
+        ),
     },
-    { label: "Délai", value: naturalDelai(opp.delai) },
     {
-      label: "Gain",
-      value: naturalGain(opp.gainTime, opp.gainEuros),
+      label: "Délai",
+      auto: stats.delaiAuto,
+      lugia: stats.delaiLugia,
+    },
+    {
+      label: "Votre temps",
+      auto: `~${stats.effortAutoHours} h cumulées`,
+      lugia: `~${stats.effortLugiaHours} h cumulées`,
+    },
+    {
+      label: "Taux d'aboutissement",
+      auto: tauxToRatio(stats.tauxAuto),
+      lugia: tauxToRatio(stats.tauxLugia),
     },
   ];
 
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 14,
         padding: "4px 0 26px",
         borderBottom: `1px solid ${palette.line}`,
-        marginBottom: 44,
+        marginBottom: 32,
       }}
     >
-      {rows.map((row) => (
-        <div
-          key={row.label}
+      {/* Bandeau temps libéré (commun aux 2 scénarios) — pédagogie sur l'origine du gain */}
+      <p
+        style={{
+          fontFamily: fonts.mono,
+          fontSize: 10,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: palette.navy400,
+          margin: "0 0 6px",
+          fontStyle: "normal",
+        }}
+      >
+        Mécanique du chantier
+      </p>
+      <p
+        style={{
+          fontFamily: fonts.sans,
+          fontSize: 14,
+          lineHeight: 1.55,
+          color: palette.navy,
+          margin: "0 0 20px",
+          fontStyle: "normal",
+        }}
+      >
+        {naturalGainTime(opp.gainTime)} si le chantier est mené à son terme.
+      </p>
+
+      {/* En-tête colonnes du comparatif */}
+      <div
+        className="v3-chantier-comparatif-head"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "140px 1fr 1fr",
+          gap: 16,
+          alignItems: "end",
+          paddingBottom: 10,
+          borderBottom: `1px solid ${palette.line}`,
+          marginBottom: 14,
+        }}
+      >
+        <span />
+        <span
           style={{
-            display: "grid",
-            gridTemplateColumns: "100px 1fr",
-            alignItems: "center",
-            gap: 24,
+            fontFamily: fonts.mono,
+            fontSize: 10,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: palette.navy400,
             fontStyle: "normal",
           }}
         >
-          <span
-            style={{
-              fontFamily: fonts.mono,
-              fontSize: 11,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: palette.navy400,
-            }}
-          >
-            {row.label}
-          </span>
-          <span
-            style={{
-              fontFamily: fonts.sans,
-              fontSize: 15,
-              fontWeight: 500,
-              color: palette.navy,
-              lineHeight: 1.4,
-            }}
-          >
-            {row.value}
-          </span>
-        </div>
-      ))}
+          En autonomie
+        </span>
+        <span
+          style={{
+            fontFamily: fonts.mono,
+            fontSize: 10,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: palette.navy,
+            fontWeight: 600,
+            fontStyle: "normal",
+          }}
+        >
+          Avec Lugia
+        </span>
+      </div>
 
-      {/* Footnote estimations — déplacée depuis la page résultats vers
-          la page détail chantier (le `*` apparaît sur le GAIN ci-dessus). */}
+      {/* Lignes du comparatif */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {rows.map((row) => (
+          <div
+            key={row.label}
+            className="v3-chantier-comparatif-row"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "140px 1fr 1fr",
+              gap: 16,
+              alignItems: "baseline",
+              fontStyle: "normal",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: fonts.mono,
+                fontSize: 11,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: palette.navy400,
+              }}
+            >
+              {row.label}
+            </span>
+            <span
+              style={{
+                fontFamily: fonts.sans,
+                fontSize: 15,
+                color: palette.navy600,
+                lineHeight: 1.4,
+              }}
+            >
+              {row.auto}
+            </span>
+            <span
+              style={{
+                fontFamily: fonts.sans,
+                fontSize: 15,
+                color: palette.navy,
+                lineHeight: 1.4,
+              }}
+            >
+              {row.lugia}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Footnote */}
       <p
         style={{
           fontFamily: fonts.mono,
           fontSize: 11,
           color: palette.navy400,
           letterSpacing: "0.04em",
-          margin: "-2px 0 0",
+          lineHeight: 1.55,
+          margin: "18px 0 0",
           opacity: 0.75,
           fontStyle: "normal",
-          gridColumn: "1 / -1",
-          paddingLeft: 124,
         }}
       >
-        * Estimations calculées sur la base de votre profil cabinet (220 jours, taux horaire médecin).
+        Gain attendu = gain théorique × probabilité d'aboutir. Probabilités issues de la littérature change management
+        organisationnel. Hypothèses : 70 € TTC/h, 220 jours/an, 70 % du temps libéré réinvesti.
       </p>
     </div>
   );
