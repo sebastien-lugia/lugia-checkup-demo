@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
  * V3-brand-T-V3-10.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { paletteFor, type V3Theme, levelOf, LEVELS } from "@/lib/v3/tokens";
@@ -175,7 +175,7 @@ function pickOpps(localScores: LocalScores, max: number = 4): V3Opp[] {
  * Composant racine — page V3-brand interactive
  * ─────────────────────────────────────────────────────────── */
 
-export default function CheckupV3BrandPage() {
+function CheckupV3BrandPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [interviewId, setInterviewId] = useState<number | null>(null);
@@ -967,5 +967,27 @@ export default function CheckupV3BrandPage() {
         />
       )}
     </>
+  );
+}
+
+/**
+ * Wrapper Suspense — requis par Next.js dès qu'un composant client utilise
+ * useSearchParams(). Sans ce wrapper, le build échoue avec
+ * "missing-suspense-with-csr-bailout" sur les pages qui pourraient être
+ * pré-rendues statiquement.
+ */
+export default function CheckupV3BrandPage() {
+  return (
+    <Suspense
+      fallback={
+        <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ fontFamily: "IBM Plex Mono, monospace", fontSize: 11, opacity: 0.5 }}>
+            Chargement…
+          </div>
+        </main>
+      }
+    >
+      <CheckupV3BrandPageContent />
+    </Suspense>
   );
 }
