@@ -64,7 +64,6 @@ export type RadarAnnotation = {
 
 export type V3Opp = {
   id: string;
-  icon: string;
   axis: AxisId;
   /** Si true, affiche le badge « ★ Recommandé pour commencer » + border-left coloré. */
   recommended?: boolean;

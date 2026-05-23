@@ -154,7 +154,6 @@ function pickOpps(localScores: LocalScores, max: number = 4): V3Opp[] {
   return pickOppsFromScores({ A: localScores.A, B: localScores.B, C: localScores.C }, max).map(
     (o, i) => ({
       id: o.id,
-      icon: o.icon,
       axis: o.axis,
       title: o.title,
       desc: o.desc,
