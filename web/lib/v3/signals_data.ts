@@ -197,7 +197,13 @@ export const V3_SIGNALS: V3Signal[] = [
   },
 ];
 
-/** Fallback toujours affiché si aucun signal ne matche. */
+/** Fallback toujours affiché si aucun signal ne matche.
+ *  Bug fix 2026-05-23 : le fallback était vide (bilanForces / bilanRisques /
+ *  radarAnnotations = []), donc tout profil intermédiaire (ex A=2,B=2,C=2)
+ *  affichait des blocs « Ce qui tient / fragilise » muets et un radar
+ *  paraissant décentré (annotations latérales absentes côté droit).
+ *  Contenu générique mais non trompeur : formulations vraies quel que
+ *  soit le mix de scores intermédiaire. */
 export const V3_SIGNAL_FALLBACK: V3Signal = {
   id: "fallback",
   cond: () => true,
@@ -207,9 +213,51 @@ export const V3_SIGNAL_FALLBACK: V3Signal = {
     "Votre profil dessine un cabinet en équilibre partiel — quelques axes solides, d'autres en construction —",
   phraseChocAfter:
     "les chantiers proposés ci-dessous sont ceux qui auront l'effet de levier le plus rapide sur l'ensemble.",
-  bilanForces: [],
-  bilanRisques: [],
-  radarAnnotations: [],
+  bilanForces: [
+    {
+      title: "Un cabinet qui tourne au quotidien",
+      desc: "Vous délivrez les consultations, le suivi et la coordination — la base opérationnelle tient debout.",
+    },
+    {
+      title: "Une lecture lucide de l'organisation",
+      desc: "Vous avez pris le temps de répondre aux trois axes — c'est ce qui permet d'objectiver les points de friction sans attendre une crise.",
+    },
+  ],
+  bilanRisques: [
+    {
+      title: "Équilibre partiel entre les axes",
+      desc: "Aucun axe n'est en crise majeure, mais aucun n'est complètement structuré — c'est typiquement le terrain où les irritants s'accumulent en silence.",
+      risk: "warn",
+    },
+    {
+      title: "Pas de levier dominant identifié",
+      desc: "Les chantiers proposés ci-dessous sont à hiérarchiser selon votre énergie disponible plutôt que selon une urgence absolue.",
+      risk: "warn",
+    },
+  ],
+  radarAnnotations: [
+    {
+      axis: "A",
+      side: "left",
+      title: "Parcours patient.",
+      sub: "Socle à consolider.",
+      badge: "warn",
+    },
+    {
+      axis: "B",
+      side: "right",
+      title: "Équipe & rôles.",
+      sub: "Cadre à formaliser.",
+      badge: "warn",
+    },
+    {
+      axis: "C",
+      side: "right",
+      title: "Outils & dossiers.",
+      sub: "Potentiel à exploiter.",
+      badge: "opt",
+    },
+  ],
 };
 
 /**

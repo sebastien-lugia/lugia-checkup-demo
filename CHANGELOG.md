@@ -4,6 +4,16 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-23 — Fix page résultats : signal fallback enrichi
+
+Bug remonté en prod : sur tout profil intermédiaire (ex A=2 / B=2 / C=2), les deux colonnes « Ce qui tient » et « Ce qui fragilise » du bilan global apparaissaient vides, et le radar de cartographie organisationnelle paraissait décalé à droite (annotations latérales absentes).
+
+Cause unique : `V3_SIGNAL_FALLBACK` (`web/lib/v3/signals_data.ts`) — sélectionné par `pickSignal()` quand aucun des 6 signaux conditionnels ne matche — avait `bilanForces: []`, `bilanRisques: []` et `radarAnnotations: []`. La composition du radar (triangle décalé en CX=400/W=860 pour laisser la place aux annotations à droite) perdait son contrepoids visuel et donnait l'illusion d'un radar mal aligné.
+
+Fix : contenu générique mais non trompeur ajouté au fallback — 2 forces (« cabinet qui tourne au quotidien », « lecture lucide de l'organisation »), 2 risques warn (« équilibre partiel entre les axes », « pas de levier dominant identifié »), et 3 annotations radar (A warn, B warn, C opt) qui rétablissent l'équilibre visuel. Aucune affirmation contredite par les scores intermédiaires.
+
+---
+
 ## 2026-05-22 — V3-charte : alignement des dénominateurs visuels avec le routing
 
 Le compteur footer affichait `6 / 9 réponses` pour un profil routé (vrai dénominateur visible : 6). Refactor pour que **tout l'écosystème visuel** (compteur footer, completeness, barre Topbar, radar live, transitions) utilise le même dénominateur — celui des questions effectivement présentées au médecin après application du routing solo / non-solo / secrétariat.
