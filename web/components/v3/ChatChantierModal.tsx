@@ -123,7 +123,7 @@ export function ChatChantierModal({
           getWebLLMEngine((p) => {
             if (!cancelled) setWebllmProgress(p);
           }),
-          getChatSystemPrompt(interviewId, moduleId).then((r) => r.system_prompt),
+          getChatSystemPrompt(interviewId, moduleId, 1).then((r) => r.system_prompt),
         ]);
         if (cancelled) return;
         webllmEngineRef.current = engine;
@@ -228,16 +228,26 @@ export function ChatChantierModal({
     const p = providerRef.current;
     if (p === "webllm") {
       // Inférence dans le navigateur via WebLLM, puis persistance en BDD.
-      if (!webllmEngineRef.current || !webllmSystemPrompt) {
+      if (!webllmEngineRef.current) {
         throw new Error("Le modèle local n'est pas encore prêt. Patientez quelques secondes.");
       }
+      // Refonte 2026-05-23 : on recharge le system prompt avant CHAQUE
+      // generation, scope sur le tour courant. Le tour courant =
+      // userMessageCount + 1 (le user message qu'on s'apprete a envoyer
+      // n'est pas encore compte cote BDD). Ainsi qwen2.5:3b voit des
+      // instructions specifiques au tour 1 / 2 / 3 / 4 / 5, et ne se met
+      // pas a enumerer les 5 tours d'un coup.
+      const currentTurn = userMessageCount + 1;
+      const fresh = await getChatSystemPrompt(interviewId, moduleId, currentTurn);
+      const promptForThisTurn = fresh.system_prompt;
+      setWebllmSystemPrompt(promptForThisTurn);
       // Construire l'historique pour le LLM (sans le user message qu'on vient d'ajouter)
       const histForLlm: { role: "user" | "assistant"; content: string }[] = messages
         .filter((m) => m.role === "user" || m.role === "assistant")
         .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
       const raw = await generateWithWebLLM(
         webllmEngineRef.current,
-        webllmSystemPrompt,
+        promptForThisTurn,
         histForLlm,
         userMessage,
       );

@@ -790,6 +790,12 @@ async def post_chat_message(
     if provider not in ALLOWED_PROVIDERS:
         provider = PROVIDER_ANTHROPIC
 
+    # turn_number = numero du tour assistant courant.
+    # current_count = nb de messages user deja persistes AVANT celui-ci.
+    # On vient d'ajouter le user message en BDD (ligne au-dessus), donc le
+    # prochain assistant message est le tour (current_count + 1).
+    turn_number = current_count + 1
+
     # Appel du LLM (renvoie un dict parsé : text/suggestions/plan/ended)
     try:
         parsed = send_message(
@@ -799,6 +805,7 @@ async def post_chat_message(
             profile=user_profile,
             scores=scores,
             provider=provider,
+            turn_number=turn_number,
         )
     except LLMProviderUnavailable as exc:
         # Provider down (Ollama non démarré, clé API manquante…) → 503
@@ -873,6 +880,7 @@ async def delete_chat_conversation(
 async def get_chat_system_prompt(
     interview_id: int,
     module_id: str,
+    turn: int = 1,
     email: str = Depends(get_current_user_email),
 ) -> dict[str, Any]:
     """Renvoie le system prompt complet (avec profil + scores) pour que le
@@ -904,7 +912,7 @@ async def get_chat_system_prompt(
         scores = None
 
     return {
-        "system_prompt": _build_system_prompt(module, user_profile, scores),
+        "system_prompt": _build_system_prompt(module, user_profile, scores, turn_number=turn),
     }
 
 

@@ -777,13 +777,17 @@ export async function getChatHistory(
  *  - "webllm"    : qwen2.5:3b via WebLLM dans le navigateur (frontend) */
 export type ChatProvider = "anthropic" | "ollama" | "webllm";
 
-/** System prompt complet pour alimenter un runtime WebLLM côté navigateur. */
+/** System prompt complet pour alimenter un runtime WebLLM côté navigateur.
+ *  `turn` (1-5) indique le numéro du tour assistant courant — sert à scoper
+ *  les instructions du prompt à ce tour précis (refonte 2026-05-23 pour
+ *  éviter que qwen2.5:3b enumere les 5 tours d'un coup). */
 export async function getChatSystemPrompt(
   interviewId: number,
   moduleId: string,
+  turn: number = 1,
 ): Promise<{ system_prompt: string }> {
   return request<{ system_prompt: string }>(
-    `/interviews/${interviewId}/modules/${moduleId}/chat/system-prompt`
+    `/interviews/${interviewId}/modules/${moduleId}/chat/system-prompt?turn=${turn}`
   );
 }
 

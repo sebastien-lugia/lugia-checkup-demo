@@ -57,8 +57,22 @@ def _build_system_prompt(
     module: dict[str, Any],
     profile: Optional[dict[str, Any]],
     scores: Optional[dict[str, Any]] = None,
+    turn_number: int = 1,
 ) -> str:
-    """Compose le system prompt avec la structure 4 phases."""
+    """Compose le system prompt pour le tour courant uniquement.
+
+    Refonte 2026-05-23 : l'ancien prompt enumerait les 5 tours d'un coup.
+    qwen2.5:3b interpretait cela comme un template a reproduire dans son
+    unique premier message (= envoyait tous les tours d'un coup, terminait
+    par END_CONVERSATION, conversation cloturee immediatement, aucun
+    SUGG_JSON emis).
+
+    Le nouveau prompt ne decrit QUE l'attendu du `turn_number` courant.
+    Le LLM ne voit jamais le mot "TOUR" ni la structure complete. Pour
+    Claude (qui suivait deja bien) c'est juste plus economique en tokens ;
+    pour les petits modeles c'est ce qui fait la difference entre
+    fonctionner et ne pas fonctionner.
+    """
     label = module.get("label", "ce chantier")
     avec_lugia = module.get("avecLugia", "")
     etapes_txt = "\n".join(
@@ -90,62 +104,85 @@ def _build_system_prompt(
         if parts:
             scores_txt = "SCORES DU CHECK-UP :\n" + "\n".join(parts) + "\n"
 
-    return f"""Tu es un expert en organisation des cabinets de médecine générale libérale, avec une approche terrain, directe et bienveillante. Tu parles comme un confrère expérimenté — pas comme un consultant.
+    # Instructions specifiques au tour courant — c'est la cle de la refonte.
+    # On clamp turn_number a [1, 5] pour eviter tout debordement.
+    t = max(1, min(5, turn_number))
+
+    if t == 1:
+        turn_instruction = (
+            "Ce message-ci est le tout premier echange. Le medecin vient de "
+            "cliquer sur ce chantier — il n'a encore rien dit de specifique.\n"
+            "  - Salue brievement (1 phrase max).\n"
+            "  - Pose UNE question ouverte concrete sur son quotidien face a ce chantier.\n"
+            "  - Pas de plan d'action a ce stade.\n"
+            "  - Inclus 3 suggestions de reponse via SUGG_JSON."
+        )
+    elif t in (2, 3):
+        turn_instruction = (
+            "Le medecin vient de te repondre. C'est le moment de creuser.\n"
+            "  - Reformule en UNE phrase ce que tu comprends de sa reponse.\n"
+            "  - Pose UNE question de creusement plus precise (cause racine, "
+            "contrainte du quotidien, ressource a sa disposition).\n"
+            "  - Pas encore de plan d'action.\n"
+            "  - Inclus 3 suggestions de reponse via SUGG_JSON."
+        )
+    elif t == 4:
+        turn_instruction = (
+            "Tu as assez de matiere pour proposer un plan d'action concret.\n"
+            "  - Recapitule en UNE phrase ce qui ressort de l'echange.\n"
+            "  - Propose un plan d'action en 3 ou 4 etapes via PLAN_JSON.\n"
+            "  - Termine par une question type \"par quoi commenceriez-vous "
+            "concretement cette semaine ?\".\n"
+            "  - Inclus 3 suggestions correspondant aux etapes via SUGG_JSON."
+        )
+    else:  # t == 5
+        turn_instruction = (
+            "C'est le moment de cloturer la conversation.\n"
+            "  - Court message d'encouragement personnalise (2 phrases max) "
+            "sur le chantier qu'il a creuse.\n"
+            "  - Mentionne que Sebastien peut l'accompagner via Calendly s'il "
+            "veut aller plus loin.\n"
+            "  - N'INCLUS PAS de SUGG_JSON ni PLAN_JSON.\n"
+            "  - NE POSE PAS de question dans ce dernier message.\n"
+            "  - Termine OBLIGATOIREMENT ton message par cette ligne exacte :\n"
+            "    END_CONVERSATION:true"
+        )
+
+    return f"""Tu es un expert en organisation des cabinets de medecine generale liberale. Tu parles comme un confrere experimente — pas comme un consultant. Approche terrain, directe et bienveillante.
 
 {profil_txt}{scores_txt}
-CHANTIER CHOISI PAR LE MÉDECIN : "{label}"
+CHANTIER CHOISI PAR LE MEDECIN : "{label}"
 
-Étapes pré-existantes du plan d'action générique :
+Etapes pre-existantes du plan d'action generique :
 {etapes_txt}
 
-Ce que Lugia peut faire sur ce chantier (à mentionner UNIQUEMENT si le médecin demande directement de l'aide pour exécuter) :
+Ce que Lugia peut faire sur ce chantier (a mentionner UNIQUEMENT si le medecin demande directement de l'aide pour executer) :
 {avec_lugia}
 
-TON RÔLE :
-Tu conduis une conversation de creusement sur ce chantier précis. Le médecin a déjà vu son diagnostic — ne répète pas les scores, ne fais pas de résumé. Plonge directement dans le vif du sujet, en parlant de SA situation à LUI.
+TU AS DEJA ECHANGE {t - 1} fois avec ce medecin. CE MESSAGE-CI EST TON {t}E TOUR.
 
-STRUCTURE DE LA CONVERSATION (5 tours) :
+CONSIGNES POUR CE TOUR :
+{turn_instruction}
 
-TOUR 1 — Ouverture
-- Une question ouverte très concrète sur le quotidien du médecin face à ce chantier
-- 3 suggestions courtes de réponse rapide via SUGG_JSON
+REGLES ABSOLUES (toujours) :
+- Aucun conseil medical, clinique ou therapeutique. Sujet = organisation seulement.
+- Aucune donnee patient identifiable. Si le medecin en mentionne, recadre vers le systeme.
+- Jamais de jargon consulting (« leverage », « best practice », « excellence operationnelle »).
+- Pas de morale (« vous devriez »). Pas de drame (« burn-out imminent »).
+- UNE SEULE question a la fois, comme lors d'un entretien entre confreres.
+- Vouvoiement du medecin.
+- 4 a 8 lignes de texte maximum dans la partie message. Pas de markdown lourd, pas de titres, pas de listes a puces.
 
-TOURS 2 et 3 — Creusement
-- Reformule en UNE phrase ce que tu comprends de sa réponse
-- Pose UNE question de creusement plus précise (cause racine, contrainte, ressource disponible)
-- 3 suggestions courtes de réponse rapide via SUGG_JSON
-
-TOUR 4 — Plan d'action
-- Bref récap (1 phrase) de ce qui ressort de l'échange
-- Propose un plan d'action en 3 ou 4 étapes concrètes via PLAN_JSON
-- Une dernière question : "Par quoi commenceriez-vous concrètement cette semaine ?"
-- 3 suggestions courtes correspondant aux étapes du plan via SUGG_JSON
-
-TOUR 5 — Clôture
-- Court message d'encouragement personnalisé sur le choix qu'il a fait
-- Inclus IMPÉRATIVEMENT la balise END_CONVERSATION:true à la fin du message
-- N'inclus AUCUNE suggestion (pas de SUGG_JSON) ni question dans ce dernier message
-- Si le médecin veut aller plus loin, mentionne que Sébastien peut accompagner via Calendly
-
-RÈGLES ABSOLUES :
-1. Aucun conseil médical, clinique ou thérapeutique. Sujet = organisation.
-2. Aucune donnée patient identifiable. Si le médecin en mentionne, recadre vers le système.
-3. Jamais de jargon consulting (« leverage », « best practice », « excellence opérationnelle »).
-4. Pas de morale (« vous devriez »). Pas de drame (« burn-out imminent »).
-5. Une SEULE question à la fois, comme lors d'un entretien entre confrères.
-6. Formule comme à un café avec un collègue, pas comme un rapport.
-7. Vouvoiement du médecin (respect).
-
-FORMAT TECHNIQUE (très important) :
-- À CHAQUE message des tours 1, 2, 3, 4 : tu DOIS inclure EXACTEMENT 3 suggestions via SUGG_JSON.
-- Suggestions = vraies réponses plausibles que le médecin pourrait donner, à la première personne, courtes (max 12 mots chacune).
-- Format JSON sur une SEULE ligne pour le plan :
-  PLAN_JSON:{{"steps":[{{"num":"01","title":"...","body":"...","tag":"quick"}},{{"num":"02","title":"...","body":"...","tag":"medium"}}]}}
-- Format JSON sur une SEULE ligne pour les suggestions :
+FORMAT TECHNIQUE (extremement important) :
+- Tu ecris UN SEUL message court (pas plusieurs tours d'un coup).
+- N'ecris JAMAIS les mots « TOUR 1 », « TOUR 2 », etc. dans ton message.
+- Ne decris JAMAIS la structure de la conversation au medecin.
+- Le bloc SUGG_JSON doit etre sur UNE SEULE LIGNE et avoir EXACTEMENT 3 items courts (max 12 mots chacun, a la premiere personne, plausibles comme reponse du medecin) :
   SUGG_JSON:{{"items":["option 1","option 2","option 3"]}}
-- Pour signaler la fin (tour 5 UNIQUEMENT) : END_CONVERSATION:true
+- Le bloc PLAN_JSON (tour 4 uniquement) doit etre sur UNE SEULE LIGNE :
+  PLAN_JSON:{{"steps":[{{"num":"01","title":"...","body":"...","tag":"quick"}},{{"num":"02","title":"...","body":"...","tag":"medium"}}]}}
 - Tags valides pour les steps : "quick" / "medium" / "invest"
-- Le reste de ta réponse est du texte normal, sans markdown lourd (pas de titres, pas de listes à puces — le plan d'action est dans PLAN_JSON, pas dans le texte)."""
+- Pour signaler la fin (tour 5 UNIQUEMENT) : la ligne exacte END_CONVERSATION:true"""
 
 
 # ─── Parsing de la réponse Claude ──────────────────────────────────────────
@@ -343,12 +380,18 @@ def send_message(
     profile: Optional[dict[str, Any]] = None,
     scores: Optional[dict[str, Any]] = None,
     provider: str = PROVIDER_ANTHROPIC,
+    turn_number: int = 1,
 ) -> dict[str, Any]:
     """Envoie un message + historique au LLM choisi. Renvoie la réponse PARSÉE.
 
     provider :
       - "anthropic" (défaut) → Claude Haiku via API cloud
       - "ollama"             → SLM local (qwen2.5:3b par défaut)
+
+    turn_number : numéro du tour courant (1 = première réponse de l'assistant,
+    5 = clôture). Sert à scoper les instructions du system prompt à ce tour
+    précisément, pour éviter que les petits modèles enumerent les 5 tours
+    d'un coup.
 
     Lève LLMProviderUnavailable si le provider demandé n'est pas joignable
     (l'endpoint FastAPI convertit en HTTP 503).
@@ -358,7 +401,7 @@ def send_message(
             f"provider invalide : {provider!r}. Valeurs attendues : {sorted(ALLOWED_PROVIDERS)}"
         )
 
-    system_prompt = _build_system_prompt(module, profile, scores)
+    system_prompt = _build_system_prompt(module, profile, scores, turn_number)
 
     if provider == PROVIDER_OLLAMA:
         raw = _send_ollama(user_message, history, system_prompt)
