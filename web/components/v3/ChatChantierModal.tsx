@@ -144,6 +144,7 @@ export function ChatChantierModal({
         suggestions: res.suggestions,
         plan: res.plan,
         ended: res.ended,
+        provider: res.provider,
       }]);
       setUserMessageCount(res.user_message_count);
     } catch (err) {
@@ -174,6 +175,7 @@ export function ChatChantierModal({
         suggestions: res.suggestions,
         plan: res.plan,
         ended: res.ended,
+        provider: res.provider,
       }]);
       setUserMessageCount(res.user_message_count);
     } catch (err) {

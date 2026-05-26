@@ -651,6 +651,7 @@ class ChatMessageResponse(BaseModel):
     user_message_count: int
     max_user_messages: int
     remaining: int
+    provider: Optional[str] = None                # "anthropic" | "ollama" (D-040)
 
 
 @app.get("/interviews/{interview_id}/modules/{module_id}/chat", tags=["chat"])
@@ -669,7 +670,12 @@ async def get_chat_history(
     enriched: list[dict[str, Any]] = []
     for m in messages_raw:
         if m["role"] == "user":
-            enriched.append({"role": "user", "text": m["content"], "created_at": m.get("created_at")})
+            enriched.append({
+                "role": "user",
+                "text": m["content"],
+                "created_at": m.get("created_at"),
+                "provider": None,
+            })
         else:
             # Re-parse the persisted content : "text\n\n__LUGIA_META__:{json}"
             content = m["content"]
@@ -690,6 +696,7 @@ async def get_chat_history(
                 "plan": meta.get("plan"),
                 "ended": meta.get("ended", False),
                 "created_at": m.get("created_at"),
+                "provider": m.get("provider"),
             })
     return {
         "messages": enriched,
@@ -807,7 +814,10 @@ async def post_chat_message(
     }
     import json as _json
     persisted_content = text_clean + "\n\n__LUGIA_META__:" + _json.dumps(meta_payload, ensure_ascii=False)
-    db.add_chat_message(interview_id, module_id, email, "assistant", persisted_content)
+    db.add_chat_message(
+        interview_id, module_id, email, "assistant", persisted_content,
+        provider=provider,
+    )
 
     new_count = current_count + 1
     return ChatMessageResponse(
@@ -817,6 +827,7 @@ async def post_chat_message(
         ended=parsed.get("ended", False),
         user_message_count=new_count,
         max_user_messages=MAX_USER_MESSAGES,
+        provider=provider,
         remaining=max(0, MAX_USER_MESSAGES - new_count),
     )
 

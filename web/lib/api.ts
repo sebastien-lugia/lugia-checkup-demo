@@ -723,6 +723,9 @@ export type ChatMessageItem = {
   plan?: ChatPlanStep[] | null;
   ended?: boolean;
   created_at?: string;
+  /** D-040 — moteur LLM qui a généré ce message (assistant only). NULL pour
+   *  les messages user ou pour les anciens assistants avant migration. */
+  provider?: "anthropic" | "ollama" | null;
 };
 
 export type ChatHistory = {
@@ -740,6 +743,7 @@ export type ChatMessageResponse = {
   user_message_count: number;
   max_user_messages: number;
   remaining: number;
+  provider?: "anthropic" | "ollama" | null;
 };
 
 export async function getChatHistory(

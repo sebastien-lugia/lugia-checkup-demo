@@ -123,6 +123,10 @@ chat_message_table = Table(
     Column("role", String, nullable=False),  # "user" | "assistant"
     Column("content", String, nullable=False),
     Column("created_at", String, nullable=False),
+    # D-040 — provider LLM qui a généré la réponse assistant
+    # ("anthropic" | "ollama"). NULL pour role="user" et pour les
+    # anciens messages assistant antérieurs à la mise en place du toggle.
+    Column("provider", String, nullable=True),
 )
 
 
@@ -347,6 +351,21 @@ def _ensure_profile_v2_columns() -> None:
                 )
 
 
+def _ensure_chat_message_provider_column() -> None:
+    """D-040 — Ajoute la colonne `provider` à `chat_message` si absente.
+    Permet de tracer post-mortem quel moteur LLM (Claude Haiku / Ollama
+    qwen2.5:3b) a généré chaque message assistant. Idempotent."""
+    engine = get_engine()
+    inspector = inspect(engine)
+    if "chat_message" not in inspector.get_table_names():
+        return
+    columns = {c["name"] for c in inspector.get_columns("chat_message")}
+    if "provider" in columns:
+        return
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE chat_message ADD COLUMN provider TEXT"))
+
+
 def init_db() -> None:
     """Crée les tables manquantes et applique les migrations. Idempotent."""
     engine = get_engine()
@@ -357,6 +376,8 @@ def init_db() -> None:
     _ensure_interview_v2_columns()
     _ensure_answer_scored_column()
     _ensure_profile_v2_columns()
+    # D-040 — tracer le provider LLM par message
+    _ensure_chat_message_provider_column()
 
 
 # ---- Helpers Interview ----
@@ -863,15 +884,31 @@ def list_chat_messages(
             .order_by(chat_message_table.c.id.asc())
         ).fetchall()
         return [
-            {"id": r.id, "role": r.role, "content": r.content, "created_at": r.created_at}
+            {
+                "id": r.id,
+                "role": r.role,
+                "content": r.content,
+                "created_at": r.created_at,
+                # Ancien message (avant migration D-040) → getattr fallback None
+                "provider": getattr(r, "provider", None),
+            }
             for r in rows
         ]
 
 
 def add_chat_message(
-    interview_id: int, module_id: str, email: str, role: str, content: str
+    interview_id: int,
+    module_id: str,
+    email: str,
+    role: str,
+    content: str,
+    provider: Optional[str] = None,
 ) -> int:
-    """Persiste un message (user ou assistant) dans la conversation."""
+    """Persiste un message (user ou assistant) dans la conversation.
+
+    `provider` ("anthropic" | "ollama") ne devrait être renseigné que pour
+    role="assistant". Laissé à None pour les messages user.
+    """
     if role not in ("user", "assistant"):
         raise ValueError(f"role invalide : {role}")
     engine = get_engine()
@@ -885,6 +922,7 @@ def add_chat_message(
                 role=role,
                 content=content,
                 created_at=now,
+                provider=provider,
             )
         )
         return int(result.inserted_primary_key[0])
