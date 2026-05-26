@@ -339,7 +339,8 @@ export function BlocV3({
             lineHeight: 1.1,
             letterSpacing: "-0.02em",
             margin: "0 0 12px",
-            color: axisColor,
+            // 2026-05-23 : day -> argentDeep pour contraste, night -> axisColor.
+            color: theme === "day" ? palette.argentDeep : axisColor,
             fontStyle: "normal",
           }}
         >

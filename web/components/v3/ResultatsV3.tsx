@@ -802,7 +802,9 @@ function AxisCard({
                 lineHeight: 1.2,
                 letterSpacing: "-0.01em",
                 margin: 0,
-                color: axisColor,
+                // 2026-05-23 : day -> argentDeep (#6E6E70) pour contraste sur ivoire,
+                // night -> axisColor (#B5B5B8) qui ressort bien sur navy.
+                color: theme === "day" ? palette.argentDeep : axisColor,
                 fontStyle: "normal",
               }}
             >
@@ -1039,7 +1041,9 @@ function OppCard({
             lineHeight: 1.3,
             letterSpacing: "-0.01em",
             margin: "0 0 5px",
-            color: palette.navy,
+            // 2026-05-23 : coherence avec titres d'axe — argentDeep en day,
+            // navy (ivoire clair) en night.
+            color: theme === "day" ? palette.argentDeep : palette.navy,
             fontStyle: "normal",
           }}
         >
