@@ -117,7 +117,12 @@ export function ModuleV3({
           />
         </p>
 
-        {/* Titre (charte J1 : pas d'emoji — retrait de l'icône) */}
+        {/* Titre (charte J1 : pas d'emoji — retrait de l'icône).
+            2026-05-23 : en day, axisColor (#B5B5B8) etait trop pale pour
+            un titre serif. On passe en palette.argentDeep (#6E6E70) — on
+            reste dans la famille argent (gris neutre, pas de bleu) mais
+            plus contraste sur fond ivoire. En night, axisColor argent
+            (#B5B5B8) ressort bien sur fond navy, inchange. */}
         <h1
           style={{
             fontFamily: fonts.serif,
@@ -126,7 +131,7 @@ export function ModuleV3({
             lineHeight: 1.15,
             letterSpacing: "-0.02em",
             margin: "0 0 12px",
-            color: axisColor,
+            color: theme === "day" ? palette.argentDeep : axisColor,
             fontStyle: "normal",
           }}
         >
