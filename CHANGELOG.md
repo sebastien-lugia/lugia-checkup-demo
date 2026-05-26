@@ -4,6 +4,20 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+### Nouveau check-up V3 : repart vraiment de zéro (flag ?fresh=1)
+
+Bug : cliquer sur « Démarrer un nouveau check-up » créait bien une nouvelle interview en BDD, mais la page v3-charte hydratait quand même `extras` depuis `getMyProfile()` — le profil utilisateur étant partagé entre toutes les interviews, les chips précédents (type cabinet, motivation, etc.) restaient pré-remplis sur la page profil étape 1.
+
+Fix : `handleStartV3` (home) ajoute désormais `?fresh=1` à l'URL. Dans le `bootstrap()` de v3-charte, si `fresh=1` est présent, on saute l'hydratation de `extras` depuis le profil persistant, et on nettoie le flag de l'URL via `history.replaceState` (pour qu'un refresh ne reproduise pas le reset à chaque rechargement). L'utilisateur démarre vraiment sur une page profil vierge.
+
+### Sous-titre profil tronqué en bas
+
+Bug visuel sur les pages profil_step1 / profil_step2 V3 : les descendantes (g, j, p) du sous-titre « Cinq éléments factuels. Aucune réponse n'est jugée… » étaient coupées en bas.
+
+Cause : `CalibProgress` est `position: sticky` avec `marginTop: -46` et `background: palette.paper`. Ce rectangle de fond remontait de 46px et recouvrait les 6 derniers pixels du `<Body>` (qui avait `margin: "0 0 40px"`, soit 6px d'overlap visible).
+
+Fix : marge bottom du `<Body>` portée de 40 à 60px pour garantir un clearance visuel entre le sous-titre et la zone sticky du CalibProgress.
+
 ### Home : CTA « Démarrer un nouveau check-up » quand session active
 
 Bug remonté : quand une session était en cours pour une version donnée, la card de cette version n'exposait plus que « Reprendre ». Le médecin qui voulait repartir à zéro (test, démo, profil différent) n'avait pas d'issue depuis la home.

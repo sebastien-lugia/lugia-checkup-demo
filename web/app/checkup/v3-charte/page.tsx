@@ -305,14 +305,28 @@ function CheckupV3BrandPageContent() {
         // backend comme une string unique (premier item) — on les restaure
         // en tant que tableau singleton, le médecin pourra recompléter
         // ses sélections multiples s'il le souhaite.
+        //
+        // Bug fix 2026-05-23 : si la home a routé avec ?fresh=1 (clic
+        // « Démarrer un nouveau check-up »), on saute cette hydratation —
+        // l'utilisateur veut explicitement repartir à zéro même si son
+        // profil user contient des chips d'une session précédente. On
+        // nettoie aussi le flag de l'URL pour qu'un refresh ne reproduise
+        // pas le reset à chaque rechargement.
+        const isFresh = searchParams?.get("fresh") === "1";
         const MULTI_FIELDS = new Set(["motivation", "horizon", "logiciel_metier", "rdv_canal"]);
         const hydratedExtras: Record<string, string | string[]> = {};
-        for (const [k, v] of Object.entries(userProfile)) {
-          if (typeof v === "string" && v) {
-            hydratedExtras[k] = MULTI_FIELDS.has(k) ? [v] : v;
+        if (!isFresh) {
+          for (const [k, v] of Object.entries(userProfile)) {
+            if (typeof v === "string" && v) {
+              hydratedExtras[k] = MULTI_FIELDS.has(k) ? [v] : v;
+            }
           }
+          setExtras((e) => ({ ...e, ...hydratedExtras }));
+        } else if (typeof window !== "undefined") {
+          const cleanedUrl = new URL(window.location.href);
+          cleanedUrl.searchParams.delete("fresh");
+          window.history.replaceState({}, "", cleanedUrl.toString());
         }
-        setExtras((e) => ({ ...e, ...hydratedExtras }));
 
         // 3. Charge les réponses persistées pour cette interview.
         // listAnswers retourne un tableau (Answer & { question_id, id })[].

@@ -147,7 +147,11 @@ function Body({ children, theme }: { children: React.ReactNode; theme: V3Theme }
         lineHeight: 1.75,
         color: palette.navy600,
         maxWidth: 540,
-        margin: "0 0 40px",
+        // Bug fix 2026-05-23 : 40 → 60. CalibProgress est sticky avec
+        // marginTop -46 + background paper qui remontait sur les 6 derniers
+        // pixels du Body et coupait les descendantes (g, j, p) du sous-titre
+        // sur les pages profil_step1 / profil_step2.
+        margin: "0 0 60px",
         fontStyle: "normal",
       }}
     >

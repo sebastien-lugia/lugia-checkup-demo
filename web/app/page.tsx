@@ -115,7 +115,7 @@ export default function AccueilPage() {
     setError(null);
     try {
       const { interview_id } = await createInterviewV3();
-      router.push(`/checkup/v3-charte?interview=${interview_id}`);
+      router.push(`/checkup/v3-charte?interview=${interview_id}&fresh=1`);
     } catch {
       setError(
         "Impossible de démarrer la version V3-brand. Vérifiez que le backend est accessible."
