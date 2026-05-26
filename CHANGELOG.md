@@ -6,6 +6,21 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ## 2026-05-23 — Assistant chat : toggle Cloud (Haiku) / Local (SLM Ollama)
 
+### Mode Local : teaser premium en prod cloud
+
+Le SLM Ollama qwen2.5:3b nécessite que backend + Ollama tournent sur la même machine. En prod cloud (Vercel + Render), `localhost:11434` du backend Render n'existe pas → le toggle Local échouait systématiquement en 503.
+
+Choix produit (D-040 extension) : le mode Local devient un teaser de l'abonnement Lugia. En version gratuite, le toggle Local reste visible mais non-cliquable, badge « Premium » + tooltip « disponible avec l'abonnement Lugia (démo sur la machine du médecin) ». Démarcation visuelle qui valorise le SLM local comme bénéfice premium (souveraineté, données 100 % locales).
+
+Variable d'env publique `NEXT_PUBLIC_CHAT_LOCAL_ENABLED=1` réactive le bouton Local — à mettre dans `.env.local` du dev et lors d'une démo prospect sur le Mac de Sébastien. Absente ou `=0` en prod → mode teaser.
+
+Si une préférence `ollama` était persistée en localStorage avant la bascule en teaser, le composant détecte le cas et retombe silencieusement sur `anthropic` au premier render (évite un 503 d'accueil).
+
+### Fix bouton « Explorer un chantier » + génération PDF
+
+- `web/app/checkup/v3-charte/page.tsx` — `onAutonomie` ne renvoie plus vers un alert « arrive prochainement » ; il ouvre directement la liste complète des chantiers (`setListChantiersOpen(true)`), depuis laquelle le médecin choisit un chantier puis clique « Discuter avec l'assistant » sur la page module pour accéder au chat (A.2 v2 + D-040 toggle).
+- `web/lib/api.ts` — `downloadChantierPdf` lisait la mauvaise clé localStorage (`"lugia-session-token"` avec tirets) alors que `auth.ts` stocke sous `"lugia_session_token"` (underscores). Token NULL → backend 401 → alert d'erreur. Fix : `getSessionToken()` importé depuis `auth.ts` (source unique de vérité).
+
 Le médecin peut désormais choisir, pour chaque chantier, le moteur du chat assistant via un toggle dans l'en-tête de la modale :
 
 - **Cloud · Claude Haiku** (défaut) — comportement actuel, API Anthropic, dépendant de `ANTHROPIC_API_KEY`.

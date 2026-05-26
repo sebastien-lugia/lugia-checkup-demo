@@ -30,6 +30,19 @@ const PROVIDER_LABELS: Record<ChatProvider, string> = {
   ollama: "Local · qwen2.5:3b",
 };
 
+/**
+ * D-040 (extension) — Le mode Local (SLM Ollama) n'est utilisable que
+ * lorsque le backend et Ollama tournent sur la même machine. En prod
+ * cloud (Vercel + Render), il n'est donc pas joignable. On positionne
+ * Local en teaser « Premium » (visible, non cliquable, badge cadenas)
+ * sauf si la variable d'env publique active explicitement le mode local.
+ *
+ * Pour démo locale ou dev : .env.local → NEXT_PUBLIC_CHAT_LOCAL_ENABLED=1
+ * Pour prod publique : variable absente ou =0 → mode teaser premium.
+ */
+const CHAT_LOCAL_ENABLED =
+  process.env.NEXT_PUBLIC_CHAT_LOCAL_ENABLED === "1";
+
 const TAG_LABELS: Record<ChatPlanStep["tag"], string> = {
   quick: "Action rapide",
   medium: "Projet court",
@@ -64,7 +77,11 @@ export function ChatChantierModal({
     if (typeof window === "undefined") return "anthropic";
     try {
       const saved = window.localStorage.getItem(CHAT_PROVIDER_LS_KEY);
-      if (saved === "ollama" || saved === "anthropic") return saved;
+      // Si une préférence "ollama" est persistée mais que le mode local
+      // n'est plus actif (ex : prod sans la var d'env), on retombe sur
+      // anthropic pour éviter un 503 systématique au premier message.
+      if (saved === "ollama" && CHAT_LOCAL_ENABLED) return "ollama";
+      if (saved === "anthropic") return "anthropic";
     } catch {
       /* localStorage indisponible — défaut anthropic */
     }
@@ -287,6 +304,7 @@ export function ChatChantierModal({
           onChange={setProvider}
           theme={theme}
           disabled={isSending}
+          localEnabled={CHAT_LOCAL_ENABLED}
         />
         <button
           type="button"
@@ -517,24 +535,42 @@ export function ChatChantierModal({
 
 /**
  * ProviderToggle — petit segmented-control 2 positions Cloud / Local.
- * État Cloud (Claude Haiku) = défaut, navy uniform. État Local (qwen2.5:3b)
- * = teinté signal ambre pour rappeler que l'on est sur SLM expérimental.
+ *
+ * - État Cloud (Claude Haiku) = défaut, navy uniform.
+ * - État Local (qwen2.5:3b) = teinté signal ambre quand actif.
+ * - Si `localEnabled` est false (= version gratuite / prod publique),
+ *   le bouton Local reste visible mais non-cliquable avec badge cadenas
+ *   et tooltip « Mode local · disponible avec l'abonnement Lugia ».
+ *   Cliquer dessus déclenche un nudge léger (no-op + tooltip visible).
  */
 function ProviderToggle({
   provider,
   onChange,
   theme,
   disabled,
+  localEnabled,
 }: {
   provider: ChatProvider;
   onChange: (p: ChatProvider) => void;
   theme: V3Theme;
   disabled?: boolean;
+  /** False = mode local en teaser premium (toggle visible mais grisé). */
+  localEnabled: boolean;
 }) {
   const palette = paletteFor(theme);
   const options: Array<{ id: ChatProvider; label: string; title: string }> = [
-    { id: "anthropic", label: "Cloud", title: "Claude Haiku (API Anthropic)" },
-    { id: "ollama", label: "Local", title: "Ollama qwen2.5:3b (SLM sur votre machine)" },
+    {
+      id: "anthropic",
+      label: "Cloud",
+      title: "Claude Haiku (API Anthropic) — moteur par défaut",
+    },
+    {
+      id: "ollama",
+      label: "Local",
+      title: localEnabled
+        ? "Ollama qwen2.5:3b (SLM sur votre machine, données 100 % locales)"
+        : "Mode local · disponible avec l'abonnement Lugia (démo sur la machine du médecin)",
+    },
   ];
   return (
     <div
@@ -549,12 +585,19 @@ function ProviderToggle({
       {options.map((opt) => {
         const active = provider === opt.id;
         const isLocal = opt.id === "ollama";
+        const isLockedLocal = isLocal && !localEnabled;
+        const buttonDisabled = !!disabled || isLockedLocal;
         return (
           <button
             key={opt.id}
             type="button"
-            onClick={() => { if (!disabled && !active) onChange(opt.id); }}
-            disabled={disabled}
+            onClick={() => {
+              if (disabled || active) return;
+              if (isLockedLocal) return; // No-op : tooltip explique pourquoi
+              onChange(opt.id);
+            }}
+            disabled={!!disabled}
+            aria-disabled={buttonDisabled}
             title={opt.title}
             style={{
               padding: "6px 12px",
@@ -564,18 +607,36 @@ function ProviderToggle({
                 : "transparent",
               color: active
                 ? (isLocal ? palette.signalWarn.default : palette.paper)
-                : palette.navy400,
+                : (isLockedLocal ? palette.navy400 : palette.navy400),
               fontFamily: fonts.mono,
               fontSize: 10,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              cursor: disabled ? "not-allowed" : (active ? "default" : "pointer"),
-              opacity: disabled ? 0.5 : 1,
-              transition: "background 160ms ease-out, color 160ms ease-out",
+              cursor: buttonDisabled ? "not-allowed" : (active ? "default" : "pointer"),
+              opacity: disabled ? 0.5 : (isLockedLocal ? 0.55 : 1),
+              transition: "background 160ms ease-out, color 160ms ease-out, opacity 160ms ease-out",
               fontStyle: "normal",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
             }}
           >
             {opt.label}
+            {isLockedLocal && (
+              <span
+                aria-hidden="true"
+                style={{
+                  fontSize: 9,
+                  padding: "1px 5px",
+                  border: `1px solid ${palette.navy400}`,
+                  color: palette.navy400,
+                  letterSpacing: "0.10em",
+                  fontWeight: 700,
+                }}
+              >
+                Premium
+              </span>
+            )}
           </button>
         );
       })}
