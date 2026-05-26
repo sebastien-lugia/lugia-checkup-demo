@@ -154,6 +154,12 @@ FORMAT TECHNIQUE (très important) :
 _RE_END = re.compile(r"END_CONVERSATION\s*:\s*true", re.IGNORECASE)
 _RE_PLAN = re.compile(r"PLAN_JSON:\s*(\{.*?\}\s*\]\s*\}|\{.*?\})", re.DOTALL)
 _RE_SUGG = re.compile(r"SUGG_JSON:\s*(\{[^}]+\})", re.DOTALL)
+# Bug fix 2026-05-23 : qwen2.5:3b a parfois appris (à tort) à imiter
+# notre suffixe interne `__LUGIA_META__:{...}` qui sert à la persistance
+# BDD. On le strippe defensivement de la sortie du LLM pour qu'il
+# n'apparaisse jamais cote UI. Voir aussi backend/main.py qui nettoie
+# l'historique avant de le passer au LLM (deux verrous).
+_RE_META = re.compile(r"\n*__LUGIA_META__:\s*\{.*?\}", re.DOTALL)
 
 
 def parse_assistant_reply(raw: str) -> dict[str, Any]:
@@ -202,6 +208,9 @@ def parse_assistant_reply(raw: str) -> dict[str, Any]:
             text = text.replace(m_sugg.group(0), "").strip()
         except Exception:
             pass
+
+    # Strip defensif du suffixe __LUGIA_META__ que qwen mime parfois
+    text = _RE_META.sub("", text)
 
     return {
         "text": text.strip(),

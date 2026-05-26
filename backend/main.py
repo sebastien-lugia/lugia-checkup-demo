@@ -753,7 +753,22 @@ async def post_chat_message(
 
     # Récupère l'historique pour le prompt
     history_raw = db.list_chat_messages(interview_id, module_id, email)
-    history = [{"role": m["role"], "content": m["content"]} for m in history_raw]
+
+    # Bug fix 2026-05-23 : le content BDD des messages assistant contient
+    # un suffixe interne `\n\n__LUGIA_META__:{...}` qui sert au re-parsing
+    # à l'affichage (suggestions / plan / ended). Si on le repasse tel quel
+    # au LLM dans l'historique, les petits modèles (qwen2.5:3b notamment)
+    # miment ce pattern et l'incluent dans leurs propres réponses → le
+    # marqueur apparaît brut côté UI. On le strippe avant de construire
+    # `history` — le LLM ne voit que le texte propre du précédent tour.
+    def _strip_meta(content: str) -> str:
+        idx = content.rfind("\n\n__LUGIA_META__:")
+        return content[:idx] if idx > 0 else content
+
+    history = [
+        {"role": m["role"], "content": _strip_meta(m["content"])}
+        for m in history_raw
+    ]
 
     # Profil + scores (best effort)
     user_profile = db.get_user_profile(email) or {}
@@ -830,6 +845,22 @@ async def post_chat_message(
         provider=provider,
         remaining=max(0, MAX_USER_MESSAGES - new_count),
     )
+
+
+@app.delete("/interviews/{interview_id}/modules/{module_id}/chat", tags=["chat"])
+async def delete_chat_conversation(
+    interview_id: int,
+    module_id: str,
+    email: str = Depends(get_current_user_email),
+) -> dict[str, int]:
+    """Supprime tous les messages d'une conversation chantier.
+
+    Utilisé par le bouton « Recommencer » de la modale chat (frontend).
+    Renvoie le nombre de lignes supprimées.
+    """
+    _assert_user_owns_interview(email, interview_id)
+    n = db.delete_chat_messages(interview_id, module_id, email)
+    return {"deleted": n}
 
 
 @app.put("/interviews/{interview_id}/answers/{question_id}", tags=["answer"])
