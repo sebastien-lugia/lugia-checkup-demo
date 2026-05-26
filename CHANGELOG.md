@@ -4,6 +4,12 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+### Home : CTA « Démarrer un nouveau check-up » quand session active
+
+Bug remonté : quand une session était en cours pour une version donnée, la card de cette version n'exposait plus que « Reprendre ». Le médecin qui voulait repartir à zéro (test, démo, profil différent) n'avait pas d'issue depuis la home.
+
+Fix : `VersionCard` enveloppe désormais le bouton principal (qui reste « Reprendre » par défaut quand active — clic naturel sur la card = continuité) et ajoute en dessous un second CTA discret (lien souligné gris) « Démarrer un nouveau check-up » qui appelle `onStart`. HTML interdit les `<button>` imbriqués → wrap dans un `<div className="flex flex-col gap-2">`.
+
 ## 2026-05-23 — Fix page résultats : signal fallback enrichi
 
 Bug remonté en prod : sur tout profil intermédiaire (ex A=2 / B=2 / C=2), les deux colonnes « Ce qui tient » et « Ce qui fragilise » du bilan global apparaissaient vides, et le radar de cartographie organisationnelle paraissait décalé à droite (annotations latérales absentes).

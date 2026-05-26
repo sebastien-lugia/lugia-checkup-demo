@@ -311,8 +311,15 @@ function VersionCard({
 
   const handleClick = active ? onResume : onStart;
   const disabled = workingPathSet && !working;
+  // Bug fix 2026-05-23 : quand une session est active, on n'exposait que
+  // « Reprendre ». Le médecin qui voulait repartir à zéro n'avait pas
+  // d'issue. On garde le button principal en « Reprendre » (clic naturel
+  // sur la card = continuité) et on ajoute un second CTA discret en
+  // dessous pour démarrer une nouvelle session de cette même version.
+  // (HTML interdit nested <button> → on enveloppe dans un <div>.)
 
   return (
+    <div className="flex flex-col gap-2">
     <button
       onClick={handleClick}
       disabled={disabled || loading}
@@ -384,6 +391,20 @@ function VersionCard({
           : startLabel}
       </div>
     </button>
+    {active && (
+      <button
+        type="button"
+        onClick={onStart}
+        disabled={disabled || loading || working}
+        className={
+          "text-[12px] text-[#666] hover:text-[#1a2333] underline underline-offset-2 " +
+          "self-start px-1 py-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        }
+      >
+        {working ? "Création…" : "Démarrer un nouveau check-up"}
+      </button>
+    )}
+    </div>
   );
 }
 
