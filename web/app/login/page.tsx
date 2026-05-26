@@ -158,7 +158,7 @@ export default function LoginPage() {
                 fontStyle: "normal",
               }}
             >
-              Si l&apos;adresse{" "}
+              {"Si l'adresse "}
               <strong
                 style={{
                   // Bug fix 2026-05-23 : palette.navy fonctionnait en theorie
@@ -169,11 +169,8 @@ export default function LoginPage() {
                   fontWeight: 600,
                   fontFamily: fonts.sans,
                 }}
-              >
-                {email || "votre adresse"}
-              </strong>
-              {" "}est valide, vous y recevrez dans quelques secondes un lien d&apos;accès
-              à votre check-up. Il est valable 30 minutes.
+              >{email || "votre adresse"}</strong>
+              {" est valide, vous y recevrez dans quelques secondes un lien d'accès à votre check-up. Il est valable 30 minutes."}
             </p>
             <p
               style={{
