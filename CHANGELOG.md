@@ -6,9 +6,9 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ### Nouveau check-up V3 : repart vraiment de zéro (flag ?fresh=1)
 
-Bug : cliquer sur « Démarrer un nouveau check-up » créait bien une nouvelle interview en BDD, mais la page v3-charte hydratait quand même `extras` depuis `getMyProfile()` — le profil utilisateur étant partagé entre toutes les interviews, les chips précédents (type cabinet, motivation, etc.) restaient pré-remplis sur la page profil étape 1.
+Bug : cliquer sur « Démarrer un nouveau check-up » créait bien une nouvelle interview en BDD, mais la page v3-charte hydratait quand même `extras` depuis `getMyProfile()` — le profil utilisateur étant partagé entre toutes les interviews, les chips précédents (type cabinet, motivation, etc.) restaient pré-remplis sur la page profil étape 1. Après premier fix partiel, le parcours démarrait quand même sur la page « Ancrage » car `resumeStep` lisait `isProfileStep1Complete(profile)` sur le profil user toujours rempli en BDD.
 
-Fix : `handleStartV3` (home) ajoute désormais `?fresh=1` à l'URL. Dans le `bootstrap()` de v3-charte, si `fresh=1` est présent, on saute l'hydratation de `extras` depuis le profil persistant, et on nettoie le flag de l'URL via `history.replaceState` (pour qu'un refresh ne reproduise pas le reset à chaque rechargement). L'utilisateur démarre vraiment sur une page profil vierge.
+Fix complet en deux temps : (1) `handleStartV3` (home) ajoute désormais `?fresh=1` à l'URL. (2) Dans le `bootstrap()` de v3-charte, si `fresh=1` est présent, on saute l'hydratation de `extras` depuis le profil persistant, ET on force `setStep("intro")` au lieu de laisser `resumeStep` recalculer (qui aurait sauté à `energy` car le profil user reste rempli). Le flag de l'URL est nettoyé via `history.replaceState` (pour qu'un refresh ne reproduise pas le reset). L'utilisateur démarre vraiment sur l'écran d'intro avec un profil vierge.
 
 ### Sous-titre profil tronqué en bas
 

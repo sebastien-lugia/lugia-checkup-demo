@@ -384,7 +384,15 @@ function CheckupV3BrandPageContent() {
           return ls.completeness.A >= 1 && ls.completeness.B >= 1 && ls.completeness.C >= 1;
         };
 
-        if (urlView === "results") {
+        // Bug fix 2026-05-23 : avec fresh=1, on force le step initial à "intro"
+        // — sinon resumeStep regarde isProfileStep1Complete(profile) qui se
+        // base sur le profil user persistant (toujours rempli en BDD) et
+        // saute directement à "energy". L'utilisateur qui a explicitement
+        // demandé un nouveau check-up doit recommencer du tout début.
+        const isFreshStart = searchParams?.get("fresh") === "1";
+        if (isFreshStart) {
+          setStep("intro");
+        } else if (urlView === "results") {
           setStep("resultats");
         } else if (
           urlStep === "transition_A" ||
