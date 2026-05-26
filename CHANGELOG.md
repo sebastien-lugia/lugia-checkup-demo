@@ -4,6 +4,37 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-23 (suite) — WebLLM en navigateur + correctifs UX
+
+### WebLLM : qwen2.5 dans le navigateur du médecin (sans installation)
+
+Le mode « Local » du chat chantiers passe d'Ollama backend (inutilisable en prod cloud) à WebLLM (`@mlc-ai/web-llm`) qui charge `qwen2.5:3b` directement dans le browser via WebGPU. Aucune installation côté médecin, aucune donnée ne quitte le navigateur, coût infra zéro. Le modèle (~2 Go) est téléchargé une seule fois et caché par le navigateur.
+
+- **Backend** : nouveau `GET /chat/system-prompt` (renvoie le prompt complet pour alimenter WebLLM côté browser) et `POST /chat/persist` (enregistre un échange déjà généré par le navigateur, mêmes validations que le POST /chat). Persistance via `chat_message.provider = "webllm"` (colonne déjà en place via D-040).
+- **Frontend** : `web/lib/webllm.ts` (singleton engine + parser TS équivalent du Python — markers `SUGG_JSON` / `PLAN_JSON` / `END_CONVERSATION` / strip défensif `__LUGIA_META__`), `web/lib/api.ts` (type `ChatProvider` étendu avec `"webllm"`, fonctions `getChatSystemPrompt` et `persistChatExchange`).
+- **ChatChantierModal** : toggle relabellé « Cloud · Navigateur », chargement automatique du runtime + bandeau de progression visible au premier load, helper `doInference()` qui route selon provider, détection WebGPU runtime (`isWebLLMSupported`), migration silencieuse `"ollama"` → `"webllm"` pour les testeurs ayant choisi le mode local backend (mort en prod).
+- **Page de debug** : `/debug/webllm-test` pour valider le runtime sans passer par la modale chat.
+
+### Strip `__LUGIA_META__` avant history LLM
+
+Le suffixe interne de persistance BDD (`...\n\n__LUGIA_META__:{...}`) était passé tel quel au LLM dans l'historique, et qwen2.5:3b finissait par mimétisme à l'inclure dans ses propres réponses. Deux verrous : strip côté backend avant de construire `history` pour le LLM, et strip défensif dans `parse_assistant_reply` (regex `_RE_META`).
+
+### Hydration mismatch theme day/night → hook `useTheme`
+
+Le lazy initializer `useState<V3Theme>(() => localStorage.getItem(...))` causait un mismatch React : le SSR rendait `"night"` (window undefined), le client recalculait `"day"` au render initial → diff sur les styles du `<main>`. Nouveau hook `web/lib/v3/useTheme.ts` : SSR-stable (toujours `"night"` au premier render), lit `localStorage` dans un `useEffect` post-mount, persiste automatiquement les changements. Adopté dans 8 pages (`/checkup/v3-charte`, `/confidentialite`, `/notre-accompagnement`, `/lugia`, `/le-checkup`, `/compte`, `/legal`, `/login`). Les `useEffect` de persistance dupliqués partout sont supprimés.
+
+### Login : adresse mail invisible + espacement
+
+Sur l'écran « Lien envoyé » après demande de magic link, l'adresse mail et le lien « réessayez avec une autre adresse » étaient quasi-invisibles sur fond navy en mode night. `palette.navy` résolvait bien en ivoire `#f4efe5` mais le rendu serif fin 16px était trop pâle. Fix : couleur explicite (`#ffffff` en night, `palette.navy` en day), `fontFamily: fonts.sans`, `fontWeight: 600` / `500`. Espace JSX explicite `{" "}` autour du `<strong>` pour éviter les agglutinations.
+
+### Palette argent — alignement day sur la valeur night
+
+`palette.argent` en mode jour passe de `#B5B5B8` (trop pâle pour les eyebrows et labels de tableau sur fond ivoire `#fbfaf6`) à `#8E8E91` (valeur du mode nuit). `argentLight` et `argentDeep` glissent en conséquence pour préserver la hiérarchie visuelle (`argentLight` = `#B5B5B8` clair, `argentDeep` = `#6E6E70` foncé).
+
+### Bonus : bouton « Recommencer » dans la modale chat, fix bouton « Discussion en autonomie », fix PDF chantier (clé localStorage incohérente), fix nouveau check-up V3 (force step="intro" + skip hydratation extras quand `?fresh=1`), fix sous-titre profil tronqué (CalibProgress sticky qui mangeait les descendantes), fix radar décentré + blocs « Ce qui tient/fragilise » vides (fallback signal enrichi), nettoyage des `.js` parasites de compilation `tsc`.
+
+---
+
 ## 2026-05-23 — Assistant chat : toggle Cloud (Haiku) / Local (SLM Ollama)
 
 ### Mode Local : teaser premium en prod cloud

@@ -69,9 +69,14 @@ export const dayPalette = {
   paper: "#fbfaf6", // fond body en mode jour
 
   // Famille argent (signature visuelle, jamais décorative)
-  argent: "#B5B5B8",
-  argentLight: "#D2D2D5",
-  argentDeep: "#8E8E91",
+  // 2026-05-23 : argent passé de #B5B5B8 à #8E8E91 — le ton plus clair
+  // était difficilement lisible comme texte d'eyebrow / label de tableau
+  // sur fond ivoire (#fbfaf6). On aligne sur la valeur du mode nuit pour
+  // une lecture confortable dans les deux modes. argentLight reste plus
+  // clair (effet décoratif fin), argentDeep désormais plus foncé (#6E6E70).
+  argent: "#8E8E91",
+  argentLight: "#B5B5B8",
+  argentDeep: "#6E6E70",
 
   // Filets et bordures
   line: "rgba(26,35,51,0.12)",

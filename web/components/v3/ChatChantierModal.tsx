@@ -19,29 +19,39 @@ import { paletteFor, fonts, type V3Theme } from "@/lib/v3/tokens";
 import {
   getChatHistory,
   postChatMessage,
+  resetChatConversation,
+  getChatSystemPrompt,
+  persistChatExchange,
   type ChatMessageItem,
   type ChatPlanStep,
   type ChatProvider,
 } from "@/lib/api";
+import {
+  getWebLLMEngine,
+  generateWithWebLLM,
+  parseAssistantReply,
+  isWebLLMSupported,
+  type WebLLMEngineLike,
+  type WebLLMProgress,
+} from "@/lib/webllm";
 
 const CHAT_PROVIDER_LS_KEY = "lugia-chat-provider";
 const PROVIDER_LABELS: Record<ChatProvider, string> = {
   anthropic: "Cloud · Claude Haiku",
   ollama: "Local · qwen2.5:3b",
+  webllm: "Dans votre navigateur · qwen2.5",
 };
 
 /**
- * D-040 (extension) — Le mode Local (SLM Ollama) n'est utilisable que
- * lorsque le backend et Ollama tournent sur la même machine. En prod
- * cloud (Vercel + Render), il n'est donc pas joignable. On positionne
- * Local en teaser « Premium » (visible, non cliquable, badge cadenas)
- * sauf si la variable d'env publique active explicitement le mode local.
- *
- * Pour démo locale ou dev : .env.local → NEXT_PUBLIC_CHAT_LOCAL_ENABLED=1
- * Pour prod publique : variable absente ou =0 → mode teaser premium.
+ * D-040 — Toggle Cloud / WebLLM. Le toggle « Dans votre navigateur »
+ * (provider="webllm") s'appuie sur @mlc-ai/web-llm qui charge qwen2.5:3b
+ * via WebGPU dans le browser du médecin. Disponibilité = WebGPU dispo
+ * (Chrome / Edge récent). La variable NEXT_PUBLIC_CHAT_LOCAL_ENABLED est
+ * conservée comme override de debug si jamais on veut désactiver le mode
+ * local côté prod sans toucher au code.
  */
-const CHAT_LOCAL_ENABLED =
-  process.env.NEXT_PUBLIC_CHAT_LOCAL_ENABLED === "1";
+const CHAT_LOCAL_DISABLED =
+  process.env.NEXT_PUBLIC_CHAT_LOCAL_ENABLED === "0";
 
 const TAG_LABELS: Record<ChatPlanStep["tag"], string> = {
   quick: "Action rapide",
@@ -77,16 +87,58 @@ export function ChatChantierModal({
     if (typeof window === "undefined") return "anthropic";
     try {
       const saved = window.localStorage.getItem(CHAT_PROVIDER_LS_KEY);
-      // Si une préférence "ollama" est persistée mais que le mode local
-      // n'est plus actif (ex : prod sans la var d'env), on retombe sur
-      // anthropic pour éviter un 503 systématique au premier message.
-      if (saved === "ollama" && CHAT_LOCAL_ENABLED) return "ollama";
+      // Migration silencieuse : l'ancien "ollama" pointait sur Ollama backend
+      // (mort en prod). On bascule sur "webllm" qui est l'équivalent
+      // navigateur — même intention « SLM local » côté médecin.
+      if (saved === "ollama" || saved === "webllm") {
+        return isWebLLMSupported() && !CHAT_LOCAL_DISABLED ? "webllm" : "anthropic";
+      }
       if (saved === "anthropic") return "anthropic";
     } catch {
       /* localStorage indisponible — défaut anthropic */
     }
     return "anthropic";
   });
+
+  // État WebLLM — chargement progressif du runtime quand le user passe en
+  // mode "Dans votre navigateur" pour la première fois.
+  const [webllmStatus, setWebllmStatus] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >("idle");
+  const [webllmProgress, setWebllmProgress] = useState<WebLLMProgress | null>(null);
+  const [webllmSystemPrompt, setWebllmSystemPrompt] = useState<string | null>(null);
+  const webllmEngineRef = useRef<WebLLMEngineLike | null>(null);
+
+  // Chargement automatique du runtime quand le user bascule sur webllm
+  useEffect(() => {
+    if (provider !== "webllm") return;
+    if (webllmStatus === "ready" || webllmStatus === "loading") return;
+    let cancelled = false;
+    (async () => {
+      setWebllmStatus("loading");
+      setErrorMsg(null);
+      try {
+        // Récupère le system prompt côté backend en parallèle du chargement
+        const [engine, sp] = await Promise.all([
+          getWebLLMEngine((p) => {
+            if (!cancelled) setWebllmProgress(p);
+          }),
+          getChatSystemPrompt(interviewId, moduleId).then((r) => r.system_prompt),
+        ]);
+        if (cancelled) return;
+        webllmEngineRef.current = engine;
+        setWebllmSystemPrompt(sp);
+        setWebllmStatus("ready");
+      } catch (err) {
+        if (cancelled) return;
+        const message = err instanceof Error ? err.message : "Erreur inconnue";
+        setErrorMsg(`Impossible de charger le modèle local : ${message}`);
+        setWebllmStatus("error");
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider, interviewId, moduleId]);
   // Garde une ref synchrone du provider pour les callbacks (sendInitial,
   // handleSend) — évite que le user puisse "geler" l'ancien provider
   // en cliquant le toggle entre l'optimistic setMessages et l'appel API.
@@ -115,7 +167,10 @@ export function ChatChantierModal({
         setUserMessageCount(h.user_message_count);
         setMaxUserMessages(h.max_user_messages);
         // Si conversation vide, on déclenche le tour 1 par envoi auto
-        if (h.messages.length === 0 && !initRef.current) {
+        // Si provider == "webllm", on attend que le runtime soit chargé
+        // (autre useEffect plus bas le détecte et déclenche sendInitial).
+        // Sinon, on lance tout de suite le tour 1.
+        if (h.messages.length === 0 && !initRef.current && provider !== "webllm") {
           initRef.current = true;
           void sendInitial();
         }
@@ -128,6 +183,19 @@ export function ChatChantierModal({
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interviewId, moduleId]);
+
+  // Démarrage différé du tour 1 quand on est en mode webllm et que le
+  // runtime vient de finir de charger.
+  useEffect(() => {
+    if (provider !== "webllm") return;
+    if (webllmStatus !== "ready") return;
+    if (isLoading) return; // bootstrap pas encore fini
+    if (initRef.current) return;
+    if (messages.length > 0) return;
+    initRef.current = true;
+    void sendInitial();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider, webllmStatus, isLoading, messages.length]);
 
   // Auto-scroll en bas à chaque changement
   useEffect(() => {
@@ -148,26 +216,100 @@ export function ChatChantierModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  /** Helper : exécute un tour de chat selon le provider courant. */
+  async function doInference(userMessage: string): Promise<{
+    text: string;
+    suggestions?: string[] | null;
+    plan?: ChatPlanStep[] | null;
+    ended: boolean;
+    user_message_count: number;
+    provider?: string | null;
+  }> {
+    const p = providerRef.current;
+    if (p === "webllm") {
+      // Inférence dans le navigateur via WebLLM, puis persistance en BDD.
+      if (!webllmEngineRef.current || !webllmSystemPrompt) {
+        throw new Error("Le modèle local n'est pas encore prêt. Patientez quelques secondes.");
+      }
+      // Construire l'historique pour le LLM (sans le user message qu'on vient d'ajouter)
+      const histForLlm: { role: "user" | "assistant"; content: string }[] = messages
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
+      const raw = await generateWithWebLLM(
+        webllmEngineRef.current,
+        webllmSystemPrompt,
+        histForLlm,
+        userMessage,
+      );
+      const parsed = parseAssistantReply(raw);
+      // Persistance backend (ne génère plus, enregistre)
+      const persistRes = await persistChatExchange(interviewId, moduleId, {
+        user_message: userMessage,
+        assistant_text: parsed.text,
+        suggestions: parsed.suggestions,
+        plan: parsed.plan as ChatPlanStep[] | null,
+        ended: parsed.ended,
+        provider: "webllm",
+      });
+      return {
+        text: parsed.text,
+        suggestions: parsed.suggestions,
+        plan: parsed.plan as ChatPlanStep[] | null,
+        ended: parsed.ended,
+        user_message_count: persistRes.user_message_count,
+        provider: "webllm",
+      };
+    }
+    // Provider backend (anthropic / ollama) : appel HTTP classique
+    const res = await postChatMessage(interviewId, moduleId, userMessage, p);
+    return {
+      text: res.text,
+      suggestions: res.suggestions,
+      plan: res.plan,
+      ended: res.ended,
+      user_message_count: res.user_message_count,
+      provider: res.provider,
+    };
+  }
+
   async function sendInitial() {
     const initialUserMessage = `Je veux creuser le chantier : ${moduleLabel}`;
     setIsSending(true);
     setErrorMsg(null);
     setMessages((m) => [...m, { role: "user", text: initialUserMessage }]);
     try {
-      const res = await postChatMessage(interviewId, moduleId, initialUserMessage, providerRef.current);
+      const res = await doInference(initialUserMessage);
       setMessages((m) => [...m, {
         role: "assistant",
         text: res.text,
         suggestions: res.suggestions,
         plan: res.plan,
         ended: res.ended,
-        provider: res.provider,
+        provider: res.provider as ChatProvider | null | undefined,
       }]);
       setUserMessageCount(res.user_message_count);
     } catch (err) {
       setMessages((m) => m.slice(0, -1));
       const message = err instanceof Error ? err.message : "Erreur inconnue";
-      setErrorMsg(`Impossible de démarrer la conversation. ${message}`);
+      // Bug fix 2026-05-23 : sendInitial gère désormais 503 comme handleSend,
+      // pour que le médecin voie un message clair au tout premier message
+      // (et pas juste "POST .../chat failed: 503").
+      if (message.includes("503")) {
+        const otherProvider: ChatProvider = providerRef.current === "ollama" ? "anthropic" : "ollama";
+        const otherLabel = PROVIDER_LABELS[otherProvider];
+        // Le detail du backend (transmis par api.ts) explique pourquoi
+        // (lib manquante, Ollama down, modèle pas tiré). On l'affiche brut
+        // pour aider le diag.
+        const detailMatch = /— (.+)$/.exec(message);
+        const detail = detailMatch ? detailMatch[1] : "raison inconnue";
+        setErrorMsg(
+          `${PROVIDER_LABELS[providerRef.current]} n'est pas joignable. ` +
+          `Basculez sur « ${otherLabel} » via le toggle en haut, puis rouvrez la modale. ` +
+          `(Détail : ${detail})`
+        );
+      } else {
+        setErrorMsg(`Impossible de démarrer la conversation. ${message}`);
+      }
     } finally {
       setIsSending(false);
     }
@@ -185,14 +327,14 @@ export function ChatChantierModal({
     setMessages((m) => [...m, { role: "user", text: msg }]);
 
     try {
-      const res = await postChatMessage(interviewId, moduleId, msg, providerRef.current);
+      const res = await doInference(msg);
       setMessages((m) => [...m, {
         role: "assistant",
         text: res.text,
         suggestions: res.suggestions,
         plan: res.plan,
         ended: res.ended,
-        provider: res.provider,
+        provider: res.provider as ChatProvider | null | undefined,
       }]);
       setUserMessageCount(res.user_message_count);
     } catch (err) {
@@ -216,6 +358,32 @@ export function ChatChantierModal({
     }
   }
 
+  async function handleReset() {
+    if (isSending) return;
+    // Confirmation explicite — perdre une conversation est destructif.
+    const ok = window.confirm(
+      "Recommencer la discussion ?\n\nTous les messages de cette conversation seront supprimés et l'assistant repartira au tour 1."
+    );
+    if (!ok) return;
+    setIsSending(true);
+    setErrorMsg(null);
+    try {
+      await resetChatConversation(interviewId, moduleId);
+      // Reset complet du state local
+      setMessages([]);
+      setUserMessageCount(0);
+      initRef.current = false;
+      // Relance le tour 1 — même flow que le bootstrap initial
+      initRef.current = true;
+      await sendInitial();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      setErrorMsg(`Impossible de réinitialiser la conversation. ${message}`);
+      setIsSending(false);
+    }
+    // Note : pas de finally setIsSending(false) — sendInitial le gère déjà.
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -227,6 +395,9 @@ export function ChatChantierModal({
   const lastIsAssistant = lastMessage?.role === "assistant";
   const conversationEnded = !!lastMessage && lastMessage.role === "assistant" && lastMessage.ended;
   const remaining = Math.max(0, maxUserMessages - userMessageCount);
+  // Quand on est en mode WebLLM, on bloque l'envoi tant que le runtime
+  // n'est pas chargé — sinon doInference plante avec "modèle pas prêt".
+  const webllmNotReady = provider === "webllm" && webllmStatus !== "ready";
 
   return (
     <div
@@ -299,12 +470,44 @@ export function ChatChantierModal({
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <button
+          type="button"
+          onClick={handleReset}
+          disabled={isSending || messages.length === 0}
+          aria-label="Recommencer la discussion"
+          title="Recommencer la discussion (supprime l'historique de ce chantier)"
+          style={{
+            background: "transparent",
+            border: `1px solid ${palette.line}`,
+            padding: "6px 12px",
+            cursor: (isSending || messages.length === 0) ? "not-allowed" : "pointer",
+            fontFamily: fonts.mono,
+            fontSize: 10,
+            color: palette.navy400,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            transition: "border-color 180ms ease-out, color 180ms ease-out",
+            fontStyle: "normal",
+            opacity: (isSending || messages.length === 0) ? 0.5 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (isSending || messages.length === 0) return;
+            e.currentTarget.style.borderColor = palette.navy;
+            e.currentTarget.style.color = palette.navy;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = palette.line;
+            e.currentTarget.style.color = palette.navy400;
+          }}
+        >
+          Recommencer
+        </button>
         <ProviderToggle
           provider={provider}
           onChange={setProvider}
           theme={theme}
           disabled={isSending}
-          localEnabled={CHAT_LOCAL_ENABLED}
+          localEnabled={isWebLLMSupported() && !CHAT_LOCAL_DISABLED}
         />
         <button
           type="button"
@@ -335,6 +538,26 @@ export function ChatChantierModal({
       {/* Liste messages */}
       <div ref={listRef} className="v3-chat-modal-list" style={{ flex: 1, overflowY: "auto", padding: "28px 28px 18px" }}>
         <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }}>
+          {/* Bandeau de chargement du modèle WebLLM (premier passage) */}
+          {provider === "webllm" && webllmStatus === "loading" && (
+            <WebLLMLoadingPanel theme={theme} progress={webllmProgress} />
+          )}
+          {provider === "webllm" && webllmStatus === "error" && (
+            <div
+              style={{
+                padding: "14px 16px",
+                border: `1px solid ${palette.signalWarn.default}`,
+                background: `${palette.signalWarn.default}11`,
+                color: palette.signalWarn.default,
+                fontFamily: fonts.mono,
+                fontSize: 12,
+                letterSpacing: "0.04em",
+                fontStyle: "normal",
+              }}
+            >
+              Le modèle local n'a pas pu se charger. Bascule sur « Cloud » via le toggle en haut pour continuer.
+            </div>
+          )}
           {isLoading && (
             <p style={{ fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.08em", color: palette.navy400, opacity: 0.6, margin: 0, fontStyle: "normal" }}>
               Chargement…
@@ -493,7 +716,7 @@ export function ChatChantierModal({
               <button
                 type="button"
                 onClick={() => handleSend()}
-                disabled={!draft.trim() || isSending || isLoading || remaining === 0}
+                disabled={ !draft.trim() || isSending || isLoading || remaining === 0 || webllmNotReady }
                 style={{
                   background: palette.navy,
                   color: palette.paper,
@@ -565,11 +788,11 @@ function ProviderToggle({
       title: "Claude Haiku (API Anthropic) — moteur par défaut",
     },
     {
-      id: "ollama",
-      label: "Local",
+      id: "webllm",
+      label: "Navigateur",
       title: localEnabled
-        ? "Ollama qwen2.5:3b (SLM sur votre machine, données 100 % locales)"
-        : "Mode local · disponible avec l'abonnement Lugia (démo sur la machine du médecin)",
+        ? "qwen2.5:3b via WebLLM, tourne dans votre navigateur (données 100 % locales)"
+        : "Mode local indisponible (WebGPU requis — Chrome ou Edge récent)",
     },
   ];
   return (
@@ -584,7 +807,7 @@ function ProviderToggle({
     >
       {options.map((opt) => {
         const active = provider === opt.id;
-        const isLocal = opt.id === "ollama";
+        const isLocal = opt.id === "webllm";
         const isLockedLocal = isLocal && !localEnabled;
         const buttonDisabled = !!disabled || isLockedLocal;
         return (
@@ -640,6 +863,79 @@ function ProviderToggle({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/**
+ * Panneau d'information affiché pendant le téléchargement / l'initialisation
+ * du runtime WebLLM (premier passage sur "Navigateur"). Inclut une barre de
+ * progression et le texte d'étape (download shard X, compile, etc.).
+ */
+function WebLLMLoadingPanel({
+  theme,
+  progress,
+}: {
+  theme: V3Theme;
+  progress: WebLLMProgress | null;
+}) {
+  const palette = paletteFor(theme);
+  const pct = Math.round((progress?.progress ?? 0) * 100);
+  return (
+    <div
+      style={{
+        padding: "18px 20px",
+        border: `1px solid ${palette.lineStrong}`,
+        background: palette.ivory,
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+      }}
+    >
+      <div
+        style={{
+          fontFamily: fonts.mono,
+          fontSize: 10,
+          letterSpacing: "0.16em",
+          textTransform: "uppercase",
+          color: palette.navy400,
+          fontStyle: "normal",
+        }}
+      >
+        Téléchargement du modèle qwen2.5:3b · première utilisation
+      </div>
+      <div style={{ height: 4, background: palette.line, overflow: "hidden" }}>
+        <div
+          style={{
+            width: `${pct}%`,
+            height: "100%",
+            background: palette.navy,
+            transition: "width 200ms ease-out",
+          }}
+        />
+      </div>
+      <div
+        style={{
+          fontFamily: fonts.mono,
+          fontSize: 11,
+          color: palette.navy600,
+          fontStyle: "normal",
+        }}
+      >
+        {progress?.text || "Initialisation…"} {pct > 0 && `· ${pct} %`}
+      </div>
+      <div
+        style={{
+          fontFamily: fonts.sans,
+          fontSize: 12,
+          lineHeight: 1.6,
+          color: palette.navy600,
+          fontStyle: "normal",
+        }}
+      >
+        Le modèle est téléchargé une seule fois (~2 Go) et stocké dans votre
+        navigateur. Les prochaines discussions seront instantanées.
+      </div>
     </div>
   );
 }

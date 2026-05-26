@@ -23,6 +23,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { paletteFor, type V3Theme, levelOf, LEVELS } from "@/lib/v3/tokens";
+import { useTheme } from "@/lib/v3/useTheme";
 import { type V3Step, nextStep, prevStep, resumeStep } from "@/lib/v3/state";
 import { getBloc, filterQuestionsByRouting } from "@/lib/v3/protocol_data";
 import type { Answer, UserProfile, V2Scores } from "@/lib/api";
@@ -180,18 +181,7 @@ function CheckupV3BrandPageContent() {
   const searchParams = useSearchParams();
   const [interviewId, setInterviewId] = useState<number | null>(null);
   const [isHydrating, setIsHydrating] = useState(true);
-  const [theme, setTheme] = useState<V3Theme>(() => {
-    // Lit la préférence persistée (localStorage) sinon défaut "night".
-    // Lazy initializer pour rester SSR-safe (typeof window check).
-    if (typeof window === "undefined") return "night";
-    try {
-      const saved = window.localStorage.getItem("v3-charte-theme");
-      if (saved === "day" || saved === "night") return saved;
-    } catch {
-      // localStorage indisponible (private mode strict, etc.) — défaut night.
-    }
-    return "night";
-  });
+  const [theme, setTheme] = useTheme();
   const [step, setStep] = useState<V3Step>("intro");
   const [profile, setProfile] = useState<UserProfile>({
     email: "demo@lugia.fr",
@@ -240,15 +230,6 @@ function CheckupV3BrandPageContent() {
    * une bande #faf9f5 sous le main V3 (navy en Nuit, paper en Jour).
    * Restauré au démontage pour ne pas polluer les autres pages.
    */
-  // Persistance du thème dans localStorage — refresh préserve la préférence.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem("v3-charte-theme", theme);
-    } catch {
-      // localStorage indisponible — fail silent.
-    }
-  }, [theme]);
 
   useEffect(() => {
     const original = document.body.style.background;

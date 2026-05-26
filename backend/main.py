@@ -863,6 +863,137 @@ async def delete_chat_conversation(
     return {"deleted": n}
 
 
+# ─── Mode WebLLM : le LLM tourne dans le navigateur du médecin ───────────
+
+
+@app.get(
+    "/interviews/{interview_id}/modules/{module_id}/chat/system-prompt",
+    tags=["chat"],
+)
+async def get_chat_system_prompt(
+    interview_id: int,
+    module_id: str,
+    email: str = Depends(get_current_user_email),
+) -> dict[str, Any]:
+    """Renvoie le system prompt complet (avec profil + scores) pour que le
+    frontend puisse alimenter un runtime WebLLM tournant dans le browser.
+
+    L'historique de la conversation est récupéré séparément via le GET /chat
+    standard ; le frontend les compose puis appelle le LLM local.
+
+    Ce endpoint n'expose RIEN de plus que ce qui finit dans le contexte du LLM
+    de toute façon — c'est le même prompt qu'on enverrait à Claude / Ollama
+    via le POST /chat traditionnel.
+    """
+    from src.chat_assistant import _build_system_prompt
+    from src.pdf_exporter import _MODULES_FALLBACK
+
+    _assert_user_owns_interview(email, interview_id)
+
+    module = _MODULES_FALLBACK.get(module_id)
+    if module is None:
+        raise HTTPException(status_code=404, detail=f"Module inconnu : {module_id}")
+
+    user_profile = db.get_user_profile(email) or {}
+    scores = None
+    try:
+        answers = db.get_answers(interview_id)
+        from src.v2 import scoring as v2_scoring
+        scores = v2_scoring.compute_all_scores(answers, user_profile, "v3-brand-0")
+    except Exception:
+        scores = None
+
+    return {
+        "system_prompt": _build_system_prompt(module, user_profile, scores),
+    }
+
+
+class ChatPersistBody(BaseModel):
+    """Échange complet (user + assistant) généré côté client à persister.
+
+    Utilisé quand le frontend a généré la réponse via WebLLM dans le
+    navigateur — le backend ne fait plus que stocker.
+    """
+    user_message: str
+    assistant_text: str
+    suggestions: Optional[list[str]] = None
+    plan: Optional[list[dict[str, Any]]] = None
+    ended: bool = False
+    provider: str = "webllm"  # "webllm" attendu, mais on accepte "anthropic"/"ollama" pour debug
+
+
+@app.post(
+    "/interviews/{interview_id}/modules/{module_id}/chat/persist",
+    tags=["chat"],
+)
+async def persist_chat_exchange(
+    interview_id: int,
+    module_id: str,
+    body: ChatPersistBody,
+    email: str = Depends(get_current_user_email),
+) -> dict[str, Any]:
+    """Persiste un échange (user + assistant) déjà généré côté frontend.
+
+    Utilisé par le mode WebLLM : le navigateur du médecin a fait l'inférence
+    localement, on lui demande juste d'enregistrer la trace en BDD pour qu'il
+    puisse reprendre la conversation plus tard.
+
+    Limites identiques au POST /chat normal : 20 messages user max par
+    conversation, message non vide et < 2000 caractères.
+    """
+    from src.chat_assistant import MAX_USER_MESSAGES
+    from src.pdf_exporter import _MODULES_FALLBACK
+    import json as _json
+
+    _assert_user_owns_interview(email, interview_id)
+
+    if _MODULES_FALLBACK.get(module_id) is None:
+        raise HTTPException(status_code=404, detail=f"Module inconnu : {module_id}")
+
+    user_message = (body.user_message or "").strip()
+    if not user_message:
+        raise HTTPException(status_code=400, detail="Message vide")
+    if len(user_message) > 2000:
+        raise HTTPException(status_code=400, detail="Message trop long (max 2000 caractères)")
+
+    current_count = db.count_user_messages(interview_id, module_id, email)
+    if current_count >= MAX_USER_MESSAGES:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Limite de {MAX_USER_MESSAGES} questions par conversation atteinte.",
+        )
+
+    provider = (body.provider or "webllm").lower()
+
+    # 1. Persiste le message user (provider=None — un user n'a pas de provider)
+    db.add_chat_message(interview_id, module_id, email, "user", user_message)
+
+    # 2. Persiste la réponse assistant au même format que POST /chat —
+    #    texte propre + suffixe __LUGIA_META__ avec suggestions/plan/ended.
+    meta_payload = {
+        "suggestions": body.suggestions,
+        "plan": body.plan,
+        "ended": body.ended,
+    }
+    persisted_content = (
+        (body.assistant_text or "")
+        + "\n\n__LUGIA_META__:"
+        + _json.dumps(meta_payload, ensure_ascii=False)
+    )
+    db.add_chat_message(
+        interview_id, module_id, email, "assistant", persisted_content,
+        provider=provider,
+    )
+
+    new_count = current_count + 1
+    return {
+        "user_message_count": new_count,
+        "max_user_messages": MAX_USER_MESSAGES,
+        "remaining": max(0, MAX_USER_MESSAGES - new_count),
+        "provider": provider,
+    }
+
+
 @app.put("/interviews/{interview_id}/answers/{question_id}", tags=["answer"])
 async def save_answer(
     interview_id: int,

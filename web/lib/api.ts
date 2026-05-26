@@ -42,9 +42,20 @@ async function request<T>(
   }
 
   if (!res.ok) {
-    throw new Error(
-      `${options.method || "GET"} ${path} failed: ${res.status} ${res.statusText}`
-    );
+    // FastAPI renvoie typiquement {"detail": "..."} sur les erreurs. On
+    // l'extrait pour produire un message d'erreur lisible côté UI (utile
+    // notamment pour les 503 du chat où le backend explique pourquoi
+    // Ollama est indisponible : lib python manquante, modèle pas tiré,
+    // serveur down...).
+    let detail = "";
+    try {
+      const body = await res.clone().json();
+      if (body && typeof body.detail === "string") detail = body.detail;
+    } catch {
+      /* body non-JSON — on tombe sur le message générique */
+    }
+    const base = `${options.method || "GET"} ${path} failed: ${res.status} ${res.statusText}`;
+    throw new Error(detail ? `${base} — ${detail}` : base);
   }
   if (res.status === 204) return null as T;
   return res.json();
@@ -760,8 +771,63 @@ export async function getChatHistory(
   );
 }
 
-/** Provider LLM côté backend chat — toggle UI Cloud/Local. */
-export type ChatProvider = "anthropic" | "ollama";
+/** Provider LLM côté backend chat — toggle UI Cloud/Local.
+ *  - "anthropic" : Claude Haiku via API Anthropic (backend, prod par défaut)
+ *  - "ollama"    : SLM via Ollama local (backend, dev uniquement)
+ *  - "webllm"    : qwen2.5:3b via WebLLM dans le navigateur (frontend) */
+export type ChatProvider = "anthropic" | "ollama" | "webllm";
+
+/** System prompt complet pour alimenter un runtime WebLLM côté navigateur. */
+export async function getChatSystemPrompt(
+  interviewId: number,
+  moduleId: string,
+): Promise<{ system_prompt: string }> {
+  return request<{ system_prompt: string }>(
+    `/interviews/${interviewId}/modules/${moduleId}/chat/system-prompt`
+  );
+}
+
+/** Persiste un échange (user + assistant) déjà généré côté navigateur (WebLLM). */
+export async function persistChatExchange(
+  interviewId: number,
+  moduleId: string,
+  payload: {
+    user_message: string;
+    assistant_text: string;
+    suggestions?: string[] | null;
+    plan?: ChatPlanStep[] | null;
+    ended?: boolean;
+    provider?: ChatProvider;
+  },
+): Promise<{
+  user_message_count: number;
+  max_user_messages: number;
+  remaining: number;
+  provider: string;
+}> {
+  return request(
+    `/interviews/${interviewId}/modules/${moduleId}/chat/persist`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+}
+
+/**
+ * Reset complet de la conversation chantier : supprime tous les messages
+ * en BDD (user + assistant). Le frontend doit ensuite vider son state
+ * local et déclencher un nouveau sendInitial pour repartir au tour 1.
+ */
+export async function resetChatConversation(
+  interviewId: number,
+  moduleId: string,
+): Promise<{ deleted: number }> {
+  return request<{ deleted: number }>(
+    `/interviews/${interviewId}/modules/${moduleId}/chat`,
+    { method: "DELETE" }
+  );
+}
 
 export async function postChatMessage(
   interviewId: number,

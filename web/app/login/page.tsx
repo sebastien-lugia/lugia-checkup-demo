@@ -15,6 +15,7 @@ import { useState, useEffect, type FormEvent } from "react";
 
 import { requestMagicLink } from "@/lib/api";
 import { paletteFor, fonts, type V3Theme } from "@/lib/v3/tokens";
+import { useTheme } from "@/lib/v3/useTheme";
 import { ThemeToggleV3 } from "@/components/v3/ThemeToggleV3";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -39,24 +40,7 @@ function LugiaMark({ color = "currentColor", size = 24 }: { color?: string; size
 }
 
 export default function LoginPage() {
-  const [theme, setTheme] = useState<V3Theme>(() => {
-    if (typeof window === "undefined") return "night";
-    try {
-      const saved = window.localStorage.getItem("v3-charte-theme");
-      if (saved === "day" || saved === "night") return saved;
-    } catch {
-      /* ignore */
-    }
-    return "night";
-  });
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem("v3-charte-theme", theme);
-    } catch {
-      /* ignore */
-    }
-  }, [theme]);
+  const [theme, setTheme] = useTheme();
   useEffect(() => {
     const original = document.body.style.background;
     document.body.style.background = paletteFor(theme).paper;
@@ -174,9 +158,22 @@ export default function LoginPage() {
                 fontStyle: "normal",
               }}
             >
-              Si l&apos;adresse <strong style={{ color: palette.navy }}>{email}</strong> est valide,
-              vous y recevrez dans quelques secondes un lien d&apos;accès à votre check-up. Il
-              est valable 30 minutes.
+              Si l&apos;adresse{" "}
+              <strong
+                style={{
+                  // Bug fix 2026-05-23 : palette.navy fonctionnait en theorie
+                  // (#f4efe5 en night, #1A2333 en day) mais le rendu serif fin
+                  // 16px etait quasi-invisible. On force des couleurs avec
+                  // contraste maximum et un poids un peu plus marque.
+                  color: theme === "night" ? "#ffffff" : palette.navy,
+                  fontWeight: 600,
+                  fontFamily: fonts.sans,
+                }}
+              >
+                {email || "votre adresse"}
+              </strong>
+              {" "}est valide, vous y recevrez dans quelques secondes un lien d&apos;accès
+              à votre check-up. Il est valable 30 minutes.
             </p>
             <p
               style={{
@@ -198,7 +195,9 @@ export default function LoginPage() {
                   cursor: "pointer",
                   fontFamily: "inherit",
                   fontSize: "inherit",
-                  color: palette.navy,
+                  // Meme fix que le strong de l'email : contraste fort
+                  color: theme === "night" ? "#ffffff" : palette.navy,
+                  fontWeight: 500,
                   textDecoration: "underline",
                   textUnderlineOffset: 2,
                 }}

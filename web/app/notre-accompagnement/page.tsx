@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 import { paletteFor, fonts, type V3Theme } from "@/lib/v3/tokens";
+import { useTheme } from "@/lib/v3/useTheme";
 import { ThemeToggleV3 } from "@/components/v3/ThemeToggleV3";
 
 function LugiaMark({ color = "currentColor", size = 24 }: { color?: string; size?: number }) {
@@ -33,18 +34,7 @@ function LugiaMark({ color = "currentColor", size = 24 }: { color?: string; size
 }
 
 export default function NotreAccompagnementPage() {
-  const [theme, setTheme] = useState<V3Theme>(() => {
-    if (typeof window === "undefined") return "night";
-    try {
-      const saved = window.localStorage.getItem("v3-charte-theme");
-      if (saved === "day" || saved === "night") return saved;
-    } catch { /* */ }
-    return "night";
-  });
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try { window.localStorage.setItem("v3-charte-theme", theme); } catch { /* */ }
-  }, [theme]);
+  const [theme, setTheme] = useTheme();
   useEffect(() => {
     const original = document.body.style.background;
     document.body.style.background = paletteFor(theme).paper;

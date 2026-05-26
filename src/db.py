@@ -928,6 +928,27 @@ def add_chat_message(
         return int(result.inserted_primary_key[0])
 
 
+def delete_chat_messages(
+    interview_id: int, module_id: str, email: str
+) -> int:
+    """Supprime tous les messages d'une conversation chantier pour ce user.
+
+    Utilisé par le bouton « Recommencer » de la modale chat — permet au
+    médecin de repartir au tour 1 sans héritage de l'ancienne conversation.
+    Retourne le nombre de lignes supprimées (debug / log).
+    """
+    engine = get_engine()
+    with engine.begin() as conn:
+        result = conn.execute(
+            chat_message_table.delete().where(
+                (chat_message_table.c.interview_id == interview_id)
+                & (chat_message_table.c.module_id == module_id)
+                & (chat_message_table.c.email == email)
+            )
+        )
+        return int(result.rowcount or 0)
+
+
 def count_user_messages(
     interview_id: int, module_id: str, email: str
 ) -> int:
