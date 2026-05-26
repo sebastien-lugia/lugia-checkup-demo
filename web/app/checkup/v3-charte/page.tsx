@@ -828,14 +828,12 @@ function CheckupV3BrandPageContent() {
             setOpenModuleId(id);
           }}
           onOpenAll={() => setListChantiersOpen(true)}
-          onAutonomie={() => alert(
-            "Discussion en autonomie avec l'assistant Lugia\n\n" +
-            "Cette fonctionnalité arrive prochainement.\n\n" +
-            "En attendant, vous pouvez :\n" +
-            "  – ouvrir un chantier ci-dessus pour lire le plan d'action en 4 étapes\n" +
-            "  – imprimer le plan pour l'exécuter à votre rythme\n" +
-            "  – prendre 30 min avec Sébastien via le bouton voisin si vous voulez en discuter"
-          )}
+          // Card « Explorer un chantier » → ouvre la liste complète des
+          // chantiers. Le médecin choisit un chantier, ce qui ouvre la page
+          // module détail qui expose désormais le bouton chat (A.2 v2 +
+          // D-040 toggle Cloud/Local). Plus de placeholder « arrive
+          // prochainement ».
+          onAutonomie={() => setListChantiersOpen(true)}
           onLugia={() =>
             openCalendly({ firstname: profile.firstname ?? undefined })
           }

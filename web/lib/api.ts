@@ -688,7 +688,12 @@ export async function downloadChantierPdf(
   moduleId: string,
 ): Promise<void> {
   const url = `${API_URL}/interviews/${interviewId}/modules/${moduleId}/pdf`;
-  const token = localStorage.getItem("lugia-session-token");
+  // Bug fix 2026-05-23 : on lisait localStorage.getItem("lugia-session-token")
+  // (avec tirets) alors que auth.ts stocke la cle sous "lugia_session_token"
+  // (underscores). Token retourne NULL -> pas d'Authorization header ->
+  // backend renvoie 401 -> alert "PDF a echoue". Solution : reutiliser
+  // getSessionToken() exporte par auth.ts (source de verite unique).
+  const token = getSessionToken();
   const res = await fetch(url, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     credentials: "include",
