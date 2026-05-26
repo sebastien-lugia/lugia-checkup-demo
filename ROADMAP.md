@@ -1,8 +1,101 @@
 # ROADMAP
 
-Trajectoire du projet structurée en quatre jalons : V0 livré, V1 en cours (portage technique pur), V1.5 (extensions méthodologiques), V2 (montée commerciale), et Au-delà (visions long terme).
+Trajectoire du projet articulée autour de **deux produits distincts** (cf D-041) :
 
-> Restructuration majeure le 13 mai 2026 suite à D-017 (cadrage V1 portage pur).
+1. **Lugia Checkup Demo** — diagnostic organisationnel gratuit, déjà en prod sur `diagnostic.lugia.fr`. Cap court terme = finir les chantiers qui le rendent utilisable en démo prospect et compatible avec une réponse à offre de conseil.
+2. **Lugia Work System** — plateforme payante d'extension à construire après validation du Demo. Cap moyen-long terme.
+
+> Restructuration majeure le 13 mai 2026 (D-017 cadrage V1 portage pur), puis le 26 mai 2026 (D-041 architecture 2 niveaux, D-042 questionnaire fixe, D-043 chat remplace Path A).
+
+---
+
+## CAP LONG TERME — Lugia Work System
+
+Plateforme payante avec plusieurs offres d'abonnement (Starter / Pro / Institution, paliers à figer). Étend la valeur du Checkup Demo sur sept axes, sans le remplacer.
+
+### Architecture produit en 2 niveaux
+
+| | Checkup Demo (gratuit) | Work System (payant) |
+|---|---|---|
+| **Périmètre méthodologique** | 3 axes vulgarisés WSF (Parcours / Équipe / Outils) | 9 éléments WSF complets (les 4 internes + Clients + Produits/Services + Infrastructure + Environnement + Stratégies) |
+| **Sortie diagnostic** | 1 chantier prioritaire + 3-4 autres proposés | Tous les chantiers hiérarchisés, accompagnés |
+| **Chat LLM** | Discussion limitée (20 msg max, 4 phases — D-036, D-043) | Assistant personnel multi-chantiers, persistant |
+| **Visuel** | Schéma Mermaid simplifié du chantier (C.A à construire) | Schémas Mermaid détaillés du fonctionnement du cabinet |
+| **Livrables** | Plan d'action 4 étapes + PDF | Registre RGPD, notice patient AI Act, matrice d'accès, modèles courriers |
+| **Sécurité** | Cloud Claude + Mode Navigateur WebLLM (D-040) | SLM sécurisé étendu, vault de tokenisation côté browser |
+| **Conseil Lugia & Co** | Calendly direct (tarif standard) + formulaire offre (C.D) | Tarif réduit pour abonnés (~15-25%) |
+
+### Sept chantiers du Work System (WS.1 → WS.7)
+
+L'ordre proposé est défendable mais arbitrable à l'attaque. À considérer comme indicatif.
+
+**WS.1 — Extension méthodologique 3 → 9 axes WSF**
+
+Ajouter les éléments non couverts par les 3 axes vulgarisés du Demo :
+- Processus & Activités (les flux de travail, les routines du cabinet)
+- Infrastructure (cabinet physique, accès, locaux, partagés type MSP)
+- Environnement (réglementation, démographie territoriale, concurrence)
+- Stratégies (vision du cabinet, choix d'exercice, projet médical)
+
+Implique : nouvelles questions au questionnaire (en respectant D-042, options fixes), refonte du scoring pour exposer 9 dimensions au lieu de 3, refonte de la page résultats (nouveaux niveaux qualitatifs par axe, nouveaux signaux croisés possibles), enrichissement de `Reference_Note_WSF.md` avec mapping axe ↔ chantiers.
+
+**WS.2 — Auth et plateforme payante**
+
+Refonte du modèle de session pour distinguer compte gratuit / Starter / Pro / Institution. Intégration paiement (Stripe ou équivalent FR). Gestion des quotas (ex : Starter = N chantiers/mois). Portail compte avec facturation, historique, gestion de l'abonnement. Politique de migration depuis le compte gratuit existant.
+
+**WS.3 — Schémas Mermaid détaillés**
+
+Visualisation complète du fonctionnement du cabinet (au-delà du chantier prioritaire). C'est le « schéma vivant » de la doc Lugia Work System / Vault Médical : canvas SVG avec nœuds (Patient, Consultation, Ordonnance, Personnel, Logiciels…) et arêtes typées (produit, génère, alimente, adressé à). Champs colorés par sensibilité.
+
+Le prototype HTML `vault_dialogue.html` sert de référence de vision mais sera reconstruit from scratch avec composants V3-charte (cf décision lors du cadrage du 26 mai). Effort important — algorithme de positionnement automatique (force-directed graph ou layout hiérarchique), interactions clic sur nœud, modification de champs, ajout d'objets personnalisés.
+
+**WS.4 — Livrables téléchargeables enrichis**
+
+Chaque livrable = un template structuré + un prompt LLM contextualisé par le schéma du cabinet du médecin. Cibles :
+- Registre RGPD PDF complet, conforme CNIL, exportable
+- Notice patient AI Act conforme (août 2026), personnalisée aux outils réels du cabinet, formats affichage + remise + web
+- Matrice d'accès par rôle (médecin traitant / secrétaire / proxy IA / auditeur / remplaçant), procédure onboarding remplaçant
+- Modèles de courriers contextualisés (adressage spécialiste, compte-rendu, synthèse)
+
+**WS.5 — Assistant personnel multi-chantiers et persistant**
+
+Extension du chat A.2 v2 actuel. Le LLM garde le contexte de tous les chantiers ouverts, persiste les décisions du médecin entre sessions, sait reprendre une conversation après 3 semaines, propose des passerelles entre chantiers. Pas de limite stricte sur les messages (au contraire du Demo). Mécanique adaptée au contexte (4 phases pour démarrer un chantier, mode libre pour le suivi).
+
+**WS.6 — Usage sécurisé SLM étendu**
+
+Approfondir le mode WebLLM actuel (D-040) :
+- Vault de tokenisation côté navigateur (tokens opaques, vraie donnée jamais transmise)
+- Proxy IA local : pour les requêtes contenant des données patient, anonymisation avant LLM puis détokenisation au retour
+- Classification automatique des champs sensibles
+- Audit trail local (chaque tokenisation/détokenisation tracée)
+
+Argument souveraineté commercial fort, prérequis pour démarrer la conversation avec assureurs RCP et URPS.
+
+**WS.7 — Cross-sell offres conseil Lugia & Co**
+
+Codes promo / tarifs réduits sur les missions de conseil Lugia & Co pour les abonnés Work System. Intégration Calendly avec attribution automatique du remise. Tracking conversion abonné → mission conseil.
+
+---
+
+## CAP COURT TERME — Lugia Checkup Demo
+
+Quatre chantiers identifiés pour rendre la démo robuste, prête pour des tests prospects et pour répondre à des offres de conseil.
+
+**C.A — Schéma Mermaid simplifié au tour 4 du chat (priorité 1)**
+
+Le LLM génère un schéma Mermaid simplifié du process du chantier en même temps que le `PLAN_JSON` au tour 4 de la mécanique chat. Affichage sous la carte plan d'action dans la modale. Bénéfice : matérialise visuellement « le quoi » du chantier pour le médecin, sans alourdir le diagnostic. Marche pour Claude (mode Cloud) et qwen (mode Navigateur).
+
+**C.B — Polish PDF chantier (intégration Mermaid)**
+
+Enrichir le PDF chantier existant (reportlab) pour qu'il intègre le schéma Mermaid produit en C.A, exporté en image SVG inline. Conserver le format actuel et ajouter une section visuelle.
+
+**C.C — Formaliser le cross-sell vers le conseil (Calendly direct)**
+
+Le bouton « En parler avec Lugia » via Calendly est déjà en place. Formaliser comme l'unique cross-sell direct du gratuit, avec un tracking d'attribution simple. Pas d'évolution UI nécessaire.
+
+**C.D — Répondre à une offre de conseil depuis la démo**
+
+Permettre au médecin de **répondre à une offre de conseil** dès la version démo (pas seulement prendre RDV via Calendly). Formulaire structuré à la fin du diagnostic ou en pied de chantier : « Je voudrais qu'un consultant Lugia me contacte pour : » + champ libre + contexte automatique (profil cabinet + chantier prioritaire + scores). Lead envoyé par email à Sébastien (Resend ou similaire, déjà câblé pour magic links). Bénéfice : transforme le médecin tiède en lead qualifié sans dépendre de Calendly.
 
 ---
 
@@ -155,13 +248,13 @@ Vague visuelle livrée en 5 sous-vagues sur la journée du 19 mai. Voir `CHANGEL
 
 ---
 
-## V1.1.10 — Bloquants tests prospects — ABSORBÉE PAR V2.0
+## V1.1.10 — Bloquants tests prospects — REMPLACÉE PAR LE CHAT LLM (D-043, 2026-05-26)
 
-V1.1.10 prévoyait le câblage des CTAs Prochaine étape et la construction d'un questionnaire d'approfondissement Path A. Ces deux chantiers sont absorbés par V2.0 (cf `DECISIONS.md` D-029) :
-- Les 7 modules d'approfondissement V2.0 (`resources/modules_v2.json` à créer) constituent le Path A — réécrits en ton Lugia dans `resources/v2_editorial_draft.md` lot 4.
-- Les CTAs branchent directement sur ces modules.
+V1.1.10 prévoyait initialement le câblage des CTAs Prochaine étape et la construction d'un questionnaire d'approfondissement Path A. Le second chantier est désormais **abandonné** au profit de la discussion LLM (chat assistant 4 phases A.2 v2 déjà livré en V3-charte) — voir `DECISIONS.md` D-043 :
+- **Path A** ne pointe plus vers un questionnaire ciblé. Le bouton « Explorer un chantier » (cf C.A → C.D dans la section cap court terme du Checkup Demo) ouvre la liste des chantiers ; un clic sur un chantier ouvre la page module ; le médecin clique « Discuter avec l'assistant » et la modale chat se lance avec la mécanique 4 phases (D-036).
+- **Path B** (« En parler avec Lugia ») est branché sur Calendly + sera complété par le formulaire de réponse à offre conseil (cf C.D, court terme).
 
-V1.1.10 n'a donc pas d'existence propre. Le travail bascule sur V2.0.
+V1.1.10 n'a donc pas d'existence propre. Les chantiers utiles sont remontés dans la section « CAP COURT TERME — Lugia Checkup Demo » ci-dessus (C.A à C.D).
 
 ---
 
@@ -250,7 +343,12 @@ Deux notes de pistes d'amélioration externes (`pistes_amelioration_v3.md` et `p
 
 ---
 
-## V1.2 — Intégration SLM/LLM hybride — APRÈS V1.1
+## V1.2 — Intégration SLM/LLM hybride — PARTIELLEMENT LIVRÉ / RESTE GLISSE EN WORK SYSTEM
+
+> **État au 2026-05-26** :
+> - Le **chat assistant chantier** (mécanique 4 phases, D-036) est livré en V3-charte (A.2 v2). Toggle Cloud (Claude Haiku) / Navigateur (WebLLM qwen2.5:3b) — D-040.
+> - La **génération dynamique des options de QCM** est abandonnée (D-042 — questionnaire diagnostic à options fixes).
+> - L'**exploitation Q14 texte libre**, la **sélection sophistiquée des chaînes causales** et les **enjeux temporels datés** restent valables. Ils peuvent être traités dans le périmètre V1.2 si on garde la cible « rapport contextualisé » sur le Demo gratuit, sinon ils glissent en Work System (cf WS.4 et WS.5 du cap long terme).
 
 Ajout d'une couche d'orchestration LLM en surcouche du méthodologique enrichi de V1.1, avec fallback systématique. Cible : faire passer le rapport de "templating combinatoire 50+ variantes" à "génération contextualisée par section" (synthèse, analyse facettes, analyse chantiers).
 
@@ -290,16 +388,13 @@ Travail prévu :
 - Tests A/B en interne sur Chateau persona refondu : rapport templated V1.1 vs rapport LLM-augmenté V1.2.
 - Mise à jour `MASTER_PROMPT.md` section 6 (architecture).
 
-### Génération dynamique des options de QCM
+### Génération dynamique des options de QCM — ABANDONNÉ (D-042, 2026-05-26)
 
-Demande utilisateur V1.1 Vague 3.1 : pour certaines questions (notamment Q10 suivi des chroniques, Q11 tri des résultats), les options actuelles supposent une équipe ; un médecin solo se reconnaît mal dans "Un membre de l'équipe trie les résultats". En V1.2, le LLM réécrit ces options à la volée à partir des réponses précédentes (Q01 type de cabinet, Q02 secrétariat, Q07 équipe étendue), pour ne proposer que des libellés cohérents avec le profil du répondant.
+~~Demande initiale V1.1 Vague 3.1 : pour Q10 / Q11, le LLM réécrirait les options à la volée selon Q01/Q02 pour qu'un médecin solo se reconnaisse mieux.~~
 
-Architecture envisagée :
+**Abandonné** au profit du maintien d'options fixes — voir `DECISIONS.md` D-042. Le questionnaire diagnostic doit garder une base d'analyse uniforme et comparable entre tous les médecins (cohortes, benchmarks, évolution dans le temps). La valeur ajoutée du LLM se concentre désormais sur l'approfondissement chantiers (chat A.2 v2 déjà livré) et la modélisation organisationnelle détaillée à venir en Work System.
 
-- Une étape de "personnalisation initiale" en début de questionnaire (après Q01/Q02), qui prépare les options dynamiques de Q07 à Q11. Cette étape peut prendre 10 à 30 secondes côté API cloud, voire plus côté Ollama local.
-- Pendant ce temps de calcul, **écran d'attente non vide** : un paragraphe explicatif Lugia présente la méthode et le sens du check-up (substitution-extension, analyse du système et non des personnes, garde-fous secret médical). L'attente devient une porte d'entrée pédagogique au lieu d'un frottement.
-- Fallback systématique sur les options statiques V1.1 si l'appel LLM échoue ou si `LLM_ENABLED=0`.
-- Les libellés statiques V1.1 restent l'oracle de référence — toute option dynamique générée doit converger sémantiquement vers l'une des 4 options statiques (pour préserver la justifiabilité mathématique du scoring, voir D-013).
+Le besoin sous-jacent (le médecin solo se reconnaît mal dans certaines options) est traité différemment : via le routing dans les blocs B (questions filtrées selon cabinet_type / secretariat / paramedical_team — déjà implémenté en V3-charte) et via les reformulations terrain inline au filet argent.
 
 ### Enjeux temporels sectoriels datés
 

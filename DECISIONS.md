@@ -6,6 +6,84 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-043 — Path A approfondissement remplacé par la discussion LLM (2026-05-26)
+
+L'idée V1.1.10 d'un « questionnaire d'approfondissement Path A » (5-7 questions par chantier après le diagnostic) est **abandonnée**. À la place, la discussion LLM (chat assistant 4 phases — D-036, étendue par D-040 toggle Cloud/Local) joue le rôle d'approfondissement.
+
+**Découpage par offre** :
+- **Lugia Checkup Demo (gratuit)** : discussion LLM limitée — 1 chantier prioritaire, 20 messages max, mécanique 4 phases structurée se clôt automatiquement. C'est ce qui est en prod aujourd'hui.
+- **Lugia Work System (payant)** : discussion LLM étendue — multi-chantiers, persistance entre sessions, pas de limite stricte sur les messages, assistant personnel d'aide à la décision.
+
+**Pourquoi** : un questionnaire d'approfondissement écrit en dur aurait demandé un travail méthodologique de cadrage par chantier (5-7 questions × N chantiers) sans apporter plus de valeur que le chat actuel, qui s'adapte au contexte du médecin. La discussion structurée par tours (D-036) garantit déjà la qualité du creusement sans rigidité de questionnaire.
+
+**Conséquence sur la roadmap** : l'item V1.1.10 « Construction du questionnaire d'approfondissement Path A » est retiré du TODO. Le câblage CTA Path A pointe directement sur l'ouverture de la modale chat.
+
+---
+
+## D-042 — Questionnaire diagnostic : options fixes, pas de génération dynamique LLM (2026-05-26)
+
+La piste V1.2 de « génération dynamique des options de QCM » (un LLM réécrit les options de Q07-Q11 à la volée selon Q01/Q02 pour qu'un solo se reconnaisse mieux) est **abandonnée**.
+
+**Le questionnaire diagnostic reste à options fixes**, écrites en dur dans les fichiers protocole (`resources/interview_protocol*.json` et `web/lib/v3/protocol_data.ts`). Aucune option n'est produite par LLM.
+
+**Pourquoi** :
+- **Uniformité** : la base d'analyse (réponses) doit être strictement comparable entre tous les médecins. Des options générées dynamiquement introduiraient une variabilité dans la base qui rendrait toute analyse longitudinale impossible (cohortes, benchmarks, évolution dans le temps).
+- **Qualité** : le LLM peut produire des options légèrement off-topic ou maladroites — sur un questionnaire où chaque option pèse dans le scoring, c'est inacceptable. Les options actuelles ont été ciselées par Sébastien et validées en revue éditoriale.
+- **Conformité** : un médecin doit pouvoir relire son questionnaire et ses options sans surprise. Cela renforce la confiance dans le diagnostic.
+- **Justifiabilité mathématique** : D-013 impose que le scoring soit défendable. Des options variables casseraient cette défense.
+
+**Le LLM apporte de la valeur AILLEURS** :
+- Approfondissement des chantiers (chat — D-036, D-043)
+- Modélisation organisationnelle détaillée (schémas Mermaid à venir en Work System)
+- Génération de livrables enrichis (registre RGPD, notice patient, courriers — Work System)
+- Restitution éditoriale du diagnostic (phrase choc personnalisée — D-038 déjà en place)
+
+**Conséquence** : l'item V1.2 « Génération dynamique des options de QCM » est retiré de la roadmap. Les efforts V1.2 se concentrent sur l'orchestration LLM en aval du diagnostic.
+
+---
+
+## D-041 — Architecture produit en 2 niveaux : Checkup Demo (gratuit) / Work System (payant) (2026-05-26)
+
+Le projet Lugia s'articule désormais en **deux produits distincts** dans le même portefeuille, avec une articulation explicite entre les deux.
+
+### Lugia Checkup Demo — gratuit, acquisition zéro friction
+
+C'est ce qui est en prod sur `diagnostic.lugia.fr` aujourd'hui. Le périmètre est volontairement borné :
+- Diagnostic organisationnel sur **3 axes vulgarisés** de la pyramide d'Alter / WSF (Parcours patient = Clients + Produits/Services, Équipe = Participants, Outils = Technologies + Information)
+- **1 chantier prioritaire** identifié + 3-4 autres chantiers proposés (gratuits à l'exécution autonome)
+- Discussion LLM rapide sur le chantier prioritaire (D-043, limitée à 20 messages, mécanique 4 phases — D-036)
+- Schéma Mermaid simplifié du process du chantier (généré au tour 4 du chat, à construire — cf C.A en ROADMAP)
+- Plan d'action 4 étapes + PDF export
+- Cross-sell : Calendly direct (tarif standard) ET formulaire « Répondre à une offre de conseil » (cf C.D en ROADMAP, court terme)
+
+**Promesse au médecin** : un diagnostic actionnable en 30 minutes, sans s'engager, sans donner ses données patient.
+
+### Lugia Work System — payant, plateforme d'extension
+
+Produit cible, à construire post-validation du Demo. Ne sera pas dans le même routing que `/checkup/v3-charte` mais accessible via `/app` ou domaine séparé.
+
+- Diagnostic étendu aux **9 éléments WSF** (les 6 éléments non couverts par les 3 axes vulgarisés deviennent des chantiers méthodologiques additionnels — cf Reference_Note_WSF.md)
+- **Tous les chantiers** débloqués, hiérarchisés, accompagnés
+- Discussion LLM **étendue** : multi-chantiers, persistance entre sessions, assistant personnel
+- **Schémas Mermaid détaillés** du fonctionnement complet du cabinet (le « schéma vivant » de la doc Lugia Work System)
+- **Livrables téléchargeables enrichis** : registre RGPD complet, notice patient AI Act, matrice d'accès, modèles de courriers contextualisés
+- **Usage sécurisé SLM** : extension du mode « Navigateur » actuel (D-040, WebLLM) vers un vault de tokenisation côté browser
+- **Cross-sell offres conseil Lugia & Co** : tarif réduit pour les abonnés (~15-25% par exemple)
+
+**Plusieurs offres d'abonnement** seront créées (Starter / Pro / Institution probablement, paliers à figer).
+
+### Articulation explicite
+
+Le Checkup Demo n'est pas un « teaser de bas niveau », c'est un produit fini en soi qui aide à un cadrage. Le Work System n'est pas une « version payante du Checkup », c'est une plateforme distincte qui consomme le diagnostic comme point d'entrée.
+
+**Pourquoi cette séparation nette** : éviter le pattern freemium classique (« débloquez X en payant ») qui réduit la valeur perçue du gratuit. Le Demo a une valeur autonome ; le Work System a une valeur supérieure et complémentaire.
+
+**Conséquence sur le repo** : le `lugia-checkup-demo` continue d'héberger les deux produits jusqu'à la livraison du premier chantier P0 du Work System. La décision de spin-off (nouveau repo) sera prise à ce moment, en fonction de l'effort d'intrication observé.
+
+---
+
+---
+
 ## D-040 — Toggle Cloud / Local pour l'assistant chat chantiers (2026-05-23)
 
 L'assistant Lugia sur les chantiers (mécanique 4 phases SUGG_JSON / PLAN_JSON / END_CONVERSATION introduite en D-036) tourne désormais au choix du médecin sur Claude Haiku (cloud, API Anthropic) ou sur un SLM local via Ollama (`qwen2.5:3b` par défaut, surchargeable).

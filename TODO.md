@@ -173,14 +173,23 @@ git push origin v1.1.9
 
 ---
 
-## V1.1.10 PROCHAIN CHANTIER — Bloquants tests prospects (CTAs + questionnaire approfondissement Path A)
+## V1.1.10 — REMPLACÉE par la mécanique chat A.2 v2 (D-043, 2026-05-26)
 
-Deux chantiers non-visuels à traiter **avant** d'envoyer le démonstrateur à 3-5 médecins :
+Les deux chantiers initialement prévus en V1.1.10 sont absorbés ailleurs :
 
-1. **Câblage des CTAs Prochaine étape** : *"Choisir un chantier"* (Path A) et *"En parler avec Lugia"* (Path B) sont inertes aujourd'hui. À câbler au minimum sur un `mailto:` ou un formulaire avant tout test prospect — sinon le médecin clique dans le vide.
-2. **Construction du questionnaire d'approfondissement (Path A)** : la carte promet *"un questionnaire ciblé, ~15 min, gratuit"*. Aujourd'hui le questionnaire n'existe pas. À construire avant tests prospects — sinon la promesse écrite ne tient pas. Périmètre minimal : 5-7 questions par chantier débouchant sur un plan d'action concret.
+1. **Path A approfondissement** : remplacé par la discussion LLM 4 phases (chat A.2 v2 — D-036 + D-040 + D-043). Déjà livré en prod sur V3-charte. Limité à 20 messages en Demo, étendu en Work System payant.
+2. **Path B « En parler avec Lugia »** : Calendly câblé (D-037, livré). Le complément « répondre à une offre de conseil » (formulaire + lead email) est tracé en C.D du cap court terme — voir ROADMAP.
 
-V1.1.10 est indépendante de V1.1.9 (chantier non-visuel). Peut être traitée dans une conversation Claude dédiée.
+Plus rien à faire spécifiquement sous V1.1.10. Les chantiers actifs sont remontés sous le cap court terme du Checkup Demo (C.A → C.D dans ROADMAP).
+
+## Cap court terme Checkup Demo — C.A à C.D
+
+| Item | Statut | Description courte |
+|---|---|---|
+| **C.A — Schéma Mermaid simplifié du chantier** | ⏳ priorité 1 | Généré au tour 4 du chat, en même temps que PLAN_JSON. Affiché sous la carte plan d'action dans la modale. Compatible Claude + qwen WebLLM. |
+| **C.B — Polish PDF chantier** | ⏳ | Intégrer le schéma Mermaid produit en C.A dans le PDF reportlab existant. |
+| **C.C — Formaliser cross-sell Calendly** | ✅ déjà câblé | « En parler avec Lugia » via Calendly opérationnel (D-037). Tracking d'attribution à affiner si nécessaire. |
+| **C.D — Formulaire de réponse à offre conseil** | ⏳ | Formulaire structuré à la fin du diagnostic ou en pied de chantier, lead par email via Resend (déjà câblé pour magic links). Permet au médecin de répondre à une offre de conseil sans dépendre de Calendly. |
 
 ## Tests prospects — préalable à V1.2
 
