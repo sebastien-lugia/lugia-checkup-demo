@@ -216,8 +216,15 @@ export function ChatChantierModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  /** Helper : exécute un tour de chat selon le provider courant. */
-  async function doInference(userMessage: string): Promise<{
+  /** Helper : exécute un tour de chat selon le provider courant.
+   *  `historyOverride` (optionnel) — si fourni, sert d'historique LLM à la
+   *  place du state `messages`. Utile après un reset où le state n'a pas
+   *  encore re-rendered et contient l'ancien historique pollué. */
+  async function doInference(
+    userMessage: string,
+    historyOverride: ChatMessageItem[] | null = null,
+    turnOverride: number | null = null,
+  ): Promise<{
     text: string;
     suggestions?: string[] | null;
     plan?: ChatPlanStep[] | null;
@@ -226,6 +233,10 @@ export function ChatChantierModal({
     provider?: string | null;
   }> {
     const p = providerRef.current;
+    const effectiveMessages = historyOverride ?? messages;
+    const effectiveCount = historyOverride
+      ? effectiveMessages.filter((m) => m.role === "user").length
+      : userMessageCount;
     if (p === "webllm") {
       // Inférence dans le navigateur via WebLLM, puis persistance en BDD.
       if (!webllmEngineRef.current) {
@@ -233,16 +244,16 @@ export function ChatChantierModal({
       }
       // Refonte 2026-05-23 : on recharge le system prompt avant CHAQUE
       // generation, scope sur le tour courant. Le tour courant =
-      // userMessageCount + 1 (le user message qu'on s'apprete a envoyer
+      // effectiveCount + 1 (le user message qu'on s'apprete a envoyer
       // n'est pas encore compte cote BDD). Ainsi qwen2.5:3b voit des
       // instructions specifiques au tour 1 / 2 / 3 / 4 / 5, et ne se met
       // pas a enumerer les 5 tours d'un coup.
-      const currentTurn = userMessageCount + 1;
+      const currentTurn = turnOverride ?? (effectiveCount + 1);
       const fresh = await getChatSystemPrompt(interviewId, moduleId, currentTurn);
       const promptForThisTurn = fresh.system_prompt;
       setWebllmSystemPrompt(promptForThisTurn);
       // Construire l'historique pour le LLM (sans le user message qu'on vient d'ajouter)
-      const histForLlm: { role: "user" | "assistant"; content: string }[] = messages
+      const histForLlm: { role: "user" | "assistant"; content: string }[] = effectiveMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
         .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
       const raw = await generateWithWebLLM(
@@ -382,16 +393,36 @@ export function ChatChantierModal({
       // Reset complet du state local
       setMessages([]);
       setUserMessageCount(0);
-      initRef.current = false;
-      // Relance le tour 1 — même flow que le bootstrap initial
       initRef.current = true;
-      await sendInitial();
+      // Bug fix 2026-05-23 : sendInitial lisait le state `messages` qui n'a
+      // pas encore re-render apres setMessages([]) — l'ancien historique
+      // pollue etait repasse a qwen et qwen reproduisait les 5 tours. On
+      // appelle directement doInference avec historyOverride=[] et
+      // turnOverride=1 pour forcer un tour 1 propre.
+      const initialUserMessage = `Je veux creuser le chantier : ${moduleLabel}`;
+      setMessages([{ role: "user", text: initialUserMessage }]);
+      try {
+        const res = await doInference(initialUserMessage, [], 1);
+        setMessages((m) => [...m, {
+          role: "assistant",
+          text: res.text,
+          suggestions: res.suggestions,
+          plan: res.plan,
+          ended: res.ended,
+          provider: res.provider as ChatProvider | null | undefined,
+        }]);
+        setUserMessageCount(res.user_message_count);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Erreur inconnue";
+        setMessages([]);
+        setErrorMsg(`Impossible de relancer le tour 1. ${message}`);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erreur inconnue";
       setErrorMsg(`Impossible de réinitialiser la conversation. ${message}`);
+    } finally {
       setIsSending(false);
     }
-    // Note : pas de finally setIsSending(false) — sendInitial le gère déjà.
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
