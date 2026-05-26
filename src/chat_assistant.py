@@ -40,7 +40,12 @@ MODEL_ID = ANTHROPIC_MODEL_ID
 # contraintes JSON structurées, rapide sur Mac M-series (~15-30 tok/s).
 # Surchargeable via OLLAMA_MODEL pour tester d'autres modèles.
 OLLAMA_MODEL_ID = os.environ.get("OLLAMA_MODEL", "qwen2.5:3b")
-OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+# Note : on utilise 127.0.0.1 (IPv4 explicite) plutôt que "localhost" pour
+# éviter les soucis de résolution IPv6 (::1) depuis le contexte async de
+# FastAPI. Ollama n'écoute typiquement qu'en IPv4 ; si Python résout
+# localhost en IPv6 d'abord, on a un "Failed to connect" même quand
+# Ollama tourne bien. Surchargeable via OLLAMA_BASE_URL si besoin.
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 
 # Identifiants providers acceptés côté API
 PROVIDER_ANTHROPIC = "anthropic"
