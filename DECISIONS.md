@@ -6,6 +6,29 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-040 — Toggle Cloud / Local pour l'assistant chat chantiers (2026-05-23)
+
+L'assistant Lugia sur les chantiers (mécanique 4 phases SUGG_JSON / PLAN_JSON / END_CONVERSATION introduite en D-036) tourne désormais au choix du médecin sur Claude Haiku (cloud, API Anthropic) ou sur un SLM local via Ollama (`qwen2.5:3b` par défaut, surchargeable).
+
+**Pourquoi** :
+- Souveraineté : pour un médecin libéral qui veut garder ses échanges 100 % locaux, le mode SLM offre une garantie technique nulle dépendance cloud.
+- Coût : zéro API call pour le mode local.
+- Démonstration : permet à Sébastien de montrer en prospect que le produit n'est pas verrouillé sur un provider unique.
+- Expérimentation : préfigure la V1.2 (architecture hybride MODEL_PROVIDER, cf ROADMAP).
+
+**Choix techniques** :
+- Modèle local par défaut : `qwen2.5:3b` (3B params, ~2 GB, excellent FR, suit bien les contraintes JSON structurées, rapide sur Mac M-series).
+- Default Cloud (Claude Haiku) pour ne pas casser l'expérience des testeurs sans Ollama installé.
+- Préférence du médecin persistée en `localStorage` (`lugia-chat-provider`).
+- System prompt 4 phases inchangé et partagé entre providers (à valider en test bout en bout que qwen tient bien les markers).
+
+**Limites assumées** :
+- Le mode local nécessite Ollama installé + modèle tiré + lib python `ollama`. Si l'un manque, le backend renvoie une 503 lisible et l'UI propose de basculer sur Cloud.
+- Pas de persistance du provider en BDD (chaque message stocké sans trace du moteur utilisé). Décision : surajouterait du bruit pour un bénéfice marginal en V1.
+
+---
+
+
 ## D-039 — V3-charte : trois pages éditoriales distinctes (check-up / accompagnement / à propos)
 
 **Date :** 2026-05-22

@@ -22,12 +22,30 @@ from typing import Any, Optional
 
 import anthropic
 
+try:
+    import ollama  # type: ignore
+except ImportError:
+    ollama = None  # type: ignore
 
 # Limite produit : 20 questions max par conversation (sécurité au cas où
-# Claude ne ferme pas en phase 5).
+# le modèle ne ferme pas en phase 5).
 MAX_USER_MESSAGES = 20
 
-MODEL_ID = "claude-haiku-4-5-20251001"
+# Identifiants modèles par provider
+ANTHROPIC_MODEL_ID = "claude-haiku-4-5-20251001"
+# Compat ancien import — gardé pour pas casser d'autres modules.
+MODEL_ID = ANTHROPIC_MODEL_ID
+
+# SLM local par défaut : qwen2.5:3b (Alibaba) — bon FR, suit bien les
+# contraintes JSON structurées, rapide sur Mac M-series (~15-30 tok/s).
+# Surchargeable via OLLAMA_MODEL pour tester d'autres modèles.
+OLLAMA_MODEL_ID = os.environ.get("OLLAMA_MODEL", "qwen2.5:3b")
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+
+# Identifiants providers acceptés côté API
+PROVIDER_ANTHROPIC = "anthropic"
+PROVIDER_OLLAMA = "ollama"
+ALLOWED_PROVIDERS = {PROVIDER_ANTHROPIC, PROVIDER_OLLAMA}
 
 
 def _build_system_prompt(
@@ -188,32 +206,64 @@ def parse_assistant_reply(raw: str) -> dict[str, Any]:
     }
 
 
+# ─── Erreurs typées pour remonter une 503 lisible côté API ──────────────
+
+
+class LLMProviderUnavailable(RuntimeError):
+    """Le provider demandé n'est pas joignable (Ollama down, lib non installée,
+    clé API manquante, etc.). L'endpoint FastAPI le convertit en HTTP 503."""
+
+
+# ─── Clients ───────────────────────────────────────────────────────────────
+
+
 def get_anthropic_client() -> anthropic.Anthropic:
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        raise RuntimeError(
+        raise LLMProviderUnavailable(
             "ANTHROPIC_API_KEY n'est pas configurée. "
             "Définissez la variable d'environnement avant de démarrer le backend."
         )
     return anthropic.Anthropic(api_key=api_key)
 
 
-def send_message(
+def get_ollama_client():
+    """Retourne un client Ollama pointant sur OLLAMA_BASE_URL.
+
+    Lève LLMProviderUnavailable si :
+     - la lib python `ollama` n'est pas installée (pip install ollama)
+     - le serveur Ollama ne répond pas sur OLLAMA_BASE_URL
+    """
+    if ollama is None:
+        raise LLMProviderUnavailable(
+            "La lib python `ollama` n'est pas installée. "
+            "Lancez : pip install ollama --break-system-packages"
+        )
+    try:
+        # Client explicite pour respecter OLLAMA_BASE_URL même si différent
+        # du défaut localhost:11434.
+        return ollama.Client(host=OLLAMA_BASE_URL)
+    except Exception as exc:
+        raise LLMProviderUnavailable(
+            f"Impossible de créer un client Ollama sur {OLLAMA_BASE_URL} : {exc}"
+        )
+
+
+# ─── Sender par provider ──────────────────────────────────────────────────
+
+
+def _send_anthropic(
     user_message: str,
     history: list[dict[str, str]],
-    module: dict[str, Any],
-    profile: Optional[dict[str, Any]] = None,
-    scores: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    """Envoie un message + historique à Claude. Renvoie la réponse PARSÉE."""
+    system_prompt: str,
+) -> str:
+    """Appelle Claude Haiku et retourne la réponse RAW (pré-parsing)."""
     client = get_anthropic_client()
-    system_prompt = _build_system_prompt(module, profile, scores)
-
     messages = list(history)
     messages.append({"role": "user", "content": user_message})
 
     response = client.messages.create(
-        model=MODEL_ID,
+        model=ANTHROPIC_MODEL_ID,
         max_tokens=1000,  # +200 vs avant pour absorber les blocs JSON
         system=system_prompt,
         messages=messages,
@@ -222,5 +272,83 @@ def send_message(
     for block in response.content:
         if hasattr(block, "text"):
             parts.append(block.text)
-    raw = "".join(parts).strip()
+    return "".join(parts).strip()
+
+
+def _send_ollama(
+    user_message: str,
+    history: list[dict[str, str]],
+    system_prompt: str,
+) -> str:
+    """Appelle Ollama (qwen2.5:3b par défaut) et retourne la réponse RAW.
+
+    Convention Ollama : le system prompt est passé en premier message
+    `{"role": "system", ...}` (contrairement à Anthropic qui a un paramètre
+    `system` séparé). On préserve l'historique tel quel.
+    """
+    client = get_ollama_client()
+    messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
+    messages.extend(history)
+    messages.append({"role": "user", "content": user_message})
+
+    try:
+        response = client.chat(
+            model=OLLAMA_MODEL_ID,
+            messages=messages,
+            options={
+                # Température basse → modèle plus discipliné sur les markers
+                # JSON (SUGG_JSON / PLAN_JSON / END_CONVERSATION).
+                "temperature": 0.4,
+                "num_predict": 1000,
+            },
+        )
+    except Exception as exc:
+        # Connexion refusée, modèle non tiré, etc.
+        raise LLMProviderUnavailable(
+            f"Ollama indisponible ({OLLAMA_BASE_URL}, modèle {OLLAMA_MODEL_ID}) : {exc}. "
+            "Vérifiez qu'Ollama tourne (`ollama serve`) et que le modèle est "
+            "tiré (`ollama pull qwen2.5:3b`)."
+        )
+
+    # Format de retour Ollama : {"message": {"role": "assistant", "content": "..."}}
+    msg = response.get("message") if isinstance(response, dict) else getattr(response, "message", None)
+    if isinstance(msg, dict):
+        return str(msg.get("content", "")).strip()
+    if msg is not None and hasattr(msg, "content"):
+        return str(msg.content).strip()
+    return ""
+
+
+# ─── Dispatcher public ────────────────────────────────────────────────────
+
+
+def send_message(
+    user_message: str,
+    history: list[dict[str, str]],
+    module: dict[str, Any],
+    profile: Optional[dict[str, Any]] = None,
+    scores: Optional[dict[str, Any]] = None,
+    provider: str = PROVIDER_ANTHROPIC,
+) -> dict[str, Any]:
+    """Envoie un message + historique au LLM choisi. Renvoie la réponse PARSÉE.
+
+    provider :
+      - "anthropic" (défaut) → Claude Haiku via API cloud
+      - "ollama"             → SLM local (qwen2.5:3b par défaut)
+
+    Lève LLMProviderUnavailable si le provider demandé n'est pas joignable
+    (l'endpoint FastAPI convertit en HTTP 503).
+    """
+    if provider not in ALLOWED_PROVIDERS:
+        raise ValueError(
+            f"provider invalide : {provider!r}. Valeurs attendues : {sorted(ALLOWED_PROVIDERS)}"
+        )
+
+    system_prompt = _build_system_prompt(module, profile, scores)
+
+    if provider == PROVIDER_OLLAMA:
+        raw = _send_ollama(user_message, history, system_prompt)
+    else:
+        raw = _send_anthropic(user_message, history, system_prompt)
+
     return parse_assistant_reply(raw)

@@ -751,16 +751,20 @@ export async function getChatHistory(
   );
 }
 
+/** Provider LLM côté backend chat — toggle UI Cloud/Local. */
+export type ChatProvider = "anthropic" | "ollama";
+
 export async function postChatMessage(
   interviewId: number,
   moduleId: string,
   message: string,
+  provider?: ChatProvider,
 ): Promise<ChatMessageResponse> {
   return request<ChatMessageResponse>(
     `/interviews/${interviewId}/modules/${moduleId}/chat`,
     {
       method: "POST",
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, provider }),
     }
   );
 }

@@ -632,8 +632,14 @@ class ChatHistoryItem(BaseModel):
 
 
 class ChatMessageBody(BaseModel):
-    """Requête : message user + historique reconstruit côté frontend."""
+    """Requête : message user + historique reconstruit côté frontend.
+
+    `provider` (optionnel) permet au frontend de basculer entre Claude Haiku
+    (cloud) et un SLM local (Ollama, qwen2.5:3b par défaut). Si omis ou
+    invalide, on retombe sur "anthropic" comme aujourd'hui.
+    """
     message: str
+    provider: Optional[str] = None  # "anthropic" | "ollama"
 
 
 class ChatMessageResponse(BaseModel):
@@ -707,7 +713,13 @@ async def post_chat_message(
      - 20 messages user max par conversation
      - modèle Claude Haiku, max_tokens=800
     """
-    from src.chat_assistant import send_message, MAX_USER_MESSAGES
+    from src.chat_assistant import (
+        send_message,
+        MAX_USER_MESSAGES,
+        LLMProviderUnavailable,
+        ALLOWED_PROVIDERS,
+        PROVIDER_ANTHROPIC,
+    )
     from src.pdf_exporter import _MODULES_FALLBACK
 
     _assert_user_owns_interview(email, interview_id)
@@ -750,7 +762,13 @@ async def post_chat_message(
     # Persiste le message user AVANT l'appel Claude (auditabilité)
     db.add_chat_message(interview_id, module_id, email, "user", user_message)
 
-    # Appel Claude (renvoie un dict parsé : text/suggestions/plan/ended)
+    # Résolution du provider — si frontend envoie une valeur inconnue,
+    # on retombe silencieusement sur Anthropic plutôt que d'échouer.
+    provider = (body.provider or PROVIDER_ANTHROPIC).lower()
+    if provider not in ALLOWED_PROVIDERS:
+        provider = PROVIDER_ANTHROPIC
+
+    # Appel du LLM (renvoie un dict parsé : text/suggestions/plan/ended)
     try:
         parsed = send_message(
             user_message=user_message,
@@ -758,10 +776,21 @@ async def post_chat_message(
             module=module,
             profile=user_profile,
             scores=scores,
+            provider=provider,
+        )
+    except LLMProviderUnavailable as exc:
+        # Provider down (Ollama non démarré, clé API manquante…) → 503
+        # explicite pour que le frontend puisse proposer de basculer
+        # sur l'autre provider.
+        import logging
+        logging.warning("LLM provider %s indisponible : %s", provider, exc)
+        raise HTTPException(
+            status_code=503,
+            detail=str(exc),
         )
     except Exception:
         import logging
-        logging.exception("Erreur lors de l'appel Claude")
+        logging.exception("Erreur lors de l'appel LLM (provider=%s)", provider)
         raise HTTPException(
             status_code=502,
             detail="L'assistant Lugia est indisponible pour le moment. Réessayez dans un instant.",

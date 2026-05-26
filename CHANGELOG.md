@@ -4,6 +4,31 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-23 — Assistant chat : toggle Cloud (Haiku) / Local (SLM Ollama)
+
+Le médecin peut désormais choisir, pour chaque chantier, le moteur du chat assistant via un toggle dans l'en-tête de la modale :
+
+- **Cloud · Claude Haiku** (défaut) — comportement actuel, API Anthropic, dépendant de `ANTHROPIC_API_KEY`.
+- **Local · qwen2.5:3b** — SLM local via [Ollama](https://ollama.com), tournant sur la machine du médecin (zéro coût API, données privées). Surchargeable via `OLLAMA_MODEL` et `OLLAMA_BASE_URL`.
+
+### Backend
+
+`src/chat_assistant.py` refactoré : dispatcher `send_message(provider, ...)` qui appelle `_send_anthropic` (existant, inchangé) ou `_send_ollama` (nouveau). Erreur typée `LLMProviderUnavailable` levée si le provider est down (lib `ollama` absente, serveur Ollama injoignable, clé API manquante). Le system prompt 4 phases reste partagé entre providers (qwen2.5:3b tient bien le format SUGG_JSON / PLAN_JSON / END_CONVERSATION).
+
+`backend/main.py` : `ChatMessageBody` accepte `provider: "anthropic" | "ollama"`. L'endpoint `/chat` valide la valeur (fallback silencieux sur `anthropic` si invalide) et traduit `LLMProviderUnavailable` en HTTP 503 explicite.
+
+### Frontend
+
+`web/lib/api.ts` : `postChatMessage(..., provider?)` propage le choix au backend. Type `ChatProvider` exporté.
+
+`ChatChantierModal.tsx` : nouveau composant `ProviderToggle` (segmented control 2 positions Cloud / Local) dans le header, à côté du bouton Fermer. Préférence persistée en `localStorage` sous la clé `lugia-chat-provider`. Badge sous le titre du chantier indique le moteur actif (« via Cloud · Claude Haiku » ou « via Local · qwen2.5:3b » en signal ambre pour le mode local expérimental). Si le backend renvoie 503, l'UI propose explicitement de basculer sur l'autre provider sans réinitialiser la conversation.
+
+### Setup côté médecin
+
+Documentation ajoutée au `README.md` (section « Assistant chat chantiers — Cloud vs Local (SLM) ») : install Ollama, `ollama pull qwen2.5:3b`, `pip install ollama --break-system-packages`. Le mode Cloud reste 100 % fonctionnel pour les testeurs qui n'installent pas Ollama.
+
+---
+
 ### Nouveau check-up V3 : repart vraiment de zéro (flag ?fresh=1)
 
 Bug : cliquer sur « Démarrer un nouveau check-up » créait bien une nouvelle interview en BDD, mais la page v3-charte hydratait quand même `extras` depuis `getMyProfile()` — le profil utilisateur étant partagé entre toutes les interviews, les chips précédents (type cabinet, motivation, etc.) restaient pré-remplis sur la page profil étape 1. Après premier fix partiel, le parcours démarrait quand même sur la page « Ancrage » car `resumeStep` lisait `isProfileStep1Complete(profile)` sur le profil user toujours rempli en BDD.

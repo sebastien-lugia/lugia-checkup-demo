@@ -21,7 +21,14 @@ import {
   postChatMessage,
   type ChatMessageItem,
   type ChatPlanStep,
+  type ChatProvider,
 } from "@/lib/api";
+
+const CHAT_PROVIDER_LS_KEY = "lugia-chat-provider";
+const PROVIDER_LABELS: Record<ChatProvider, string> = {
+  anthropic: "Cloud · Claude Haiku",
+  ollama: "Local · qwen2.5:3b",
+};
 
 const TAG_LABELS: Record<ChatPlanStep["tag"], string> = {
   quick: "Action rapide",
@@ -50,6 +57,32 @@ export function ChatChantierModal({
   const [isSending, setIsSending] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // Toggle Cloud / Local — préférence persistée en localStorage. Défaut
+  // "anthropic" pour ne pas casser l'expérience des testeurs qui n'ont
+  // pas Ollama installé.
+  const [provider, setProvider] = useState<ChatProvider>(() => {
+    if (typeof window === "undefined") return "anthropic";
+    try {
+      const saved = window.localStorage.getItem(CHAT_PROVIDER_LS_KEY);
+      if (saved === "ollama" || saved === "anthropic") return saved;
+    } catch {
+      /* localStorage indisponible — défaut anthropic */
+    }
+    return "anthropic";
+  });
+  // Garde une ref synchrone du provider pour les callbacks (sendInitial,
+  // handleSend) — évite que le user puisse "geler" l'ancien provider
+  // en cliquant le toggle entre l'optimistic setMessages et l'appel API.
+  const providerRef = useRef<ChatProvider>(provider);
+  useEffect(() => {
+    providerRef.current = provider;
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(CHAT_PROVIDER_LS_KEY, provider);
+    } catch {
+      /* fail silent */
+    }
+  }, [provider]);
   const listRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const initRef = useRef(false);
@@ -104,7 +137,7 @@ export function ChatChantierModal({
     setErrorMsg(null);
     setMessages((m) => [...m, { role: "user", text: initialUserMessage }]);
     try {
-      const res = await postChatMessage(interviewId, moduleId, initialUserMessage);
+      const res = await postChatMessage(interviewId, moduleId, initialUserMessage, providerRef.current);
       setMessages((m) => [...m, {
         role: "assistant",
         text: res.text,
@@ -134,7 +167,7 @@ export function ChatChantierModal({
     setMessages((m) => [...m, { role: "user", text: msg }]);
 
     try {
-      const res = await postChatMessage(interviewId, moduleId, msg);
+      const res = await postChatMessage(interviewId, moduleId, msg, providerRef.current);
       setMessages((m) => [...m, {
         role: "assistant",
         text: res.text,
@@ -149,6 +182,13 @@ export function ChatChantierModal({
       const message = err instanceof Error ? err.message : "Erreur inconnue";
       if (message.includes("429")) {
         setErrorMsg("Vous avez atteint la limite de 20 questions. Pour aller plus loin, contactez Sébastien via Calendly.");
+      } else if (message.includes("503")) {
+        const otherProvider: ChatProvider = providerRef.current === "ollama" ? "anthropic" : "ollama";
+        const otherLabel = PROVIDER_LABELS[otherProvider];
+        setErrorMsg(
+          `${PROVIDER_LABELS[providerRef.current]} n'est pas joignable. ` +
+          `Basculez sur « ${otherLabel} » via le toggle en haut, puis renvoyez votre message.`
+        );
       } else {
         setErrorMsg("L'assistant n'a pas pu répondre. Réessayez dans un instant.");
       }
@@ -224,7 +264,28 @@ export function ChatChantierModal({
           >
             {moduleLabel}
           </h2>
+          <p
+            style={{
+              fontFamily: fonts.mono,
+              fontSize: 10,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: provider === "ollama" ? palette.signalWarn.default : palette.navy400,
+              margin: "6px 0 0",
+              opacity: 0.85,
+              fontStyle: "normal",
+            }}
+          >
+            via {PROVIDER_LABELS[provider]}
+          </p>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <ProviderToggle
+          provider={provider}
+          onChange={setProvider}
+          theme={theme}
+          disabled={isSending}
+        />
         <button
           type="button"
           onClick={onClose}
@@ -248,6 +309,7 @@ export function ChatChantierModal({
         >
           Fermer  esc
         </button>
+        </div>
       </div>
 
       {/* Liste messages */}
@@ -447,6 +509,74 @@ export function ChatChantierModal({
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
+    </div>
+  );
+}
+
+/**
+ * ProviderToggle — petit segmented-control 2 positions Cloud / Local.
+ * État Cloud (Claude Haiku) = défaut, navy uniform. État Local (qwen2.5:3b)
+ * = teinté signal ambre pour rappeler que l'on est sur SLM expérimental.
+ */
+function ProviderToggle({
+  provider,
+  onChange,
+  theme,
+  disabled,
+}: {
+  provider: ChatProvider;
+  onChange: (p: ChatProvider) => void;
+  theme: V3Theme;
+  disabled?: boolean;
+}) {
+  const palette = paletteFor(theme);
+  const options: Array<{ id: ChatProvider; label: string; title: string }> = [
+    { id: "anthropic", label: "Cloud", title: "Claude Haiku (API Anthropic)" },
+    { id: "ollama", label: "Local", title: "Ollama qwen2.5:3b (SLM sur votre machine)" },
+  ];
+  return (
+    <div
+      role="group"
+      aria-label="Choix du moteur LLM"
+      style={{
+        display: "inline-flex",
+        border: `1px solid ${palette.line}`,
+        background: "transparent",
+      }}
+    >
+      {options.map((opt) => {
+        const active = provider === opt.id;
+        const isLocal = opt.id === "ollama";
+        return (
+          <button
+            key={opt.id}
+            type="button"
+            onClick={() => { if (!disabled && !active) onChange(opt.id); }}
+            disabled={disabled}
+            title={opt.title}
+            style={{
+              padding: "6px 12px",
+              border: "none",
+              background: active
+                ? (isLocal ? `${palette.signalWarn.default}22` : palette.navy)
+                : "transparent",
+              color: active
+                ? (isLocal ? palette.signalWarn.default : palette.paper)
+                : palette.navy400,
+              fontFamily: fonts.mono,
+              fontSize: 10,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              cursor: disabled ? "not-allowed" : (active ? "default" : "pointer"),
+              opacity: disabled ? 0.5 : 1,
+              transition: "background 160ms ease-out, color 160ms ease-out",
+              fontStyle: "normal",
+            }}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

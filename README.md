@@ -60,6 +60,36 @@ lugia-checkup-demo/
 - `resources/persona_medecin_pchateau.md` — persona médecin de référence (Dr Philippe Chateau)
 - Voir le tableau complet des ressources dans `MASTER_PROMPT.md` section 10
 
+## Assistant chat chantiers — Cloud vs Local (SLM)
+
+L'assistant Lugia sur les chantiers de la page résultats V3-charte peut tourner sur deux moteurs au choix du médecin, via un toggle dans l'en-tête du chat :
+
+- **Cloud · Claude Haiku** (défaut) — API Anthropic. Nécessite la variable d'environnement `ANTHROPIC_API_KEY` côté backend.
+- **Local · qwen2.5:3b** — SLM tournant sur la machine du médecin via [Ollama](https://ollama.com). Aucun coût API, données 100 % locales, latence ~1-3 s sur Mac M-series.
+
+### Activer le mode SLM local
+
+```bash
+# 1. Installer Ollama (app Mac native ou brew)
+brew install ollama          # ou télécharger sur https://ollama.com
+
+# 2. Démarrer le service (lancé en background par l'app Mac, sinon manuel)
+ollama serve                 # tourne sur http://localhost:11434
+
+# 3. Tirer le modèle qwen2.5:3b (~2 GB, une seule fois)
+ollama pull qwen2.5:3b
+
+# 4. Installer la lib python côté backend
+pip install ollama --break-system-packages
+```
+
+Le toggle « Local » du chat devient alors actif. Si Ollama n'est pas joignable, le backend renvoie une 503 et l'UI propose de basculer sur Cloud sans interrompre la conversation.
+
+### Variables d'environnement optionnelles
+
+- `OLLAMA_MODEL` — surcharge le modèle local (défaut `qwen2.5:3b`). Exemples : `qwen2.5:7b`, `llama3.2:3b`, `mistral:7b`.
+- `OLLAMA_BASE_URL` — surcharge l'URL du serveur Ollama (défaut `http://localhost:11434`).
+
 ## Périmètre
 
 Démonstrateur local, single-user, exécuté sur la machine du développeur ou d'un utilisateur de test. Cabinets de 1 à 5 médecins avec ou sans secrétariat. Pas de version publique en V0.
