@@ -574,6 +574,41 @@ async def complete_interview(
     db.mark_interview_completed(interview_id)
     return {"ok": True}
 
+def _latest_mermaid_graph(interview_id: int, module_id: str, email: str):
+    """Dernier graphe WSF enrichi persiste pour ce chantier (C.B), ou None.
+
+    Le graphe enrichi produit par le chat (synthese) est stocke dans le suffixe
+    __LUGIA_META__ des messages assistant. On renvoie le plus recent qui
+    contient un graphe valide (nodes + edges non vides) ; sinon None, et le PDF
+    retombe sur le graphe statique du chantier.
+    """
+    import json as _json2
+    try:
+        msgs = db.list_chat_messages(interview_id, module_id, email)
+    except Exception:
+        return None
+    for m in reversed(msgs):
+        if m.get("role") != "assistant":
+            continue
+        content = m.get("content") or ""
+        idx = content.rfind("\n\n__LUGIA_META__:")
+        if idx < 0:
+            continue
+        try:
+            meta = _json2.loads(content[idx + len("\n\n__LUGIA_META__:"):])
+        except Exception:
+            continue
+        g = meta.get("mermaid_graph")
+        if (
+            isinstance(g, dict)
+            and isinstance(g.get("nodes"), list)
+            and isinstance(g.get("edges"), list)
+            and g.get("nodes")
+        ):
+            return g
+    return None
+
+
 @app.get("/interviews/{interview_id}/modules/{module_id}/pdf", tags=["interview"])
 async def export_module_pdf(
     interview_id: int,
@@ -592,8 +627,12 @@ async def export_module_pdf(
 
     _assert_user_owns_interview(email, interview_id)
     user_profile = db.get_user_profile(email) or {}
+    # C.B : schema enrichi du chat si dispo, sinon graphe statique (dans le build).
+    enriched_graphe = _latest_mermaid_graph(interview_id, module_id, email)
     try:
-        pdf_bytes = build_chantier_pdf(module_id, profile=user_profile)
+        pdf_bytes = build_chantier_pdf(
+            module_id, profile=user_profile, graphe=enriched_graphe
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     filename = f"chantier-{module_id}.pdf"

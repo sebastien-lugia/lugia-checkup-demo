@@ -267,11 +267,16 @@ def _make_styles():
 def build_chantier_pdf(
     module_id: str,
     profile: Optional[dict[str, Any]] = None,
+    graphe: Optional[dict[str, Any]] = None,
 ) -> bytes:
     """Génère le PDF d'un chantier en bytes (à servir tel quel par FastAPI).
 
     `profile` est utilisé pour personnaliser les gains € selon le volume
     cabinet (lt_80 / 80_120 / gt_120). Si absent, utilise le volume médian.
+
+    `graphe` (C.B) : graphe WSF à dessiner sous le plan d'action. Si fourni
+    (typiquement le schéma enrichi produit par le chat), il est utilisé tel
+    quel ; sinon on retombe sur le graphe statique du chantier.
     """
     mod = _MODULES_FALLBACK.get(module_id)
     opp = _OPPS_FALLBACK.get(module_id)
@@ -375,6 +380,35 @@ def build_chantier_pdf(
         ))
 
     story.append(Spacer(1, 10))
+
+    # ── Schéma du chantier (C.B, 2026-05-27) ──
+    # Graphe enrichi (chat) si fourni, sinon graphe statique du chantier.
+    from src.wsf_render import (
+        build_wsf_drawing,
+        get_chantier_graphe,
+        etats_presents,
+        ETAT_COLORS,
+        ETAT_LABEL,
+    )
+    _graphe = graphe or get_chantier_graphe(module_id)
+    if _graphe:
+        _drawing = build_wsf_drawing(_graphe, max_width=165 * mm)
+        if _drawing is not None:
+            story.append(Paragraph("SCHÉMA DU CHANTIER", styles["eyebrow"]))
+            story.append(Spacer(1, 8))
+            story.append(_drawing)
+            story.append(Spacer(1, 6))
+            _etats = etats_presents(_graphe)
+            if _etats:
+                _parts = []
+                for _e in _etats:
+                    _col = ETAT_COLORS.get(_e, ETAT_COLORS["FONCTIONNEL"])["stroke"]
+                    _lab = ETAT_LABEL.get(_e, _e)
+                    _parts.append(f'<font color="{_col}">●</font> {_lab}')
+                story.append(Paragraph(
+                    "&nbsp;&nbsp;".join(_parts), styles["small"]
+                ))
+            story.append(Spacer(1, 16))
 
     # ── Encart Avec Lugia ──
     if mod.get("avecLugia"):

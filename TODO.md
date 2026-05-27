@@ -187,7 +187,7 @@ Plus rien à faire spécifiquement sous V1.1.10. Les chantiers actifs sont remon
 | Item | Statut | Description courte |
 |---|---|---|
 | **C.A — Schéma Mermaid simplifié du chantier** | ✅ livré (2026-05-27) | Deux niveaux : schéma WSF **statique** par chantier sur la page module (sans LLM), et schéma **enrichi** généré à la synthèse du chat (MERMAID_JSON) sous le plan d'action. Moteur WSF générique dans `web/lib/wsf/`. Compatible Claude + qwen WebLLM (7B + fallback 3B). |
-| **C.B — Polish PDF chantier** | ⏳ | Intégrer le schéma Mermaid produit en C.A dans le PDF reportlab existant. |
+| **C.B — Polish PDF chantier** | ✅ livré (2026-05-27) | Schéma WSF dessiné nativement en reportlab (`src/wsf_render.py`) sous le plan d'action du PDF, alimenté par le graphe enrichi du chat si dispo, sinon le graphe statique. |
 | **C.C — Formaliser cross-sell Calendly** | ✅ déjà câblé | « En parler avec Lugia » via Calendly opérationnel (D-037). Tracking d'attribution à affiner si nécessaire. |
 | **C.D — Formulaire de réponse à offre conseil** | ⏳ | Formulaire structuré à la fin du diagnostic ou en pied de chantier, lead par email via Resend (déjà câblé pour magic links). Permet au médecin de répondre à une offre de conseil sans dépendre de Calendly. |
 

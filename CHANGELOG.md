@@ -4,6 +4,12 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-27 (suite) — C.B : schéma WSF dans le PDF chantier
+
+Le PDF chantier (`src/pdf_exporter.py`) intègre une section « Schéma du chantier » sous le plan d'action. Nouveau module `src/wsf_render.py` : port Python des 7 graphes WSF statiques + moteur de dessin reportlab natif (boîtes colorées par état, flèches typées, layout par couches top-down, mise à l'échelle pour tenir dans la largeur, légende des états). L'endpoint `GET /interviews/{id}/modules/{module}/pdf` récupère le graphe enrichi du chat s'il existe en base (`__LUGIA_META__`), sinon repli sur le graphe statique. Aucune dépendance nouvelle (reportlab.graphics), tolérant aux valeurs hors-enum d'un LLM. Clôt le cap court terme C.A-C.D (reste C.D).
+
+---
+
 ## 2026-05-27 (suite) — Vision lentilles : bibliothèque + Circulation du savoir
 
 Archivage de 3 nouveaux docs de vision dans `resources/vision/` : `lugia_bibliotheque_lentilles.md` (les 22 lentilles par famille), `lugia_circulation_savoir.md` (diffusion des bonnes pratiques : lien `TRANSMET`, échelle de diffusion 0-5) et `lugia_mecanismes.html` (récap pédagogique zoom × lentilles × diagrammes × jumeau). Intégration dans la spec vivante : ROADMAP WS.3 décrit désormais la bibliothèque de lentilles et la dimension Circulation du savoir ; `resources/vision/INDEX.md` liste les 3 docs et met à jour le statut (22 lentilles + `TRANSMET`). Aucune modif de code (vision Work System, hors périmètre Demo).
