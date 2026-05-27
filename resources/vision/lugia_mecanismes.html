@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lugia & Co — Mécanismes de fonctionnement</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:#0a0c11; --bg2:#11141b; --bg3:#1a1e27; --line:#242a34;
+  --txt:#eceef2; --txt2:#8e96a4; --txt3:#525a68;
+  --optimal:#34d399; --degrade:#fbbf24; --risque:#fb7185; --bloque:#ef4444;
+  --accent:#818cf8; --accent2:#a5b4fc; --teal:#2dd4bf; --cyan:#22d3ee; --pink:#f472b6; --orange:#f59e0b;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--txt); line-height:1.6; }
+
+/* NAV */
+.topnav { position:sticky; top:0; z-index:100; background:rgba(10,12,17,0.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); padding:14px 32px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+.nav-logo { font-family:'Fraunces',serif; font-size:18px; font-weight:900; }
+.nav-logo span { color:var(--accent2); }
+.nav-links { display:flex; gap:4px; flex-wrap:wrap; }
+.nav-link { padding:6px 13px; border-radius:7px; font-size:12px; color:var(--txt3); cursor:pointer; transition:all .2s; text-decoration:none; }
+.nav-link:hover { color:var(--txt); background:var(--bg3); }
+
+/* SECTIONS */
+section { padding:60px 32px; max-width:1100px; margin:0 auto; border-bottom:1px solid var(--line); }
+.sec-tag { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent2); text-transform:uppercase; letter-spacing:.15em; margin-bottom:10px; }
+.sec-title { font-family:'Fraunces',serif; font-size:32px; font-weight:600; margin-bottom:12px; line-height:1.2; }
+.sec-intro { font-size:15px; color:var(--txt2); max-width:680px; margin-bottom:36px; }
+
+/* HERO */
+.hero { text-align:center; padding:90px 32px 70px; max-width:900px; }
+.hero h1 { font-family:'Fraunces',serif; font-size:46px; font-weight:900; line-height:1.1; margin-bottom:18px; }
+.hero h1 span { color:var(--accent2); }
+.hero p { font-size:17px; color:var(--txt2); max-width:600px; margin:0 auto 30px; }
+.hero-flow { display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin-top:40px; }
+.hf-step { background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:14px 18px; font-size:13px; }
+.hf-step .hfs-num { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent2); display:block; margin-bottom:4px; }
+.hf-arrow { color:var(--txt3); font-size:18px; }
+
+/* CARDS GRID */
+.grid { display:grid; gap:16px; }
+.grid-2 { grid-template-columns:1fr 1fr; }
+.grid-3 { grid-template-columns:repeat(3,1fr); }
+.card { background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:20px; transition:all .25s; }
+.card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.card-icon { font-size:22px; margin-bottom:10px; }
+.card-title { font-size:15px; font-weight:600; margin-bottom:6px; }
+.card-desc { font-size:13px; color:var(--txt2); }
+
+/* ZOOM DEMO */
+.zoom-demo { background:var(--bg2); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+.zoom-tabs { display:flex; border-bottom:1px solid var(--line); overflow-x:auto; }
+.zoom-tab { flex:1; min-width:120px; padding:14px 12px; text-align:center; cursor:pointer; transition:all .2s; border-right:1px solid var(--line); }
+.zoom-tab:last-child { border-right:none; }
+.zoom-tab:hover { background:var(--bg3); }
+.zoom-tab.active { background:var(--bg3); }
+.zt-level { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent2); }
+.zt-name { font-size:13px; font-weight:600; margin-top:3px; }
+.zt-q { font-size:10px; color:var(--txt3); margin-top:2px; }
+.zoom-stage { padding:30px; min-height:380px; display:flex; align-items:center; justify-content:center; position:relative; }
+.zoom-panel { display:none; width:100%; }
+.zoom-panel.active { display:block; animation:fade .4s; }
+@keyframes fade { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* vignette */
+.vig { text-align:center; }
+.vig-dot { width:90px; height:90px; border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; font-size:40px; background:rgba(52,211,153,0.12); color:var(--optimal); position:relative; }
+.vig-dot::after { content:''; position:absolute; inset:-8px; border:2px solid var(--optimal); border-radius:50%; opacity:.3; animation:vpulse 2.5s infinite; }
+@keyframes vpulse { 0%,100%{transform:scale(1);opacity:.3} 50%{transform:scale(1.12);opacity:.1} }
+.vig h3 { font-family:'Fraunces',serif; font-size:22px; margin-bottom:6px; }
+.vig p { color:var(--txt2); font-size:14px; }
+
+/* mermaid code block */
+.mermaid-box { background:var(--bg); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+.mb-head { padding:10px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px; }
+.mb-type { font-size:13px; font-weight:600; }
+.mb-badge { margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; padding:3px 9px; border-radius:8px; background:var(--bg3); color:var(--accent2); }
+.mb-q { padding:10px 16px 4px; font-size:12px; color:var(--txt3); font-style:italic; }
+.mb-code { padding:12px 16px 16px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--txt2); line-height:1.7; white-space:pre-wrap; }
+
+/* WSF pyramid mini */
+.pyramid-mini { display:flex; justify-content:center; }
+
+/* lens chips */
+.lens-grid { display:flex; flex-wrap:wrap; gap:8px; }
+.lens-chip { padding:8px 14px; border-radius:20px; font-size:12px; border:1px solid var(--line); background:var(--bg2); cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:7px; }
+.lens-chip:hover { border-color:var(--accent); }
+.lens-chip.active { background:var(--bg3); border-color:var(--accent); }
+.lc-dot { width:9px; height:9px; border-radius:50%; }
+
+/* twin demo */
+.twin-area { display:grid; grid-template-columns:1fr 320px; gap:0; background:var(--bg2); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+.twin-map { position:relative; min-height:420px; border-right:1px solid var(--line); background:radial-gradient(ellipse at 50% 45%, rgba(129,140,248,0.05) 0%, transparent 60%); }
+.twin-map svg { width:100%; height:100%; }
+.twin-side { padding:20px; }
+.twin-side h4 { font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--txt3); margin-bottom:14px; }
+.maturity-ring-wrap { text-align:center; margin-bottom:20px; }
+.mr-pct { font-family:'Fraunces',serif; font-size:36px; font-weight:900; color:var(--accent2); }
+.mr-label { font-size:11px; color:var(--txt3); font-family:'JetBrains Mono',monospace; }
+.action-btn { display:flex; align-items:center; gap:9px; width:100%; background:var(--bg3); border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:7px; cursor:pointer; transition:all .2s; color:var(--txt2); font-size:12px; font-family:'Inter',sans-serif; text-align:left; }
+.action-btn:hover:not(:disabled) { border-color:var(--accent); color:var(--txt); transform:translateX(3px); }
+.action-btn:disabled { opacity:.35; cursor:default; }
+.action-btn .ab-gain { margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--optimal); }
+
+.tw-node { transition:all .5s cubic-bezier(0.34,1.56,0.64,1); cursor:pointer; }
+.tw-name { font-size:9px; text-anchor:middle; pointer-events:none; }
+.discover-pulse { animation:dp 1.6s ease-out; }
+@keyframes dp { 0%{r:0;opacity:.8} 100%{r:55;opacity:0} }
+
+/* flow / boucle */
+.loop-flow { display:flex; flex-direction:column; gap:10px; max-width:600px; margin:0 auto; }
+.loop-step { display:flex; align-items:center; gap:14px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:14px 18px; position:relative; }
+.loop-num { width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
+.loop-text { font-size:13px; }
+.loop-arrow { text-align:center; color:var(--txt3); font-size:16px; }
+
+/* footer */
+.footer { text-align:center; padding:50px 32px; color:var(--txt3); font-size:12px; }
+
+.highlight-box { background:linear-gradient(135deg, rgba(129,140,248,0.1), rgba(129,140,248,0.02)); border:1px solid var(--accent); border-radius:12px; padding:20px 24px; margin-top:24px; }
+.highlight-box p { font-size:14px; color:var(--txt); }
+.highlight-box strong { color:var(--accent2); }
+
+@media (max-width:800px){ .grid-2,.grid-3{grid-template-columns:1fr} .twin-area{grid-template-columns:1fr} .twin-map{border-right:none;border-bottom:1px solid var(--line)} .hero h1{font-size:34px} .sec-title{font-size:26px} }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="nav-logo">Lugia <span>&</span> Co</div>
+  <div class="nav-links">
+    <a class="nav-link" href="#vue">Vue d'ensemble</a>
+    <a class="nav-link" href="#niveaux">Niveaux de zoom</a>
+    <a class="nav-link" href="#mermaid">Diagrammes</a>
+    <a class="nav-link" href="#lentilles">Lentilles</a>
+    <a class="nav-link" href="#jumeau">Jumeau vivant</a>
+    <a class="nav-link" href="#boucle">Boucle vertueuse</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero" style="margin:0 auto;">
+  <h1>Les mécanismes de <span>Lugia & Co</span></h1>
+  <p>Comment un diagnostic gratuit devient un jumeau numérique vivant du cabinet — qui se lit à plusieurs échelles, sous plusieurs angles, et s'enrichit au fil de l'usage.</p>
+  <div class="hero-flow">
+    <div class="hf-step"><span class="hfs-num">01</span>Questionnaire</div>
+    <span class="hf-arrow">→</span>
+    <div class="hf-step"><span class="hfs-num">02</span>Jumeau WSF</div>
+    <span class="hf-arrow">→</span>
+    <div class="hf-step"><span class="hfs-num">03</span>Diagnostic</div>
+    <span class="hf-arrow">→</span>
+    <div class="hf-step"><span class="hfs-num">04</span>Chantiers</div>
+    <span class="hf-arrow">→</span>
+    <div class="hf-step"><span class="hfs-num">05</span>Modèle vivant</div>
+  </div>
+</div>
+
+<!-- VUE D'ENSEMBLE -->
+<section id="vue">
+  <div class="sec-tag">Le principe</div>
+  <h2 class="sec-title">Un seul modèle, le Work System Framework</h2>
+  <p class="sec-intro">Le cabinet est modélisé selon les 9 composantes du Work System Framework de Steven Alter. Ce modèle unique se lit ensuite à différentes échelles et sous différents angles, selon la question qu'on se pose.</p>
+  <div class="grid grid-3">
+    <div class="card"><div class="card-icon">🔭</div><div class="card-title">5 niveaux de zoom</div><div class="card-desc">De la vignette d'un coup d'œil au détail d'un objet précis. Chaque niveau répond à une question différente.</div></div>
+    <div class="card"><div class="card-icon">🎨</div><div class="card-title">22 lentilles</div><div class="card-desc">Le même modèle recoloré selon l'angle : santé, conformité, coût, charge, documentation, circulation du savoir…</div></div>
+    <div class="card"><div class="card-icon">📐</div><div class="card-title">6 types de diagrammes</div><div class="card-desc">Chaque composante a son type de diagramme Mermaid le mieux adapté à ce qu'elle représente.</div></div>
+    <div class="card"><div class="card-icon">🌱</div><div class="card-title">Jumeau vivant</div><div class="card-desc">Le modèle se construit progressivement par l'usage, comme une carte qui se révèle.</div></div>
+    <div class="card"><div class="card-icon">⚡</div><div class="card-title">Simulation causale</div><div class="card-desc">Avant d'agir, voir l'impact d'un changement se propager dans tout le système, en euros et en heures.</div></div>
+    <div class="card"><div class="card-icon">🔄</div><div class="card-title">Boucle vertueuse</div><div class="card-desc">Chaque usage enrichit le modèle, chaque enrichissement débloque de la valeur, qui motive l'usage.</div></div>
+  </div>
+</section>
+
+<!-- NIVEAUX DE ZOOM -->
+<section id="niveaux">
+  <div class="sec-tag">Mécanisme 1</div>
+  <h2 class="sec-title">Les niveaux de zoom</h2>
+  <p class="sec-intro">Comme une carte géographique, le jumeau se lit du continent à la rue. Cliquez sur chaque niveau pour voir ce qu'il montre.</p>
+
+  <div class="zoom-demo">
+    <div class="zoom-tabs">
+      <div class="zoom-tab active" onclick="setZoom(0)"><div class="zt-level">Niveau 0</div><div class="zt-name">Vignette</div><div class="zt-q">Tout va bien ?</div></div>
+      <div class="zoom-tab" onclick="setZoom(1)"><div class="zt-level">Niveau 1</div><div class="zt-name">Pyramide WSF</div><div class="zt-q">Comment c'est organisé ?</div></div>
+      <div class="zoom-tab" onclick="setZoom(2)"><div class="zt-level">Niveau 2</div><div class="zt-name">Domaine</div><div class="zt-q">Et dans ce domaine ?</div></div>
+      <div class="zoom-tab" onclick="setZoom(3)"><div class="zt-level">Niveau 3</div><div class="zt-name">Flux</div><div class="zt-q">Comment ça circule ?</div></div>
+      <div class="zoom-tab" onclick="setZoom(4)"><div class="zt-level">Niveau 4</div><div class="zt-name">Objet</div><div class="zt-q">Et précisément ça ?</div></div>
+    </div>
+    <div class="zoom-stage">
+      <!-- N0 -->
+      <div class="zoom-panel active" id="zp-0">
+        <div class="vig"><div class="vig-dot">●</div><h3>Cabinet en bonne santé</h3><p>2 points de vigilance · cartographié à 64%</p></div>
+      </div>
+      <!-- N1 -->
+      <div class="zoom-panel" id="zp-1">
+        <svg viewBox="0 0 600 360" style="width:100%;max-width:560px;display:block;margin:0 auto;">
+          <polygon points="300,20 560,330 40,330" fill="none" stroke="#242a34" stroke-width="1.5"/>
+          <polygon points="262,70 338,70 352,120 248,120" fill="#34d39922" stroke="#34d399" stroke-width="1.4"/>
+          <text x="300" y="98" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">CLIENTS</text>
+          <polygon points="232,135 368,135 386,185 214,185" fill="#6ee7b722" stroke="#6ee7b7" stroke-width="1.4"/>
+          <text x="300" y="163" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">PRODUITS</text>
+          <rect x="180" y="200" width="240" height="42" rx="5" fill="#fbbf2422" stroke="#fbbf24" stroke-width="1.4"/>
+          <text x="300" y="225" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">PROCESSUS</text>
+          <rect x="120" y="258" width="100" height="40" rx="5" fill="#6ee7b722" stroke="#6ee7b7" stroke-width="1.3"/>
+          <text x="170" y="282" text-anchor="middle" fill="#6ee7b7" font-size="9" font-weight="600">PARTICIP.</text>
+          <rect x="250" y="258" width="100" height="40" rx="5" fill="#fb718522" stroke="#fb7185" stroke-width="1.3"/>
+          <text x="300" y="282" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="600">INFO</text>
+          <rect x="380" y="258" width="100" height="40" rx="5" fill="#fbbf2422" stroke="#fbbf24" stroke-width="1.3"/>
+          <text x="430" y="282" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="600">TECHNO</text>
+          <rect x="120" y="305" width="360" height="20" rx="4" fill="#34d39922" stroke="#34d399" stroke-width="1.3"/>
+          <text x="300" y="318" text-anchor="middle" fill="#34d399" font-size="8" font-weight="600" letter-spacing="2">INFRASTRUCTURE</text>
+          <text x="95" y="200" fill="#fb7185" font-size="9" font-weight="600" transform="rotate(-58 95 200)">ENVIRONNEMENT</text>
+          <text x="505" y="200" fill="#6ee7b7" font-size="9" font-weight="600" transform="rotate(58 505 200)">STRATÉGIES</text>
+        </svg>
+      </div>
+      <!-- N2 -->
+      <div class="zoom-panel" id="zp-2">
+        <svg viewBox="0 0 560 320" style="width:100%;max-width:520px;display:block;margin:0 auto;">
+          <text x="280" y="30" text-anchor="middle" fill="#eceef2" font-family="Fraunces,serif" font-size="18">Domaine : Technologies</text>
+          <line x1="160" y1="120" x2="380" y2="120" stroke="#2a3340" stroke-width="1.3"/>
+          <line x1="160" y1="120" x2="160" y2="240" stroke="#2a3340" stroke-width="1.3"/>
+          <line x1="380" y1="120" x2="380" y2="240" stroke="#2a3340" stroke-width="1.3"/>
+          <g><rect x="105" y="98" width="110" height="44" rx="9" fill="#11141b" stroke="#6ee7b7" stroke-width="1.5"/><text x="160" y="116" text-anchor="middle" fill="#eceef2" font-size="11">Logiciel DPI</text><text x="160" y="130" text-anchor="middle" fill="#525a68" font-size="8" font-family="JetBrains Mono">Fonctionnel</text></g>
+          <g><rect x="325" y="98" width="110" height="44" rx="9" fill="#11141b" stroke="#fb7185" stroke-width="1.5"/><text x="380" y="116" text-anchor="middle" fill="#eceef2" font-size="11">Outil IA</text><text x="380" y="130" text-anchor="middle" fill="#fb7185" font-size="8" font-family="JetBrains Mono">À risque</text></g>
+          <g><rect x="105" y="218" width="110" height="44" rx="9" fill="#11141b" stroke="#6ee7b7" stroke-width="1.5"/><text x="160" y="236" text-anchor="middle" fill="#eceef2" font-size="11">Messagerie</text><text x="160" y="250" text-anchor="middle" fill="#525a68" font-size="8" font-family="JetBrains Mono">Fonctionnel</text></g>
+          <g><rect x="325" y="218" width="110" height="44" rx="9" fill="#11141b" stroke="#34d399" stroke-width="1.5"/><text x="380" y="236" text-anchor="middle" fill="#eceef2" font-size="11">Agenda</text><text x="380" y="250" text-anchor="middle" fill="#34d399" font-size="8" font-family="JetBrains Mono">Optimal</text></g>
+        </svg>
+      </div>
+      <!-- N3 -->
+      <div class="zoom-panel" id="zp-3">
+        <svg viewBox="0 0 620 240" style="width:100%;max-width:580px;display:block;margin:0 auto;">
+          <text x="310" y="30" text-anchor="middle" fill="#eceef2" font-family="Fraunces,serif" font-size="16">Flux : du patient au compte-rendu</text>
+          <defs><marker id="fa3" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#525a68"/></marker></defs>
+          <line x1="100" y1="120" x2="170" y2="120" stroke="#2a3340" stroke-width="1.3" marker-end="url(#fa3)"/>
+          <line x1="250" y1="120" x2="310" y2="100" stroke="#2a3340" stroke-width="1.3" marker-end="url(#fa3)"/>
+          <line x1="250" y1="120" x2="310" y2="150" stroke="#2a3340" stroke-width="1.3" marker-end="url(#fa3)"/>
+          <line x1="400" y1="130" x2="450" y2="120" stroke="#2a3340" stroke-width="1.3" marker-end="url(#fa3)"/>
+          <line x1="530" y1="120" x2="560" y2="120" stroke="#2a3340" stroke-width="1.3" marker-end="url(#fa3)"/>
+          <g><rect x="55" y="100" width="50" height="40" rx="8" fill="#11141b" stroke="#6ee7b7" stroke-width="1.4"/><text x="80" y="123" text-anchor="middle" fill="#eceef2" font-size="9">Patient</text></g>
+          <g><rect x="172" y="100" width="80" height="40" rx="20" fill="#11141b" stroke="#6ee7b7" stroke-width="1.4"/><text x="212" y="123" text-anchor="middle" fill="#eceef2" font-size="9">Consultation</text></g>
+          <g><rect x="312" y="78" width="80" height="38" rx="6" fill="#11141b" stroke="#fb7185" stroke-width="1.4"/><text x="352" y="100" text-anchor="middle" fill="#eceef2" font-size="9">Données</text></g>
+          <g><rect x="312" y="132" width="80" height="38" rx="20" fill="#11141b" stroke="#fbbf24" stroke-width="1.4"/><text x="352" y="154" text-anchor="middle" fill="#eceef2" font-size="9">Rédaction IA</text></g>
+          <g><rect x="452" y="100" width="80" height="40" rx="6" fill="#11141b" stroke="#6ee7b7" stroke-width="1.4"/><text x="492" y="123" text-anchor="middle" fill="#eceef2" font-size="9">Compte-rendu</text></g>
+          <g><rect x="562" y="100" width="50" height="40" rx="8" fill="#11141b" stroke="#34d399" stroke-width="1.4"/><text x="587" y="123" text-anchor="middle" fill="#eceef2" font-size="9">Envoi</text></g>
+        </svg>
+      </div>
+      <!-- N4 -->
+      <div class="zoom-panel" id="zp-4">
+        <div style="max-width:420px;margin:0 auto;background:var(--bg);border:1px solid var(--line);border-radius:14px;overflow:hidden;">
+          <div style="padding:18px;border-bottom:1px solid var(--line);position:relative;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;">TECHNOLOGIE</div>
+            <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;">Outil IA</div>
+            <div style="position:absolute;top:18px;right:18px;padding:4px 11px;border-radius:13px;font-size:11px;font-weight:600;background:#fb718522;color:#fb7185;">À risque</div>
+          </div>
+          <div style="padding:18px;font-size:13px;">
+            <div style="display:flex;padding:7px 0;border-bottom:1px solid var(--line);"><span style="color:var(--txt3);width:120px;">Données traitées</span><span>Noms patients (non protégés)</span></div>
+            <div style="display:flex;padding:7px 0;border-bottom:1px solid var(--line);"><span style="color:var(--txt3);width:120px;">Utilisé par</span><span>Médecin (rôle: rédaction)</span></div>
+            <div style="display:flex;padding:7px 0;"><span style="color:var(--txt3);width:120px;">Contraint par</span><span>RGPD / AI Act</span></div>
+          </div>
+          <div style="margin:0 18px 18px;padding:13px;background:rgba(251,113,133,0.08);border:1px solid rgba(251,113,133,0.25);border-radius:10px;">
+            <div style="font-size:10px;color:var(--risque);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:5px;">Chantier recommandé</div>
+            <div style="font-size:13px;">Sécuriser cet outil : tokeniser les données avant tout envoi.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MERMAID -->
+<section id="mermaid">
+  <div class="sec-tag">Mécanisme 2</div>
+  <h2 class="sec-title">Un type de diagramme par composante</h2>
+  <p class="sec-intro">Chaque composante du WSF a un type de diagramme Mermaid le mieux adapté pour la représenter — selon la question qu'on lui pose. Cliquez sur une composante.</p>
+
+  <div class="lens-grid" style="margin-bottom:24px;">
+    <div class="lens-chip active" onclick="setMermaid('processus',event)">Processus</div>
+    <div class="lens-chip" onclick="setMermaid('information',event)">Information</div>
+    <div class="lens-chip" onclick="setMermaid('participants',event)">Participants</div>
+    <div class="lens-chip" onclick="setMermaid('environnement',event)">Environnement</div>
+    <div class="lens-chip" onclick="setMermaid('strategies',event)">Stratégies</div>
+    <div class="lens-chip" onclick="setMermaid('produits',event)">Produits</div>
+  </div>
+
+  <div class="mermaid-box" id="mermaid-box"></div>
+
+  <div class="highlight-box">
+    <p><strong>La règle d'or :</strong> un diagramme = une question. Flowchart pour "comment ça fonctionne", Sequence pour "comment ça se déroule", Class/ER pour "quelles données", State pour "quel état de santé", Quadrant pour "par quoi commencer".</p>
+  </div>
+</section>
+
+<!-- LENTILLES -->
+<section id="lentilles">
+  <div class="sec-tag">Mécanisme 3</div>
+  <h2 class="sec-title">Le même modèle, plusieurs angles</h2>
+  <p class="sec-intro">Une lentille recolore le jumeau selon une dimension précise. Cliquez pour voir la pyramide changer de lecture.</p>
+
+  <div class="lens-grid" style="margin-bottom:24px;">
+    <div class="lens-chip active" onclick="setLens('sante',event)"><span class="lc-dot" style="background:#34d399"></span>Santé</div>
+    <div class="lens-chip" onclick="setLens('conformite',event)"><span class="lc-dot" style="background:#fb7185"></span>Conformité</div>
+    <div class="lens-chip" onclick="setLens('charge',event)"><span class="lc-dot" style="background:#fbbf24"></span>Charge/Temps</div>
+    <div class="lens-chip" onclick="setLens('cout',event)"><span class="lc-dot" style="background:#f59e0b"></span>Coût/Valeur</div>
+    <div class="lens-chip" onclick="setLens('documentation',event)"><span class="lc-dot" style="background:#22d3ee"></span>Documentation</div>
+    <div class="lens-chip" onclick="setLens('alignement',event)"><span class="lc-dot" style="background:#818cf8"></span>Alignement</div>
+  </div>
+
+  <svg id="lens-pyramid" viewBox="0 0 600 340" style="width:100%;max-width:560px;display:block;margin:0 auto;"></svg>
+  <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--txt2);" id="lens-question"></div>
+</section>
+
+<!-- JUMEAU VIVANT -->
+<section id="jumeau">
+  <div class="sec-tag">Mécanisme 4</div>
+  <h2 class="sec-title">Le jumeau qui se révèle</h2>
+  <p class="sec-intro">Le modèle n'est pas un formulaire à remplir. C'est une carte qui se révèle au fil de l'usage. Cliquez sur les actions pour voir le cabinet se cartographier.</p>
+
+  <div class="twin-area">
+    <div class="twin-map">
+      <svg id="twin-svg" viewBox="0 0 480 420"></svg>
+    </div>
+    <div class="twin-side">
+      <div class="maturity-ring-wrap">
+        <div class="mr-pct" id="twin-pct">35%</div>
+        <div class="mr-label">CARTOGRAPHIÉ</div>
+      </div>
+      <h4>Simuler une journée d'usage</h4>
+      <button class="action-btn" onclick="twinAction('a1')">✉️ Rédiger un courrier <span class="ab-gain">+2</span></button>
+      <button class="action-btn" onclick="twinAction('a2')">💊 Faire une ordonnance <span class="ab-gain">+2</span></button>
+      <button class="action-btn" onclick="twinAction('a3')">🤖 Utiliser l'IA <span class="ab-gain">+1</span></button>
+      <button class="action-btn" onclick="twinAction('a4')">👥 Ajouter un remplaçant <span class="ab-gain">+2</span></button>
+      <button class="action-btn" onclick="twinAction('a5')">🔬 Recevoir un résultat labo <span class="ab-gain">+3</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- BOUCLE -->
+<section id="boucle">
+  <div class="sec-tag">Mécanisme 5</div>
+  <h2 class="sec-title">La boucle vertueuse</h2>
+  <p class="sec-intro">Chaque usage enrichit le modèle, chaque enrichissement débloque de la valeur, et cette valeur incite à utiliser davantage. Le système se renforce de lui-même.</p>
+
+  <div class="loop-flow">
+    <div class="loop-step"><div class="loop-num">1</div><div class="loop-text">Le professionnel utilise l'outil pour une tâche utile (rédiger un courrier, vérifier une conformité)</div></div>
+    <div class="loop-arrow">↓</div>
+    <div class="loop-step"><div class="loop-num">2</div><div class="loop-text">Le jumeau se complète — un objet passe d'inféré à confirmé, ou d'absent à découvert</div></div>
+    <div class="loop-arrow">↓</div>
+    <div class="loop-step"><div class="loop-num">3</div><div class="loop-text">La complétude débloque un nouveau bénéfice (registre RGPD, sécurisation IA…)</div></div>
+    <div class="loop-arrow">↓</div>
+    <div class="loop-step"><div class="loop-num">4</div><div class="loop-text">Le professionnel voit son avancement et le bénéfice débloqué</div></div>
+    <div class="loop-arrow">↓</div>
+    <div class="loop-step"><div class="loop-num">5</div><div class="loop-text">Il est incité à utiliser l'outil pour une autre tâche — la boucle se renforce</div></div>
+  </div>
+
+  <div class="highlight-box">
+    <p><strong>Le résultat :</strong> le jumeau devient indispensable avant même que le professionnel s'en rende compte. Chaque tâche utile rend le modèle plus complet, et chaque gain de complétude rend l'outil plus utile.</p>
+  </div>
+</section>
+
+<div class="footer">
+  Lugia & Co — Démonstration des mécanismes de fonctionnement · Mai 2026<br>
+  Work System Framework (Alter) · Jumeau numérique vivant · Navigation multi-niveaux
+</div>
+
+<script>
+// ── NIVEAUX DE ZOOM ──
+function setZoom(n){
+  document.querySelectorAll('.zoom-tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.zoom-panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+}
+
+// ── MERMAID ──
+const mermaidData = {
+  processus:{ type:'Sequence Diagram', badge:'qui→quoi→quand', q:'Comment se déroule le travail dans le temps ?',
+    code:`sequenceDiagram
+  actor Médecin
+  participant IA
+  Médecin->>IA: Soumet (tokenisé)
+  IA-->>Médecin: Restitue
+  Note over Médecin: Valide & signe` },
+  information:{ type:'Entity-Relationship', badge:'structure data', q:'Quelles données, quelles relations ?',
+    code:`erDiagram
+  PATIENT ||--o{ CONSULTATION : passe
+  CONSULTATION ||--|{ ORDONNANCE : génère
+  PATIENT {
+    string nom
+    string NIR
+  }` },
+  participants:{ type:'Class Diagram', badge:'rôles', q:'Qui a quel rôle et quelles permissions ?',
+    code:`classDiagram
+  class Participant {
+    +String nom
+    +Role role
+    +consulter()
+  }
+  Participant "1"-->"n" Acces : porte` },
+  environnement:{ type:'State Diagram', badge:'contraintes', q:'Quelles contraintes externes pèsent ?',
+    code:`stateDiagram-v2
+  [*] --> Conforme
+  Conforme --> ARisque : nouvelle règle
+  ARisque --> Conforme : chantier` },
+  strategies:{ type:'Quadrant Chart', badge:'priorisation', q:'Les objectifs sont-ils alignés aux moyens ?',
+    code:`quadrantChart
+  x-axis Effort faible --> élevé
+  y-axis Impact faible --> élevé
+  Registre RGPD: [0.2, 0.9]
+  Vault: [0.7, 0.85]` },
+  produits:{ type:'Flowchart', badge:'outputs', q:'Que produit le système, pour qui ?',
+    code:`flowchart LR
+  PROC(Consultation) -->|produit| CR[/Compte-rendu/]
+  CR -->|délivre| CLI[Patient]` },
+};
+function setMermaid(id,ev){
+  document.querySelectorAll('#mermaid + .lens-grid, .lens-grid')[0];
+  ev.target.parentElement.querySelectorAll('.lens-chip').forEach(c=>c.classList.remove('active'));
+  ev.target.classList.add('active');
+  const d=mermaidData[id];
+  document.getElementById('mermaid-box').innerHTML=`
+    <div class="mb-head"><span class="mb-type">${d.type}</span><span class="mb-badge">${d.badge}</span></div>
+    <div class="mb-q">${d.q}</div>
+    <div class="mb-code">${d.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+}
+
+// ── LENTILLES ──
+const lensData = {
+  sante:{ q:'Où ça va mal ?', colors:{clients:'#34d399',produits:'#6ee7b7',processus:'#fbbf24',participants:'#6ee7b7',info:'#fb7185',techno:'#fbbf24',infra:'#34d399',env:'#fb7185',strat:'#6ee7b7'} },
+  conformite:{ q:'Où suis-je à risque RGPD / AI Act ?', colors:{clients:'#34d399',produits:'#34d399',processus:'#fbbf24',participants:'#fbbf24',info:'#fb7185',techno:'#fb7185',infra:'#fbbf24',env:'#fb7185',strat:'#fbbf24'} },
+  charge:{ q:'Où part mon temps ?', colors:{clients:'#34d399',produits:'#fbbf24',processus:'#fb7185',participants:'#fb7185',info:'#fbbf24',techno:'#fbbf24',infra:'#34d399',env:'#34d399',strat:'#34d399'} },
+  cout:{ q:'Où est l\'argent ?', colors:{clients:'#f59e0b',produits:'#f59e0b',processus:'#fbbf24',participants:'#f59e0b',info:'#fbbf24',techno:'#f59e0b',infra:'#f59e0b',env:'#525a68',strat:'#525a68'} },
+  documentation:{ q:'Quel savoir est bien structuré, lequel est fragile ?', colors:{clients:'#22d3ee',produits:'#22d3ee',processus:'#fb7185',participants:'#fb7185',info:'#22d3ee',techno:'#fbbf24',infra:'#22d3ee',env:'#fbbf24',strat:'#525a68'} },
+  alignement:{ q:'Mes moyens servent-ils mes buts ?', colors:{clients:'#34d399',produits:'#34d399',processus:'#fbbf24',participants:'#34d399',info:'#fb7185',techno:'#fb7185',infra:'#34d399',env:'#fbbf24',strat:'#818cf8'} },
+};
+function renderLensPyramid(lens){
+  const c=lensData[lens].colors;
+  const svg=document.getElementById('lens-pyramid');
+  svg.innerHTML=`
+    <polygon points="300,20 560,320 40,320" fill="none" stroke="#242a34" stroke-width="1.5"/>
+    <polygon points="262,65 338,65 352,115 248,115" fill="${c.clients}22" stroke="${c.clients}" stroke-width="1.5"/>
+    <text x="300" y="93" text-anchor="middle" fill="${c.clients}" font-size="11" font-weight="600">CLIENTS</text>
+    <polygon points="232,128 368,128 386,178 214,178" fill="${c.produits}22" stroke="${c.produits}" stroke-width="1.5"/>
+    <text x="300" y="156" text-anchor="middle" fill="${c.produits}" font-size="10" font-weight="600">PRODUITS</text>
+    <rect x="180" y="192" width="240" height="40" rx="5" fill="${c.processus}22" stroke="${c.processus}" stroke-width="1.5"/>
+    <text x="300" y="216" text-anchor="middle" fill="${c.processus}" font-size="10" font-weight="600">PROCESSUS</text>
+    <rect x="120" y="248" width="100" height="38" rx="5" fill="${c.participants}22" stroke="${c.participants}" stroke-width="1.4"/>
+    <text x="170" y="271" text-anchor="middle" fill="${c.participants}" font-size="9" font-weight="600">PARTICIP.</text>
+    <rect x="250" y="248" width="100" height="38" rx="5" fill="${c.info}22" stroke="${c.info}" stroke-width="1.4"/>
+    <text x="300" y="271" text-anchor="middle" fill="${c.info}" font-size="9" font-weight="600">INFO</text>
+    <rect x="380" y="248" width="100" height="38" rx="5" fill="${c.techno}22" stroke="${c.techno}" stroke-width="1.4"/>
+    <text x="430" y="271" text-anchor="middle" fill="${c.techno}" font-size="9" font-weight="600">TECHNO</text>
+    <rect x="120" y="293" width="360" height="20" rx="4" fill="${c.infra}22" stroke="${c.infra}" stroke-width="1.4"/>
+    <text x="300" y="306" text-anchor="middle" fill="${c.infra}" font-size="8" font-weight="600" letter-spacing="2">INFRASTRUCTURE</text>
+    <text x="95" y="195" fill="${c.env}" font-size="9" font-weight="600" transform="rotate(-58 95 195)">ENVIRONNEMENT</text>
+    <text x="505" y="195" fill="${c.strat}" font-size="9" font-weight="600" transform="rotate(58 505 195)">STRATÉGIES</text>`;
+  document.getElementById('lens-question').textContent='« '+lensData[lens].q+' »';
+}
+function setLens(lens,ev){
+  ev.target.closest('.lens-grid').querySelectorAll('.lens-chip').forEach(c=>c.classList.remove('active'));
+  ev.target.classList.add('active');
+  renderLensPyramid(lens);
+}
+
+// ── JUMEAU VIVANT ──
+const twinNodes = [
+  { id:'med',label:'Médecin',x:240,y:70,disc:'confirmed',c:'#60a5fa' },
+  { id:'dpi',label:'Logiciel',x:380,y:130,disc:'confirmed',c:'#34d399' },
+  { id:'cons',label:'Consultation',x:240,y:170,disc:'confirmed',c:'#a78bfa' },
+  { id:'patient',label:'Patient',x:130,y:130,disc:'confirmed',c:'#f472b6' },
+  { id:'pat',label:'Données',x:130,y:240,disc:'inferred',c:'#fbbf24' },
+  { id:'rgpd',label:'RGPD',x:360,y:250,disc:'inferred',c:'#fbbf24' },
+  // à découvrir
+  { id:'redac',label:'Rédaction',x:240,y:280,disc:'unknown',c:'#a78bfa' },
+  { id:'cr',label:'Compte-rendu',x:130,y:340,disc:'unknown',c:'#22d3ee' },
+  { id:'ordo',label:'Ordonnance',x:240,y:360,disc:'unknown',c:'#34d399' },
+  { id:'ia',label:'Outil IA',x:380,y:200,disc:'unknown',c:'#fb7185' },
+  { id:'remp',label:'Remplaçant',x:360,y:330,disc:'unknown',c:'#fb7185' },
+  { id:'sec',label:'Secrétaire',x:380,y:70,disc:'unknown',c:'#60a5fa' },
+  { id:'labo',label:'Labo',x:130,y:300,disc:'unknown',c:'#6b7280' },
+];
+const twinLinks=[['med','dpi'],['med','cons'],['patient','cons'],['cons','pat'],['cons','redac'],['redac','cr'],['cons','ordo'],['dpi','ia'],['med','remp'],['med','sec'],['patient','labo'],['rgpd','ia']];
+const twinActions={ a1:[['redac','confirmed'],['cr','confirmed']], a2:[['ordo','confirmed']], a3:[['ia','confirmed']], a4:[['remp','confirmed'],['sec','confirmed']], a5:[['labo','confirmed']] };
+let twinUsed=new Set();
+
+function renderTwin(){
+  const svg=document.getElementById('twin-svg');
+  let html='';
+  twinLinks.forEach(([a,b])=>{
+    const na=twinNodes.find(n=>n.id===a),nb=twinNodes.find(n=>n.id===b);
+    if(na.disc==='unknown'||nb.disc==='unknown')return;
+    html+=`<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="#2a3340" stroke-width="1.2" opacity="0.5"/>`;
+  });
+  twinNodes.forEach(n=>{
+    if(n.disc==='confirmed'){
+      html+=`<g class="tw-node"><circle cx="${n.x}" cy="${n.y}" r="7" fill="${n.c}" filter="url(#tg)"/><text class="tw-name" x="${n.x}" y="${n.y+18}" fill="#8e96a4">${n.label}</text></g>`;
+    } else if(n.disc==='inferred'){
+      html+=`<g class="tw-node"><circle cx="${n.x}" cy="${n.y}" r="6" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 2"/><text class="tw-name" x="${n.x}" y="${n.y+18}" fill="#6b6650">${n.label}</text></g>`;
+    } else {
+      html+=`<circle class="tw-node" cx="${n.x}" cy="${n.y}" r="4" fill="#1a1e27" stroke="#2a3038" stroke-width="1"/>`;
+    }
+  });
+  svg.innerHTML=`<defs><filter id="tg"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`+html;
+  // maturité
+  const score={unknown:0,inferred:0.5,confirmed:1};
+  const m=twinNodes.reduce((s,n)=>s+score[n.disc],0)/twinNodes.length;
+  document.getElementById('twin-pct').textContent=Math.round(m*100)+'%';
+}
+
+function twinAction(id){
+  if(twinUsed.has(id))return;
+  twinUsed.add(id);
+  twinActions[id].forEach(([nid,st])=>{
+    const n=twinNodes.find(x=>x.id===nid);
+    if(n&&n.disc!=='confirmed'){
+      n.disc=st;
+      const svg=document.getElementById('twin-svg');
+      const pulse=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      pulse.setAttribute('cx',n.x);pulse.setAttribute('cy',n.y);
+      pulse.setAttribute('fill','none');pulse.setAttribute('stroke','#a78bfa');pulse.setAttribute('stroke-width','2');
+      pulse.setAttribute('class','discover-pulse');
+      svg.appendChild(pulse);
+      setTimeout(()=>pulse.remove(),1600);
+    }
+  });
+  // disable button
+  event.target.closest('.action-btn').disabled=true;
+  renderTwin();
+}
+
+// INIT
+setMermaid('processus',{target:document.querySelector('#mermaid .lens-chip'),stopPropagation(){}});
+document.querySelector('#mermaid-box').innerHTML=(()=>{const d=mermaidData.processus;return `<div class="mb-head"><span class="mb-type">${d.type}</span><span class="mb-badge">${d.badge}</span></div><div class="mb-q">${d.q}</div><div class="mb-code">${d.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;})();
+renderLensPyramid('sante');
+document.getElementById('lens-question').textContent='« '+lensData.sante.q+' »';
+renderTwin();
+</script>
+</body>
+</html>

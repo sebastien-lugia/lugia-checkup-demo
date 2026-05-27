@@ -4,6 +4,12 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-27 (suite) — Vision lentilles : bibliothèque + Circulation du savoir
+
+Archivage de 3 nouveaux docs de vision dans `resources/vision/` : `lugia_bibliotheque_lentilles.md` (les 22 lentilles par famille), `lugia_circulation_savoir.md` (diffusion des bonnes pratiques : lien `TRANSMET`, échelle de diffusion 0-5) et `lugia_mecanismes.html` (récap pédagogique zoom × lentilles × diagrammes × jumeau). Intégration dans la spec vivante : ROADMAP WS.3 décrit désormais la bibliothèque de lentilles et la dimension Circulation du savoir ; `resources/vision/INDEX.md` liste les 3 docs et met à jour le statut (22 lentilles + `TRANSMET`). Aucune modif de code (vision Work System, hors périmètre Demo).
+
+---
+
 ## 2026-05-27 — Moteur WSF (C.A), chat exploration ~20 tours, qwen 7B
 
 ### Schéma WSF du chantier (C.A) — Mermaid

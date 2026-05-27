@@ -39,6 +39,9 @@
 | `lugia_navigation_v2.html` | Prototype navigation avec curseur de zoom + lentilles. |
 | `lugia_navigation_multiniveaux.html` | Prototype navigation multi-niveaux (vignette → carte → fiche objet) avec fil d'Ariane. |
 | `lugia_dimension_documentaire.md` | Dimension documentaire — 8ème lentille « Documentation », objet documentaire (maturité 0-6), chantiers de structuration, synergie IA. |
+| `lugia_bibliotheque_lentilles.md` | **Bibliothèque complète des lentilles** — 22 angles de lecture par famille (fondamentales, stratégiques, métier, temporelles, humaines, protection), règles de conception R1-R5, ciblage par public, 3 vagues de développement. |
+| `lugia_circulation_savoir.md` | Dimension **Circulation du savoir** — diffusion des bonnes pratiques entre participants : lentille dédiée, nouveau lien `TRANSMET`, échelle de diffusion 0-5, distinction interne/externe, chantiers (briser un silo…). |
+| `lugia_mecanismes.html` | Prototype récapitulatif des mécanismes — 5 niveaux de zoom, 22 lentilles, 6 types de diagrammes, jumeau vivant, boucle vertueuse. Vue d'ensemble pédagogique. |
 
 ## Dialogue / onboarding (prototypes de construction du schéma)
 
@@ -53,6 +56,6 @@
 
 - ✅ **Première brique du moteur posée** : `web/lib/wsf/types.ts` (types génériques) + `web/lib/wsf/render-mermaid.ts` (rendu Mermaid depuis graphe WSF). Aligné sur `lugia_moteur_wsf_specification.md` sections 1-2 et 9.
 - ✅ **Première consommation** : C.A — schéma Mermaid simplifié du chantier généré au tour 4 du chat (Checkup Demo gratuit).
-- ⏳ **Reste à construire** (Work System payant) : maturité des objets, couche économique, patterns, règles R1-R5, simulation causale, score santé, 5 niveaux de zoom, 7+1 lentilles, mode focus. Voir backlog moteur dans ROADMAP.
+- ⏳ **Reste à construire** (Work System payant) : maturité des objets, couche économique, patterns, règles R1-R5, simulation causale, score santé, 5 niveaux de zoom, la bibliothèque de lentilles (22, incl. Documentation et Circulation du savoir + le lien `TRANSMET`), mode focus. Voir backlog moteur (WS.3) dans ROADMAP.
 
 > Les prototypes HTML sont des **références de vision**, pas du code à porter tel quel. La reconstruction se fait avec les composants V3-charte (palette Lugia, Onest/Lora/IBM Plex Mono).
