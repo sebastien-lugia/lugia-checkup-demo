@@ -854,3 +854,21 @@ export async function postChatMessage(
   );
 }
 
+/**
+ * C.D — répondre à une offre de conseil depuis la démo.
+ * Stocke un lead en base + notifie Sébastien par email (côté backend).
+ */
+export async function submitConseilLead(
+  interviewId: number,
+  message: string,
+  moduleId?: string | null,
+): Promise<{ ok: boolean; lead_id: number }> {
+  return request<{ ok: boolean; lead_id: number }>(
+    `/interviews/${interviewId}/conseil-lead`,
+    {
+      method: "POST",
+      body: JSON.stringify({ message, module_id: moduleId ?? null }),
+    }
+  );
+}
+

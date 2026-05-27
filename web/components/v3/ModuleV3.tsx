@@ -20,6 +20,7 @@ import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
 import { V3_TAG_LABELS, type V3Module, type V3ModuleTag } from "@/lib/v3/modules_data";
 import { MermaidDiagram } from "@/components/v3/MermaidDiagram";
 import { getChantierGraphe } from "@/lib/wsf/chantier-graphes";
+import { LeadConseilForm } from "@/components/v3/LeadConseilForm";
 import {
   getOpp,
   computeGainEurosPerYear,
@@ -43,6 +44,7 @@ export function ModuleV3({
   onDownloadPdf,
   onOpenChat,
   volume,
+  interviewId = null,
 }: {
   theme?: V3Theme;
   module: V3Module;
@@ -56,6 +58,8 @@ export function ModuleV3({
   onOpenChat?: () => void;
   /** Volume hebdomadaire du cabinet — alimente le calcul des gains €. */
   volume?: VolumeId | null;
+  /** C.D — interview courante, pour le formulaire de lead conseil. */
+  interviewId?: number | null;
 }) {
   const palette = paletteFor(theme);
   const axisColor = palette.axes[axis];
@@ -400,6 +404,16 @@ export function ModuleV3({
             >
               En parler avec Lugia →
             </button>
+          )}
+          {interviewId && (
+            <div style={{ marginTop: 14 }}>
+              <LeadConseilForm
+                theme={theme}
+                interviewId={interviewId}
+                moduleId={mod.id}
+                contextLabel={mod.label}
+              />
+            </div>
           )}
         </div>
       </div>

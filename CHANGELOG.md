@@ -4,6 +4,12 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-27 (suite) — C.D : répondre à une offre de conseil depuis la démo
+
+Le médecin peut désormais demander à être recontacté par un consultant sans passer par Calendly. Nouveau composant `web/components/v3/LeadConseilForm.tsx` (texte libre + envoi), affiché **en pied de chantier** (ModuleV3) et **en fin de page résultats** (ResultatsV3). Nouvel endpoint `POST /interviews/{id}/conseil-lead` : il **stocke d'abord le lead** en base (nouvelle table `conseil_lead`, `src/db.py::add_lead`) — aucune demande perdue si l'email échoue — puis **notifie Sébastien par email** (`_send_conseil_lead_email`, Resend + fallback console, `reply_to` = email du médecin). Le contexte (profil cabinet + chantier d'origine) est joint pour qualifier le lead. Variable d'env `LEAD_NOTIFY_EMAIL` (défaut [email protected]). Clôt le cap court terme Checkup Demo (C.A → C.D tous livrés).
+
+---
+
 ## 2026-05-27 (suite) — C.B : schéma WSF dans le PDF chantier
 
 Le PDF chantier (`src/pdf_exporter.py`) intègre une section « Schéma du chantier » sous le plan d'action. Nouveau module `src/wsf_render.py` : port Python des 7 graphes WSF statiques + moteur de dessin reportlab natif (boîtes colorées par état, flèches typées, layout par couches top-down, mise à l'échelle pour tenir dans la largeur, légende des états). L'endpoint `GET /interviews/{id}/modules/{module}/pdf` récupère le graphe enrichi du chat s'il existe en base (`__LUGIA_META__`), sinon repli sur le graphe statique. Aucune dépendance nouvelle (reportlab.graphics), tolérant aux valeurs hors-enum d'un LLM. Clôt le cap court terme C.A-C.D (reste C.D).

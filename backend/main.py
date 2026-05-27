@@ -17,6 +17,7 @@ Variables d'environnement utiles :
     RESEND_API_KEY        # clé API Resend (non défini = mode console)
     RESEND_FROM_EMAIL     # ex: "Lugia <[email protected]>"
     FRONTEND_URL          # ex: "https://diagnostic.lugia.fr" ou "http://localhost:3000"
+    LEAD_NOTIFY_EMAIL     # destinataire des leads conseil (C.D), defaut [email protected]
 """
 
 from __future__ import annotations
@@ -192,6 +193,59 @@ def _send_magic_link_email(
             "from": from_email,
             "to": to_email,
             "subject": "Votre lien d'accès au check-up Lugia",
+            "html": html_body,
+        }
+    )
+
+
+def _send_conseil_lead_email(
+    medecin_email: str, message: str, context: dict[str, Any]
+) -> None:
+    """Notifie Sebastien d'une demande de conseil (C.D). Fallback : console.
+
+    `reply_to` = email du medecin, pour que Sebastien reponde directement.
+    """
+    notify_to = os.environ.get("LEAD_NOTIFY_EMAIL", "[email protected]").strip()
+    api_key = os.environ.get("RESEND_API_KEY", "").strip()
+    from_email = os.environ.get("RESEND_FROM_EMAIL", "Lugia <[email protected]>")
+
+    profile = context.get("profile") or {}
+    module_label = context.get("module_label") or "—"
+    prof_html = "".join(
+        f"<li><strong>{k}</strong> : {v}</li>" for k, v in profile.items()
+    ) or "<li>—</li>"
+
+    if not api_key or not RESEND_AVAILABLE:
+        print(
+            f"\n[Lugia conseil-lead — mode dev console]\n"
+            f"Medecin    : {medecin_email}\n"
+            f"Chantier   : {module_label}\n"
+            f"Profil     : {profile}\n"
+            f"Message    :\n{message}\n"
+            f"(Definir RESEND_API_KEY pour activer l'envoi reel vers {notify_to}.)\n"
+        )
+        return
+
+    resend.api_key = api_key
+    html_body = f"""
+    <div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #1a1a1a;">
+      <p style="font-size: 12px; color: #888780; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 16px 0;">
+        Lugia — Demande de conseil
+      </p>
+      <p style="font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+        <strong>{medecin_email}</strong> souhaite être recontacté.
+      </p>
+      <p style="font-size: 13px; color: #555; margin: 0 0 6px 0;">Chantier d'origine : <strong>{module_label}</strong></p>
+      <ul style="font-size: 13px; color: #555; margin: 0 0 16px 0; padding-left: 18px;">{prof_html}</ul>
+      <div style="background: #f6f4ef; border-left: 3px solid #1a1a1a; padding: 14px 16px; border-radius: 4px; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">{message}</div>
+    </div>
+    """
+    resend.Emails.send(
+        {
+            "from": from_email,
+            "to": notify_to,
+            "reply_to": medecin_email,
+            "subject": f"Demande de conseil — {medecin_email}",
             "html": html_body,
         }
     )
@@ -660,6 +714,61 @@ class SaveAnswerBody(BaseModel):
     scored: bool = True
 
 
+
+
+class ConseilLeadBody(BaseModel):
+    """C.D — demande de mise en relation conseil depuis la demo."""
+
+    message: str
+    module_id: Optional[str] = None
+
+
+@app.post("/interviews/{interview_id}/conseil-lead", tags=["interview"])
+async def submit_conseil_lead(
+    interview_id: int,
+    body: ConseilLeadBody,
+    email: str = Depends(get_current_user_email),
+):
+    """Le medecin repond a une offre de conseil sans passer par Calendly (C.D).
+
+    On stocke le lead en base AVANT d'envoyer l'email (aucune demande perdue si
+    Resend echoue), puis on notifie Sebastien. Le contexte (profil + chantier)
+    qualifie la demande.
+    """
+    _assert_user_owns_interview(email, interview_id)
+    msg = (body.message or "").strip()
+    if not msg:
+        raise HTTPException(status_code=400, detail="Message vide")
+    if len(msg) > 2000:
+        raise HTTPException(status_code=400, detail="Message trop long (max 2000 caractères)")
+
+    profile = db.get_user_profile(email) or {}
+    module_label: Optional[str] = None
+    if body.module_id:
+        from src.pdf_exporter import _MODULES_FALLBACK
+
+        _m = _MODULES_FALLBACK.get(body.module_id)
+        module_label = _m["label"] if _m else body.module_id
+
+    import json as _json
+
+    context: dict[str, Any] = {
+        "profile": profile,
+        "module_id": body.module_id,
+        "module_label": module_label,
+    }
+    lead_id = db.add_lead(
+        email=email,
+        message=msg,
+        interview_id=interview_id,
+        module_id=body.module_id,
+        context_json=_json.dumps(context, ensure_ascii=False),
+    )
+    try:
+        _send_conseil_lead_email(email, msg, context)
+    except Exception as e:  # le lead est deja stocke : on ne casse pas la requete
+        print(f"[conseil-lead] envoi email KO (lead {lead_id} stocke) : {e}")
+    return {"ok": True, "lead_id": lead_id}
 
 
 # ─── A.2 — Chat assistant Lugia sur chantier ──────────────────────────────

@@ -663,6 +663,7 @@ function CheckupV3BrandPageContent() {
                 : null
             }
             onOpenChat={interviewId ? () => setChatOpen(true) : undefined}
+            interviewId={interviewId}
             onBack={() => setOpenModuleId(null)}
             onLugia={() =>
               openCalendly({
@@ -779,6 +780,7 @@ function CheckupV3BrandPageContent() {
         />
         <ResultatsV3
           theme={theme}
+          interviewId={interviewId}
           onBack={() => setStep("transition_C")}
           firstname={profile.firstname ?? "Chateau"}
           completedDate={completedDate}

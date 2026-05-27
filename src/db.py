@@ -246,6 +246,20 @@ def _resolve_database_url() -> str:
 _engine: Optional[Engine] = None
 
 
+conseil_lead_table = Table(
+    "conseil_lead",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("email", String, nullable=False),          # medecin demandeur
+    Column("interview_id", Integer, nullable=True),    # interview liee (si connue)
+    Column("module_id", String, nullable=True),        # chantier d'origine (si lead depuis un chantier)
+    Column("message", String, nullable=False),         # texte libre du medecin
+    Column("context_json", String, nullable=True),     # snapshot contexte (profil, chantier, scores)
+    Column("status", String, nullable=False),          # "new" par defaut
+    Column("created_at", String, nullable=False),
+)
+
+
 def get_engine() -> Engine:
     """Retourne le moteur SQLAlchemy (singleton par processus)."""
     global _engine
@@ -923,6 +937,36 @@ def add_chat_message(
                 content=content,
                 created_at=now,
                 provider=provider,
+            )
+        )
+        return int(result.inserted_primary_key[0])
+
+
+def add_lead(
+    email: str,
+    message: str,
+    interview_id: Optional[int] = None,
+    module_id: Optional[str] = None,
+    context_json: Optional[str] = None,
+) -> int:
+    """Persiste une demande de mise en relation conseil (C.D).
+
+    Stocke le lead avant tout envoi d'email, pour qu'aucune demande ne soit
+    perdue si Resend echoue. `context_json` est un snapshot serialise
+    (profil + chantier + scores) a titre informatif.
+    """
+    engine = get_engine()
+    now = datetime.utcnow().isoformat() + "Z"
+    with engine.begin() as conn:
+        result = conn.execute(
+            conseil_lead_table.insert().values(
+                email=email,
+                interview_id=interview_id,
+                module_id=module_id,
+                message=message,
+                context_json=context_json,
+                status="new",
+                created_at=now,
             )
         )
         return int(result.inserted_primary_key[0])

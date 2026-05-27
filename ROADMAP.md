@@ -97,7 +97,7 @@ Le PDF chantier (reportlab) intègre désormais une section « Schéma du chanti
 
 Le bouton « En parler avec Lugia » via Calendly est déjà en place. Formaliser comme l'unique cross-sell direct du gratuit, avec un tracking d'attribution simple. Pas d'évolution UI nécessaire.
 
-**C.D — Répondre à une offre de conseil depuis la démo**
+**C.D — Répondre à une offre de conseil depuis la démo (✅ livré 2026-05-27)**
 
 Permettre au médecin de **répondre à une offre de conseil** dès la version démo (pas seulement prendre RDV via Calendly). Formulaire structuré à la fin du diagnostic ou en pied de chantier : « Je voudrais qu'un consultant Lugia me contacte pour : » + champ libre + contexte automatique (profil cabinet + chantier prioritaire + scores). Lead envoyé par email à Sébastien (Resend ou similaire, déjà câblé pour magic links). Bénéfice : transforme le médecin tiède en lead qualifié sans dépendre de Calendly.
 

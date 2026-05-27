@@ -22,6 +22,7 @@
 import { useState, useRef } from "react";
 import { BlocBadge } from "@/components/v3/atoms";
 import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
+import { LeadConseilForm } from "@/components/v3/LeadConseilForm";
 
 /* ───────────────────────────────────────────────────────────
  * Types
@@ -107,6 +108,7 @@ export function ResultatsV3({
   onAutonomie,
   onLugia,
   onBack,
+  interviewId = null,
 }: {
   theme?: V3Theme;
   firstname: string;
@@ -134,6 +136,8 @@ export function ResultatsV3({
   onLugia?: () => void;
   /** Retour vers la transition C (bouton discret en haut, comme ListChantiersV3). */
   onBack?: () => void;
+  /** C.D — interview courante, pour le formulaire de lead conseil. */
+  interviewId?: number | null;
 }) {
   const palette = paletteFor(theme);
 
@@ -445,6 +449,11 @@ export function ResultatsV3({
           Prochaine étape
         </p>
         <NextStepCards theme={theme} onAutonomie={onAutonomie} onLugia={onLugia} />
+        {interviewId && (
+          <div style={{ marginTop: 24 }}>
+            <LeadConseilForm theme={theme} interviewId={interviewId} />
+          </div>
+        )}
       </div>
     </main>
   );
