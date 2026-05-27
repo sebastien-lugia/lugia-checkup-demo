@@ -32,6 +32,8 @@ import {
   parseAssistantReply,
   isWebLLMSupported,
   getLoadedModelLabel,
+  isGpuLostError,
+  reloadWithFallback,
   type WebLLMEngineLike,
   type WebLLMProgress,
 } from "@/lib/webllm";
@@ -261,12 +263,30 @@ export function ChatChantierModal({
       const histForLlm: { role: "user" | "assistant"; content: string }[] = effectiveMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
         .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
-      const raw = await generateWithWebLLM(
-        webllmEngineRef.current,
-        promptForThisTurn,
-        histForLlm,
-        userMessage,
-      );
+      let raw: string;
+      try {
+        raw = await generateWithWebLLM(
+          webllmEngineRef.current,
+          promptForThisTurn,
+          histForLlm,
+          userMessage,
+        );
+      } catch (genErr) {
+        // Perte de device GPU (typiquement le 7B sur une machine juste en
+        // VRAM) : on recharge automatiquement le modele leger (3B) et on
+        // reessaye une fois, pour ne jamais laisser l'utilisateur bloque.
+        if (!isGpuLostError(genErr)) throw genErr;
+        setWebllmProgress({ progress: 0, text: "Bascule sur le modele leger (3B)…" });
+        const fallbackEngine = await reloadWithFallback((p) => setWebllmProgress(p));
+        webllmEngineRef.current = fallbackEngine;
+        setWebllmModelLabel(getLoadedModelLabel());
+        raw = await generateWithWebLLM(
+          fallbackEngine,
+          promptForThisTurn,
+          histForLlm,
+          userMessage,
+        );
+      }
       const parsed = parseAssistantReply(raw);
       // Persistance backend (ne génère plus, enregistre)
       const persistRes = await persistChatExchange(interviewId, moduleId, {

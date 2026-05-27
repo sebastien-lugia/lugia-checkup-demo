@@ -68,6 +68,21 @@ les items SUGG_JSON, faute de contrainte de langue. Ajout d'une consigne
 absolues et sur la ligne de format SUGG_JSON. S'applique au mode Local (le
 prompt est servi par le backend via `/chat/system-prompt`) comme au mode Cloud.
 
+### Fallback automatique 7B -> 3B sur perte de device GPU
+
+Si une generation perd le device GPU (OOM VRAM, contexte WebGPU perdu —
+surtout le 7B sur machines justes), le chat recharge desormais
+automatiquement le modele leger (3B) et rejoue le tour, au lieu de laisser
+l'utilisateur bloque. `webllm.ts` : `isGpuLostError()` (detection),
+`reloadWithFallback()` (epingle le 3B via `preferFallbackModel` + recharge),
+et retry one-shot cote `ChatChantierModal.doInference`.
+
+### Nettoyage : .js compiles ignores
+
+Les .js emis par `tsc` a cote des sources `.ts` (web/lib, components, app,
+tailwind.config.js) polluaient le `git status`. Ajoutes au `web/.gitignore`
+(les vrais `next.config.js` / `postcss.config.js` racine restent versionnes).
+
 ### Divers
 
 Fix `END_CONVERSATION:false` affiché en clair (regex étendue `(true|false)`,

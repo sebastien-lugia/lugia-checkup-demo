@@ -23,6 +23,9 @@ let cachedEnginePromise: Promise<WebLLMEngineLike> | null = null;
 let cachedSystemPromptHash: string | null = null;
 // Modele effectivement charge (7B ou fallback 3B) — pour l'afficher dans l'UI.
 let loadedModelId: string | null = null;
+// Si une perte de device GPU est survenue sur le 7B, on epingle le 3B
+// pour tous les chargements suivants (cf reloadWithFallback).
+let preferFallbackModel = false;
 
 export type WebLLMProgress = {
   /** 0..1 */
@@ -102,6 +105,11 @@ export async function getWebLLMEngine(
       return engine as unknown as WebLLMEngineLike;
     };
 
+    // Si une perte GPU a deja force le repli, on charge directement le 3B.
+    if (preferFallbackModel) {
+      return await tryCreate(MODEL_FALLBACK);
+    }
+
     // Tente le 7B d'abord ; si echec (RAM/VRAM insuffisante), bascule sur 3B.
     try {
       return await tryCreate(MODEL_PRIMARY);
@@ -129,6 +137,37 @@ export async function getWebLLMEngine(
     loadedModelId = null;
     throw err;
   }
+}
+
+/**
+ * Detecte une erreur de perte de device GPU (OOM VRAM, contexte WebGPU perdu).
+ * Survient surtout sur le 7B sur des machines justes en VRAM, soit au
+ * chargement, soit en cours de generation.
+ */
+export function isGpuLostError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err ?? "");
+  return /device was lost|gpudevicelostinfo|unable to find a compatible gpu|gpu[^.]*lost|out of memory|\boom\b/i.test(
+    msg
+  );
+}
+
+/**
+ * Recharge l'engine en forcant le modele leger (3B). A appeler quand une
+ * generation a perdu le device GPU sur le 7B : on epingle le 3B
+ * (preferFallbackModel) puis on relance le chargement. Garantit que la demo
+ * reste utilisable meme sur une machine qui ne tient pas le 7B en pratique.
+ *
+ * Note : si le contexte WebGPU est totalement perdu, meme le 3B peut echouer
+ * a se charger sans rechargement de page — dans ce cas l'erreur est propagee
+ * et l'UI affiche un message clair.
+ */
+export async function reloadWithFallback(
+  onProgress?: (p: WebLLMProgress) => void
+): Promise<WebLLMEngineLike> {
+  preferFallbackModel = true;
+  cachedEnginePromise = null;
+  loadedModelId = null;
+  return getWebLLMEngine(onProgress);
 }
 
 /**

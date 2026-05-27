@@ -24,3 +24,12 @@ yarn-error.log*
 # tsbuildinfo (cache incremental tsc — pas a versionner)
 tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+# Artefacts de compilation tsc — les sources sont en .ts/.tsx, les .js emis
+# a cote ne doivent jamais etre versionnes (cf nettoyage tache #28). On cible
+# uniquement les dossiers source ; next.config.js / postcss.config.js (racine)
+# restent versionnes.
+/lib/**/*.js
+/components/**/*.js
+/app/**/*.js
+/tailwind.config.js
