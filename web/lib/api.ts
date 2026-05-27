@@ -742,6 +742,10 @@ export type ChatMessageItem = {
   /** D-040 — moteur LLM qui a généré ce message (assistant only). NULL pour
    *  les messages user ou pour les anciens assistants avant migration. */
   provider?: "anthropic" | "ollama" | "webllm" | null;
+  /** C.A 2026-05-26 — graphe WSF du chantier produit par le LLM au tour 4.
+   *  Sera rendu en SVG côté UI via MermaidDiagram. Format minimal pour
+   *  rester compatible avec evolutions du moteur WSF. */
+  mermaid_graph?: Record<string, unknown> | null;
 };
 
 export type ChatHistory = {
@@ -760,6 +764,7 @@ export type ChatMessageResponse = {
   max_user_messages: number;
   remaining: number;
   provider?: "anthropic" | "ollama" | "webllm" | null;
+  mermaid_graph?: Record<string, unknown> | null;
 };
 
 export async function getChatHistory(
@@ -802,6 +807,7 @@ export async function persistChatExchange(
     plan?: ChatPlanStep[] | null;
     ended?: boolean;
     provider?: ChatProvider;
+    mermaid_graph?: Record<string, unknown> | null;
   },
 ): Promise<{
   user_message_count: number;

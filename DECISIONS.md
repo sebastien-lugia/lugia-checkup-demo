@@ -6,6 +6,18 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-044 — Démo gratuite : discussion limitée à 10 échanges (2026-05-27)
+
+La discussion d'exploration d'un chantier en **version démo gratuite** est plafonnée à **10 messages** (`MAX_USER_MESSAGES = 10`), avec synthèse automatique au 10e tour (`SYNTHESE_TOUR = 10`). Met à jour la valeur « 20 messages max » mentionnée dans D-043.
+
+**Cadence des phases** : ouverture (tour 1), exploration (tours 2-8), pré-synthèse (tour 9), synthèse finale + plan + schéma WSF + clôture (tour 10). Le bouton « Terminer et voir mon plan » permet toujours de déclencher la synthèse avant le 10e tour.
+
+**Pourquoi** : la démo est gratuite et tourne en SLM local (qwen 7B dans le navigateur, coût et latence à la charge de la machine du médecin). 10 échanges suffisent à cartographier un chantier et à produire un plan utile, tout en gardant l'expérience courte et en réservant l'exploration approfondie (multi-chantiers, sessions longues) à **Lugia Work System** (payant). Une discussion trop longue diluait aussi la valeur perçue de l'offre payante.
+
+**Alternative écartée** : conserver 16-25 tours (valeurs de la mécanique d'exploration WSF longue). Trop long pour une démo gratuite, et la fenêtre de contexte WebLLM + la fatigue du médecin jouent contre l'exhaustivité.
+
+---
+
 ## D-043 — Path A approfondissement remplacé par la discussion LLM (2026-05-26)
 
 L'idée V1.1.10 d'un « questionnaire d'approfondissement Path A » (5-7 questions par chantier après le diagnostic) est **abandonnée**. À la place, la discussion LLM (chat assistant 4 phases — D-036, étendue par D-040 toggle Cloud/Local) joue le rôle d'approfondissement.

@@ -31,15 +31,18 @@ import {
   generateWithWebLLM,
   parseAssistantReply,
   isWebLLMSupported,
+  getLoadedModelLabel,
   type WebLLMEngineLike,
   type WebLLMProgress,
 } from "@/lib/webllm";
+import { MermaidDiagram } from "@/components/v3/MermaidDiagram";
+import type { GrapheWSF } from "@/lib/wsf/types";
 
 const CHAT_PROVIDER_LS_KEY = "lugia-chat-provider";
 const PROVIDER_LABELS: Record<ChatProvider, string> = {
-  anthropic: "Cloud · Claude Haiku",
-  ollama: "Local · qwen2.5:3b",
-  webllm: "Dans votre navigateur · qwen2.5",
+  anthropic: "Cloud (LLM)",
+  ollama: "Local (SLM)",
+  webllm: "Local (SLM)",
 };
 
 /**
@@ -75,7 +78,7 @@ export function ChatChantierModal({
   const palette = paletteFor(theme);
   const [messages, setMessages] = useState<ChatMessageItem[]>([]);
   const [userMessageCount, setUserMessageCount] = useState(0);
-  const [maxUserMessages, setMaxUserMessages] = useState(20);
+  const [maxUserMessages, setMaxUserMessages] = useState(10);
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,6 +110,7 @@ export function ChatChantierModal({
   >("idle");
   const [webllmProgress, setWebllmProgress] = useState<WebLLMProgress | null>(null);
   const [webllmSystemPrompt, setWebllmSystemPrompt] = useState<string | null>(null);
+  const [webllmModelLabel, setWebllmModelLabel] = useState<string | null>(null);
   const webllmEngineRef = useRef<WebLLMEngineLike | null>(null);
 
   // Chargement automatique du runtime quand le user bascule sur webllm
@@ -128,6 +132,7 @@ export function ChatChantierModal({
         if (cancelled) return;
         webllmEngineRef.current = engine;
         setWebllmSystemPrompt(sp);
+        setWebllmModelLabel(getLoadedModelLabel());
         setWebllmStatus("ready");
       } catch (err) {
         if (cancelled) return;
@@ -167,13 +172,8 @@ export function ChatChantierModal({
         setUserMessageCount(h.user_message_count);
         setMaxUserMessages(h.max_user_messages);
         // Si conversation vide, on déclenche le tour 1 par envoi auto
-        // Si provider == "webllm", on attend que le runtime soit chargé
-        // (autre useEffect plus bas le détecte et déclenche sendInitial).
-        // Sinon, on lance tout de suite le tour 1.
-        if (h.messages.length === 0 && !initRef.current && provider !== "webllm") {
-          initRef.current = true;
-          void sendInitial();
-        }
+        // Le demarrage du tour 1 (pour les deux providers) est gere par le
+        // useEffect dedie plus bas, une fois isLoading repasse a false.
       } catch {
         if (!cancelled) setErrorMsg("Impossible de charger l'historique. Vous pouvez tout de même envoyer un message.");
       } finally {
@@ -184,18 +184,22 @@ export function ChatChantierModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interviewId, moduleId]);
 
-  // Démarrage différé du tour 1 quand on est en mode webllm et que le
-  // runtime vient de finir de charger.
+  // Démarrage (ou redémarrage) du tour 1. Couvre les deux providers :
+  //  - anthropic : des que le bootstrap est fini et la conversation vide
+  //  - webllm    : en plus, on attend que le runtime soit charge (ready)
+  // Se redeclenche aussi apres un changement de provider sur conversation vide
+  // (handleProviderChange remet initRef a false) — permet de relancer le tour 1
+  // si le premier essai a echoue (ex : Cloud sans cle API en local).
   useEffect(() => {
-    if (provider !== "webllm") return;
-    if (webllmStatus !== "ready") return;
-    if (isLoading) return; // bootstrap pas encore fini
-    if (initRef.current) return;
-    if (messages.length > 0) return;
+    if (isLoading) return;            // bootstrap pas encore fini
+    if (initRef.current) return;      // tour 1 deja lance
+    if (isSending) return;            // un envoi est en cours
+    if (messages.length > 0) return;  // conversation non vide
+    if (provider === "webllm" && webllmStatus !== "ready") return; // modele pas pret
     initRef.current = true;
     void sendInitial();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provider, webllmStatus, isLoading, messages.length]);
+  }, [provider, webllmStatus, isLoading, isSending, messages.length]);
 
   // Auto-scroll en bas à chaque changement
   useEffect(() => {
@@ -229,6 +233,7 @@ export function ChatChantierModal({
     suggestions?: string[] | null;
     plan?: ChatPlanStep[] | null;
     ended: boolean;
+    mermaid_graph?: Record<string, unknown> | null;
     user_message_count: number;
     provider?: string | null;
   }> {
@@ -270,6 +275,7 @@ export function ChatChantierModal({
         suggestions: parsed.suggestions,
         plan: parsed.plan as ChatPlanStep[] | null,
         ended: parsed.ended,
+        mermaid_graph: parsed.mermaid_graph,
         provider: "webllm",
       });
       return {
@@ -277,6 +283,7 @@ export function ChatChantierModal({
         suggestions: parsed.suggestions,
         plan: parsed.plan as ChatPlanStep[] | null,
         ended: parsed.ended,
+        mermaid_graph: parsed.mermaid_graph,
         user_message_count: persistRes.user_message_count,
         provider: "webllm",
       };
@@ -288,6 +295,7 @@ export function ChatChantierModal({
       suggestions: res.suggestions,
       plan: res.plan,
       ended: res.ended,
+      mermaid_graph: res.mermaid_graph,
       user_message_count: res.user_message_count,
       provider: res.provider,
     };
@@ -307,6 +315,7 @@ export function ChatChantierModal({
         plan: res.plan,
         ended: res.ended,
         provider: res.provider as ChatProvider | null | undefined,
+          mermaid_graph: res.mermaid_graph,
       }]);
       setUserMessageCount(res.user_message_count);
     } catch (err) {
@@ -356,6 +365,7 @@ export function ChatChantierModal({
         plan: res.plan,
         ended: res.ended,
         provider: res.provider as ChatProvider | null | undefined,
+          mermaid_graph: res.mermaid_graph,
       }]);
       setUserMessageCount(res.user_message_count);
     } catch (err) {
@@ -363,19 +373,32 @@ export function ChatChantierModal({
       if (!messageText) setDraft(msg);
       const message = err instanceof Error ? err.message : "Erreur inconnue";
       if (message.includes("429")) {
-        setErrorMsg("Vous avez atteint la limite de 20 questions. Pour aller plus loin, contactez Sébastien via Calendly.");
+        setErrorMsg(`Limite de ${maxUserMessages} questions atteinte. Pour aller plus loin, contactez Sébastien via Calendly.`);
       } else if (message.includes("503")) {
-        const otherProvider: ChatProvider = providerRef.current === "ollama" ? "anthropic" : "ollama";
+        const otherProvider: ChatProvider = providerRef.current === "ollama" || providerRef.current === "webllm" ? "anthropic" : "webllm";
         const otherLabel = PROVIDER_LABELS[otherProvider];
         setErrorMsg(
           `${PROVIDER_LABELS[providerRef.current]} n'est pas joignable. ` +
           `Basculez sur « ${otherLabel} » via le toggle en haut, puis renvoyez votre message.`
         );
       } else {
-        setErrorMsg("L'assistant n'a pas pu répondre. Réessayez dans un instant.");
+        // Affiche le detail reel de l'erreur pour faciliter le diagnostic
+        // (modele local pas pret, erreur de generation, backend down...).
+        setErrorMsg(`L'assistant n'a pas pu répondre. (Détail : ${message})`);
       }
     } finally {
       setIsSending(false);
+    }
+  }
+
+  // Changement de provider via le toggle. Si la conversation est encore vide
+  // (tour 1 pas encore abouti, ex : echec Cloud sans cle), on remet initRef a
+  // false pour que le useEffect de demarrage relance le tour 1 dans le nouveau
+  // provider.
+  function handleProviderChange(next: ChatProvider) {
+    setProvider(next);
+    if (messages.length === 0) {
+      initRef.current = false;
     }
   }
 
@@ -410,6 +433,7 @@ export function ChatChantierModal({
           plan: res.plan,
           ended: res.ended,
           provider: res.provider as ChatProvider | null | undefined,
+          mermaid_graph: res.mermaid_graph,
         }]);
         setUserMessageCount(res.user_message_count);
       } catch (err) {
@@ -423,6 +447,18 @@ export function ChatChantierModal({
     } finally {
       setIsSending(false);
     }
+  }
+
+  // Force la synthese a tout moment : envoie un message declencheur que le LLM
+  // interprete (grace a la note synthese_anticipee du system prompt) pour
+  // produire recap + plan d'action + schema + cloture, sans dependre du tour
+  // courant. Garantit que l'utilisateur obtient toujours son plan.
+  async function handleConclude() {
+    if (isSending || isLoading || conversationEnded || remaining === 0 || webllmNotReady) return;
+    await handleSend(
+      "Peux-tu conclure maintenant : recapitule ce qu'on a vu ensemble, " +
+      "propose-moi le plan d'action priorise et le schema du chantier."
+    );
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -508,6 +544,9 @@ export function ChatChantierModal({
             }}
           >
             via {PROVIDER_LABELS[provider]}
+            {provider === "webllm" && webllmStatus === "ready" && webllmModelLabel
+              ? ` · ${webllmModelLabel}`
+              : ""}
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
@@ -545,9 +584,9 @@ export function ChatChantierModal({
         </button>
         <ProviderToggle
           provider={provider}
-          onChange={setProvider}
+          onChange={handleProviderChange}
           theme={theme}
-          disabled={isSending}
+          disabled={false}
           localEnabled={isWebLLMSupported() && !CHAT_LOCAL_DISABLED}
         />
         <button
@@ -616,6 +655,12 @@ export function ChatChantierModal({
               <div key={i} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 <MessageBubble message={m} theme={theme} />
                 {m.plan && m.plan.length > 0 && <PlanCard plan={m.plan} theme={theme} />}
+                {m.mermaid_graph && (
+                  <MermaidDiagram
+                    graph={m.mermaid_graph as unknown as GrapheWSF}
+                    theme={theme}
+                  />
+                )}
                 {showSuggestions && m.suggestions && (
                   <SuggestionList
                     suggestions={m.suggestions}
@@ -735,7 +780,7 @@ export function ChatChantierModal({
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={remaining === 0 ? "Limite de 20 questions atteinte" : "Répondez librement, ou choisissez une suggestion ci-dessus…"}
+                placeholder={remaining === 0 ? `Limite de ${maxUserMessages} questions atteinte` : "Répondez librement, ou choisissez une suggestion ci-dessus…"}
                 disabled={isSending || isLoading || remaining === 0}
                 rows={2}
                 maxLength={2000}
@@ -783,6 +828,35 @@ export function ChatChantierModal({
                 ? `${remaining} question${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`
                 : "Pour aller plus loin, prenez RDV avec Sébastien"}.
             </p>
+
+            {/* Bouton de synthese forcee — visible des qu'on a un peu echange,
+                permet d'obtenir le plan + schema sans aller au bout des tours. */}
+            {userMessageCount >= 3 && remaining > 0 && (
+              <button
+                type="button"
+                onClick={handleConclude}
+                disabled={isSending || isLoading || webllmNotReady}
+                style={{
+                  marginTop: 10,
+                  background: "transparent",
+                  color: palette.navy,
+                  border: `1px solid ${palette.lineStrong}`,
+                  padding: "8px 16px",
+                  fontFamily: fonts.sans,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  letterSpacing: "0.02em",
+                  cursor: (isSending || isLoading || webllmNotReady) ? "not-allowed" : "pointer",
+                  opacity: (isSending || isLoading || webllmNotReady) ? 0.5 : 1,
+                  transition: "border-color 180ms ease-out",
+                  fontStyle: "normal",
+                }}
+                onMouseEnter={(e) => { if (!(isSending || isLoading || webllmNotReady)) e.currentTarget.style.borderColor = palette.navy; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = palette.lineStrong; }}
+              >
+                Terminer et voir mon plan →
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -825,14 +899,14 @@ function ProviderToggle({
   const options: Array<{ id: ChatProvider; label: string; title: string }> = [
     {
       id: "anthropic",
-      label: "Cloud",
-      title: "Claude Haiku (API Anthropic) — moteur par défaut",
+      label: "Cloud (LLM)",
+      title: "Claude Haiku (API Anthropic) — moteur cloud par défaut",
     },
     {
       id: "webllm",
-      label: "Navigateur",
+      label: "Local (SLM)",
       title: localEnabled
-        ? "qwen2.5:3b via WebLLM, tourne dans votre navigateur (données 100 % locales)"
+        ? "qwen2.5 via WebLLM, tourne dans votre navigateur (données 100 % locales)"
         : "Mode local indisponible (WebGPU requis — Chrome ou Edge récent)",
     },
   ];
@@ -943,7 +1017,7 @@ function WebLLMLoadingPanel({
           fontStyle: "normal",
         }}
       >
-        Téléchargement du modèle qwen2.5:3b · première utilisation
+        Préparation du modèle local · première utilisation
       </div>
       <div style={{ height: 4, background: palette.line, overflow: "hidden" }}>
         <div
@@ -974,8 +1048,9 @@ function WebLLMLoadingPanel({
           fontStyle: "normal",
         }}
       >
-        Le modèle est téléchargé une seule fois (~2 Go) et stocké dans votre
-        navigateur. Les prochaines discussions seront instantanées.
+        Le modèle est téléchargé une seule fois (2 à 5 Go selon votre machine)
+        et stocké dans votre navigateur. Les prochaines discussions seront
+        instantanées. Le premier chargement peut prendre quelques minutes.
       </div>
     </div>
   );

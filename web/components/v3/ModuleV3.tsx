@@ -18,6 +18,8 @@
 import * as React from "react";
 import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
 import { V3_TAG_LABELS, type V3Module, type V3ModuleTag } from "@/lib/v3/modules_data";
+import { MermaidDiagram } from "@/components/v3/MermaidDiagram";
+import { getChantierGraphe } from "@/lib/wsf/chantier-graphes";
 import {
   getOpp,
   computeGainEurosPerYear,
@@ -151,6 +153,15 @@ export function ModuleV3({
             <StepCard key={etape.num} theme={theme} step={etape} />
           ))}
         </div>
+
+        {/* Schema WSF simplifie du chantier (C.A). Version statique
+            pre-definie par chantier (web/lib/wsf/chantier-graphes). Le chat
+            assistant produit ensuite une version enrichie au tour 4. */}
+        {getChantierGraphe(mod.id) && (
+          <div style={{ marginBottom: 48 }}>
+            <MermaidDiagram graph={getChantierGraphe(mod.id)!} theme={theme} />
+          </div>
+        )}
 
         {/* Mini-encart « Avec Lugia » — ce que Lugia peut sécuriser ou
             accélérer sur ce chantier précisément. Ton respectueux de

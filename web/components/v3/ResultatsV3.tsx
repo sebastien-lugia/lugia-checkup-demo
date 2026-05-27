@@ -270,7 +270,8 @@ export function ResultatsV3({
               lineHeight: 1.7,
               letterSpacing: "-0.005em",
               color: palette.navy,
-              opacity: 0.72,
+              // 2026-05-23 : opacity 0.72 retiree — alignement avec PhraseChoc
+              // "Cabinet installe..." qui est en navy plein sans opacity.
               margin: 0,
               maxWidth: 580,
               fontStyle: "normal",
@@ -802,9 +803,11 @@ function AxisCard({
                 lineHeight: 1.2,
                 letterSpacing: "-0.01em",
                 margin: 0,
-                // 2026-05-23 : day -> argentDeep (#6E6E70) pour contraste sur ivoire,
-                // night -> axisColor (#B5B5B8) qui ressort bien sur navy.
-                color: theme === "day" ? palette.argentDeep : axisColor,
+                // 2026-05-23 : harmonisation finale — tous les titres serif de
+                // la page resultats partagent palette.navy plein, comme
+                // "Choisir un chantier de votre choix" et "Un cabinet qui
+                // tourne au quotidien". Cohesion visuelle complete.
+                color: palette.navy,
                 fontStyle: "normal",
               }}
             >
@@ -1041,9 +1044,9 @@ function OppCard({
             lineHeight: 1.3,
             letterSpacing: "-0.01em",
             margin: "0 0 5px",
-            // 2026-05-23 : coherence avec titres d'axe — argentDeep en day,
-            // navy (ivoire clair) en night.
-            color: theme === "day" ? palette.argentDeep : palette.navy,
+            // 2026-05-23 : harmonisation finale — navy plein, meme couleur que
+            // les titres d'axe et les cards NextStep.
+            color: palette.navy,
             fontStyle: "normal",
           }}
         >

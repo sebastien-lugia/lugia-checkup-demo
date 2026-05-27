@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lugia & Co — Navigation WSF v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:#0a0c11; --bg2:#11141b; --bg3:#1a1e27; --line:#242a34;
+  --txt:#eceef2; --txt2:#8e96a4; --txt3:#4e5663;
+  --optimal:#34d399; --fonct:#6ee7b7; --degrade:#fbbf24; --risque:#fb7185; --bloque:#ef4444; --nondoc:#6b7280;
+  --accent:#818cf8; --accent2:#a5b4fc;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--txt); height:100vh; overflow:hidden; display:flex; flex-direction:column; }
+
+.header { padding:12px 24px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:16px; flex-shrink:0; flex-wrap:wrap; }
+.h-logo { font-family:'Fraunces',serif; font-size:17px; font-weight:900; }
+.h-logo span { color:var(--accent2); }
+
+.breadcrumb { display:flex; align-items:center; gap:5px; font-size:11px; flex:1; min-width:180px; }
+.bc-item { padding:3px 9px; border-radius:6px; cursor:pointer; color:var(--txt3); transition:all .2s; font-family:'JetBrains Mono',monospace; font-size:10px; }
+.bc-item:hover { color:var(--txt2); background:var(--bg3); }
+.bc-item.active { color:var(--accent2); background:rgba(129,140,248,0.1); }
+.bc-sep { color:var(--txt3); font-size:9px; }
+
+.search-box { position:relative; }
+.search-input { background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:7px 12px 7px 30px; font-size:12px; color:var(--txt); width:160px; font-family:'Inter',sans-serif; outline:none; transition:all .2s; }
+.search-input:focus { border-color:var(--accent); width:200px; }
+.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--txt3); font-size:12px; }
+.search-results { position:absolute; top:38px; left:0; right:0; background:var(--bg2); border:1px solid var(--line); border-radius:8px; overflow:hidden; z-index:50; display:none; }
+.search-results.visible { display:block; }
+.sr-item { padding:8px 12px; font-size:12px; cursor:pointer; color:var(--txt2); transition:all .15s; }
+.sr-item:hover { background:var(--bg3); color:var(--txt); }
+
+.zoom-control { display:flex; align-items:center; gap:7px; }
+.zoom-slider { -webkit-appearance:none; width:110px; height:4px; background:var(--bg3); border-radius:2px; outline:none; }
+.zoom-slider::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:var(--accent); cursor:pointer; }
+.zoom-label { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--txt3); width:62px; }
+
+.lens-bar { display:flex; gap:3px; background:var(--bg2); padding:3px; border-radius:8px; border:1px solid var(--line); flex-wrap:wrap; }
+.lens-btn { padding:5px 10px; border-radius:6px; font-size:10px; cursor:pointer; border:none; background:none; color:var(--txt3); font-family:'Inter',sans-serif; transition:all .2s; white-space:nowrap; }
+.lens-btn:hover { color:var(--txt2); }
+.lens-btn.active { background:var(--bg3); color:var(--txt); }
+
+.toolbar2 { display:flex; gap:8px; align-items:center; padding:8px 24px; border-bottom:1px solid var(--line); flex-shrink:0; }
+.filter-chip { padding:5px 12px; border-radius:14px; font-size:10px; cursor:pointer; border:1px solid var(--line); background:var(--bg2); color:var(--txt3); transition:all .2s; font-family:'JetBrains Mono',monospace; }
+.filter-chip:hover { border-color:var(--accent); color:var(--txt2); }
+.filter-chip.active { background:rgba(251,113,133,0.12); border-color:var(--risque); color:var(--risque); }
+.toolbar2-label { font-size:10px; color:var(--txt3); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.08em; }
+
+.stage { flex:1; position:relative; overflow:hidden; background:radial-gradient(ellipse at 50% 45%, rgba(129,140,248,0.04) 0%, transparent 60%), var(--bg); }
+.level { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .5s ease, transform .5s cubic-bezier(0.4,0,0.2,1); transform:scale(0.92); }
+.level.active { opacity:1; pointer-events:auto; transform:scale(1); }
+
+#level-0 .vignette { text-align:center; }
+.vig-light { width:80px; height:80px; border-radius:50%; margin:0 auto 24px; display:flex; align-items:center; justify-content:center; font-size:32px; position:relative; }
+.vig-light::after { content:''; position:absolute; inset:-8px; border-radius:50%; border:2px solid currentColor; opacity:.3; animation:vp 2.5s infinite; }
+@keyframes vp { 0%,100%{transform:scale(1);opacity:.3} 50%{transform:scale(1.15);opacity:.1} }
+.vig-title { font-family:'Fraunces',serif; font-size:26px; font-weight:600; margin-bottom:8px; }
+.vig-sub { font-size:14px; color:var(--txt2); margin-bottom:28px; }
+.vig-hint { font-size:11px; color:var(--txt3); font-family:'JetBrains Mono',monospace; }
+
+#level-1 svg, #level-2 svg, #level-3 svg { width:100%; height:100%; }
+
+.region-bubble, .obj-node { cursor:pointer; transition:all .3s; }
+.region-bubble:hover, .obj-node:hover { filter:brightness(1.2); }
+.region-name { font-size:12px; font-weight:500; text-anchor:middle; pointer-events:none; }
+.region-pct { font-family:'JetBrains Mono',monospace; font-size:10px; text-anchor:middle; pointer-events:none; fill:var(--txt3); }
+.region-link, .obj-edge { transition:all .4s; }
+.dimmed { opacity:0.12 !important; }
+.highlighted { opacity:1 !important; }
+.edge-role { font-size:8px; fill:var(--accent2); text-anchor:middle; font-family:'JetBrains Mono',monospace; pointer-events:none; }
+
+.obj-label { font-size:11px; font-weight:500; fill:var(--txt); text-anchor:middle; pointer-events:none; dominant-baseline:middle; }
+.obj-sublabel { font-size:8px; fill:var(--txt3); text-anchor:middle; pointer-events:none; font-family:'JetBrains Mono',monospace; }
+.obj-edge-label { font-size:8px; fill:var(--txt3); text-anchor:middle; font-family:'JetBrains Mono',monospace; pointer-events:none; }
+
+#level-4 .fiche { width:480px; background:var(--bg2); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+.fiche-header { padding:22px; border-bottom:1px solid var(--line); position:relative; }
+.fiche-comp { font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--txt3); margin-bottom:6px; }
+.fiche-title { font-family:'Fraunces',serif; font-size:23px; font-weight:600; }
+.fiche-state { position:absolute; top:22px; right:22px; padding:5px 12px; border-radius:14px; font-size:11px; font-weight:600; }
+.fiche-body { padding:22px; }
+.fiche-row { display:flex; gap:14px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.fiche-row:last-of-type { border-bottom:none; }
+.fiche-key { color:var(--txt3); width:130px; flex-shrink:0; }
+.fiche-val { color:var(--txt); flex:1; }
+.fiche-chantier { margin:0 22px 22px; padding:14px; background:rgba(251,113,133,0.08); border:1px solid rgba(251,113,133,0.25); border-radius:10px; }
+.fc-label { font-size:10px; color:var(--risque); font-family:'JetBrains Mono',monospace; text-transform:uppercase; margin-bottom:6px; }
+.fc-text { font-size:13px; margin-bottom:12px; }
+.fc-btn { background:var(--accent); color:#fff; border:none; padding:9px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; width:100%; font-family:'Inter',sans-serif; }
+.fc-btn:hover { background:var(--accent2); }
+
+.nav-hint { position:absolute; bottom:14px; left:50%; transform:translateX(-50%); font-size:11px; color:var(--txt3); font-family:'JetBrains Mono',monospace; background:var(--bg2); border:1px solid var(--line); padding:6px 14px; border-radius:16px; }
+.focus-banner { position:absolute; top:14px; left:50%; transform:translateX(-50%); font-size:11px; color:var(--accent2); background:rgba(129,140,248,0.1); border:1px solid var(--accent); padding:6px 16px; border-radius:16px; display:none; align-items:center; gap:10px; }
+.focus-banner.visible { display:flex; }
+.focus-close { cursor:pointer; color:var(--txt3); }
+.focus-close:hover { color:var(--txt); }
+
+.lens-legend { position:absolute; top:14px; right:14px; background:var(--bg2); border:1px solid var(--line); border-radius:9px; padding:10px 14px; font-size:10px; display:none; }
+.lens-legend.visible { display:block; }
+.ll-title { color:var(--txt3); font-family:'JetBrains Mono',monospace; text-transform:uppercase; margin-bottom:6px; }
+.ll-item { display:flex; align-items:center; gap:6px; margin-bottom:3px; color:var(--txt2); }
+.ll-dot { width:8px; height:8px; border-radius:2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-logo">Lugia <span>&</span> Co</div>
+  <div class="breadcrumb" id="breadcrumb"></div>
+  <div class="search-box">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" id="search" placeholder="Rechercher…" oninput="doSearch(this.value)" onblur="setTimeout(()=>document.getElementById('search-results').classList.remove('visible'),200)">
+    <div class="search-results" id="search-results"></div>
+  </div>
+  <div class="zoom-control">
+    <span style="color:var(--txt3)">−</span>
+    <input type="range" class="zoom-slider" id="zoom" min="0" max="4" value="1" step="1" oninput="setLevel(parseInt(this.value))">
+    <span style="color:var(--txt3)">+</span>
+    <span class="zoom-label" id="zoom-label">Carte</span>
+  </div>
+</div>
+
+<div class="toolbar2">
+  <span class="toolbar2-label">Lentille</span>
+  <div class="lens-bar">
+    <button class="lens-btn active" onclick="setLens('sante',event)">Santé</button>
+    <button class="lens-btn" onclick="setLens('conformite',event)">Conformité</button>
+    <button class="lens-btn" onclick="setLens('donnees',event)">Données</button>
+    <button class="lens-btn" onclick="setLens('maturite',event)">Maturité</button>
+    <button class="lens-btn" onclick="setLens('charge',event)">Charge/Temps</button>
+    <button class="lens-btn" onclick="setLens('cout',event)">Coût/Valeur</button>
+    <button class="lens-btn" onclick="setLens('fragilite',event)">Fragilité</button>
+  </div>
+  <span class="toolbar2-label" style="margin-left:auto">Filtre</span>
+  <div class="filter-chip" id="filter-risk" onclick="toggleFilter('risk')">⚠ À risque uniquement</div>
+</div>
+
+<div class="stage">
+  <div class="focus-banner" id="focus-banner">
+    <span id="focus-text">Focus</span>
+    <span class="focus-close" onclick="clearFocus()">✕</span>
+  </div>
+  <div class="lens-legend" id="lens-legend"></div>
+
+  <div class="level" id="level-0">
+    <div class="vignette">
+      <div class="vig-light" id="vig-light">●</div>
+      <div class="vig-title" id="vig-title">Cabinet en bonne santé</div>
+      <div class="vig-sub" id="vig-sub">2 points de vigilance · cartographié à 64%</div>
+      <div class="vig-hint">↑ Zoomez pour explorer votre cabinet</div>
+    </div>
+  </div>
+
+  <div class="level" id="level-1"><svg viewBox="0 0 760 580" id="svg-1"></svg></div>
+  <div class="level" id="level-2"><svg viewBox="0 0 700 560" id="svg-2"></svg></div>
+  <div class="level" id="level-3"><svg viewBox="0 0 760 560" id="svg-3"></svg></div>
+  <div class="level" id="level-4"><div class="fiche" id="fiche"></div></div>
+
+  <div class="nav-hint" id="nav-hint"></div>
+</div>
+
+<script>
+const LEVELS = ['Vignette','Carte','Domaine','Flux','Objet'];
+
+// ── LES 9 COMPOSANTES COMPLÈTES ──
+const regions = [
+  { id:'strategies',    label:'Stratégies',    cx:380, cy:70,  sante:0.65, conf:0.5, data:0.1, matur:0.4, charge:0.2, cout:0.3, frag:0.5 },
+  { id:'participants',  label:'Participants',  cx:160, cy:170, sante:0.80, conf:0.6, data:0.3, matur:0.7, charge:0.9, cout:0.6, frag:0.8 },
+  { id:'technologies',  label:'Technologies',  cx:600, cy:170, sante:0.55, conf:0.4, data:0.7, matur:0.9, charge:0.5, cout:0.7, frag:0.4 },
+  { id:'information',   label:'Information',   cx:130, cy:330, sante:0.45, conf:0.3, data:1.0, matur:0.5, charge:0.4, cout:0.4, frag:0.6 },
+  { id:'processus',     label:'Processus',     cx:380, cy:320, sante:0.60, conf:0.7, data:0.5, matur:0.4, charge:0.95,cout:0.5, frag:0.5 },
+  { id:'infrastructure',label:'Infrastructure',cx:620, cy:330, sante:0.70, conf:0.6, data:0.4, matur:0.5, charge:0.3, cout:0.8, frag:0.9 },
+  { id:'environnement', label:'Environ.',      cx:230, cy:470, sante:0.40, conf:0.2, data:0.2, matur:0.6, charge:0.1, cout:0.2, frag:0.3 },
+  { id:'produits',      label:'Produits',      cx:470, cy:470, sante:0.75, conf:0.8, data:0.4, matur:0.6, charge:0.6, cout:0.6, frag:0.4 },
+  { id:'clients',       label:'Clients',       cx:380, cy:540, sante:0.85, conf:0.9, data:0.3, matur:0.8, charge:0.2, cout:0.9, frag:0.3 },
+];
+
+const regionLinks = [
+  ['strategies','processus'],['strategies','participants'],
+  ['participants','technologies'],['participants','processus'],
+  ['technologies','information'],['information','processus'],
+  ['infrastructure','technologies'],['infrastructure','participants'],
+  ['environnement','technologies'],['environnement','processus'],
+  ['processus','produits'],['produits','clients'],
+];
+
+// Domaine technologies
+const domainObjects = {
+  technologies: { label:'Technologies', nodes:[
+    { id:'dpi',label:'Logiciel DPI',etat:'FONCTIONNEL',x:200,y:200 },
+    { id:'ia',label:'Outil IA',etat:'A_RISQUE',x:430,y:200 },
+    { id:'mss',label:'Messagerie',etat:'FONCTIONNEL',x:200,y:380 },
+    { id:'agenda',label:'Agenda',etat:'OPTIMAL',x:430,y:380 },
+  ], edges:[['dpi','ia'],['dpi','mss'],['ia','agenda']] },
+  participants: { label:'Participants', nodes:[
+    { id:'med',label:'Médecin',etat:'FONCTIONNEL',x:315,y:180 },
+    { id:'sec',label:'Secrétaire',etat:'FONCTIONNEL',x:180,y:360 },
+    { id:'remp',label:'Remplaçant',etat:'A_RISQUE',x:450,y:360 },
+  ], edges:[['med','sec'],['med','remp']] },
+};
+
+// Flux de valeur
+const valueFlow = { label:'Flux : du patient au compte-rendu', nodes:[
+  { id:'pat',label:'Patient',etat:'FONCTIONNEL',x:90,y:280,type:'acteur' },
+  { id:'cons',label:'Consultation',etat:'FONCTIONNEL',x:240,y:280,type:'action' },
+  { id:'data',label:'Données',etat:'A_RISQUE',x:390,y:200,type:'stock' },
+  { id:'redac',label:'Rédaction IA',etat:'DEGRADE',x:390,y:360,type:'action' },
+  { id:'cr',label:'Compte-rendu',etat:'FONCTIONNEL',x:540,y:280,type:'flux' },
+  { id:'env',label:'Envoi',etat:'OPTIMAL',x:660,y:280,type:'acteur' },
+], edges:[['pat','cons'],['cons','data'],['cons','redac'],['data','redac'],['redac','cr'],['cr','env']] };
+
+// Rôles sur les liaisons region (participant → cible)
+const roleLinks = {
+  'participants-technologies':'utilise',
+  'participants-processus':'réalise',
+  'strategies-processus':'oriente',
+  'strategies-participants':'objectifs',
+  'infrastructure-technologies':'supporte',
+  'infrastructure-participants':'supporte',
+  'environnement-technologies':'contraint',
+  'environnement-processus':'contraint',
+  'technologies-information':'traite',
+  'information-processus':'alimente',
+  'processus-produits':'produit',
+  'produits-clients':'délivre',
+};
+
+const objectDetails = {
+  ia: { composante:'TECHNOLOGIE', label:'Outil IA', etat:'A_RISQUE', color:'#fb7185',
+    rows:[['Type','Outil externe (ChatGPT)'],['État','À risque'],['Criticité','Important'],
+      ['Données traitées','Noms patients (non protégés)'],['Utilisé par','Médecin (rôle: rédaction)'],
+      ['Contraint par','RGPD / AI Act'],['Charge/temps','Modérée'],['Coût','Faible'],['Première détection','Inféré depuis vos usages']],
+    chantier:{ label:'Chantier recommandé', text:'Sécuriser cet outil : tokeniser les données avant tout envoi. Élimine le risque RGPD.' } },
+  remp: { composante:'PARTICIPANT', label:'Remplaçant', etat:'A_RISQUE', color:'#fb7185',
+    rows:[['Type','Participant temporaire'],['État','À risque'],['Criticité','Standard'],
+      ['Accès actuel','Identifiant du médecin (partagé)'],['Rôle','Consultation du jour'],
+      ['Fragilité','Single point — pas de traçabilité'],['Première détection','Confirmé']],
+    chantier:{ label:'Chantier recommandé', text:'Créer un accès dédié et temporaire pour le remplaçant, avec droits limités et révocation automatique.' } },
+};
+
+const ETAT_COLOR = { OPTIMAL:'#34d399', FONCTIONNEL:'#6ee7b7', DEGRADE:'#fbbf24', A_RISQUE:'#fb7185', BLOQUE:'#ef4444', NON_DOCUMENTE:'#6b7280' };
+const ETAT_LABEL = { OPTIMAL:'Optimal', FONCTIONNEL:'Fonctionnel', DEGRADE:'Dégradé', A_RISQUE:'À risque', BLOQUE:'Bloqué', NON_DOCUMENTE:'Non documenté' };
+
+let currentLevel=1, currentLens='sante', selectedRegion='technologies', selectedObject='ia';
+let focusedRegion=null, filterRisk=false;
+
+const LENS_VALUE = { sante:r=>r.sante, conformite:r=>r.conf, donnees:r=>r.data, maturite:r=>r.matur, charge:r=>r.charge, cout:r=>r.cout, fragilite:r=>r.frag };
+const LENS_COLOR = {
+  sante:v=>v>=0.7?'#34d399':v>=0.5?'#fbbf24':'#fb7185',
+  conformite:v=>v>=0.7?'#34d399':v>=0.4?'#fbbf24':'#fb7185',
+  donnees:v=>`rgba(34,211,238,${0.25+v*0.7})`,
+  maturite:v=>`rgba(167,139,250,${0.25+v*0.7})`,
+  charge:v=>v>=0.7?'#fb7185':v>=0.4?'#fbbf24':'#34d399',
+  cout:v=>`rgba(245,158,11,${0.25+v*0.7})`,
+  fragilite:v=>v>=0.7?'#ef4444':v>=0.4?'#fbbf24':'#34d399',
+};
+
+function setLevel(lvl){
+  currentLevel=lvl;
+  document.getElementById('zoom').value=lvl;
+  document.getElementById('zoom-label').textContent=LEVELS[lvl];
+  document.querySelectorAll('.level').forEach(l=>l.classList.remove('active'));
+  document.getElementById(`level-${lvl}`).classList.add('active');
+  if(lvl!==1) clearFocus(true);
+  renderBreadcrumb(); renderLevel(lvl); updateNavHint(lvl); renderLensLegend();
+}
+
+function updateNavHint(lvl){
+  const h=['Zoomez pour explorer','Cliquez une bulle pour entrer · ou survolez pour voir ses liens','Cliquez un objet pour son détail','Cliquez un objet pour son détail','Dézoomez pour revenir'];
+  document.getElementById('nav-hint').textContent=h[lvl];
+}
+
+function renderBreadcrumb(){
+  const c=[{lvl:0,label:'Cabinet'}];
+  if(currentLevel>=1)c.push({lvl:1,label:'Carte WSF'});
+  if(currentLevel>=2)c.push({lvl:2,label:domainObjects[selectedRegion]?.label||'Domaine'});
+  if(currentLevel>=3)c.push({lvl:3,label:'Flux'});
+  if(currentLevel>=4)c.push({lvl:4,label:objectDetails[selectedObject]?.label||'Objet'});
+  document.getElementById('breadcrumb').innerHTML=c.map((x,i)=>`${i>0?'<span class="bc-sep">›</span>':''}<span class="bc-item ${x.lvl===currentLevel?'active':''}" onclick="setLevel(${x.lvl})">${x.label}</span>`).join('');
+}
+
+function setLens(lens,ev){
+  currentLens=lens;
+  document.querySelectorAll('.lens-btn').forEach(b=>b.classList.remove('active'));
+  ev.target.classList.add('active');
+  renderLevel(currentLevel); renderLensLegend();
+}
+
+function renderLensLegend(){
+  const legend=document.getElementById('lens-legend');
+  const defs={
+    conformite:{title:'Conformité',items:[['#34d399','Conforme'],['#fbbf24','À surveiller'],['#fb7185','À risque']]},
+    donnees:{title:'Sensibilité données',items:[['#22d3ee','Élevée'],['rgba(34,211,238,0.4)','Faible']]},
+    maturite:{title:'Maturité',items:[['#a78bfa','Cartographié'],['rgba(167,139,250,0.4)','À explorer']]},
+    charge:{title:'Charge / Temps',items:[['#fb7185','Chronophage'],['#fbbf24','Modéré'],['#34d399','Léger']]},
+    cout:{title:'Coût / Valeur',items:[['#f59e0b','Élevé'],['rgba(245,158,11,0.4)','Faible']]},
+    fragilite:{title:'Fragilité',items:[['#ef4444','Point critique'],['#fbbf24','Moyen'],['#34d399','Résilient']]},
+  };
+  if(currentLevel===0||currentLevel>=3||!defs[currentLens]){legend.classList.remove('visible');return;}
+  const l=defs[currentLens];
+  legend.classList.add('visible');
+  legend.innerHTML=`<div class="ll-title">${l.title}</div>`+l.items.map(([c,t])=>`<div class="ll-item"><span class="ll-dot" style="background:${c}"></span>${t}</div>`).join('');
+}
+
+function renderLevel(lvl){
+  if(lvl===0)renderVignette();
+  if(lvl===1)renderCarte();
+  if(lvl===2)renderDomaine();
+  if(lvl===3)renderFlux();
+  if(lvl===4)renderFiche();
+}
+
+function renderVignette(){
+  const avg=regions.reduce((s,r)=>s+r.sante,0)/regions.length;
+  const light=document.getElementById('vig-light');
+  light.style.color=avg>=0.7?'var(--optimal)':avg>=0.5?'var(--degrade)':'var(--risque)';
+  light.style.background=avg>=0.7?'rgba(52,211,153,0.12)':avg>=0.5?'rgba(251,191,36,0.12)':'rgba(251,113,133,0.12)';
+}
+
+function regionNeighbors(regionId){
+  const nb=new Set([regionId]);
+  regionLinks.forEach(([a,b])=>{ if(a===regionId)nb.add(b); if(b===regionId)nb.add(a); });
+  return nb;
+}
+
+function renderCarte(){
+  const svg=document.getElementById('svg-1');
+  let html='';
+  const nb=focusedRegion?regionNeighbors(focusedRegion):null;
+
+  regionLinks.forEach(([a,b])=>{
+    const ra=regions.find(r=>r.id===a),rb=regions.find(r=>r.id===b);
+    const inFocus=!focusedRegion||(nb.has(a)&&nb.has(b)&&(a===focusedRegion||b===focusedRegion));
+    const role=roleLinks[`${a}-${b}`]||roleLinks[`${b}-${a}`]||'';
+    const mx=(ra.cx+rb.cx)/2,my=(ra.cy+rb.cy)/2;
+    html+=`<line class="region-link ${focusedRegion&&!inFocus?'dimmed':''}" x1="${ra.cx}" y1="${ra.cy}" x2="${rb.cx}" y2="${rb.cy}" stroke="${inFocus&&focusedRegion?'#818cf8':'#2a3340'}" stroke-width="${inFocus&&focusedRegion?2:1.5}" opacity="${inFocus&&focusedRegion?0.8:0.4}"/>`;
+    if(focusedRegion&&inFocus&&role){
+      html+=`<text class="edge-role" x="${mx}" y="${my-4}">${role}</text>`;
+    }
+  });
+
+  regions.forEach(r=>{
+    if(filterRisk&&r.sante>=0.5)return;
+    const v=LENS_VALUE[currentLens](r);
+    const color=LENS_COLOR[currentLens](v);
+    const radius=30+v*16;
+    const inFocus=!focusedRegion||(nb&&nb.has(r.id));
+    html+=`<g class="region-bubble ${focusedRegion&&!inFocus?'dimmed':''}" onclick="enterRegion('${r.id}')" onmouseenter="setFocus('${r.id}')" >
+      <circle cx="${r.cx}" cy="${r.cy}" r="${radius}" fill="${color}" opacity="0.18"/>
+      <circle cx="${r.cx}" cy="${r.cy}" r="${radius}" fill="none" stroke="${color}" stroke-width="${r.id===focusedRegion?3:2}" opacity="0.75"/>
+      <text class="region-name" x="${r.cx}" y="${r.cy-2}" fill="${color}">${r.label}</text>
+      <text class="region-pct" x="${r.cx}" y="${r.cy+14}">${Math.round(v*100)}%</text>
+    </g>`;
+  });
+  svg.innerHTML=html;
+}
+
+function setFocus(regionId){
+  focusedRegion=regionId;
+  const r=regions.find(x=>x.id===regionId);
+  const nb=regionNeighbors(regionId);
+  const links=[];
+  regionLinks.forEach(([a,b])=>{
+    if(a===regionId){const role=roleLinks[`${a}-${b}`]||'lié';links.push(`${role} → ${regions.find(x=>x.id===b).label}`);}
+    if(b===regionId){const role=roleLinks[`${a}-${b}`]||'lié';links.push(`${regions.find(x=>x.id===a).label} (${role})`);}
+  });
+  document.getElementById('focus-text').textContent=`${r.label} — ${links.length} liens : ${links.join(' · ')}`;
+  document.getElementById('focus-banner').classList.add('visible');
+  renderCarte();
+}
+
+function clearFocus(silent){
+  focusedRegion=null;
+  document.getElementById('focus-banner').classList.remove('visible');
+  if(!silent&&currentLevel===1)renderCarte();
+}
+
+function toggleFilter(type){
+  if(type==='risk'){
+    filterRisk=!filterRisk;
+    document.getElementById('filter-risk').classList.toggle('active',filterRisk);
+    renderLevel(currentLevel);
+  }
+}
+
+function renderDomaine(){
+  const dom=domainObjects[selectedRegion]||domainObjects.technologies;
+  const svg=document.getElementById('svg-2');
+  let html=`<text x="350" y="50" text-anchor="middle" font-family="Fraunces,serif" font-size="20" fill="#eceef2">${dom.label}</text>`;
+  dom.edges.forEach(([a,b])=>{
+    const na=dom.nodes.find(n=>n.id===a),nb=dom.nodes.find(n=>n.id===b);
+    html+=`<line class="obj-edge" x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="#2a3340" stroke-width="1.3" opacity="0.5"/>`;
+  });
+  dom.nodes.forEach(n=>{
+    if(filterRisk&&n.etat!=='A_RISQUE'&&n.etat!=='BLOQUE')return;
+    const color=ETAT_COLOR[n.etat];
+    html+=`<g class="obj-node" onclick="enterObject('${n.id}')">
+      <rect x="${n.x-55}" y="${n.y-22}" width="110" height="44" rx="9" fill="#11141b" stroke="${color}" stroke-width="1.6"/>
+      <text class="obj-label" x="${n.x}" y="${n.y-3}">${n.label}</text>
+      <text class="obj-sublabel" x="${n.x}" y="${n.y+12}">${ETAT_LABEL[n.etat]}</text>
+    </g>`;
+  });
+  svg.innerHTML=html;
+}
+
+function renderFlux(){
+  const f=valueFlow;
+  const svg=document.getElementById('svg-3');
+  let html=`<text x="380" y="50" text-anchor="middle" font-family="Fraunces,serif" font-size="18" fill="#eceef2">${f.label}</text>
+    <defs><marker id="fa" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#4e5663"/></marker></defs>`;
+  f.edges.forEach(([a,b])=>{
+    const na=f.nodes.find(n=>n.id===a),nb=f.nodes.find(n=>n.id===b);
+    html+=`<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="#2a3340" stroke-width="1.3" opacity="0.6" marker-end="url(#fa)"/>`;
+  });
+  f.nodes.forEach(n=>{
+    const color=ETAT_COLOR[n.etat];
+    const round=n.type==='action';
+    html+=`<g class="obj-node" onclick="enterObject('${n.id}')">
+      <rect x="${n.x-48}" y="${n.y-20}" width="96" height="40" rx="${round?20:8}" fill="#11141b" stroke="${color}" stroke-width="1.6"/>
+      <text class="obj-label" x="${n.x}" y="${n.y}" font-size="10">${n.label}</text>
+    </g>`;
+  });
+  svg.innerHTML=html;
+}
+
+function renderFiche(){
+  const o=objectDetails[selectedObject]||objectDetails.ia;
+  document.getElementById('fiche').innerHTML=`
+    <div class="fiche-header">
+      <div class="fiche-comp">${o.composante}</div>
+      <div class="fiche-title">${o.label}</div>
+      <div class="fiche-state" style="background:${o.color}22;color:${o.color}">${ETAT_LABEL[o.etat]}</div>
+    </div>
+    <div class="fiche-body">
+      ${o.rows.map(([k,v])=>`<div class="fiche-row"><div class="fiche-key">${k}</div><div class="fiche-val">${v}</div></div>`).join('')}
+    </div>
+    ${o.chantier?`<div class="fiche-chantier"><div class="fc-label">${o.chantier.label}</div><div class="fc-text">${o.chantier.text}</div><button class="fc-btn">Je me lance →</button></div>`:''}`;
+}
+
+function enterRegion(regionId){
+  clearFocus(true);
+  selectedRegion=domainObjects[regionId]?regionId:'technologies';
+  setLevel(2);
+}
+function enterObject(objId){
+  if(objectDetails[objId]){selectedObject=objId;setLevel(4);}
+  else setLevel(3);
+}
+
+// Recherche
+const searchIndex=[
+  ...regions.map(r=>({id:r.id,label:r.label,type:'composante'})),
+  {id:'ia',label:'Outil IA',type:'objet'},{id:'remp',label:'Remplaçant',type:'objet'},
+  {id:'dpi',label:'Logiciel DPI',type:'objet'},{id:'med',label:'Médecin',type:'objet'},
+];
+function doSearch(q){
+  const res=document.getElementById('search-results');
+  if(!q){res.classList.remove('visible');return;}
+  const matches=searchIndex.filter(x=>x.label.toLowerCase().includes(q.toLowerCase())).slice(0,5);
+  if(!matches.length){res.classList.remove('visible');return;}
+  res.innerHTML=matches.map(m=>`<div class="sr-item" onclick="goTo('${m.id}','${m.type}')">${m.label} <span style="color:var(--txt3);font-size:10px">· ${m.type}</span></div>`).join('');
+  res.classList.add('visible');
+}
+function goTo(id,type){
+  document.getElementById('search').value='';
+  document.getElementById('search-results').classList.remove('visible');
+  if(type==='composante'){enterRegion(id);}
+  else if(objectDetails[id]){selectedObject=id;setLevel(4);}
+  else {selectedRegion='technologies';setLevel(2);}
+}
+
+setLevel(1);
+renderLensLegend();
+</script>
+</body>
+</html>

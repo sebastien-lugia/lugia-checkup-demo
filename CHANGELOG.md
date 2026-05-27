@@ -4,6 +4,79 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-27 — Moteur WSF (C.A), chat exploration ~20 tours, qwen 7B
+
+### Schéma WSF du chantier (C.A) — Mermaid
+
+Première brique du moteur Work System Framework générique. Chaque chantier
+expose désormais une cartographie de son système de travail sous forme de
+diagramme Mermaid (`flowchart TD`) : objets (acteurs, stocks, actions,
+décisions, flux, contraintes, frontières), états colorés (OPTIMAL → BLOQUÉ),
+et liaisons typées dont l'épaisseur reflète la force.
+
+- **Types & modèle** : `web/lib/wsf/types.ts` (9 composantes, 8 TypeObjet, 8 EtatObjet, liaisons, `makeObjet/makeLiaison/makeGraphe`, `validateGraphe`).
+- **Rendu** : `web/lib/wsf/render-mermaid.ts` (`graphToMermaid`, mapping forme/couleur/flèche). Tolérant aux valeurs hors-enum produites par un petit LLM (type inconnu → rectangle, état inconnu → FONCTIONNEL) pour ne jamais casser le rendu.
+- **Schéma statique par chantier** : `web/lib/wsf/chantier-graphes.ts` (7 graphes prédéfinis) affiché sur la page chantier sans appel LLM.
+- **Schéma enrichi** : généré dans le chat à la synthèse via le marker `MERMAID_JSON`, rendu par `web/components/v3/MermaidDiagram.tsx` (import lazy de `mermaid`, chips composantes + points d'attention).
+
+### Chat : mécanique d'exploration longue → synthèse
+
+Le chat chantier devient une exploration en ~20 tours qui cartographie le
+système de travail puis produit un plan d'action priorisé + le schéma enrichi.
+System prompt scopé par tour (ouverture / exploration / pré-synthèse /
+synthèse), `SYNTHESE_TOUR = 16`, `MAX_USER_MESSAGES = 25`. Bouton « Terminer et
+voir mon plan » pour forcer la synthèse à tout moment (≥ 3 messages échangés).
+`max_tokens` relevé à 2048/2000 (la synthèse recap + PLAN_JSON + MERMAID_JSON
+était tronquée en plein schéma).
+
+### WebLLM : qwen2.5 7B + fallback 3B
+
+Le mode Local passe au `Qwen2.5-7B-Instruct-q4f16_1-MLC` (bien meilleure tenue
+des instructions longues et de la mécanique 20 tours), avec bascule automatique
+sur le `3B-q4f32` si la machine manque de VRAM. Label du modèle effectivement
+chargé affiché dans l'UI. Toggle relabellé « Cloud (LLM) » / « Local (SLM) ».
+
+### Fix : fenêtre de contexte WebLLM (Prompt tokens exceed context window)
+
+Le défaut WebLLM (4096 tokens) était dépassé par une conversation de 20 tours +
+system prompt → « Prompt tokens exceed context window size: 4141; 4096 » au
+moment de la synthèse. Deux verrous dans `web/lib/webllm.ts` : `CreateMLCEngine`
+reçoit `{ context_window_size: 5120 }` (8192 d'abord testé mais provoquait un
+« Device was lost » / OOM GPU sur le 7B — 5120 suffit pour 10 tours et reste
+léger en VRAM), et
+`generateWithWebLLM` tronque l'historique aux 24 derniers messages
+(`MAX_HISTORY`) — le system prompt portant déjà tout le contexte du tour, le
+début de l'exploration peut être élagué sans perte fonctionnelle.
+
+### Fix : parsing tolérant au JSON tronqué (PLAN_JSON / MERMAID_JSON)
+
+qwen omet fréquemment l'accolade fermante `}` de l'objet englobant
+(`{"steps":[...]` au lieu de `{"steps":[...]}`). Les regex figées (qui
+attendaient `}]}`) ne matchaient pas → le bloc PLAN_JSON/MERMAID_JSON
+s'affichait brut et le schéma n'était jamais dessiné en mode Local. Le parser
+de `web/lib/webllm.ts` remplace ces regex par `extractBalancedJson` : scan des
+accolades/crochets en ignorant les chaînes, scan borné au prochain marker connu
+(pour qu'un PLAN tronqué n'avale pas le MERMAID suivant), coupe au dernier
+closer et rajoute les fermetures manquantes avant `JSON.parse`.
+
+### Fix : qwen répondait en chinois (suggestions)
+
+qwen2.5 (modèle d'origine chinoise) dérivait vers le chinois, notamment dans
+les items SUGG_JSON, faute de contrainte de langue. Ajout d'une consigne
+« tu réponds TOUJOURS et EXCLUSIVEMENT en français » en tête du system prompt
+(`src/chat_assistant.py::_build_system_prompt`), répétée dans les règles
+absolues et sur la ligne de format SUGG_JSON. S'applique au mode Local (le
+prompt est servi par le backend via `/chat/system-prompt`) comme au mode Cloud.
+
+### Divers
+
+Fix `END_CONVERSATION:false` affiché en clair (regex étendue `(true|false)`,
+strip dans les deux cas). Toggle provider toujours cliquable + relance du tour 1
+au changement de provider sur conversation vide. Docs vision archivées dans
+`resources/vision/` (17 docs + INDEX).
+
+---
+
 ## 2026-05-23 (suite) — WebLLM en navigateur + correctifs UX
 
 ### WebLLM : qwen2.5 dans le navigateur du médecin (sans installation)

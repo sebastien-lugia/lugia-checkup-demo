@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lugia & Co — Moteur WSF</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg:     #0a0c10;
+  --bg2:    #11151c;
+  --bg3:    #1a1f29;
+  --line:   #232934;
+  --txt:    #e6e9ef;
+  --txt2:   #8b94a3;
+  --txt3:   #4a5260;
+  --optimal:    #34d399;
+  --fonctionnel:#6ee7b7;
+  --degrade:    #fbbf24;
+  --risque:     #fb7185;
+  --bloque:     #ef4444;
+  --nondoc:     #6b7280;
+  --transfo:    #60a5fa;
+  --accent:     #818cf8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.header {
+  padding: 24px 36px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.h-title {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 900;
+}
+.h-title span { color: var(--accent); }
+.h-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--txt3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.sector-pick {
+  display: flex;
+  gap: 6px;
+  background: var(--bg2);
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+.sp-btn {
+  padding: 8px 16px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--txt3);
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+}
+.sp-btn.active { background: var(--bg3); color: var(--txt); border: 1px solid var(--line); }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  min-height: calc(100vh - 73px);
+}
+
+.canvas-area {
+  position: relative;
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(129,140,248,0.04) 0%, transparent 50%),
+    var(--bg);
+}
+
+.canvas-toolbar {
+  position: absolute;
+  top: 16px; left: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+
+.tool-chip {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 13px;
+  font-size: 11px;
+  color: var(--txt2);
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.2s;
+}
+.tool-chip:hover { border-color: var(--accent); color: var(--txt); }
+.tool-chip.active { background: var(--accent); color: #0a0c10; border-color: var(--accent); }
+
+#graph-svg { width: 100%; height: 100%; display: block; }
+
+.node-g { cursor: pointer; transition: opacity 0.3s; }
+.node-rect {
+  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+}
+.node-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  fill: var(--txt);
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.node-comp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  fill: var(--txt3);
+  pointer-events: none;
+  text-anchor: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.edge-path { transition: all 0.4s; fill: none; }
+.edge-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  fill: var(--txt3);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.impact-pulse {
+  animation: pulse 1.5s ease-out;
+}
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.node-impacted .node-rect {
+  stroke-width: 3 !important;
+}
+
+/* PANEL */
+.panel {
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--bg);
+  max-height: calc(100vh - 73px);
+}
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+.panel-section { margin-bottom: 28px; }
+
+.ps-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--txt3);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ps-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+/* Health radar */
+.health-global {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.hg-score {
+  font-family: 'Fraunces', serif;
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1;
+}
+.hg-label {
+  font-size: 11px;
+  color: var(--txt3);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 4px;
+}
+
+.health-bars { display: flex; flex-direction: column; gap: 9px; }
+.hb-row { display: flex; align-items: center; gap: 10px; }
+.hb-name {
+  font-size: 11px;
+  color: var(--txt2);
+  width: 95px;
+  flex-shrink: 0;
+}
+.hb-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.hb-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.hb-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--txt2);
+  width: 30px;
+  text-align: right;
+}
+
+/* Patterns */
+.pattern-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 5px 12px;
+  font-size: 11px;
+  color: var(--txt2);
+  margin: 0 4px 6px 0;
+}
+.pattern-chip .pd { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+/* Désalignements / chantiers */
+.misalign {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--risque);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.misalign:hover { border-color: var(--accent); border-left-color: var(--risque); transform: translateX(2px); }
+.misalign.degrade { border-left-color: var(--degrade); }
+.ma-title { font-size: 12px; font-weight: 600; color: var(--txt); margin-bottom: 3px; }
+.ma-desc { font-size: 10px; color: var(--txt3); line-height: 1.5; }
+.ma-sim {
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--optimal);
+}
+
+/* Simulation result */
+.sim-box {
+  background: var(--bg2);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 12px;
+  display: none;
+}
+.sim-box.visible { display: block; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.sim-title { font-size: 12px; font-weight: 600; margin-bottom: 10px; color: var(--accent); }
+.sim-chain { font-family: 'JetBrains Mono', monospace; font-size: 10px; line-height: 1.8; color: var(--txt2); }
+.sim-impact-pos { color: var(--optimal); }
+.sim-final {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--txt);
+}
+
+/* Legend */
+.legend-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.lg-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--txt3); }
+.lg-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+.hint {
+  font-size: 10px;
+  color: var(--txt3);
+  font-style: italic;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .canvas-area { height: 400px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="h-title">Lugia <span>&</span> Co — Moteur WSF</div>
+    <div class="h-sub">Work System Framework · Graphe vivant · Simulation causale</div>
+  </div>
+  <div class="sector-pick">
+    <button class="sp-btn active" onclick="loadSector('doctor')">Doctor</button>
+    <button class="sp-btn" onclick="loadSector('lawyer')">Lawyer</button>
+    <button class="sp-btn" onclick="loadSector('finance')">Finance</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="canvas-area">
+    <div class="canvas-toolbar">
+      <div class="tool-chip active" id="view-graph" onclick="setView('graph')">Graphe WSF</div>
+      <div class="tool-chip" id="view-mermaid" onclick="setView('mermaid')">Code Mermaid</div>
+      <div class="tool-chip" onclick="resetSim()">↺ Reset simulation</div>
+    </div>
+    <svg id="graph-svg" viewBox="0 0 760 620" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#4a5260"/>
+        </marker>
+        <marker id="ah-strong" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+          <path d="M0,0 L0,7 L8,3.5 z" fill="#818cf8"/>
+        </marker>
+      </defs>
+      <g id="edges-layer"></g>
+      <g id="nodes-layer"></g>
+    </svg>
+    <pre id="mermaid-view" style="display:none;position:absolute;inset:50px 16px 16px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:20px;overflow:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt2);line-height:1.6;"></pre>
+  </div>
+
+  <div class="panel">
+    <div class="panel-section">
+      <div class="ps-title">Santé du système</div>
+      <div class="health-global">
+        <div class="hg-score" id="health-score">—</div>
+        <div class="hg-label" id="health-label">score global pondéré</div>
+      </div>
+      <div class="health-bars" id="health-bars"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="ps-title">Patterns détectés</div>
+      <div id="patterns-list"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="ps-title">Désalignements → chantiers</div>
+      <div id="misalign-list"></div>
+      <div class="hint">Cliquez sur un désalignement pour simuler l'impact de sa résolution sur tout le système.</div>
+      <div class="sim-box" id="sim-box"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="ps-title">Légende — états</div>
+      <div class="legend-grid">
+        <div class="lg-item"><div class="lg-dot" style="background:var(--optimal)"></div>Optimal</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--fonctionnel)"></div>Fonctionnel</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--degrade)"></div>Dégradé</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--risque)"></div>À risque</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--bloque)"></div>Bloqué</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--nondoc)"></div>Non documenté</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// LE MOTEUR WSF (générique)
+// ════════════════════════════════════════════
+
+const ETAT_SCORE = {
+  OPTIMAL: 1.0, FONCTIONNEL: 0.8, DEGRADE: 0.5, A_RISQUE: 0.3,
+  NON_DOCUMENTE: 0.4, BLOQUE: 0.0, EN_TRANSFORMATION: 0.6, INACTIF: 0.5
+};
+const ETAT_COLOR = {
+  OPTIMAL: '#34d399', FONCTIONNEL: '#6ee7b7', DEGRADE: '#fbbf24',
+  A_RISQUE: '#fb7185', BLOQUE: '#ef4444', NON_DOCUMENTE: '#6b7280',
+  EN_TRANSFORMATION: '#60a5fa', INACTIF: '#6b7280'
+};
+const CRIT_POIDS = { CRITIQUE: 4, IMPORTANT: 3, STANDARD: 2, PERIPHERIQUE: 1 };
+const DELAI_FACTEUR = { IMMEDIAT: 1.0, COURT_TERME: 0.7, MOYEN_TERME: 0.4, LONG_TERME: 0.2 };
+const SEUIL = 0.05;
+
+// Magnitude d'amélioration (état actuel → OPTIMAL)
+function magnitudeVersOptimal(etat) {
+  const m = { BLOQUE: 1.0, A_RISQUE: 0.8, DEGRADE: 0.6, NON_DOCUMENTE: 0.6, FONCTIONNEL: 0.3, OPTIMAL: 0.0 };
+  return m[etat] || 0.4;
+}
+
+// Propagation causale
+function propager(graph, objetId, magnitude) {
+  const impacts = {};
+  const visites = new Set();
+  const file = [[objetId, magnitude]];
+
+  while (file.length) {
+    const [id, imp] = file.shift();
+    if (visites.has(id)) continue;
+    visites.add(id);
+
+    graph.edges.filter(e => e.source === id).forEach(e => {
+      const facteur = DELAI_FACTEUR[e.delai] || 0.5;
+      const impactCible = e.force * imp * facteur;
+      if (impactCible >= SEUIL) {
+        impacts[e.cible] = (impacts[e.cible] || 0) + impactCible;
+        const cible = graph.nodes.find(n => n.id === e.cible);
+        if (cible && cible.composante !== 'ENVIRONNEMENT') {
+          file.push([e.cible, impactCible]);
+        }
+      }
+    });
+  }
+  return impacts;
+}
+
+// Santé globale pondérée
+function santeGlobale(graph) {
+  let num = 0, den = 0;
+  graph.nodes.forEach(n => {
+    const poids = CRIT_POIDS[n.criticite] || 1;
+    num += poids * ETAT_SCORE[n.etat];
+    den += poids;
+  });
+  return den ? num / den : 0;
+}
+
+// Santé par composante
+function santeParComposante(graph) {
+  const comps = {};
+  graph.nodes.forEach(n => {
+    if (!comps[n.composante]) comps[n.composante] = { num: 0, den: 0 };
+    const poids = CRIT_POIDS[n.criticite] || 1;
+    comps[n.composante].num += poids * ETAT_SCORE[n.etat];
+    comps[n.composante].den += poids;
+  });
+  const result = {};
+  for (const [k, v] of Object.entries(comps)) result[k] = v.den ? v.num / v.den : 0;
+  return result;
+}
+
+// ════════════════════════════════════════════
+// DONNÉES SECTORIELLES (instanciation)
+// ════════════════════════════════════════════
+const SECTORS = {
+  doctor: {
+    nodes: [
+      { id:'med',   composante:'PARTICIPANT',   type:'ACTEUR',     label:'Médecin',        etat:'FONCTIONNEL', criticite:'CRITIQUE', x:380, y:70 },
+      { id:'sec',   composante:'PARTICIPANT',   type:'ACTEUR',     label:'Secrétaire',     etat:'FONCTIONNEL', criticite:'STANDARD', x:170, y:130 },
+      { id:'dpi',   composante:'TECHNOLOGIE',   type:'ENTITE',     label:'Logiciel DPI',   etat:'FONCTIONNEL', criticite:'IMPORTANT', x:570, y:160 },
+      { id:'ia',    composante:'TECHNOLOGIE',   type:'ENTITE',     label:'Outil IA',       etat:'A_RISQUE',    criticite:'IMPORTANT', x:380, y:230 },
+      { id:'pat',   composante:'INFORMATION',   type:'STOCK',      label:'Données patient',etat:'A_RISQUE',    criticite:'CRITIQUE', x:180, y:280, sensibilite:'CRITIQUE' },
+      { id:'cons',  composante:'PROCESSUS',     type:'ACTION',     label:'Consultation',   etat:'FONCTIONNEL', criticite:'CRITIQUE', x:400, y:360 },
+      { id:'redac', composante:'PROCESSUS',     type:'ACTION',     label:'Rédaction CR',   etat:'DEGRADE',     criticite:'IMPORTANT', x:600, y:340 },
+      { id:'rgpd',  composante:'ENVIRONNEMENT', type:'CONTRAINTE', label:'RGPD / AI Act',  etat:'A_RISQUE',    criticite:'CRITIQUE', x:170, y:430 },
+      { id:'cr',    composante:'PRODUIT',       type:'FLUX',       label:'Compte-rendu',   etat:'FONCTIONNEL', criticite:'IMPORTANT', x:560, y:470 },
+      { id:'patient',composante:'CLIENT',       type:'ACTEUR',     label:'Patient',        etat:'FONCTIONNEL', criticite:'CRITIQUE', x:380, y:550 },
+    ],
+    edges: [
+      { source:'med', cible:'dpi',  type:'UTILISE',  force:0.8, delai:'IMMEDIAT' },
+      { source:'med', cible:'ia',   type:'UTILISE',  force:0.6, delai:'IMMEDIAT' },
+      { source:'sec', cible:'dpi',  type:'UTILISE',  force:0.5, delai:'IMMEDIAT' },
+      { source:'dpi', cible:'pat',  type:'TRANSFORME',force:0.7, delai:'IMMEDIAT' },
+      { source:'ia',  cible:'pat',  type:'TRANSFORME',force:0.9, delai:'IMMEDIAT' },
+      { source:'pat', cible:'cons', type:'ALIMENTE', force:0.8, delai:'IMMEDIAT' },
+      { source:'med', cible:'cons', type:'UTILISE',  force:0.9, delai:'IMMEDIAT' },
+      { source:'cons',cible:'redac',type:'PRODUIT',  force:0.7, delai:'COURT_TERME' },
+      { source:'ia',  cible:'redac',type:'TRANSFORME',force:0.6, delai:'IMMEDIAT' },
+      { source:'redac',cible:'cr',  type:'PRODUIT',  force:0.8, delai:'COURT_TERME' },
+      { source:'cr',  cible:'patient',type:'DELIVRE',force:0.7, delai:'COURT_TERME' },
+      { source:'rgpd',cible:'ia',   type:'CONTRAINT',force:0.9, delai:'MOYEN_TERME' },
+      { source:'rgpd',cible:'pat',  type:'CONTRAINT',force:0.8, delai:'MOYEN_TERME' },
+    ],
+    patterns: ['Validation humaine', 'Flux de traitement', 'Conformité contrainte', 'Protection données'],
+    misalign: [
+      { id:'ia', title:'Outil IA exposé', desc:'Données patient envoyées sans protection. Contrainte RGPD non satisfaite.', etat:'A_RISQUE' },
+      { id:'pat', title:'Données patient non protégées', desc:'Information critique sortant du système sans tokenisation (règle R5).', etat:'A_RISQUE' },
+      { id:'redac', title:'Rédaction CR dégradée', desc:'Processus lent, manuel, chronophage. Goulot d\'étranglement détecté.', etat:'DEGRADE' },
+    ]
+  },
+  lawyer: {
+    nodes: [
+      { id:'avo',   composante:'PARTICIPANT',   type:'ACTEUR',     label:'Avocat',         etat:'FONCTIONNEL', criticite:'CRITIQUE', x:380, y:70 },
+      { id:'collab',composante:'PARTICIPANT',   type:'ACTEUR',     label:'Collaborateur',  etat:'FONCTIONNEL', criticite:'STANDARD', x:170, y:130 },
+      { id:'rpva',  composante:'TECHNOLOGIE',   type:'ENTITE',     label:'Logiciel cabinet',etat:'FONCTIONNEL',criticite:'IMPORTANT', x:570, y:160 },
+      { id:'ia',    composante:'TECHNOLOGIE',   type:'ENTITE',     label:'IA juridique',   etat:'A_RISQUE',    criticite:'IMPORTANT', x:380, y:230 },
+      { id:'dossier',composante:'INFORMATION',  type:'STOCK',      label:'Dossier client', etat:'A_RISQUE',    criticite:'CRITIQUE', x:180, y:280, sensibilite:'CRITIQUE' },
+      { id:'analyse',composante:'PROCESSUS',    type:'ACTION',     label:'Analyse juridique',etat:'FONCTIONNEL',criticite:'CRITIQUE', x:400, y:360 },
+      { id:'redac', composante:'PROCESSUS',     type:'ACTION',     label:'Rédaction actes',etat:'DEGRADE',     criticite:'IMPORTANT', x:600, y:340 },
+      { id:'secret',composante:'ENVIRONNEMENT', type:'CONTRAINTE', label:'Secret pro / RGPD',etat:'A_RISQUE',  criticite:'CRITIQUE', x:170, y:430 },
+      { id:'conclu',composante:'PRODUIT',       type:'FLUX',       label:'Conclusions',    etat:'FONCTIONNEL', criticite:'IMPORTANT', x:560, y:470 },
+      { id:'client',composante:'CLIENT',        type:'ACTEUR',     label:'Client',         etat:'FONCTIONNEL', criticite:'CRITIQUE', x:380, y:550 },
+    ],
+    edges: [
+      { source:'avo', cible:'rpva', type:'UTILISE',  force:0.8, delai:'IMMEDIAT' },
+      { source:'avo', cible:'ia',   type:'UTILISE',  force:0.6, delai:'IMMEDIAT' },
+      { source:'collab',cible:'rpva',type:'UTILISE', force:0.5, delai:'IMMEDIAT' },
+      { source:'rpva',cible:'dossier',type:'TRANSFORME',force:0.7,delai:'IMMEDIAT' },
+      { source:'ia',  cible:'dossier',type:'TRANSFORME',force:0.9,delai:'IMMEDIAT' },
+      { source:'dossier',cible:'analyse',type:'ALIMENTE',force:0.8,delai:'IMMEDIAT' },
+      { source:'avo', cible:'analyse',type:'UTILISE', force:0.9, delai:'IMMEDIAT' },
+      { source:'analyse',cible:'redac',type:'PRODUIT',force:0.7, delai:'COURT_TERME' },
+      { source:'ia',  cible:'redac',type:'TRANSFORME',force:0.6, delai:'IMMEDIAT' },
+      { source:'redac',cible:'conclu',type:'PRODUIT', force:0.8, delai:'COURT_TERME' },
+      { source:'conclu',cible:'client',type:'DELIVRE',force:0.7, delai:'COURT_TERME' },
+      { source:'secret',cible:'ia',  type:'CONTRAINT',force:0.9, delai:'MOYEN_TERME' },
+      { source:'secret',cible:'dossier',type:'CONTRAINT',force:0.8,delai:'MOYEN_TERME' },
+    ],
+    patterns: ['Validation humaine', 'Flux de traitement', 'Conformité contrainte', 'Protection données'],
+    misalign: [
+      { id:'ia', title:'IA juridique exposée', desc:'Dossiers clients soumis à une IA sans cadre. Secret professionnel menacé.', etat:'A_RISQUE' },
+      { id:'dossier', title:'Dossier client non protégé', desc:'Information couverte par le secret professionnel sortant sans protection.', etat:'A_RISQUE' },
+      { id:'redac', title:'Rédaction d\'actes dégradée', desc:'Processus chronophage. Même pattern goulot que dans la santé.', etat:'DEGRADE' },
+    ]
+  },
+  finance: {
+    nodes: [
+      { id:'cgp',   composante:'PARTICIPANT',   type:'ACTEUR',     label:'CGP',            etat:'FONCTIONNEL', criticite:'CRITIQUE', x:380, y:70 },
+      { id:'assist',composante:'PARTICIPANT',   type:'ACTEUR',     label:'Assistant',      etat:'FONCTIONNEL', criticite:'STANDARD', x:170, y:130 },
+      { id:'crm',   composante:'TECHNOLOGIE',   type:'ENTITE',     label:'CRM patrimoine', etat:'FONCTIONNEL', criticite:'IMPORTANT', x:570, y:160 },
+      { id:'ia',    composante:'TECHNOLOGIE',   type:'ENTITE',     label:'IA conseil',     etat:'A_RISQUE',    criticite:'IMPORTANT', x:380, y:230 },
+      { id:'patrim',composante:'INFORMATION',   type:'STOCK',      label:'Données patrim.',etat:'A_RISQUE',    criticite:'CRITIQUE', x:180, y:280, sensibilite:'CRITIQUE' },
+      { id:'bilan', composante:'PROCESSUS',     type:'ACTION',     label:'Bilan patrim.',  etat:'FONCTIONNEL', criticite:'CRITIQUE', x:400, y:360 },
+      { id:'reco',  composante:'PROCESSUS',     type:'ACTION',     label:'Recommandation', etat:'DEGRADE',     criticite:'IMPORTANT', x:600, y:340 },
+      { id:'mif',   composante:'ENVIRONNEMENT', type:'CONTRAINTE', label:'MIF2 / DORA / RGPD',etat:'A_RISQUE',criticite:'CRITIQUE', x:170, y:430 },
+      { id:'rapport',composante:'PRODUIT',      type:'FLUX',       label:'Rapport conseil',etat:'FONCTIONNEL', criticite:'IMPORTANT', x:560, y:470 },
+      { id:'client',composante:'CLIENT',        type:'ACTEUR',     label:'Épargnant',      etat:'FONCTIONNEL', criticite:'CRITIQUE', x:380, y:550 },
+    ],
+    edges: [
+      { source:'cgp', cible:'crm',  type:'UTILISE',  force:0.8, delai:'IMMEDIAT' },
+      { source:'cgp', cible:'ia',   type:'UTILISE',  force:0.6, delai:'IMMEDIAT' },
+      { source:'assist',cible:'crm',type:'UTILISE',  force:0.5, delai:'IMMEDIAT' },
+      { source:'crm', cible:'patrim',type:'TRANSFORME',force:0.7,delai:'IMMEDIAT' },
+      { source:'ia',  cible:'patrim',type:'TRANSFORME',force:0.9,delai:'IMMEDIAT' },
+      { source:'patrim',cible:'bilan',type:'ALIMENTE',force:0.8,delai:'IMMEDIAT' },
+      { source:'cgp', cible:'bilan',type:'UTILISE',  force:0.9, delai:'IMMEDIAT' },
+      { source:'bilan',cible:'reco',type:'PRODUIT',  force:0.7, delai:'COURT_TERME' },
+      { source:'ia',  cible:'reco', type:'TRANSFORME',force:0.6, delai:'IMMEDIAT' },
+      { source:'reco',cible:'rapport',type:'PRODUIT',force:0.8, delai:'COURT_TERME' },
+      { source:'rapport',cible:'client',type:'DELIVRE',force:0.7,delai:'COURT_TERME' },
+      { source:'mif', cible:'ia',   type:'CONTRAINT',force:0.9, delai:'MOYEN_TERME' },
+      { source:'mif', cible:'patrim',type:'CONTRAINT',force:0.8, delai:'MOYEN_TERME' },
+    ],
+    patterns: ['Validation humaine', 'Flux de traitement', 'Conformité contrainte', 'Protection données'],
+    misalign: [
+      { id:'ia', title:'IA conseil exposée', desc:'Données patrimoniales soumises à une IA sans cadre MIF2/RGPD.', etat:'A_RISQUE' },
+      { id:'patrim', title:'Données patrimoniales non protégées', desc:'Information financière sensible sortant sans protection.', etat:'A_RISQUE' },
+      { id:'reco', title:'Recommandation dégradée', desc:'Processus manuel chronophage. Pattern goulot identique aux autres secteurs.', etat:'DEGRADE' },
+    ]
+  }
+};
+
+const COMP_LABELS = {
+  PARTICIPANT:'Participants', INFORMATION:'Information', TECHNOLOGIE:'Technologies',
+  PROCESSUS:'Processus', INFRASTRUCTURE:'Infrastructure', STRATEGIE:'Stratégies',
+  ENVIRONNEMENT:'Environnement', PRODUIT:'Produits', CLIENT:'Clients'
+};
+
+// ════════════════════════════════════════════
+// RENDU
+// ════════════════════════════════════════════
+let currentSector = 'doctor';
+let currentGraph = null;
+let currentView = 'graph';
+
+function loadSector(s) {
+  currentSector = s;
+  currentGraph = JSON.parse(JSON.stringify(SECTORS[s]));
+  document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('active'));
+  event && event.target && event.target.classList.add('active');
+  // fix active
+  document.querySelectorAll('.sp-btn').forEach(b => {
+    if (b.textContent.toLowerCase() === s) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  renderGraph();
+  renderHealth();
+  renderPatterns();
+  renderMisalign();
+  document.getElementById('sim-box').classList.remove('visible');
+}
+
+function nodeShape(type) {
+  // returns {rx for rounding}
+  return type === 'ACTION' ? 18 : type === 'DECISION' ? 0 : 8;
+}
+
+function renderGraph() {
+  const g = currentGraph;
+  const edgesL = document.getElementById('edges-layer');
+  const nodesL = document.getElementById('nodes-layer');
+  edgesL.innerHTML = '';
+  nodesL.innerHTML = '';
+
+  // Edges
+  g.edges.forEach(e => {
+    const s = g.nodes.find(n => n.id === e.source);
+    const t = g.nodes.find(n => n.id === e.cible);
+    if (!s || !t) return;
+
+    const strong = e.force >= 0.7;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const mx = (s.x + t.x) / 2;
+    const my = (s.y + t.y) / 2;
+    const curve = (s.x - t.x) * 0.15;
+    path.setAttribute('d', `M${s.x},${s.y} Q${mx+curve},${my} ${t.x},${t.y}`);
+    path.setAttribute('class', 'edge-path');
+    path.setAttribute('stroke', strong ? '#818cf8' : '#2a3340');
+    path.setAttribute('stroke-width', strong ? 2 : 1.2);
+    if (e.type === 'CONTRAINT') path.setAttribute('stroke-dasharray', '4 3');
+    path.setAttribute('marker-end', strong ? 'url(#ah-strong)' : 'url(#ah)');
+    path.setAttribute('opacity', e.type === 'CONTRAINT' ? 0.5 : 0.7);
+    path.id = `edge-${e.source}-${e.cible}`;
+    edgesL.appendChild(path);
+
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x', mx + curve*0.5);
+    lbl.setAttribute('y', my - 4);
+    lbl.setAttribute('class', 'edge-label');
+    lbl.textContent = e.type.toLowerCase();
+    edgesL.appendChild(lbl);
+  });
+
+  // Nodes
+  g.nodes.forEach(n => {
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.setAttribute('class', 'node-g');
+    grp.id = `node-${n.id}`;
+
+    const w = 96, h = 42;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', n.x - w/2);
+    rect.setAttribute('y', n.y - h/2);
+    rect.setAttribute('width', w);
+    rect.setAttribute('height', h);
+    rect.setAttribute('rx', nodeShape(n.type));
+    rect.setAttribute('class', 'node-rect');
+    rect.setAttribute('fill', '#11151c');
+    rect.setAttribute('stroke', ETAT_COLOR[n.etat]);
+    rect.setAttribute('stroke-width', n.criticite === 'CRITIQUE' ? 2 : 1.3);
+    grp.appendChild(rect);
+
+    const comp = document.createElementNS('http://www.w3.org/2000/svg','text');
+    comp.setAttribute('x', n.x);
+    comp.setAttribute('y', n.y - 9);
+    comp.setAttribute('class', 'node-comp');
+    comp.textContent = n.composante;
+    grp.appendChild(comp);
+
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x', n.x);
+    lbl.setAttribute('y', n.y + 5);
+    lbl.setAttribute('class', 'node-label');
+    lbl.textContent = n.label;
+    grp.appendChild(lbl);
+
+    nodesL.appendChild(grp);
+  });
+}
+
+function renderHealth() {
+  const g = currentGraph;
+  const global = santeGlobale(g);
+  const scoreEl = document.getElementById('health-score');
+  scoreEl.textContent = Math.round(global * 100);
+  scoreEl.style.color = global >= 0.7 ? 'var(--optimal)' : global >= 0.5 ? 'var(--degrade)' : 'var(--risque)';
+
+  const byComp = santeParComposante(g);
+  const order = ['PARTICIPANT','INFORMATION','TECHNOLOGIE','PROCESSUS','ENVIRONNEMENT','PRODUIT','CLIENT'];
+  document.getElementById('health-bars').innerHTML = order
+    .filter(c => byComp[c] !== undefined)
+    .map(c => {
+      const v = byComp[c];
+      const color = v >= 0.7 ? 'var(--optimal)' : v >= 0.5 ? 'var(--degrade)' : 'var(--risque)';
+      return `<div class="hb-row">
+        <div class="hb-name">${COMP_LABELS[c]}</div>
+        <div class="hb-track"><div class="hb-fill" style="width:${v*100}%;background:${color}"></div></div>
+        <div class="hb-val">${v.toFixed(2)}</div>
+      </div>`;
+    }).join('');
+}
+
+function renderPatterns() {
+  document.getElementById('patterns-list').innerHTML = currentGraph.patterns
+    .map(p => `<span class="pattern-chip"><span class="pd"></span>${p}</span>`).join('');
+}
+
+function renderMisalign() {
+  document.getElementById('misalign-list').innerHTML = currentGraph.misalign
+    .map(m => `<div class="misalign ${m.etat === 'DEGRADE' ? 'degrade' : ''}" onclick="simulate('${m.id}','${m.title.replace(/'/g,"\\'")}')">
+      <div class="ma-title">${m.title}</div>
+      <div class="ma-desc">${m.desc}</div>
+    </div>`).join('');
+}
+
+function simulate(objetId, title) {
+  const g = currentGraph;
+  const node = g.nodes.find(n => n.id === objetId);
+  const mag = magnitudeVersOptimal(node.etat);
+  const impacts = propager(g, objetId, mag);
+
+  // Highlight
+  document.querySelectorAll('.node-g').forEach(el => el.classList.remove('node-impacted'));
+  document.querySelectorAll('.edge-path').forEach(el => el.style.opacity = '0.15');
+
+  const srcEl = document.getElementById(`node-${objetId}`);
+  if (srcEl) {
+    srcEl.classList.add('node-impacted');
+    srcEl.querySelector('.node-rect').setAttribute('stroke', '#818cf8');
+  }
+
+  const sorted = Object.entries(impacts).sort((a,b) => b[1]-a[1]);
+  sorted.forEach(([id]) => {
+    const el = document.getElementById(`node-${id}`);
+    if (el) {
+      el.classList.add('node-impacted', 'impact-pulse');
+      const edge = document.getElementById(`edge-${objetId}-${id}`);
+    }
+    // Light up edges on impacted path
+    g.edges.forEach(e => {
+      if (impacts[e.cible] && (e.source === objetId || impacts[e.source])) {
+        const ep = document.getElementById(`edge-${e.source}-${e.cible}`);
+        if (ep) ep.style.opacity = '0.9';
+      }
+    });
+  });
+
+  // Impact sur outputs et clients
+  const outputs = g.nodes.filter(n => n.composante === 'PRODUIT');
+  const clients = g.nodes.filter(n => n.composante === 'CLIENT');
+  const impactOutput = outputs.reduce((s,n) => s + (impacts[n.id]||0), 0);
+  const impactClient = clients.reduce((s,n) => s + (impacts[n.id]||0), 0);
+
+  // Chaîne
+  const chainHtml = sorted.slice(0, 5).map(([id, imp]) => {
+    const n = g.nodes.find(x => x.id === id);
+    const bar = '▰'.repeat(Math.max(1, Math.round(imp * 8)));
+    return `<div><span class="sim-impact-pos">${bar}</span> ${n.label} <span style="color:var(--txt3)">+${(imp*100).toFixed(0)}%</span></div>`;
+  }).join('');
+
+  const box = document.getElementById('sim-box');
+  box.innerHTML = `
+    <div class="sim-title">⚡ Simulation : résoudre "${title}"</div>
+    <div style="font-size:10px;color:var(--txt3);margin-bottom:10px;font-family:'JetBrains Mono',monospace">
+      ${node.label} : ${node.etat} → OPTIMAL · propagation dans le graphe
+    </div>
+    <div class="sim-chain">${chainHtml}</div>
+    <div class="sim-final">
+      Impact agrégé sur les <strong style="color:var(--optimal)">produits</strong> : +${(impactOutput*100).toFixed(0)}%<br>
+      Impact agrégé sur les <strong style="color:var(--optimal)">clients</strong> : +${(impactClient*100).toFixed(0)}%
+    </div>
+  `;
+  box.classList.add('visible');
+}
+
+function resetSim() {
+  document.querySelectorAll('.node-g').forEach(el => el.classList.remove('node-impacted','impact-pulse'));
+  document.querySelectorAll('.edge-path').forEach(el => el.style.opacity = '');
+  document.getElementById('sim-box').classList.remove('visible');
+  renderGraph();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('view-graph').classList.toggle('active', v === 'graph');
+  document.getElementById('view-mermaid').classList.toggle('active', v === 'mermaid');
+  document.getElementById('graph-svg').style.display = v === 'graph' ? 'block' : 'none';
+  document.getElementById('mermaid-view').style.display = v === 'mermaid' ? 'block' : 'none';
+  if (v === 'mermaid') renderMermaid();
+}
+
+function renderMermaid() {
+  const g = currentGraph;
+  let code = 'flowchart TB\n';
+  const shapes = { ACTEUR:['[',']'], ENTITE:['[',']'], STOCK:['[(',')]'], ACTION:['(',')'], DECISION:['{','}'], FLUX:['[/','/]'], CONTRAINTE:['[\\','\\]'], FRONTIERE:['((','))'] };
+  g.nodes.forEach(n => {
+    const [o,c] = shapes[n.type] || ['[',']'];
+    code += `    ${n.id}${o}"${n.label}"${c}:::${n.etat.toLowerCase()}\n`;
+  });
+  code += '\n';
+  g.edges.forEach(e => {
+    const arrow = e.force >= 0.7 ? '==>' : e.type === 'CONTRAINT' ? '-.->': '-->';
+    code += `    ${e.source} ${arrow}|${e.type.toLowerCase()}| ${e.cible}\n`;
+  });
+  code += '\n';
+  Object.entries(ETAT_COLOR).forEach(([etat,col]) => {
+    code += `    classDef ${etat.toLowerCase()} fill:#11151c,stroke:${col},color:#e6e9ef\n`;
+  });
+  document.getElementById('mermaid-view').textContent = code;
+}
+
+// Init
+loadSector('doctor');
+</script>
+</body>
+</html>

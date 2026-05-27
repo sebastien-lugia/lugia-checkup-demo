@@ -29,7 +29,7 @@ except ImportError:
 
 # Limite produit : 20 questions max par conversation (sécurité au cas où
 # le modèle ne ferme pas en phase 5).
-MAX_USER_MESSAGES = 20
+MAX_USER_MESSAGES = 10
 
 # Identifiants modèles par provider
 ANTHROPIC_MODEL_ID = "claude-haiku-4-5-20251001"
@@ -104,51 +104,105 @@ def _build_system_prompt(
         if parts:
             scores_txt = "SCORES DU CHECK-UP :\n" + "\n".join(parts) + "\n"
 
-    # Instructions specifiques au tour courant — c'est la cle de la refonte.
-    # On clamp turn_number a [1, 5] pour eviter tout debordement.
-    t = max(1, min(5, turn_number))
+    # Mecanique longue (~20 tours) : exploration WSF approfondie puis synthese.
+    # 4 phases basees sur le numero de tour. La synthese (plan + schema + cloture)
+    # n'arrive qu'a la fin (tour >= SYNTHESE_TOUR) OU si le medecin demande
+    # explicitement a conclure (le LLM le detecte et passe en synthese).
+    SYNTHESE_TOUR = 10
+    t = max(1, turn_number)
 
     if t == 1:
         turn_instruction = (
             "Ce message-ci est le tout premier echange. Le medecin vient de "
             "cliquer sur ce chantier — il n'a encore rien dit de specifique.\n"
             "  - Salue brievement (1 phrase max).\n"
-            "  - Pose UNE question ouverte concrete sur son quotidien face a ce chantier.\n"
-            "  - Pas de plan d'action a ce stade.\n"
-            "  - Inclus 3 suggestions de reponse via SUGG_JSON."
+            "  - Explique en 1 phrase que tu vas lui poser quelques questions "
+            "pour bien comprendre comment ca se passe concretement chez lui.\n"
+            "  - Pose UNE premiere question ouverte tres concrete sur son "
+            "quotidien face a ce chantier.\n"
+            "  - Pas de plan d'action, pas de schema a ce stade.\n"
+            "  - OBLIGATOIRE : termine ton message par un bloc SUGG_JSON contenant "
+            "EXACTEMENT 3 reponses possibles du medecin a ta question, en francais, "
+            "a la premiere personne, courtes (max 12 mots). Ne termine jamais ce "
+            "premier message sans ce bloc.\n"
+            "    Exemple de format : "
+            "SUGG_JSON:{\"items\":[\"L'interface est peu pratique\",\"On fait beaucoup d'erreurs de saisie\",\"Il manque des fonctions essentielles\"]}"
         )
-    elif t in (2, 3):
+    elif t < SYNTHESE_TOUR - 1:
+        # Phase d'exploration WSF — le coeur de la conversation longue.
         turn_instruction = (
-            "Le medecin vient de te repondre. C'est le moment de creuser.\n"
-            "  - Reformule en UNE phrase ce que tu comprends de sa reponse.\n"
-            "  - Pose UNE question de creusement plus precise (cause racine, "
-            "contrainte du quotidien, ressource a sa disposition).\n"
-            "  - Pas encore de plan d'action.\n"
-            "  - Inclus 3 suggestions de reponse via SUGG_JSON."
+            "Tu es en phase d'EXPLORATION. Ton but : cartographier finement le "
+            "systeme de travail reel autour de ce chantier, une question a la "
+            "fois, comme un confrere curieux qui veut vraiment comprendre.\n"
+            "  - Reformule en UNE phrase ce que tu retiens de sa derniere reponse.\n"
+            "  - Pose UNE seule nouvelle question qui creuse une dimension encore "
+            "non exploree. Varie les angles au fil des tours, parmi :\n"
+            "      . QUI intervient (medecin, secretaire, remplacant, externes)\n"
+            "      . QUELS OUTILS sont utilises (logiciel, papier, IA, telephone)\n"
+            "      . QUELLES INFORMATIONS circulent et ou elles sont stockees\n"
+            "      . COMMENT le processus se deroule vraiment (vs la theorie)\n"
+            "      . QUELS IRRITANTS, blocages, lenteurs, taches penibles\n"
+            "      . QUELLES DEPENDANCES critiques (que se passe-t-il si X absent)\n"
+            "      . QUELS CAS PARTICULIERS / exceptions / urgences\n"
+            "      . COMBIEN DE TEMPS ca prend, a quelle frequence\n"
+            "  - Ne repose jamais une question deja posee. Approfondis ce qui est "
+            "encore flou.\n"
+            "  - Ne propose NI plan d'action, NI schema a ce stade.\n"
+            "  - Inclus 3 suggestions de reponse plausibles via SUGG_JSON.\n"
+            "  - EXCEPTION : si le medecin demande explicitement un plan, des "
+            "actions, ou de conclure, passe directement en SYNTHESE (voir plus bas)."
         )
-    elif t == 4:
+    elif t < SYNTHESE_TOUR:
+        # Pre-synthese — on resserre, on signale qu'on approche de la fin.
         turn_instruction = (
-            "Tu as assez de matiere pour proposer un plan d'action concret.\n"
-            "  - Recapitule en UNE phrase ce qui ressort de l'echange.\n"
-            "  - Propose un plan d'action en 3 ou 4 etapes via PLAN_JSON.\n"
-            "  - Termine par une question type \"par quoi commenceriez-vous "
-            "concretement cette semaine ?\".\n"
-            "  - Inclus 3 suggestions correspondant aux etapes via SUGG_JSON."
+            "Tu approches de la fin de l'exploration. Tu as deja beaucoup de "
+            "matiere.\n"
+            "  - Reformule en UNE phrase ce que tu retiens.\n"
+            "  - Pose UNE derniere question pour lever un dernier point flou, OU "
+            "si tu estimes avoir assez compris, propose de passer a la synthese "
+            "(demande au medecin s'il veut que tu recapitules et proposes un plan).\n"
+            "  - Inclus 3 suggestions via SUGG_JSON, dont une qui permet de "
+            "declencher la synthese (ex : \"Oui, fais-moi la synthese\")."
         )
-    else:  # t == 5
+    else:
+        # Synthese finale — plan + schema enrichi + cloture, tout d'un coup.
         turn_instruction = (
-            "C'est le moment de cloturer la conversation.\n"
-            "  - Court message d'encouragement personnalise (2 phrases max) "
-            "sur le chantier qu'il a creuse.\n"
-            "  - Mentionne que Sebastien peut l'accompagner via Calendly s'il "
-            "veut aller plus loin.\n"
-            "  - N'INCLUS PAS de SUGG_JSON ni PLAN_JSON.\n"
-            "  - NE POSE PAS de question dans ce dernier message.\n"
-            "  - Termine OBLIGATOIREMENT ton message par cette ligne exacte :\n"
-            "    END_CONVERSATION:true"
+            "C'est le moment de la SYNTHESE FINALE. Tu as explore en profondeur "
+            "le systeme de travail autour de ce chantier.\n"
+            "  - COMMENCE OBLIGATOIREMENT ton message par un recap en PROSE de "
+            "2-3 phrases (texte normal, AVANT tout bloc JSON) : les irritants "
+            "principaux et les leviers identifies pendant l'echange. Ne saute "
+            "jamais ce paragraphe et n'enchaine pas directement sur PLAN_JSON.\n"
+            "  - Propose un plan d'action PRIORISE en 3 a 5 etapes via PLAN_JSON "
+            "(de l'action la plus rapide a la plus structurante).\n"
+            "  - Produis un schema ENRICHI du systeme de travail via MERMAID_JSON "
+            "(6 a 8 noeuds), en marquant en etat DEGRADE / A_RISQUE / NON_DOCUMENTE "
+            "les points faibles que la conversation a reveles.\n"
+            "  - Mentionne que Sebastien peut accompagner la mise en place via "
+            "Calendly si le medecin veut aller plus loin.\n"
+            "  - NE POSE PAS de nouvelle question.\n"
+            "  - N'inclus PAS de SUGG_JSON dans ce message final.\n"
+            "  - Termine OBLIGATOIREMENT par la ligne exacte : END_CONVERSATION:true"
         )
 
-    return f"""Tu es un expert en organisation des cabinets de medecine generale liberale. Tu parles comme un confrere experimente — pas comme un consultant. Approche terrain, directe et bienveillante.
+    # Note pour le LLM : la synthese peut aussi etre declenchee avant le tour 20
+    # si le medecin la demande. Dans ce cas le LLM produit directement
+    # PLAN_JSON + MERMAID_JSON + END_CONVERSATION meme si t < SYNTHESE_TOUR.
+    synthese_anticipee = (
+        "\n\nNOTE : si a n'importe quel moment le medecin demande explicitement "
+        "un plan d'action, des recommandations, ou de conclure la discussion, tu "
+        "produis IMMEDIATEMENT la synthese finale (PLAN_JSON + MERMAID_JSON + "
+        "END_CONVERSATION:true), meme si l'exploration n'est pas terminee."
+    )
+    turn_instruction = turn_instruction + synthese_anticipee
+
+    return f"""LANGUE : tu reponds TOUJOURS et EXCLUSIVEMENT en francais. Chaque mot \
+de chaque message, y compris les suggestions (SUGG_JSON), le plan d'action \
+(PLAN_JSON) et tous les labels du schema (MERMAID_JSON), doit etre en francais. \
+N'utilise JAMAIS le chinois, l'anglais ni aucune autre langue, meme dans les \
+valeurs JSON.
+
+Tu es un expert en organisation des cabinets de medecine generale liberale. Tu parles comme un confrere experimente — pas comme un consultant. Approche terrain, directe et bienveillante.
 
 {profil_txt}{scores_txt}
 CHANTIER CHOISI PAR LE MEDECIN : "{label}"
@@ -165,6 +219,7 @@ CONSIGNES POUR CE TOUR :
 {turn_instruction}
 
 REGLES ABSOLUES (toujours) :
+- Reponds uniquement en francais (texte ET contenu des blocs JSON). Jamais un autre alphabet.
 - Aucun conseil medical, clinique ou therapeutique. Sujet = organisation seulement.
 - Aucune donnee patient identifiable. Si le medecin en mentionne, recadre vers le systeme.
 - Jamais de jargon consulting (« leverage », « best practice », « excellence operationnelle »).
@@ -178,19 +233,33 @@ FORMAT TECHNIQUE (extremement important) :
 - N'ecris JAMAIS les mots « TOUR 1 », « TOUR 2 », etc. dans ton message.
 - Ne decris JAMAIS la structure de la conversation au medecin.
 - Le bloc SUGG_JSON doit etre sur UNE SEULE LIGNE et avoir EXACTEMENT 3 items courts (max 12 mots chacun, a la premiere personne, plausibles comme reponse du medecin) :
-  SUGG_JSON:{{"items":["option 1","option 2","option 3"]}}
-- Le bloc PLAN_JSON (tour 4 uniquement) doit etre sur UNE SEULE LIGNE :
+  SUGG_JSON:{{"items":["option 1","option 2","option 3"]}}  (items en francais)
+- Le bloc PLAN_JSON (SYNTHESE finale uniquement) doit etre sur UNE SEULE LIGNE :
   PLAN_JSON:{{"steps":[{{"num":"01","title":"...","body":"...","tag":"quick"}},{{"num":"02","title":"...","body":"...","tag":"medium"}}]}}
 - Tags valides pour les steps : "quick" / "medium" / "invest"
-- Pour signaler la fin (tour 5 UNIQUEMENT) : la ligne exacte END_CONVERSATION:true"""
+- Le bloc MERMAID_JSON (SYNTHESE finale uniquement) doit etre sur UNE SEULE LIGNE et representer le systeme de travail (graphe WSF). 6 a 8 noeuds maximum.
+  Format STRICT : MERMAID_JSON:{{"titre":"...","nodes":[{{"id":"x","composante":"PARTICIPANT","type":"ACTEUR","label":"...","etat":"FONCTIONNEL","criticite":"IMPORTANT"}}],"edges":[{{"id":"e1","source":"x","cible":"y","type":"UTILISE","force":0.7,"delai":"IMMEDIAT"}}]}}
+  - composante (obligatoire) : PARTICIPANT | INFORMATION | TECHNOLOGIE | PROCESSUS | INFRASTRUCTURE | STRATEGIE | ENVIRONNEMENT | PRODUIT | CLIENT
+  - type (obligatoire) : ACTEUR | ENTITE | STOCK | ACTION | DECISION | FLUX | CONTRAINTE | FRONTIERE
+  - etat (obligatoire) : OPTIMAL | FONCTIONNEL | DEGRADE | A_RISQUE | BLOQUE | NON_DOCUMENTE | EN_TRANSFORMATION | INACTIF
+  - criticite (obligatoire) : CRITIQUE | IMPORTANT | STANDARD | PERIPHERIQUE
+  - type de liaison : UTILISE | PRODUIT | CONSOMME | TRANSFORME | CONTRAINT | SUPPORTE | ALIMENTE | DELIVRE | ORIENTE
+  - force : nombre entre 0.0 et 1.0
+  - delai : IMMEDIAT | COURT_TERME | MOYEN_TERME | LONG_TERME
+  - Identifie 1 ou 2 noeuds en etat DEGRADE ou A_RISQUE pour faire ressortir le point d'attention du chantier
+- Pour signaler la fin (SYNTHESE finale UNIQUEMENT) : la ligne exacte END_CONVERSATION:true"""
 
 
 # ─── Parsing de la réponse Claude ──────────────────────────────────────────
 
 
-_RE_END = re.compile(r"END_CONVERSATION\s*:\s*true", re.IGNORECASE)
+_RE_END = re.compile(r"END_CONVERSATION\s*:\s*(true|false)", re.IGNORECASE)
 _RE_PLAN = re.compile(r"PLAN_JSON:\s*(\{.*?\}\s*\]\s*\}|\{.*?\})", re.DOTALL)
 _RE_SUGG = re.compile(r"SUGG_JSON:\s*(\{[^}]+\})", re.DOTALL)
+# Le MERMAID_JSON contient nodes:[{...}] et edges:[{...}] — la regex doit
+# pouvoir matcher des objets imbriques. On capture jusqu'au }] }] de
+# fermeture du dernier array, puis le } final.
+_RE_MERMAID = re.compile(r"MERMAID_JSON:\s*(\{[\s\S]*?\}\s*\]\s*\})", re.DOTALL)
 # Bug fix 2026-05-23 : qwen2.5:3b a parfois appris (à tort) à imiter
 # notre suffixe interne `__LUGIA_META__:{...}` qui sert à la persistance
 # BDD. On le strippe defensivement de la sortie du LLM pour qu'il
@@ -215,9 +284,12 @@ def parse_assistant_reply(raw: str) -> dict[str, Any]:
     suggestions: Optional[list[str]] = None
     ended = False
 
-    # END_CONVERSATION
-    if _RE_END.search(text):
-        ended = True
+    # END_CONVERSATION (true OU false — on strippe le marker dans les deux cas,
+    # ended=True uniquement si la valeur est 'true'). Les petits modeles ecrivent
+    # souvent END_CONVERSATION:false par mimetisme — il ne doit jamais s'afficher.
+    m_end = _RE_END.search(text)
+    if m_end:
+        ended = m_end.group(1).lower() == "true"
         text = _RE_END.sub("", text)
 
     # PLAN_JSON
@@ -246,6 +318,20 @@ def parse_assistant_reply(raw: str) -> dict[str, Any]:
         except Exception:
             pass
 
+    # MERMAID_JSON (tour 4 — graphe WSF du chantier)
+    m_mermaid = _RE_MERMAID.search(text)
+    mermaid_graph: Optional[dict[str, Any]] = None
+    if m_mermaid:
+        try:
+            raw_mermaid = m_mermaid.group(1).replace("\n", " ")
+            obj = json.loads(raw_mermaid)
+            # Validation minimale : nodes et edges doivent etre des listes
+            if isinstance(obj, dict) and isinstance(obj.get("nodes"), list) and isinstance(obj.get("edges"), list):
+                mermaid_graph = obj
+            text = text.replace(m_mermaid.group(0), "").strip()
+        except Exception:
+            pass
+
     # Strip defensif du suffixe __LUGIA_META__ que qwen mime parfois
     text = _RE_META.sub("", text)
 
@@ -254,6 +340,7 @@ def parse_assistant_reply(raw: str) -> dict[str, Any]:
         "suggestions": suggestions,
         "plan": plan,
         "ended": ended,
+        "mermaid_graph": mermaid_graph,
     }
 
 
@@ -315,7 +402,7 @@ def _send_anthropic(
 
     response = client.messages.create(
         model=ANTHROPIC_MODEL_ID,
-        max_tokens=1000,  # +200 vs avant pour absorber les blocs JSON
+        max_tokens=2000,  # synthese (recap + PLAN + MERMAID) depasse 1000
         system=system_prompt,
         messages=messages,
     )
@@ -350,7 +437,7 @@ def _send_ollama(
                 # Température basse → modèle plus discipliné sur les markers
                 # JSON (SUGG_JSON / PLAN_JSON / END_CONVERSATION).
                 "temperature": 0.4,
-                "num_predict": 1000,
+                "num_predict": 2000,
             },
         )
     except Exception as exc:

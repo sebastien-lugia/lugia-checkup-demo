@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lugia & Co — Jumeau numérique du cabinet</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:       #0b0d12;
+  --bg2:      #12151c;
+  --bg3:      #1b1f28;
+  --line:     #252b35;
+  --txt:      #eceef2;
+  --txt2:     #9098a6;
+  --txt3:     #525a68;
+  --confirmed:#34d399;
+  --inferred: #fbbf24;
+  --unknown:  #353b45;
+  --accent:   #8b5cf6;
+  --accent2:  #a78bfa;
+  --glow:     rgba(139,92,246,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.header {
+  padding: 22px 36px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.h-left h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 900;
+}
+.h-left h1 span { color: var(--accent2); }
+.h-left p {
+  font-size: 11px;
+  color: var(--txt3);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.maturity-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 18px;
+}
+.mb-ring {
+  position: relative;
+  width: 44px; height: 44px;
+}
+.mb-pct {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent2);
+}
+.mb-label {
+  font-size: 10px;
+  color: var(--txt3);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  min-height: calc(100vh - 69px);
+}
+
+/* MAP AREA */
+.map-area {
+  position: relative;
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(139,92,246,0.05) 0%, transparent 60%),
+    var(--bg);
+}
+
+.map-intro {
+  position: absolute;
+  top: 20px; left: 28px;
+  z-index: 5;
+  max-width: 320px;
+}
+.map-intro h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.map-intro p {
+  font-size: 12px;
+  color: var(--txt3);
+  line-height: 1.5;
+}
+
+#map-svg { width: 100%; height: 100%; display: block; }
+
+/* zones de la carte */
+.zone-territory {
+  transition: all 1s cubic-bezier(0.4,0,0.2,1);
+}
+
+.zone-fog {
+  fill: var(--bg);
+  transition: opacity 1.2s ease;
+}
+
+.region-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-anchor: middle;
+  pointer-events: none;
+  transition: fill 0.8s, opacity 0.8s;
+}
+
+.node-dot {
+  transition: all 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  cursor: pointer;
+}
+.node-dot:hover { filter: brightness(1.3); }
+
+.node-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  text-anchor: middle;
+  pointer-events: none;
+  transition: opacity 0.6s;
+}
+
+.link-line {
+  transition: all 0.8s ease;
+}
+
+.discover-pulse {
+  animation: discoverPulse 1.6s ease-out;
+}
+@keyframes discoverPulse {
+  0%   { r: 0; opacity: 0.8; }
+  100% { r: 60; opacity: 0; }
+}
+
+/* PANEL */
+.panel {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(100vh - 69px);
+  background: var(--bg);
+}
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+.ps-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--txt3);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ps-title::after { content:''; flex:1; height:1px; background:var(--line); }
+
+.panel-section { margin-bottom: 26px; }
+
+/* completude par composante */
+.comp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+.comp-name {
+  font-size: 11px;
+  color: var(--txt2);
+  width: 88px;
+  flex-shrink: 0;
+}
+.comp-track {
+  flex: 1;
+  height: 7px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.comp-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.comp-fill.partial { background: linear-gradient(90deg, var(--inferred), #fcd34d); }
+.comp-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--txt3);
+  width: 32px;
+  text-align: right;
+}
+
+/* fiabilité */
+.reliability {
+  display: flex;
+  gap: 8px;
+}
+.rel-card {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+.rel-num {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+.rel-label {
+  font-size: 9px;
+  color: var(--txt3);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 2px;
+}
+
+/* bénéfices débloqués / à venir */
+.benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  transition: all 0.3s;
+}
+.benefit.unlocked {
+  background: rgba(52,211,153,0.08);
+  border: 1px solid rgba(52,211,153,0.25);
+}
+.benefit.next {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+}
+.benefit.locked {
+  background: transparent;
+  border: 1px solid var(--line);
+  opacity: 0.5;
+}
+.benefit-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.benefit-content { flex: 1; }
+.benefit-title { font-weight: 600; color: var(--txt); margin-bottom: 2px; }
+.benefit-desc { font-size: 10px; color: var(--txt3); line-height: 1.4; }
+.benefit.unlocked .benefit-title { color: var(--confirmed); }
+
+/* action principale */
+.next-action {
+  background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(139,92,246,0.04));
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+.na-label {
+  font-size: 10px;
+  color: var(--accent2);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.na-text { font-size: 13px; line-height: 1.5; margin-bottom: 14px; }
+.na-text strong { color: var(--accent2); }
+.na-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  width: 100%;
+}
+.na-btn:hover { background: var(--accent2); }
+
+/* simulateur d'usage */
+.usage-sim {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+.usage-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.usage-sub { font-size: 10px; color: var(--txt3); margin-bottom: 14px; line-height: 1.4; }
+.usage-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  color: var(--txt2);
+  font-size: 12px;
+}
+.usage-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--txt);
+  transform: translateX(3px);
+}
+.usage-btn:disabled { opacity: 0.35; cursor: default; }
+.usage-btn .ub-icon { font-size: 15px; }
+.usage-btn .ub-gain {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--confirmed);
+}
+
+.legend-inline {
+  display: flex;
+  gap: 14px;
+  margin-top: 14px;
+  font-size: 10px;
+  color: var(--txt3);
+}
+.li-item { display: flex; align-items: center; gap: 5px; }
+.li-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .map-area { height: 420px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-left">
+    <h1>Lugia <span>&</span> Co — Jumeau numérique</h1>
+    <p>Cabinet du Dr Martin · Cartographie vivante</p>
+  </div>
+  <div class="maturity-badge">
+    <svg class="mb-ring" viewBox="0 0 44 44">
+      <circle cx="22" cy="22" r="19" fill="none" stroke="#252b35" stroke-width="4"/>
+      <circle id="ring-progress" cx="22" cy="22" r="19" fill="none" stroke="#a78bfa" stroke-width="4"
+        stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4"
+        transform="rotate(-90 22 22)" style="transition:stroke-dashoffset 1s ease"/>
+    </svg>
+    <div>
+      <div class="mb-pct" id="maturity-pct">0%</div>
+      <div class="mb-label">Cartographié</div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="map-area">
+    <div class="map-intro">
+      <h2>La carte de votre cabinet</h2>
+      <p>Chaque fois que vous utilisez l'outil, une nouvelle zone se révèle. Votre cabinet se dessine peu à peu.</p>
+    </div>
+    <svg id="map-svg" viewBox="0 0 700 600" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="fog-grad">
+          <stop offset="0%" stop-color="#12151c" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#0b0d12" stop-opacity="0.95"/>
+        </radialGradient>
+        <filter id="soft-glow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <g id="links-layer"></g>
+      <g id="regions-layer"></g>
+      <g id="nodes-layer"></g>
+      <g id="pulse-layer"></g>
+    </svg>
+  </div>
+
+  <div class="panel">
+
+    <div class="next-action" id="next-action">
+      <!-- injecté -->
+    </div>
+
+    <div class="panel-section">
+      <div class="ps-title">Complétude par domaine</div>
+      <div id="comp-bars"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="ps-title">Fiabilité des informations</div>
+      <div class="reliability">
+        <div class="rel-card">
+          <div class="rel-num" style="color:var(--confirmed)" id="rel-confirmed">0</div>
+          <div class="rel-label">Confirmés</div>
+        </div>
+        <div class="rel-card">
+          <div class="rel-num" style="color:var(--inferred)" id="rel-inferred">0</div>
+          <div class="rel-label">Inférés</div>
+        </div>
+        <div class="rel-card">
+          <div class="rel-num" style="color:var(--txt3)" id="rel-unknown">0</div>
+          <div class="rel-label">À explorer</div>
+        </div>
+      </div>
+      <div class="legend-inline">
+        <div class="li-item"><span class="li-dot" style="background:var(--confirmed)"></span>Vous l'avez confirmé</div>
+        <div class="li-item"><span class="li-dot" style="background:var(--inferred)"></span>Déduit, à valider</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="ps-title">Bénéfices</div>
+      <div id="benefits-list"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="usage-sim">
+        <div class="usage-title">Simuler une journée d'usage</div>
+        <div class="usage-sub">Chaque action quotidienne enrichit votre carte. Cliquez pour voir l'effet.</div>
+        <div id="usage-actions"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// LE JUMEAU NUMÉRIQUE
+// ════════════════════════════════════════════
+
+// Régions = composantes WSF, positionnées sur la carte
+const regions = [
+  { id:'participants', label:'Participants',   cx:200, cy:130, color:'#60a5fa' },
+  { id:'technologies', label:'Technologies',   cx:500, cy:150, color:'#34d399' },
+  { id:'information',  label:'Information',     cx:140, cy:320, color:'#fbbf24' },
+  { id:'processus',    label:'Processus',      cx:370, cy:340, color:'#a78bfa' },
+  { id:'environnement',label:'Environnement',  cx:560, cy:380, color:'#fb7185' },
+  { id:'produits',     label:'Produits',       cx:280, cy:490, color:'#22d3ee' },
+  { id:'clients',      label:'Clients',        cx:480, cy:520, color:'#f472b6' },
+];
+
+// Objets du cabinet, rattachés à une région, avec leur état de découverte
+const nodes = [
+  // discovered: 'unknown' | 'inferred' | 'confirmed'
+  { id:'med',    region:'participants', label:'Médecin',        ox:0,   oy:-30, discovered:'confirmed' },
+  { id:'sec',    region:'participants', label:'Secrétaire',     ox:-50, oy:25,  discovered:'unknown' },
+  { id:'remp',   region:'participants', label:'Remplaçant',     ox:50,  oy:25,  discovered:'unknown' },
+
+  { id:'dpi',    region:'technologies', label:'Logiciel DPI',   ox:-40, oy:-20, discovered:'confirmed' },
+  { id:'ia',     region:'technologies', label:'Outil IA',       ox:45,  oy:10,  discovered:'unknown' },
+  { id:'mss',    region:'technologies', label:'Messagerie',     ox:-10, oy:40,  discovered:'unknown' },
+
+  { id:'pat',    region:'information',  label:'Données patient',ox:0,   oy:-25, discovered:'inferred' },
+  { id:'rdv',    region:'information',  label:'Agenda',         ox:-30, oy:35,  discovered:'unknown' },
+
+  { id:'cons',   region:'processus',    label:'Consultation',   ox:-30, oy:-20, discovered:'confirmed' },
+  { id:'redac',  region:'processus',    label:'Rédaction',      ox:50,  oy:5,   discovered:'inferred' },
+  { id:'renouv', region:'processus',    label:'Renouvellement', ox:-20, oy:45,  discovered:'unknown' },
+
+  { id:'rgpd',   region:'environnement',label:'RGPD/AI Act',    ox:0,   oy:-25, discovered:'inferred' },
+  { id:'labo',   region:'environnement',label:'Laboratoire',    ox:30,  oy:35,  discovered:'unknown' },
+
+  { id:'cr',     region:'produits',     label:'Compte-rendu',   ox:-25, oy:0,   discovered:'unknown' },
+  { id:'ordo',   region:'produits',     label:'Ordonnance',     ox:40,  oy:20,  discovered:'unknown' },
+
+  { id:'patient',region:'clients',      label:'Patient',        ox:0,   oy:0,   discovered:'confirmed' },
+];
+
+const links = [
+  { a:'med', b:'dpi' }, { a:'med', b:'cons' }, { a:'ia', b:'pat' },
+  { a:'cons', b:'redac' }, { a:'redac', b:'cr' }, { a:'pat', b:'cons' },
+  { a:'rgpd', b:'ia' }, { a:'cr', b:'patient' }, { a:'dpi', b:'pat' },
+  { a:'sec', b:'rdv' }, { a:'labo', b:'pat' }, { a:'renouv', b:'ordo' },
+];
+
+// Bénéfices liés à des seuils de complétude
+const benefits = [
+  { id:'b1', need:['med','dpi','cons'], title:'Cartographie de base', desc:'Votre cabinet est identifié', threshold:0 },
+  { id:'b2', need:['pat','rgpd'], title:'Registre RGPD', desc:'Généré automatiquement dès que vos données et obligations sont cartographiées', threshold:0.3 },
+  { id:'b3', need:['ia','pat'], title:'Sécurisation IA', desc:'Protégez vos données avant tout usage d\'IA', threshold:0.45 },
+  { id:'b4', need:['sec','remp'], title:'Gestion des accès', desc:'Maîtrisez qui accède à quoi', threshold:0.6 },
+  { id:'b5', need:['labo','cr','ordo'], title:'Vue d\'ensemble complète', desc:'Tous vos flux et documents tracés', threshold:0.8 },
+];
+
+// Actions quotidiennes qui révèlent des objets
+const usageActions = [
+  { id:'a1', icon:'✉️', label:'Rédiger un courrier', reveals:[['redac','confirmed'],['cr','confirmed']], gain:'+ Rédaction, Compte-rendu' },
+  { id:'a2', icon:'💊', label:'Faire une ordonnance', reveals:[['renouv','confirmed'],['ordo','confirmed']], gain:'+ Renouvellement, Ordonnance' },
+  { id:'a3', icon:'🤖', label:'Utiliser l\'IA', reveals:[['ia','confirmed'],['pat','confirmed']], gain:'+ Outil IA, Données' },
+  { id:'a4', icon:'👥', label:'Ajouter un remplaçant', reveals:[['remp','confirmed'],['sec','confirmed']], gain:'+ Remplaçant, Secrétaire' },
+  { id:'a5', icon:'🔬', label:'Recevoir un résultat labo', reveals:[['labo','confirmed'],['rdv','confirmed'],['mss','confirmed']], gain:'+ Labo, Agenda, Messagerie' },
+];
+
+let usedActions = new Set();
+
+// ── CALCULS ──
+function getNode(id) { return nodes.find(n => n.id === id); }
+function nodePos(n) {
+  const r = regions.find(x => x.id === n.region);
+  return { x: r.cx + n.ox, y: r.cy + n.oy };
+}
+
+function maturiteGlobale() {
+  const score = { unknown:0, inferred:0.5, confirmed:1 };
+  const total = nodes.reduce((s,n) => s + score[n.discovered], 0);
+  return total / nodes.length;
+}
+
+function completudeRegion(regionId) {
+  const rNodes = nodes.filter(n => n.region === regionId);
+  if (!rNodes.length) return 0;
+  const score = { unknown:0, inferred:0.5, confirmed:1 };
+  return rNodes.reduce((s,n) => s + score[n.discovered], 0) / rNodes.length;
+}
+
+function compterFiabilite() {
+  return {
+    confirmed: nodes.filter(n => n.discovered === 'confirmed').length,
+    inferred:  nodes.filter(n => n.discovered === 'inferred').length,
+    unknown:   nodes.filter(n => n.discovered === 'unknown').length,
+  };
+}
+
+// ── RENDU CARTE ──
+function renderMap() {
+  const linksL = document.getElementById('links-layer');
+  const regionsL = document.getElementById('regions-layer');
+  const nodesL = document.getElementById('nodes-layer');
+  linksL.innerHTML = ''; regionsL.innerHTML = ''; nodesL.innerHTML = '';
+
+  // Links (seulement entre objets découverts)
+  links.forEach(l => {
+    const na = getNode(l.a), nb = getNode(l.b);
+    if (na.discovered === 'unknown' || nb.discovered === 'unknown') return;
+    const pa = nodePos(na), pb = nodePos(nb);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', pa.x); line.setAttribute('y1', pa.y);
+    line.setAttribute('x2', pb.x); line.setAttribute('y2', pb.y);
+    line.setAttribute('class', 'link-line');
+    line.setAttribute('stroke', '#2a3340');
+    line.setAttribute('stroke-width', '1.2');
+    line.setAttribute('opacity', '0.5');
+    linksL.appendChild(line);
+  });
+
+  // Region labels (visible si au moins un objet découvert)
+  regions.forEach(r => {
+    const comp = completudeRegion(r.id);
+    const hasDiscovered = nodes.some(n => n.region === r.id && n.discovered !== 'unknown');
+
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x', r.cx);
+    lbl.setAttribute('y', r.cy - 52);
+    lbl.setAttribute('class', 'region-label');
+    lbl.setAttribute('fill', hasDiscovered ? r.color : '#2a3038');
+    lbl.setAttribute('opacity', hasDiscovered ? '0.9' : '0.3');
+    lbl.textContent = r.label;
+    regionsL.appendChild(lbl);
+
+    // halo région
+    if (hasDiscovered) {
+      const halo = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      halo.setAttribute('cx', r.cx); halo.setAttribute('cy', r.cy);
+      halo.setAttribute('r', 58);
+      halo.setAttribute('fill', r.color);
+      halo.setAttribute('opacity', 0.04 + comp * 0.06);
+      regionsL.appendChild(halo);
+    }
+  });
+
+  // Nodes
+  nodes.forEach(n => {
+    const p = nodePos(n);
+    const r = regions.find(x => x.id === n.region);
+
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.id = `mapnode-${n.id}`;
+
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y);
+    dot.setAttribute('class', 'node-dot');
+
+    if (n.discovered === 'confirmed') {
+      dot.setAttribute('r', 7);
+      dot.setAttribute('fill', r.color);
+      dot.setAttribute('filter', 'url(#soft-glow)');
+    } else if (n.discovered === 'inferred') {
+      dot.setAttribute('r', 6);
+      dot.setAttribute('fill', 'none');
+      dot.setAttribute('stroke', '#fbbf24');
+      dot.setAttribute('stroke-width', '1.5');
+      dot.setAttribute('stroke-dasharray', '3 2');
+    } else {
+      dot.setAttribute('r', 4);
+      dot.setAttribute('fill', '#1b1f28');
+      dot.setAttribute('stroke', '#2a3038');
+      dot.setAttribute('stroke-width', '1');
+    }
+    grp.appendChild(dot);
+
+    // nom (visible si découvert)
+    if (n.discovered !== 'unknown') {
+      const name = document.createElementNS('http://www.w3.org/2000/svg','text');
+      name.setAttribute('x', p.x); name.setAttribute('y', p.y + 18);
+      name.setAttribute('class', 'node-name');
+      name.setAttribute('fill', n.discovered === 'confirmed' ? '#9098a6' : '#6b6650');
+      name.textContent = n.label;
+      grp.appendChild(name);
+    }
+
+    nodesL.appendChild(grp);
+  });
+}
+
+// ── RENDU PANEL ──
+function renderMaturity() {
+  const m = maturiteGlobale();
+  const pct = Math.round(m * 100);
+  document.getElementById('maturity-pct').textContent = pct + '%';
+  const circ = 119.4;
+  document.getElementById('ring-progress').style.strokeDashoffset = circ - (circ * m);
+}
+
+function renderCompBars() {
+  document.getElementById('comp-bars').innerHTML = regions.map(r => {
+    const c = completudeRegion(r.id);
+    const pct = Math.round(c * 100);
+    const partial = c > 0 && c < 1 && nodes.filter(n=>n.region===r.id).every(n=>n.discovered!=='confirmed');
+    return `<div class="comp-row">
+      <div class="comp-name">${r.label}</div>
+      <div class="comp-track"><div class="comp-fill ${pct<100&&pct>0&&c<=0.5?'partial':''}" style="width:${pct}%"></div></div>
+      <div class="comp-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderReliability() {
+  const f = compterFiabilite();
+  document.getElementById('rel-confirmed').textContent = f.confirmed;
+  document.getElementById('rel-inferred').textContent = f.inferred;
+  document.getElementById('rel-unknown').textContent = f.unknown;
+}
+
+function renderBenefits() {
+  const m = maturiteGlobale();
+  document.getElementById('benefits-list').innerHTML = benefits.map(b => {
+    const needMet = b.need.every(id => getNode(id).discovered !== 'unknown');
+    const unlocked = needMet && m >= b.threshold;
+    const isNext = !unlocked && m >= b.threshold - 0.2;
+    const cls = unlocked ? 'unlocked' : isNext ? 'next' : 'locked';
+    const icon = unlocked ? '✓' : isNext ? '→' : '○';
+    return `<div class="benefit ${cls}">
+      <div class="benefit-icon">${icon}</div>
+      <div class="benefit-content">
+        <div class="benefit-title">${b.title}</div>
+        <div class="benefit-desc">${b.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderNextAction() {
+  const m = maturiteGlobale();
+  // Trouver le prochain bénéfice à débloquer
+  const next = benefits.find(b => {
+    const needMet = b.need.every(id => getNode(id).discovered !== 'unknown');
+    return !needMet || m < b.threshold;
+  });
+
+  let html;
+  if (next) {
+    const missing = next.need.filter(id => getNode(id).discovered === 'unknown')
+      .map(id => getNode(id).label);
+    if (missing.length) {
+      html = `<div class="na-label">Prochaine étape</div>
+        <div class="na-text">Pour débloquer <strong>${next.title}</strong>, votre carte a besoin de découvrir : <strong>${missing.join(', ')}</strong></div>
+        <button class="na-btn" onclick="document.querySelector('.usage-sim').scrollIntoView({behavior:'smooth'})">Voir comment ↓</button>`;
+    } else {
+      html = `<div class="na-label">Prochaine étape</div>
+        <div class="na-text">Continuez à utiliser l'outil pour enrichir <strong>${next.title}</strong></div>
+        <button class="na-btn" onclick="document.querySelector('.usage-sim').scrollIntoView({behavior:'smooth'})">Continuer ↓</button>`;
+    }
+  } else {
+    html = `<div class="na-label">Carte complète</div>
+      <div class="na-text">Votre cabinet est entièrement cartographié. Le jumeau numérique est à jour et tous les bénéfices sont actifs.</div>`;
+  }
+  document.getElementById('next-action').innerHTML = html;
+}
+
+function renderUsageActions() {
+  document.getElementById('usage-actions').innerHTML = usageActions.map(a => {
+    const done = usedActions.has(a.id);
+    return `<button class="usage-btn" ${done?'disabled':''} onclick="doAction('${a.id}')">
+      <span class="ub-icon">${a.icon}</span>
+      <span>${a.label}</span>
+      <span class="ub-gain">${done ? '✓ fait' : a.gain}</span>
+    </button>`;
+  }).join('');
+}
+
+// ── ACTION : révéler des objets ──
+function doAction(actionId) {
+  const action = usageActions.find(a => a.id === actionId);
+  if (!action || usedActions.has(actionId)) return;
+  usedActions.add(actionId);
+
+  action.reveals.forEach(([nodeId, newState]) => {
+    const n = getNode(nodeId);
+    if (n && n.discovered !== 'confirmed') {
+      n.discovered = newState;
+      // pulse sur la carte
+      const p = nodePos(n);
+      const pulse = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      pulse.setAttribute('cx', p.x); pulse.setAttribute('cy', p.y);
+      pulse.setAttribute('fill', 'none');
+      pulse.setAttribute('stroke', '#a78bfa');
+      pulse.setAttribute('stroke-width', '2');
+      pulse.setAttribute('class', 'discover-pulse');
+      document.getElementById('pulse-layer').appendChild(pulse);
+      setTimeout(() => pulse.remove(), 1600);
+    }
+  });
+
+  renderAll();
+}
+
+function renderAll() {
+  renderMap();
+  renderMaturity();
+  renderCompBars();
+  renderReliability();
+  renderBenefits();
+  renderNextAction();
+  renderUsageActions();
+}
+
+// Init
+renderAll();
+</script>
+</body>
+</html>

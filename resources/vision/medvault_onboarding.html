@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedVault — Diagnostic organisationnel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+
+:root {
+  --ink:     #1a2332;
+  --ink2:    #3d5066;
+  --ink3:    #7a8fa6;
+  --teal:    #0a7e6e;
+  --teal2:   #0d9e8b;
+  --teal3:   #e8f5f3;
+  --amber:   #c8710a;
+  --amber2:  #fff4e6;
+  --rose:    #c0283e;
+  --rose2:   #fff0f0;
+  --paper:   #fafaf8;
+  --white:   #ffffff;
+  --border:  #e4e8ed;
+  --shadow:  0 2px 16px rgba(26,35,50,0.08);
+  --shadow2: 0 8px 40px rgba(26,35,50,0.14);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ── SCREEN 1 : LANDING ── */
+#s-landing {
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+#s-landing::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(10,126,110,0.18) 0%, transparent 70%);
+  top: -150px; right: -150px;
+}
+
+#s-landing::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(10,126,110,0.10) 0%, transparent 70%);
+  bottom: -100px; left: -100px;
+}
+
+.landing-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.logo {
+  font-family: 'Lora', serif;
+  font-size: 32px;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.logo span { color: var(--teal2); }
+
+.tagline {
+  font-size: 14px;
+  color: var(--ink3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 48px;
+}
+
+.landing-title {
+  font-family: 'Lora', serif;
+  font-size: 36px;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 20px;
+}
+
+.landing-sub {
+  font-size: 16px;
+  color: #8fa5bb;
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+.value-pills {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 44px;
+}
+
+.pill {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #c8d8e8;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.pill.highlight {
+  background: rgba(10,126,110,0.2);
+  border-color: var(--teal2);
+  color: #7eeee2;
+}
+
+.btn-primary {
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Source Sans 3', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.btn-primary:hover { background: var(--teal2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10,126,110,0.35); }
+
+.landing-note {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #506070;
+}
+
+/* ── SCREEN 2 : QUESTIONNAIRE ── */
+#s-questionnaire {
+  background: var(--paper);
+}
+
+.q-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.q-logo {
+  font-family: 'Lora', serif;
+  font-size: 18px;
+  color: var(--ink);
+}
+
+.q-logo span { color: var(--teal); }
+
+.q-progress-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.q-progress-label {
+  font-size: 11px;
+  color: var(--ink3);
+  display: flex;
+  justify-content: space-between;
+}
+
+.q-progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.q-progress-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.q-save {
+  font-size: 11px;
+  color: var(--ink3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.q-body {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+
+.section-header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--teal3);
+}
+
+.section-num {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--teal);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.section-title {
+  font-family: 'Lora', serif;
+  font-size: 24px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.section-sub {
+  font-size: 14px;
+  color: var(--ink3);
+  line-height: 1.6;
+}
+
+.question-block {
+  margin-bottom: 28px;
+  animation: qfade 0.3s ease;
+}
+
+@keyframes qfade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.q-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.q-hint {
+  font-size: 12px;
+  color: var(--ink3);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+/* Radio / Checkbox cards */
+.choice-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.choice-grid.cols2 { grid-template-columns: 1fr 1fr; }
+
+.choice-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 14px;
+  color: var(--ink2);
+  user-select: none;
+}
+
+.choice-card:hover { border-color: var(--teal2); background: var(--teal3); }
+.choice-card.selected { border-color: var(--teal); background: var(--teal3); color: var(--teal); font-weight: 500; }
+.choice-card.selected .choice-check { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+.choice-check {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.choice-check.square { border-radius: 4px; }
+
+/* Text input */
+.q-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.q-input:focus { border-color: var(--teal); }
+
+/* Number input */
+.q-number-wrap { display: flex; align-items: center; gap: 12px; }
+.q-number-btn {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink2);
+  transition: all 0.15s;
+}
+.q-number-btn:hover { border-color: var(--teal); color: var(--teal); }
+.q-number-val {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Tags multi-select */
+.tag-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--ink2);
+  background: var(--white);
+  transition: all 0.15s;
+  user-select: none;
+}
+.tag:hover { border-color: var(--teal2); }
+.tag.selected { border-color: var(--teal); background: var(--teal3); color: var(--teal); font-weight: 500; }
+
+/* Risk flag */
+.risk-flag {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--amber2);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 6px 6px 0;
+  font-size: 12px;
+  color: var(--amber);
+  display: none;
+}
+
+.risk-flag.visible { display: block; animation: qfade 0.3s ease; }
+
+/* Nav buttons */
+.q-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-back {
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--ink3);
+  padding: 11px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Source Sans 3', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-back:hover { border-color: var(--ink3); color: var(--ink); }
+
+.btn-next {
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Source Sans 3', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-next:hover { background: var(--teal2); }
+.btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── SCREEN 3 : RESTITUTION ── */
+#s-restitution {
+  background: var(--paper);
+}
+
+.r-header {
+  background: var(--ink);
+  padding: 32px;
+  color: #fff;
+}
+
+.r-header-inner {
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.r-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--teal2);
+  margin-bottom: 8px;
+}
+
+.r-title {
+  font-family: 'Lora', serif;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.r-sub { font-size: 14px; color: #8fa5bb; }
+
+.r-body {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+/* Score global */
+.score-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow);
+}
+
+.score-circle {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  border: 4px solid var(--teal);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.score-num { font-size: 28px; font-weight: 700; color: var(--teal); line-height: 1; }
+.score-max { font-size: 11px; color: var(--ink3); }
+
+.score-text h3 {
+  font-family: 'Lora', serif;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.score-text p { font-size: 14px; color: var(--ink2); line-height: 1.6; }
+
+.conseil-value {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--ink3);
+  padding: 8px 12px;
+  background: var(--teal3);
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.conseil-value strong { color: var(--teal); }
+
+/* Axes */
+.axes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.axe-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.axe-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.axe-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.axe-score {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.axe-score.good { background: #e6f7f5; color: var(--teal); }
+.axe-score.medium { background: var(--amber2); color: var(--amber); }
+.axe-score.bad { background: var(--rose2); color: var(--rose); }
+
+.axe-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.axe-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+.axe-insight { font-size: 12px; color: var(--ink3); line-height: 1.5; }
+
+/* Risques identifiés */
+.risks-section { margin-bottom: 32px; }
+
+.section-h2 {
+  font-family: 'Lora', serif;
+  font-size: 20px;
+  color: var(--ink);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.risk-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--amber);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.risk-item.high { border-left-color: var(--rose); }
+.risk-item.low { border-left-color: var(--teal); }
+
+.risk-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.risk-content h4 { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.risk-content p { font-size: 12px; color: var(--ink3); line-height: 1.5; }
+
+/* Chantiers */
+.chantiers-section { margin-bottom: 40px; }
+
+.chantier-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 14px;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.chantier-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--teal);
+}
+
+.chantier-card.priority1::before { background: var(--rose); }
+.chantier-card.priority2::before { background: var(--amber); }
+.chantier-card.priority3::before { background: var(--teal); }
+
+.chantier-card:hover { border-color: var(--teal); box-shadow: var(--shadow2); transform: translateY(-2px); }
+
+.chantier-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.chantier-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.badge-urgent { background: var(--rose2); color: var(--rose); }
+.badge-high { background: var(--amber2); color: var(--amber); }
+.badge-medium { background: var(--teal3); color: var(--teal); }
+
+.chantier-title {
+  font-family: 'Lora', serif;
+  font-size: 17px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.chantier-desc { font-size: 13px; color: var(--ink3); line-height: 1.6; margin-bottom: 14px; }
+
+.chantier-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: var(--ink3);
+  margin-bottom: 16px;
+}
+
+.chantier-meta span { display: flex; align-items: center; gap: 5px; }
+
+.btn-chantier {
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Source Sans 3', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.btn-chantier:hover { background: var(--teal); }
+.chantier-card.priority1 .btn-chantier { background: var(--rose); }
+.chantier-card.priority1 .btn-chantier:hover { background: #a01e30; }
+
+/* ── SCREEN 4 : CHANTIER LLM ── */
+#s-chantier {
+  background: var(--paper);
+}
+
+.c-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.c-back {
+  background: none;
+  border: none;
+  color: var(--ink3);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.15s;
+}
+.c-back:hover { color: var(--ink); }
+
+.c-title-wrap { flex: 1; }
+.c-chantier-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.c-chantier-sub { font-size: 11px; color: var(--ink3); }
+
+.c-context-badge {
+  background: var(--teal3);
+  color: var(--teal);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.c-body {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
+}
+
+.c-context-banner {
+  background: var(--teal3);
+  border-bottom: 1px solid rgba(10,126,110,0.15);
+  padding: 12px 28px;
+  font-size: 12px;
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.c-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.c-messages::-webkit-scrollbar { width: 4px; }
+.c-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.msg { display: flex; flex-direction: column; gap: 4px; animation: qfade 0.35s ease; }
+
+.msg-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 0 4px; }
+.msg-ia .msg-label { color: var(--teal); }
+.msg-user .msg-label { color: var(--ink3); text-align: right; }
+
+.msg-bubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.65;
+  max-width: 80%;
+  white-space: pre-wrap;
+}
+
+.msg-ia .msg-bubble {
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+  box-shadow: var(--shadow);
+}
+
+.msg-user .msg-bubble {
+  background: var(--teal);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+  align-self: flex-end;
+}
+
+.msg-user { align-items: flex-end; }
+
+/* Document généré */
+.doc-preview {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  max-width: 85%;
+  align-self: flex-start;
+  box-shadow: var(--shadow);
+  animation: qfade 0.4s ease;
+}
+
+.doc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.doc-icon { font-size: 20px; }
+.doc-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.doc-sub { font-size: 11px; color: var(--ink3); }
+
+.doc-row {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+
+.doc-row-label {
+  color: var(--ink3);
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.doc-row-val { color: var(--ink); font-weight: 500; }
+
+.doc-actions {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+}
+
+.btn-doc {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Source Sans 3', sans-serif;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.btn-doc-primary { background: var(--teal); color: #fff; border: none; }
+.btn-doc-primary:hover { background: var(--teal2); }
+.btn-doc-secondary { background: var(--white); color: var(--ink2); border: 1.5px solid var(--border); }
+.btn-doc-secondary:hover { border-color: var(--ink3); }
+
+/* Options IA */
+.ia-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 80%;
+  align-self: flex-start;
+  animation: qfade 0.3s ease 0.2s both;
+}
+
+.ia-option {
+  padding: 10px 16px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--ink2);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Source Sans 3', sans-serif;
+}
+
+.ia-option:hover { border-color: var(--teal); color: var(--teal); background: var(--teal3); }
+.ia-option .opt-arrow { color: var(--teal); }
+
+/* Typing */
+.typing-wrap {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  border-bottom-left-radius: 4px;
+  width: fit-content;
+  box-shadow: var(--shadow);
+}
+
+.typing-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--teal2);
+  animation: tdot 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes tdot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Input area */
+.c-input-area {
+  padding: 16px 28px;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.c-input {
+  flex: 1;
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--ink);
+  outline: none;
+  resize: none;
+  min-height: 44px;
+  max-height: 120px;
+  transition: border-color 0.15s;
+}
+.c-input:focus { border-color: var(--teal); }
+.c-input::placeholder { color: var(--ink3); }
+
+.c-send {
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.c-send:hover { background: var(--teal2); }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .axes-grid { grid-template-columns: 1fr; }
+  .choice-grid.cols2 { grid-template-columns: 1fr; }
+  .score-card { flex-direction: column; }
+  .q-body { padding: 24px 16px; }
+  .r-body { padding: 24px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     SCREEN 1 — LANDING
+════════════════════════════════════════════ -->
+<div id="s-landing" class="screen active">
+  <div class="landing-inner">
+    <div class="logo">Med<span>Vault</span></div>
+    <div class="tagline">Gouvernance des données de santé</div>
+
+    <h1 class="landing-title">Votre cabinet est-il prêt pour l'IA&nbsp;?</h1>
+    <p class="landing-sub">
+      Répondez à 20 questions. Obtenez en 15 minutes un diagnostic organisationnel complet — et un plan d'action concret.
+    </p>
+
+    <div class="value-pills">
+      <div class="pill">100% gratuit</div>
+      <div class="pill">15 minutes</div>
+      <div class="pill highlight">Valeur cabinet de conseil : 4 500€</div>
+      <div class="pill">Aucune installation</div>
+    </div>
+
+    <button class="btn-primary" onclick="goTo('s-questionnaire'); initQ()">
+      Commencer le diagnostic →
+    </button>
+
+    <div class="landing-note">
+      Vos réponses restent sur votre appareil. Aucun compte requis.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN 2 — QUESTIONNAIRE
+════════════════════════════════════════════ -->
+<div id="s-questionnaire" class="screen">
+  <div class="q-header">
+    <div class="q-logo">Med<span>Vault</span></div>
+    <div class="q-progress-wrap">
+      <div class="q-progress-label">
+        <span id="q-section-label">Section 1 sur 5</span>
+        <span id="q-pct">0%</span>
+      </div>
+      <div class="q-progress-bar">
+        <div class="q-progress-fill" id="q-pfill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="q-save">✓ Sauvegarde automatique</div>
+  </div>
+
+  <div class="q-body" id="q-body">
+    <!-- Sections injectées dynamiquement -->
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN 3 — RESTITUTION
+════════════════════════════════════════════ -->
+<div id="s-restitution" class="screen">
+  <div class="r-header">
+    <div class="r-header-inner">
+      <div class="r-label">Diagnostic organisationnel — Résultats</div>
+      <h1 class="r-title">Cabinet du Dr <span id="r-name">Martin</span></h1>
+      <div class="r-sub" id="r-sub">Généré le <span id="r-date"></span> · Confidentiel</div>
+    </div>
+  </div>
+
+  <div class="r-body">
+
+    <!-- Score global -->
+    <div class="score-card">
+      <div class="score-circle">
+        <div class="score-num" id="r-score">62</div>
+        <div class="score-max">/100</div>
+      </div>
+      <div class="score-text">
+        <h3 id="r-score-title">Cabinet bien organisé, exposition numérique à sécuriser</h3>
+        <p id="r-score-desc">Votre organisation clinique est solide. Cependant, votre usage des outils numériques et de l'IA expose des données patients sur plusieurs points qui méritent attention avant que la réglementation ne vous y oblige.</p>
+        <div class="conseil-value">Ce diagnostic aurait coûté <strong>4 200 € HT</strong> chez un cabinet conseil spécialisé santé.</div>
+      </div>
+    </div>
+
+    <!-- Axes -->
+    <div class="axes-grid" id="r-axes">
+      <!-- injecté dynamiquement -->
+    </div>
+
+    <!-- Risques -->
+    <div class="risks-section">
+      <h2 class="section-h2">⚠️ Points de vigilance identifiés</h2>
+      <div id="r-risks"><!-- injecté --></div>
+    </div>
+
+    <!-- Chantiers -->
+    <div class="chantiers-section">
+      <h2 class="section-h2">🎯 Chantiers recommandés</h2>
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:20px;">
+        Basés sur vos réponses, par ordre de priorité. Cliquez sur "Je me lance" pour démarrer — notre assistant connaît déjà votre situation.
+      </p>
+      <div id="r-chantiers"><!-- injecté --></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN 4 — CHANTIER (LLM)
+════════════════════════════════════════════ -->
+<div id="s-chantier" class="screen">
+  <div class="c-header">
+    <button class="c-back" onclick="goTo('s-restitution')">←</button>
+    <div class="c-title-wrap">
+      <div class="c-chantier-name" id="c-name">Registre RGPD</div>
+      <div class="c-chantier-sub">Assistant MedVault · Chantier en cours</div>
+    </div>
+    <div class="c-context-badge">✓ Contexte chargé</div>
+  </div>
+
+  <div class="c-body">
+    <div class="c-context-banner">
+      <span>🔒</span>
+      <span>L'assistant a analysé vos 20 réponses — il ne vous reposera aucune question déjà répondue.</span>
+    </div>
+
+    <div class="c-messages" id="c-messages">
+      <!-- Messages injectés -->
+    </div>
+
+    <div class="c-input-area">
+      <textarea class="c-input" id="c-input" placeholder="Répondez ou posez une question…" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
+      <button class="c-send" onclick="sendMsg()">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// ÉTAT GLOBAL
+// ════════════════════════════════════════════
+const answers = {};
+let currentSection = 0;
+
+// ════════════════════════════════════════════
+// SECTIONS DU QUESTIONNAIRE
+// ════════════════════════════════════════════
+const sections = [
+  {
+    num: "Section 1 sur 5",
+    title: "Votre cabinet",
+    sub: "Ces informations nous permettent de construire la carte de votre organisation.",
+    questions: [
+      {
+        id: "prenom",
+        type: "text",
+        label: "Votre prénom (pour personnaliser votre rapport)",
+        placeholder: "Dr …"
+      },
+      {
+        id: "type_cabinet",
+        type: "radio",
+        label: "Quelle est votre situation d'exercice ?",
+        choices: [
+          "Seul en cabinet libéral",
+          "En groupe (2-4 médecins)",
+          "Maison de santé pluriprofessionnelle",
+          "Cabinet de groupe (5+ médecins)"
+        ]
+      },
+      {
+        id: "specialite",
+        type: "radio",
+        label: "Votre spécialité principale",
+        choices: ["Médecine générale","Pédiatrie","Gynécologie","Psychiatrie","Autre spécialité"],
+        cols: true
+      },
+      {
+        id: "nb_patients_jour",
+        type: "number",
+        label: "Combien de patients voyez-vous en moyenne par jour ?",
+        default: 22,
+        min: 1, max: 60
+      }
+    ]
+  },
+  {
+    num: "Section 2 sur 5",
+    title: "Votre personnel et vos accès",
+    sub: "Nous identifions qui accède aux données de vos patients — souvent le premier point de risque.",
+    questions: [
+      {
+        id: "secretaire",
+        type: "radio",
+        label: "Avez-vous une secrétaire ou un(e) assistant(e) ?",
+        choices: ["Oui, à temps plein","Oui, à temps partiel","Secrétariat externalisé","Non, je gère seul"]
+      },
+      {
+        id: "remplacants",
+        type: "radio",
+        label: "Recevez-vous des remplaçants ou des internes ?",
+        choices: ["Régulièrement (plusieurs fois/an)","Ponctuellement","Jamais"],
+        risk: {
+          triggers: ["Régulièrement (plusieurs fois/an)","Ponctuellement"],
+          msg: "⚠️ Point de vigilance : les remplaçants accèdent souvent à l'ensemble du logiciel médical sans droits d'accès différenciés. C'est l'un des premiers risques identifiés par la CNIL."
+        }
+      },
+      {
+        id: "acces_logiciel",
+        type: "radio",
+        label: "Votre remplaçant utilise-t-il votre identifiant pour accéder au logiciel ?",
+        choices: ["Oui, le mien","Il a son propre accès","Je ne sais pas"],
+        risk: {
+          triggers: ["Oui, le mien","Je ne sais pas"],
+          msg: "⚠️ Risque élevé : le partage d'identifiant est une violation RGPD caractérisée. En cas de contrôle CNIL, c'est un manquement automatiquement sanctionné."
+        }
+      }
+    ]
+  },
+  {
+    num: "Section 3 sur 5",
+    title: "Vos outils numériques",
+    sub: "Chaque outil numérique est un flux de données. Nous cartographions ce qui sort de votre cabinet.",
+    questions: [
+      {
+        id: "logiciel_metier",
+        type: "tags",
+        label: "Quel(s) logiciel(s) médical(aux) utilisez-vous ?",
+        choices: ["Doctolib","Weda","Medistory","HelloDoc","Mediboard","Axisanté","Autre"]
+      },
+      {
+        id: "outils_ia",
+        type: "tags",
+        label: "Utilisez-vous des outils d'IA dans votre pratique ? (plusieurs choix possibles)",
+        choices: ["ChatGPT / Claude","Dictée automatique (Nabla, Suki…)","IA intégrée à Doctolib","Recherche biblio IA","Non, aucun"]
+      },
+      {
+        id: "ia_donnees",
+        type: "radio",
+        label: "Quand vous utilisez un outil IA, incluez-vous des informations sur vos patients ?",
+        choices: [
+          "Oui, avec noms et informations identifiantes",
+          "Oui, mais j'anonymise manuellement",
+          "Non, jamais",
+          "Je n'utilise pas d'IA"
+        ],
+        risk: {
+          triggers: ["Oui, avec noms et informations identifiantes"],
+          msg: "🚨 Risque critique : envoyer des données identifiantes vers des IA externes (ChatGPT, etc.) constitue un transfert de données de santé non encadré. C'est une violation RGPD exposant à des amendes pouvant atteindre 4% du chiffre d'affaires."
+        }
+      }
+    ]
+  },
+  {
+    num: "Section 4 sur 5",
+    title: "Votre conformité actuelle",
+    sub: "Un état des lieux honnête — sans jugement. La plupart des cabinets libéraux sont dans la même situation.",
+    questions: [
+      {
+        id: "registre_rgpd",
+        type: "radio",
+        label: "Avez-vous un registre des traitements RGPD ?",
+        choices: [
+          "Oui, à jour",
+          "Oui, mais pas mis à jour",
+          "Non, je ne sais pas ce que c'est",
+          "Non, je sais que je devrais en avoir un"
+        ],
+        risk: {
+          triggers: ["Non, je ne sais pas ce que c'est","Non, je sais que je devrais en avoir un","Oui, mais pas mis à jour"],
+          msg: "ℹ️ Le registre des traitements est obligatoire depuis 2018 pour tout professionnel de santé. En pratique, moins de 15% des cabinets libéraux en ont un à jour. MedVault peut le générer automatiquement depuis ce diagnostic."
+        }
+      },
+      {
+        id: "info_patient_ia",
+        type: "radio",
+        label: "Informez-vous vos patients de l'usage d'outils IA dans leur prise en charge ?",
+        choices: [
+          "Oui, systématiquement",
+          "Parfois",
+          "Non",
+          "Je n'utilise pas d'IA"
+        ],
+        risk: {
+          triggers: ["Non","Parfois"],
+          msg: "⚠️ Dès août 2026 (AI Act), l'information du patient sur l'usage de l'IA devient obligatoire. MedVault génère la notice d'information adaptée à votre cabinet."
+        }
+      },
+      {
+        id: "controle_cnil",
+        type: "radio",
+        label: "Si la CNIL vous contactait demain, sauriez-vous quelles données vous traitez et comment ?",
+        choices: [
+          "Oui, j'ai une documentation à jour",
+          "Partiellement",
+          "Non, je serais en difficulté"
+        ]
+      }
+    ]
+  },
+  {
+    num: "Section 5 sur 5",
+    title: "Vos priorités",
+    sub: "Ces dernières questions nous aident à prioriser les chantiers les plus utiles pour vous.",
+    questions: [
+      {
+        id: "douleur_principale",
+        type: "radio",
+        label: "Quelle est votre principale douleur au quotidien ?",
+        choices: [
+          "La charge rédactionnelle (courriers, CR…)",
+          "L'administratif et la conformité",
+          "La gestion des accès et de la sécurité",
+          "Le manque de temps en général"
+        ]
+      },
+      {
+        id: "horizon",
+        type: "radio",
+        label: "Sur quel horizon souhaitez-vous agir ?",
+        choices: [
+          "Maintenant — j'ai une urgence réglementaire",
+          "Dans les 3 prochains mois",
+          "Je veux juste comprendre ma situation"
+        ]
+      },
+      {
+        id: "transmission",
+        type: "radio",
+        label: "Envisagez-vous une cession ou transmission de cabinet dans les 5 ans ?",
+        choices: ["Oui","Non","Peut-être"]
+      }
+    ]
+  }
+];
+
+// ════════════════════════════════════════════
+// RENDU DU QUESTIONNAIRE
+// ════════════════════════════════════════════
+function initQ() {
+  currentSection = 0;
+  renderSection();
+}
+
+function renderSection() {
+  const sec = sections[currentSection];
+  const pct = Math.round((currentSection / sections.length) * 100);
+  document.getElementById('q-section-label').textContent = sec.num;
+  document.getElementById('q-pct').textContent = pct + '%';
+  document.getElementById('q-pfill').style.width = pct + '%';
+
+  let html = `
+    <div class="section-header">
+      <div class="section-num">${sec.num}</div>
+      <h2 class="section-title">${sec.title}</h2>
+      <p class="section-sub">${sec.sub}</p>
+    </div>
+  `;
+
+  sec.questions.forEach(q => {
+    html += renderQuestion(q);
+  });
+
+  html += `
+    <div class="q-nav">
+      ${currentSection > 0 ? '<button class="btn-back" onclick="prevSection()">← Précédent</button>' : '<div></div>'}
+      <button class="btn-next" id="btn-next" onclick="nextSection()">
+        ${currentSection < sections.length - 1 ? 'Continuer →' : 'Voir mon diagnostic →'}
+      </button>
+    </div>
+  `;
+
+  document.getElementById('q-body').innerHTML = html;
+  document.getElementById('q-body').scrollTop = 0;
+  window.scrollTo(0, 0);
+  restoreAnswers();
+}
+
+function renderQuestion(q) {
+  let inner = '';
+
+  if (q.type === 'text') {
+    inner = `<input class="q-input" id="q_${q.id}" placeholder="${q.placeholder||''}"
+      value="${answers[q.id]||''}"
+      oninput="answers['${q.id}']=this.value">`;
+
+  } else if (q.type === 'radio') {
+    const grid = q.cols ? 'cols2' : '';
+    inner = `<div class="choice-grid ${grid}" id="qg_${q.id}">`;
+    q.choices.forEach(c => {
+      const sel = answers[q.id] === c ? 'selected' : '';
+      inner += `<div class="choice-card ${sel}" onclick="selectRadio('${q.id}','${c.replace(/'/g,"\\'")}',this,${q.risk?`'${q.id}_risk'`:'null'})">
+        <div class="choice-check ${sel?'':''}">✓</div>
+        ${c}
+      </div>`;
+    });
+    inner += '</div>';
+    if (q.risk) {
+      const visible = q.risk.triggers.includes(answers[q.id]) ? 'visible' : '';
+      inner += `<div class="risk-flag ${visible}" id="${q.id}_risk">${q.risk.msg}</div>`;
+    }
+
+  } else if (q.type === 'tags') {
+    const val = answers[q.id] || [];
+    inner = `<div class="tag-wrap" id="qg_${q.id}">`;
+    q.choices.forEach(c => {
+      const sel = val.includes(c) ? 'selected' : '';
+      inner += `<div class="tag ${sel}" onclick="toggleTag('${q.id}','${c.replace(/'/g,"\\'")}',this)">${c}</div>`;
+    });
+    inner += '</div>';
+
+  } else if (q.type === 'number') {
+    const val = answers[q.id] !== undefined ? answers[q.id] : q.default;
+    inner = `<div class="q-number-wrap">
+      <button class="q-number-btn" onclick="adjustNum('${q.id}',${q.min},-1)">−</button>
+      <div class="q-number-val" id="qn_${q.id}">${val}</div>
+      <button class="q-number-btn" onclick="adjustNum('${q.id}',${q.max},1)">+</button>
+    </div>`;
+    answers[q.id] = val;
+  }
+
+  return `<div class="question-block">
+    <div class="q-label">${q.label}</div>
+    ${inner}
+  </div>`;
+}
+
+function restoreAnswers() {
+  // Already restored via inline values
+}
+
+function selectRadio(id, val, el, riskId) {
+  answers[id] = val;
+  const grid = document.getElementById('qg_' + id);
+  grid.querySelectorAll('.choice-card').forEach(c => {
+    c.classList.remove('selected');
+    c.querySelector('.choice-check').textContent = '';
+  });
+  el.classList.add('selected');
+  el.querySelector('.choice-check').textContent = '✓';
+
+  if (riskId) {
+    const sec = sections[currentSection];
+    const q = sec.questions.find(q => q.id === id);
+    if (q && q.risk) {
+      const flag = document.getElementById(riskId);
+      if (q.risk.triggers.includes(val)) flag.classList.add('visible');
+      else flag.classList.remove('visible');
+    }
+  }
+}
+
+function toggleTag(id, val, el) {
+  if (!answers[id]) answers[id] = [];
+  const idx = answers[id].indexOf(val);
+  if (idx >= 0) {
+    answers[id].splice(idx, 1);
+    el.classList.remove('selected');
+  } else {
+    answers[id].push(val);
+    el.classList.add('selected');
+  }
+}
+
+function adjustNum(id, limit, dir) {
+  const cur = answers[id] || 0;
+  const next = cur + dir;
+  if (dir < 0 && next < 1) return;
+  if (dir > 0 && next > limit) return;
+  answers[id] = next;
+  document.getElementById('qn_' + id).textContent = next;
+}
+
+function nextSection() {
+  if (currentSection < sections.length - 1) {
+    currentSection++;
+    renderSection();
+  } else {
+    buildRestitution();
+    goTo('s-restitution');
+  }
+}
+
+function prevSection() {
+  if (currentSection > 0) {
+    currentSection--;
+    renderSection();
+  }
+}
+
+// ════════════════════════════════════════════
+// RESTITUTION
+// ════════════════════════════════════════════
+function buildRestitution() {
+  const nom = answers['prenom'] || 'votre médecin';
+  document.getElementById('r-name').textContent = nom;
+  document.getElementById('r-date').textContent = new Date().toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'});
+
+  // Score
+  let score = 100;
+  if (!['Oui, à jour'].includes(answers['registre_rgpd'])) score -= 20;
+  if (answers['ia_donnees'] === 'Oui, avec noms et informations identifiantes') score -= 25;
+  if (['Oui, le mien','Je ne sais pas'].includes(answers['acces_logiciel'])) score -= 15;
+  if (!['Oui, systématiquement'].includes(answers['info_patient_ia'])) score -= 10;
+  if (answers['controle_cnil'] === 'Non, je serais en difficulté') score -= 15;
+  score = Math.max(20, score);
+
+  document.getElementById('r-score').textContent = score;
+
+  let title, desc;
+  if (score >= 75) {
+    title = "Cabinet bien préparé, quelques ajustements à prévoir";
+    desc = "Votre organisation est solide. Quelques points de conformité restent à formaliser pour être pleinement en règle avec l'AI Act d'août 2026.";
+  } else if (score >= 50) {
+    title = "Cabinet bien organisé, exposition numérique à sécuriser";
+    desc = "Votre organisation clinique est solide. Votre usage des outils numériques et de l'IA expose cependant des données patients sur plusieurs points qui méritent attention.";
+  } else {
+    title = "Plusieurs risques identifiés — action recommandée avant août 2026";
+    desc = "Votre cabinet présente des expositions réglementaires significatives. Les chantiers ci-dessous vous permettront de vous mettre en conformité rapidement, avec notre accompagnement.";
+  }
+  document.getElementById('r-score-title').textContent = title;
+  document.getElementById('r-score-desc').textContent = desc;
+
+  // Axes
+  const axesData = [
+    {
+      name: "Organisation interne",
+      score: answers['type_cabinet'] && answers['secretaire'] ? 80 : 50,
+      insight: "Structure du cabinet bien identifiée. Gestion des accès à formaliser."
+    },
+    {
+      name: "Sécurité des accès",
+      score: ['Oui, le mien','Je ne sais pas'].includes(answers['acces_logiciel']) ? 30 :
+             answers['remplacants'] === 'Jamais' ? 85 : 55,
+      insight: "Les droits d'accès des tiers (remplaçants, secrétaires) méritent d'être différenciés."
+    },
+    {
+      name: "Usage IA & conformité",
+      score: answers['ia_donnees'] === 'Oui, avec noms et informations identifiantes' ? 15 :
+             answers['ia_donnees'] === 'Non, jamais' ? 90 : 45,
+      insight: "Votre usage des outils IA nécessite un cadre de protection des données adapté."
+    },
+    {
+      name: "Documentation RGPD",
+      score: answers['registre_rgpd'] === 'Oui, à jour' ? 90 :
+             answers['registre_rgpd'] === 'Oui, mais pas mis à jour' ? 45 : 10,
+      insight: "Le registre des traitements est la base de toute conformité RGPD démontrable."
+    }
+  ];
+
+  const axesHtml = axesData.map(a => {
+    const cls = a.score >= 70 ? 'good' : a.score >= 40 ? 'medium' : 'bad';
+    const label = a.score >= 70 ? 'Satisfaisant' : a.score >= 40 ? 'À améliorer' : 'Critique';
+    const color = a.score >= 70 ? 'var(--teal)' : a.score >= 40 ? 'var(--amber)' : 'var(--rose)';
+    return `<div class="axe-card">
+      <div class="axe-top">
+        <div class="axe-name">${a.name}</div>
+        <div class="axe-score ${cls}">${label}</div>
+      </div>
+      <div class="axe-bar"><div class="axe-bar-fill" style="width:${a.score}%;background:${color}"></div></div>
+      <div class="axe-insight">${a.insight}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('r-axes').innerHTML = axesHtml;
+
+  // Risques
+  const risks = [];
+  if (answers['ia_donnees'] === 'Oui, avec noms et informations identifiantes') {
+    risks.push({ level: 'high', icon: '🚨', title: 'Données patients envoyées vers des IA externes',
+      desc: 'Chaque utilisation de ChatGPT ou d\'un outil IA externe avec des données patients constitue une violation RGPD potentielle.' });
+  }
+  if (['Oui, le mien','Je ne sais pas'].includes(answers['acces_logiciel'])) {
+    risks.push({ level: 'high', icon: '🔐', title: 'Identifiants partagés avec les remplaçants',
+      desc: 'Le partage d\'identifiant rend impossible la traçabilité des accès — obligation légale depuis 2018.' });
+  }
+  if (!['Oui, à jour'].includes(answers['registre_rgpd'])) {
+    risks.push({ level: 'medium', icon: '📋', title: 'Registre RGPD absent ou non à jour',
+      desc: 'Document obligatoire depuis 2018, il est le premier élément demandé en cas de contrôle CNIL.' });
+  }
+  if (['Non','Parfois'].includes(answers['info_patient_ia'])) {
+    risks.push({ level: 'low', icon: '📢', title: 'Patients non informés de l\'usage de l\'IA',
+      desc: 'Obligatoire dès août 2026 (AI Act). La notice peut être générée et affichée en quelques minutes.' });
+  }
+  if (risks.length === 0) {
+    risks.push({ level: 'low', icon: '✅', title: 'Aucun risque critique identifié',
+      desc: 'Votre cabinet présente un bon niveau de conformité. Quelques ajustements de formalisation suffisent.' });
+  }
+
+  document.getElementById('r-risks').innerHTML = risks.map(r =>
+    `<div class="risk-item ${r.level}">
+      <div class="risk-icon">${r.icon}</div>
+      <div class="risk-content">
+        <h4>${r.title}</h4>
+        <p>${r.desc}</p>
+      </div>
+    </div>`
+  ).join('');
+
+  // Chantiers
+  const chantiers = buildChantiers();
+  document.getElementById('r-chantiers').innerHTML = chantiers.map((c, i) =>
+    `<div class="chantier-card priority${i+1}" onclick="">
+      <div class="chantier-top">
+        <h3 class="chantier-title">${c.title}</h3>
+        <div class="chantier-badge badge-${c.badgeClass}">${c.badge}</div>
+      </div>
+      <p class="chantier-desc">${c.desc}</p>
+      <div class="chantier-meta">
+        <span>⏱ ${c.temps}</span>
+        <span>📈 ${c.impact}</span>
+        <span>💶 Économie : ${c.economie}</span>
+      </div>
+      <button class="btn-chantier" onclick="lancerChantier('${c.id}','${c.title}')">
+        Je me lance →
+      </button>
+    </div>`
+  ).join('');
+}
+
+function buildChantiers() {
+  const all = [
+    {
+      id: 'rgpd',
+      title: 'Registre des traitements RGPD',
+      badge: '🔴 Urgent',
+      badgeClass: 'urgent',
+      desc: 'Générer votre registre RGPD complet et exportable, adapté à votre cabinet, prêt en cas de contrôle CNIL. Document obligatoire depuis 2018.',
+      temps: '20 min avec l\'assistant',
+      impact: 'Conformité immédiate',
+      economie: '2 à 5 jours de travail',
+      priority: answers['registre_rgpd'] !== 'Oui, à jour' ? 0 : 10
+    },
+    {
+      id: 'ia_securisee',
+      title: 'Sécuriser votre usage de l\'IA',
+      badge: '🔴 Urgent',
+      badgeClass: 'urgent',
+      desc: 'Mettre en place un cadre de protection des données avant tout envoi à un outil IA. Vault de tokenisation, proxy sécurisé, zéro donnée qui sort.',
+      temps: '30 min avec l\'assistant',
+      impact: 'Risque RGPD éliminé',
+      economie: 'Amendes jusqu\'à 20 000€',
+      priority: answers['ia_donnees'] === 'Oui, avec noms et informations identifiantes' ? 0 : 5
+    },
+    {
+      id: 'acces',
+      title: 'Cartographie et sécurisation des accès',
+      badge: '🟠 Prioritaire',
+      badgeClass: 'high',
+      desc: 'Définir qui accède à quoi dans votre cabinet. Droits différenciés par rôle, révocation instantanée, traçabilité complète.',
+      temps: '15 min avec l\'assistant',
+      impact: 'Traçabilité complète',
+      economie: 'Responsabilité protégée',
+      priority: ['Oui, le mien','Je ne sais pas'].includes(answers['acces_logiciel']) ? 1 : 6
+    },
+    {
+      id: 'notice_patient',
+      title: 'Notice d\'information patient IA',
+      badge: '🟠 Avant août 2026',
+      badgeClass: 'high',
+      desc: 'Rédiger et afficher la notice d\'information patient sur l\'usage de l\'IA dans votre cabinet, conforme AI Act. Personnalisée à vos outils réels.',
+      temps: '10 min avec l\'assistant',
+      impact: 'AI Act rempli',
+      economie: '1 journée de travail',
+      priority: ['Non','Parfois'].includes(answers['info_patient_ia']) ? 2 : 7
+    }
+  ];
+
+  return all.sort((a,b) => a.priority - b.priority).slice(0, 3);
+}
+
+// ════════════════════════════════════════════
+// CHANTIER LLM
+// ════════════════════════════════════════════
+const chantierContexts = {
+  rgpd: {
+    name: 'Registre des traitements RGPD',
+    intro: (a) => `Bonjour ${a.prenom||'Docteur'}, je vais vous aider à créer votre registre des traitements RGPD.
+
+D'après vos réponses, votre cabinet est composé de ${a.type_cabinet||'une structure libérale'}, avec ${a.secretaire||'du personnel'}.
+
+Je vais générer votre registre en quelques échanges. Il sera prêt à exporter en PDF, conforme aux exigences CNIL — sans que vous ayez à connaître la réglementation.
+
+Première question : dans votre activité quotidienne, utilisez-vous un logiciel de prise de rendez-vous en plus de votre DPI ?`,
+    options: ['Oui, Doctolib', 'Oui, un autre outil', 'Non, tout est dans le DPI', 'Je ne sais pas exactement'],
+    followUp: {
+      'Oui, Doctolib': "Parfait. Doctolib traite effectivement des données patients pour la prise de RDV — c'est un traitement à déclarer dans votre registre. Je l'ajoute.\n\nVoici votre premier traitement enregistré :",
+      default: "Je note cela. Voici le premier traitement identifié pour votre registre :"
+    }
+  },
+  ia_securisee: {
+    name: 'Sécuriser l\'usage de l\'IA',
+    intro: (a) => `Bonjour ${a.prenom||'Docteur'}. Vous avez indiqué utiliser des outils IA avec des données patients — je vais vous aider à sécuriser cela immédiatement.
+
+La bonne nouvelle : il n'y a rien à installer. En quelques étapes, nous allons mettre en place un protocole simple qui protège vos données avant tout envoi.
+
+Pour commencer — quel outil IA utilisez-vous le plus souvent dans votre pratique ?`,
+    options: ['ChatGPT', 'Claude (Anthropic)', 'L\'IA intégrée à Doctolib', 'Un outil de dictée'],
+    followUp: {
+      default: "D'accord. Pour cet outil, voici le protocole de protection que je vous recommande, adapté à votre situation :"
+    }
+  },
+  acces: {
+    name: 'Cartographie des accès',
+    intro: (a) => `Bonjour ${a.prenom||'Docteur'}. Je vais vous aider à cartographier et sécuriser les accès à vos données patients.
+
+Vous avez mentionné ${a.remplacants !== 'Jamais' ? 'recevoir des remplaçants' : 'ne pas avoir de remplaçants'}${a.secretaire !== 'Non, je gère seul' ? ' et avoir une secrétaire' : ''}.
+
+Commençons par recenser tous ceux qui ont accès à votre logiciel médical. En dehors de vous, qui peut actuellement se connecter à votre DPI ?`,
+    options: ['Ma secrétaire uniquement', 'Ma secrétaire + mes remplaçants', 'Mes remplaçants uniquement', 'Personne d\'autre'],
+    followUp: {
+      default: "Je cartographie cela. Voici la matrice d'accès que je vous propose :"
+    }
+  },
+  notice_patient: {
+    name: 'Notice d\'information patient IA',
+    intro: (a) => `Bonjour ${a.prenom||'Docteur'}. Je vais rédiger votre notice d'information patient sur l'usage de l'IA, conforme à l'AI Act d'août 2026.
+
+D'après vos réponses, vous utilisez : ${(a.outils_ia||['des outils IA']).join(', ')}.
+
+Cette notice doit être affichée dans votre salle d'attente et disponible sur demande. Elle est personnalisée à vos outils réels — pas un document générique.
+
+Comment souhaitez-vous la diffuser ?`,
+    options: ['Affichage salle d\'attente', 'Document remis à chaque patient', 'Sur mon site web', 'Les trois'],
+    followUp: {
+      default: "Parfait. Je génère votre notice personnalisée :"
+    }
+  }
+};
+
+let currentChantier = null;
+let chantierStep = 0;
+let pendingOptions = null;
+
+function lancerChantier(id, title) {
+  currentChantier = id;
+  chantierStep = 0;
+  document.getElementById('c-name').textContent = title;
+  document.getElementById('c-messages').innerHTML = '';
+  goTo('s-chantier');
+
+  const ctx = chantierContexts[id];
+  setTimeout(() => {
+    addMsg('ia', ctx.intro(answers));
+    setTimeout(() => {
+      pendingOptions = ctx.options;
+      addOptions(ctx.options);
+    }, 400);
+  }, 300);
+}
+
+function addMsg(role, text) {
+  const c = document.getElementById('c-messages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role}`;
+  const lbl = document.createElement('div');
+  lbl.className = 'msg-label';
+  lbl.textContent = role === 'ia' ? 'Assistant MedVault' : 'Vous';
+  const bub = document.createElement('div');
+  bub.className = 'msg-bubble';
+  bub.textContent = text;
+  div.appendChild(lbl);
+  div.appendChild(bub);
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
+function addOptions(options) {
+  const c = document.getElementById('c-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'ia-options';
+  wrap.id = 'ia-opts';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'ia-option';
+    btn.innerHTML = `<span class="opt-arrow">›</span> ${opt}`;
+    btn.onclick = () => {
+      document.getElementById('ia-opts')?.remove();
+      handleChantierReply(opt);
+    };
+    wrap.appendChild(btn);
+  });
+  c.appendChild(wrap);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showTyping() {
+  const c = document.getElementById('c-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ia';
+  div.id = 'typing-ia';
+  const lbl = document.createElement('div');
+  lbl.className = 'msg-label';
+  lbl.textContent = 'Assistant MedVault';
+  const tw = document.createElement('div');
+  tw.className = 'typing-wrap';
+  tw.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  div.appendChild(lbl);
+  div.appendChild(tw);
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
+function removeTyping() { document.getElementById('typing-ia')?.remove(); }
+
+function handleChantierReply(text) {
+  addMsg('user', text);
+  chantierStep++;
+
+  showTyping();
+
+  setTimeout(() => {
+    removeTyping();
+    const ctx = chantierContexts[currentChantier];
+    const response = ctx.followUp[text] || ctx.followUp['default'];
+    addMsg('ia', response);
+
+    // Après la 1ère réponse → montrer un document généré
+    setTimeout(() => {
+      if (chantierStep === 1) {
+        showGeneratedDoc();
+      }
+    }, 500);
+  }, 1100);
+}
+
+function showGeneratedDoc() {
+  const c = document.getElementById('c-messages');
+  const nom = answers['prenom'] || 'Votre médecin';
+  const type = answers['type_cabinet'] || 'Cabinet libéral';
+
+  let docHtml = '';
+
+  if (currentChantier === 'rgpd') {
+    docHtml = `
+      <div class="doc-preview">
+        <div class="doc-header">
+          <div class="doc-icon">📋</div>
+          <div>
+            <div class="doc-title">Registre des traitements — Extrait</div>
+            <div class="doc-sub">Traitement n°1 sur ~8 identifiés</div>
+          </div>
+        </div>
+        <div class="doc-row"><div class="doc-row-label">Responsable</div><div class="doc-row-val">Dr ${nom}</div></div>
+        <div class="doc-row"><div class="doc-row-label">Traitement</div><div class="doc-row-val">Gestion des rendez-vous patients (Doctolib)</div></div>
+        <div class="doc-row"><div class="doc-row-label">Finalité</div><div class="doc-row-val">Organisation et suivi des consultations</div></div>
+        <div class="doc-row"><div class="doc-row-label">Données traitées</div><div class="doc-row-val">Nom, prénom, date de naissance, téléphone, email</div></div>
+        <div class="doc-row"><div class="doc-row-label">Durée de rétention</div><div class="doc-row-val">3 ans après le dernier RDV</div></div>
+        <div class="doc-row"><div class="doc-row-label">Base légale</div><div class="doc-row-val">Obligation légale + consentement</div></div>
+        <div class="doc-actions">
+          <button class="btn-doc btn-doc-primary" onclick="alert('Le registre complet serait généré ici en PDF — 8 traitements identifiés.')">⬇ Télécharger le registre complet (PDF)</button>
+          <button class="btn-doc btn-doc-secondary" onclick="continuerChantier()">Continuer →</button>
+        </div>
+      </div>`;
+  } else if (currentChantier === 'notice_patient') {
+    docHtml = `
+      <div class="doc-preview">
+        <div class="doc-header">
+          <div class="doc-icon">📢</div>
+          <div>
+            <div class="doc-title">Notice d'information patient — IA</div>
+            <div class="doc-sub">Conforme AI Act — personnalisée à votre cabinet</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--ink);line-height:1.7;font-style:italic;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:12px;">
+          "Dans ce cabinet, des outils d'intelligence artificielle sont utilisés pour assister la rédaction de documents médicaux (comptes-rendus, courriers). Vos données personnelles sont traitées de façon sécurisée et ne sont jamais transmises à des tiers sans protection. Vous pouvez demander des informations complémentaires à votre médecin."
+        </div>
+        <div class="doc-row"><div class="doc-row-label">Format</div><div class="doc-row-val">Affichage salle d'attente + remise patient</div></div>
+        <div class="doc-row"><div class="doc-row-label">Conformité</div><div class="doc-row-val">AI Act août 2026 ✓ · RGPD ✓</div></div>
+        <div class="doc-actions">
+          <button class="btn-doc btn-doc-primary" onclick="alert('Notice exportée en PDF prête à imprimer.')">⬇ Télécharger (PDF)</button>
+          <button class="btn-doc btn-doc-secondary" onclick="continuerChantier()">Personnaliser →</button>
+        </div>
+      </div>`;
+  } else {
+    docHtml = `
+      <div class="doc-preview">
+        <div class="doc-header">
+          <div class="doc-icon">🔐</div>
+          <div>
+            <div class="doc-title">Matrice des accès — ${type}</div>
+            <div class="doc-sub">Générée depuis vos réponses</div>
+          </div>
+        </div>
+        <div class="doc-row"><div class="doc-row-label">Dr ${nom}</div><div class="doc-row-val">Accès complet · Tokenisation · Détokenisation</div></div>
+        <div class="doc-row"><div class="doc-row-label">Secrétaire</div><div class="doc-row-val">Agenda · Coordonnées · Pas de notes cliniques</div></div>
+        <div class="doc-row"><div class="doc-row-label">Remplaçant</div><div class="doc-row-val">Dossier du jour uniquement · Accès temporaire</div></div>
+        <div class="doc-row"><div class="doc-row-label">Proxy IA</div><div class="doc-row-val">Tokenisation uniquement · Pas de détokenisation</div></div>
+        <div class="doc-actions">
+          <button class="btn-doc btn-doc-primary" onclick="alert('Matrice exportée — prête à mettre en œuvre.')">⬇ Exporter</button>
+          <button class="btn-doc btn-doc-secondary" onclick="continuerChantier()">Affiner →</button>
+        </div>
+      </div>`;
+  }
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = docHtml;
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'msg msg-ia';
+  const lbl = document.createElement('div');
+  lbl.className = 'msg-label';
+  lbl.textContent = 'Assistant MedVault';
+  msgDiv.appendChild(lbl);
+  msgDiv.appendChild(wrap.firstChild);
+  c.appendChild(msgDiv);
+  c.scrollTop = c.scrollHeight;
+}
+
+function continuerChantier() {
+  addMsg('ia', "C'est un bon début. Voulez-vous que je génère les éléments suivants du chantier, ou préférez-vous explorer un autre chantier depuis votre diagnostic ?");
+  setTimeout(() => {
+    addOptions(['Continuer ce chantier', 'Voir les autres chantiers', 'Télécharger ce qui est prêt']);
+  }, 300);
+}
+
+function sendMsg() {
+  const input = document.getElementById('c-input');
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = '';
+  document.getElementById('ia-opts')?.remove();
+  handleChantierReply(val);
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

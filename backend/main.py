@@ -643,7 +643,7 @@ class ChatMessageBody(BaseModel):
 
 
 class ChatMessageResponse(BaseModel):
-    """Réponse parsée du chat assistant (V2 — 4 phases avec suggestions/plan/end)."""
+    """Réponse parsée du chat assistant (V2 — 4 phases avec suggestions/plan/end + Mermaid WSF tour 4)."""
     text: str                                     # message principal nettoyé
     suggestions: Optional[list[str]] = None       # 3 réponses rapides cliquables
     plan: Optional[list[dict[str, Any]]] = None   # étapes du plan d'action
@@ -651,7 +651,8 @@ class ChatMessageResponse(BaseModel):
     user_message_count: int
     max_user_messages: int
     remaining: int
-    provider: Optional[str] = None                # "anthropic" | "ollama" (D-040)
+    provider: Optional[str] = None                # "anthropic" | "ollama" | "webllm" (D-040)
+    mermaid_graph: Optional[dict[str, Any]] = None  # graphe WSF du chantier (tour 4, C.A)
 
 
 @app.get("/interviews/{interview_id}/modules/{module_id}/chat", tags=["chat"])
@@ -697,6 +698,7 @@ async def get_chat_history(
                 "ended": meta.get("ended", False),
                 "created_at": m.get("created_at"),
                 "provider": m.get("provider"),
+                "mermaid_graph": meta.get("mermaid_graph"),
             })
     return {
         "messages": enriched,
@@ -717,7 +719,7 @@ async def post_chat_message(
 
     Limites produit V1 :
      - 1 conversation par chantier (groupée par (interview, module, email))
-     - 20 messages user max par conversation
+     - 10 messages user max par conversation
      - modèle Claude Haiku, max_tokens=800
     """
     from src.chat_assistant import (
@@ -833,6 +835,7 @@ async def post_chat_message(
         "suggestions": parsed.get("suggestions"),
         "plan": parsed.get("plan"),
         "ended": parsed.get("ended", False),
+        "mermaid_graph": parsed.get("mermaid_graph"),
     }
     import json as _json
     persisted_content = text_clean + "\n\n__LUGIA_META__:" + _json.dumps(meta_payload, ensure_ascii=False)
@@ -850,6 +853,7 @@ async def post_chat_message(
         user_message_count=new_count,
         max_user_messages=MAX_USER_MESSAGES,
         provider=provider,
+        mermaid_graph=parsed.get("mermaid_graph"),
         remaining=max(0, MAX_USER_MESSAGES - new_count),
     )
 
@@ -927,6 +931,7 @@ class ChatPersistBody(BaseModel):
     suggestions: Optional[list[str]] = None
     plan: Optional[list[dict[str, Any]]] = None
     ended: bool = False
+    mermaid_graph: Optional[dict[str, Any]] = None  # C.A — graphe WSF du tour 4
     provider: str = "webllm"  # "webllm" attendu, mais on accepte "anthropic"/"ollama" pour debug
 
 
@@ -982,6 +987,7 @@ async def persist_chat_exchange(
         "suggestions": body.suggestions,
         "plan": body.plan,
         "ended": body.ended,
+        "mermaid_graph": body.mermaid_graph,
     }
     persisted_content = (
         (body.assistant_text or "")

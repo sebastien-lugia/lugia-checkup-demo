@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vault — Configuration guidée</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0f1117;
+    color: #e8e6e1;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header {
+    padding: 12px 24px;
+    background: #0f1117;
+    border-bottom: 1px solid #1e2030;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .header-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px #4ade80;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    color: #e8e6e1;
+    letter-spacing: 0.02em;
+  }
+
+  .header-sub {
+    font-size: 11px;
+    color: #4a5068;
+    margin-left: auto;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .progress-bar { height: 2px; background: #1e2030; flex-shrink: 0; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #4ade80);
+    transition: width 0.6s ease;
+    width: 0%;
+  }
+
+  .main { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── DIALOGUE ── */
+  .dialogue-panel {
+    width: 380px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #1e2030;
+    background: #0d0f18;
+  }
+
+  .dialogue-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .dialogue-messages::-webkit-scrollbar { width: 4px; }
+  .dialogue-messages::-webkit-scrollbar-thumb { background: #2a2d3e; border-radius: 2px; }
+
+  .msg { display: flex; flex-direction: column; gap: 4px; animation: fadeSlide 0.4s ease forwards; opacity: 0; }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: #4a5068; padding: 0 4px; }
+  .msg-ia .msg-label { color: #6366f1; }
+  .msg-user .msg-label { color: #4ade80; text-align: right; }
+
+  .msg-bubble {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    max-width: 92%;
+    white-space: pre-wrap;
+  }
+
+  .msg-ia .msg-bubble {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    color: #c8c6d0;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+  }
+
+  .msg-user .msg-bubble {
+    background: #1a2e1f;
+    border: 1px solid #2a3e2d;
+    color: #86efac;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+    text-align: right;
+  }
+  .msg-user { align-items: flex-end; }
+
+  .options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    animation: fadeSlide 0.4s ease 0.2s forwards;
+    opacity: 0;
+  }
+
+  .option-btn {
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    color: #9b99a8;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .option-btn:hover {
+    background: #1e2133;
+    border-color: #6366f1;
+    color: #e8e6e1;
+    transform: translateX(3px);
+  }
+
+  .opt-arrow { color: #6366f1; font-size: 10px; }
+
+  .input-area {
+    padding: 12px 16px;
+    border-top: 1px solid #1e2030;
+    display: flex;
+    gap: 8px;
+  }
+
+  .input-field {
+    flex: 1;
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    color: #e8e6e1;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus { border-color: #6366f1; }
+  .input-field::placeholder { color: #4a5068; }
+
+  .send-btn {
+    background: #6366f1;
+    border: none;
+    color: white;
+    padding: 9px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .send-btn:hover { background: #4f52d4; }
+
+  /* ── SCHEMA ── */
+  .schema-panel {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #0f1117;
+  }
+
+  .schema-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(#1e2030 1px, transparent 1px),
+      linear-gradient(90deg, #1e2030 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.35;
+  }
+
+  .canvas-label {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #2a2d3e;
+  }
+
+  svg#schema-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .node { animation: nodeAppear 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity: 0; }
+  @keyframes nodeAppear {
+    from { opacity: 0; transform: scale(0.5); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .edge { fill: none; stroke: #2a2d3e; stroke-width: 1.5; stroke-dasharray: 5 3; animation: edgeDraw 0.5s ease forwards; opacity: 0; }
+  @keyframes edgeDraw {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 8px 14px;
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+  }
+
+  .typing-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #6366f1;
+    animation: typingBounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  .legend {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background: rgba(13,15,24,0.9);
+    border: 1px solid #1e2030;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .legend-title { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: #4a5068; margin-bottom: 3px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 10px; color: #6b6880; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-dot"></div>
+  <span class="header-title">Vault — Configuration guidée</span>
+  <span class="header-sub">Prototype v0.1</span>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="main">
+  <div class="dialogue-panel">
+    <div class="dialogue-messages" id="messages"></div>
+    <div class="input-area">
+      <input class="input-field" id="userInput" placeholder="Répondez librement ou choisissez une option…" />
+      <button class="send-btn" onclick="handleFreeInput()">Envoyer</button>
+    </div>
+  </div>
+
+  <div class="schema-panel">
+    <span class="canvas-label">Schéma du cabinet</span>
+    <svg id="schema-svg">
+      <defs>
+        <marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#3a3d5e"/>
+        </marker>
+      </defs>
+      <g id="edges-layer"></g>
+      <g id="nodes-layer"></g>
+    </svg>
+    <div class="legend">
+      <div class="legend-title">Sensibilité des champs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>Identifiant direct</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>Identifiant indirect</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>Donnée médicale</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>Administratif</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>Externe</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = { nodes: {}, edges: [], step: 0 };
+
+const positions = {
+  cabinet:      { x: 380, y: 60  },
+  medecin:      { x: 160, y: 180 },
+  secretaire:   { x: 580, y: 180 },
+  patient:      { x: 200, y: 330 },
+  consultation: { x: 440, y: 300 },
+  teleconsult:  { x: 660, y: 230 },
+  ordonnance:   { x: 190, y: 470 },
+  courrier:     { x: 450, y: 450 },
+  specialiste:  { x: 650, y: 390 },
+  labo:         { x: 320, y: 560 },
+};
+
+const nodeDefs = {
+  cabinet:      { label: 'Cabinet',          type: 'Structure',        color: '#fb923c', fields: [['Nom du cabinet','#fb923c'],['Adresse','#f87171'],['N° FINESS','#f87171']] },
+  medecin:      { label: 'Médecin',          type: 'Praticien',        color: '#6366f1', fields: [['Nom / Prénom','#f87171'],['N° RPPS','#f87171'],['Spécialité','#4a5068']] },
+  secretaire:   { label: 'Secrétaire',       type: 'Personnel',        color: '#fb923c', fields: [['Nom / Prénom','#f87171'],['Horaires','#4a5068'],['Accès données','#f87171']] },
+  patient:      { label: 'Patient',          type: 'Personne physique', color: '#f87171', fields: [['Nom / Prénom','#f87171'],['Date de naissance','#f87171'],['N° Sécu','#f87171'],['Adresse','#f87171'],['Téléphone','#f87171']] },
+  consultation: { label: 'Consultation',     type: 'Acte médical',     color: '#4ade80', fields: [['Date','#6366f1'],['Motif','#4ade80'],['Diagnostic CIM-10','#4ade80'],['Notes cliniques','#4ade80']] },
+  teleconsult:  { label: 'Téléconsultation', type: 'Acte médical',     color: '#4ade80', fields: [['Date / heure','#6366f1'],['Plateforme','#4a5068'],['Compte-rendu','#4ade80']] },
+  ordonnance:   { label: 'Ordonnance',       type: 'Document',         color: '#4ade80', fields: [['Date','#6366f1'],['Médicaments','#4ade80'],['Posologie','#4ade80'],['Durée','#4a5068']] },
+  courrier:     { label: 'Courrier médical', type: 'Document',         color: '#38bdf8', fields: [['Destinataire','#f87171'],['Date','#6366f1'],['Contenu clinique','#4ade80']] },
+  specialiste:  { label: 'Spécialiste',      type: 'Praticien externe', color: '#38bdf8', fields: [['Nom / Prénom','#f87171'],['Spécialité','#4a5068'],['Établissement','#4a5068']] },
+  labo:         { label: 'Résultat labo',    type: 'Examen',           color: '#4ade80', fields: [['Date','#6366f1'],["Type d'examen",'#4ade80'],['Valeurs','#4ade80'],['Laboratoire','#4a5068']] },
+};
+
+const scenario = [
+  {
+    ia: "Bonjour, je suis votre assistant de configuration.\n\nJe vais vous poser quelques questions simples pour dessiner le schéma de données de votre cabinet — aucune action technique de votre part.\n\nVous êtes médecin généraliste ?",
+    options: ["Oui, généraliste", "Non, spécialiste", "Cabinet de groupe"],
+    onAnswer: () => { addNode('cabinet'); addNode('medecin'); addEdge('cabinet','medecin','emploie'); },
+    progress: 14
+  },
+  {
+    ia: "Vous exercez seul ou avec d'autres praticiens dans le même cabinet ?",
+    options: ["Seul", "En groupe", "Avec remplaçants ponctuels"],
+    onAnswer: () => {},
+    progress: 26
+  },
+  {
+    ia: "Vous avez du personnel administratif — secrétaire ou assistant ?",
+    options: ["Oui, secrétaire", "Non, je gère seul", "Secrétariat externalisé"],
+    onAnswer: (a) => {
+      if (a !== "Non, je gère seul") { addNode('secretaire'); addEdge('cabinet','secretaire','emploie'); }
+    },
+    progress: 38
+  },
+  {
+    ia: "Vos patients — vous les recevez uniquement en présentiel, ou aussi en téléconsultation ?",
+    options: ["Présentiel uniquement", "Les deux", "Surtout téléconsultation"],
+    onAnswer: (a) => {
+      addNode('patient'); addNode('consultation'); addEdge('patient','consultation','génère');
+      if (a !== "Présentiel uniquement") { addNode('teleconsult'); addEdge('patient','teleconsult','génère'); }
+    },
+    progress: 52
+  },
+  {
+    ia: "À l'issue des consultations, vous rédigez des ordonnances ?",
+    options: ["Oui, régulièrement", "Parfois", "Rarement"],
+    onAnswer: () => { addNode('ordonnance'); addEdge('consultation','ordonnance','produit'); },
+    progress: 63
+  },
+  {
+    ia: "Vous adressez vos patients à des spécialistes — cardiologue, ophtalmo… ?",
+    options: ["Oui, fréquemment", "Occasionnellement", "Non"],
+    onAnswer: (a) => {
+      if (a !== "Non") {
+        addNode('courrier'); addNode('specialiste');
+        addEdge('consultation','courrier','produit');
+        addEdge('courrier','specialiste','adressé à');
+      }
+    },
+    progress: 76
+  },
+  {
+    ia: "Vous recevez des résultats de laboratoire pour vos patients ?",
+    options: ["Oui, régulièrement", "Parfois", "Non"],
+    onAnswer: (a) => {
+      if (a !== "Non") {
+        addNode('labo');
+        addEdge('patient','labo','a');
+        addEdge('labo','consultation','alimente');
+      }
+    },
+    progress: 88
+  },
+  {
+    ia: "✦ Votre schéma est prêt.\n\nJ'ai identifié les objets de données de votre cabinet et classifié automatiquement chaque champ selon son niveau de sensibilité.\n\nQue souhaitez-vous faire maintenant ?",
+    options: ["Affiner un objet", "Voir le registre RGPD", "Configurer le vault"],
+    onAnswer: () => {},
+    progress: 100,
+    final: true
+  }
+];
+
+function addNode(key) {
+  if (state.nodes[key]) return;
+  state.nodes[key] = true;
+  const def = nodeDefs[key];
+  const pos = positions[key];
+  const W = 152, H = 42 + def.fields.length * 15;
+  const svg = document.getElementById('nodes-layer');
+
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('class','node');
+  g.setAttribute('transform',`translate(${pos.x - W/2},${pos.y})`);
+
+  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('width', W); rect.setAttribute('height', H);
+  rect.setAttribute('rx', 10);
+  rect.setAttribute('fill','#1a1d2e');
+  rect.setAttribute('stroke', def.color);
+  rect.setAttribute('stroke-width','1.5');
+  rect.setAttribute('filter','drop-shadow(0 4px 14px rgba(0,0,0,0.5))');
+  g.appendChild(rect);
+
+  const title = document.createElementNS('http://www.w3.org/2000/svg','text');
+  title.setAttribute('x', W/2); title.setAttribute('y', 16);
+  title.setAttribute('fill','#e8e6e1');
+  title.setAttribute('font-family',"'DM Serif Display', serif");
+  title.setAttribute('font-size','12');
+  title.setAttribute('text-anchor','middle');
+  title.setAttribute('dominant-baseline','middle');
+  title.textContent = def.label;
+  g.appendChild(title);
+
+  const sub = document.createElementNS('http://www.w3.org/2000/svg','text');
+  sub.setAttribute('x', W/2); sub.setAttribute('y', 28);
+  sub.setAttribute('fill','#4a5068');
+  sub.setAttribute('font-family',"'DM Sans', sans-serif");
+  sub.setAttribute('font-size','8');
+  sub.setAttribute('text-transform','uppercase');
+  sub.setAttribute('letter-spacing','0.08em');
+  sub.setAttribute('text-anchor','middle');
+  sub.setAttribute('dominant-baseline','middle');
+  sub.textContent = def.type.toUpperCase();
+  g.appendChild(sub);
+
+  const sep = document.createElementNS('http://www.w3.org/2000/svg','line');
+  sep.setAttribute('x1',8); sep.setAttribute('x2', W-8);
+  sep.setAttribute('y1',36); sep.setAttribute('y2',36);
+  sep.setAttribute('stroke','#2a2d3e'); sep.setAttribute('stroke-width','1');
+  g.appendChild(sep);
+
+  def.fields.forEach(([fname, fcolor], i) => {
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', 14); dot.setAttribute('cy', 44 + i*15 + 4);
+    dot.setAttribute('r', 3); dot.setAttribute('fill', fcolor);
+    g.appendChild(dot);
+
+    const ft = document.createElementNS('http://www.w3.org/2000/svg','text');
+    ft.setAttribute('x', 22); ft.setAttribute('y', 44 + i*15);
+    ft.setAttribute('fill', fcolor === '#4a5068' ? '#5a5870' : fcolor);
+    ft.setAttribute('font-family',"'DM Sans', sans-serif");
+    ft.setAttribute('font-size','9');
+    ft.setAttribute('dominant-baseline','hanging');
+    ft.setAttribute('opacity', fcolor === '#4a5068' ? '0.7' : '0.9');
+    ft.textContent = fname;
+    g.appendChild(ft);
+  });
+
+  svg.appendChild(g);
+}
+
+function addEdge(fromKey, toKey, label) {
+  const k = `${fromKey}-${toKey}`;
+  if (state.edges.includes(k)) return;
+  state.edges.push(k);
+
+  const from = positions[fromKey], to = positions[toKey];
+  if (!from || !to) return;
+
+  const fh = 42 + nodeDefs[fromKey].fields.length * 15;
+  const x1 = from.x, y1 = from.y + fh;
+  const x2 = to.x,   y2 = to.y;
+  const mx = (x1+x2)/2, my = (y1+y2)/2;
+
+  const svg = document.getElementById('edges-layer');
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d', `M${x1},${y1} Q${mx},${y1} ${x2},${y2}`);
+  path.setAttribute('class','edge');
+  path.setAttribute('marker-end','url(#arrow)');
+  svg.appendChild(path);
+
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x', mx); txt.setAttribute('y', my - 5);
+  txt.setAttribute('fill','#3a3d5e');
+  txt.setAttribute('font-family',"'DM Sans', sans-serif");
+  txt.setAttribute('font-size','9');
+  txt.setAttribute('text-anchor','middle');
+  txt.textContent = label;
+  svg.appendChild(txt);
+}
+
+function addMessage(role, text) {
+  const c = document.getElementById('messages');
+  const msg = document.createElement('div');
+  msg.className = `msg msg-${role}`;
+  const lbl = document.createElement('div');
+  lbl.className = 'msg-label';
+  lbl.textContent = role === 'ia' ? 'Assistant' : 'Vous';
+  const bub = document.createElement('div');
+  bub.className = 'msg-bubble';
+  bub.textContent = text;
+  msg.appendChild(lbl); msg.appendChild(bub);
+  c.appendChild(msg);
+  c.scrollTop = c.scrollHeight;
+}
+
+function addOptions(options, onSelect) {
+  const c = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'options-container';
+  div.id = 'current-options';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-arrow">›</span> ${opt}`;
+    btn.onclick = () => { document.getElementById('current-options')?.remove(); onSelect(opt); };
+    div.appendChild(btn);
+  });
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showTyping() {
+  const c = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ia'; div.id = 'typing-msg';
+  const lbl = document.createElement('div'); lbl.className = 'msg-label'; lbl.textContent = 'Assistant';
+  const ind = document.createElement('div'); ind.className = 'typing-indicator';
+  ind.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  div.appendChild(lbl); div.appendChild(ind);
+  c.appendChild(div); c.scrollTop = c.scrollHeight;
+}
+
+function removeTyping() { document.getElementById('typing-msg')?.remove(); }
+function setProgress(p) { document.getElementById('progress').style.width = p + '%'; }
+
+function nextStep(userAnswer) {
+  const step = scenario[state.step];
+  if (!step) return;
+  if (userAnswer) {
+    addMessage('user', userAnswer);
+    step.onAnswer(userAnswer);
+    setProgress(step.progress);
+  }
+  state.step++;
+  const next = scenario[state.step];
+  if (!next) return;
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addMessage('ia', next.ia);
+    setTimeout(() => addOptions(next.options, ans => nextStep(ans)), 250);
+  }, 900);
+}
+
+function handleFreeInput() {
+  const input = document.getElementById('userInput');
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = '';
+  document.getElementById('current-options')?.remove();
+  nextStep(val);
+}
+
+document.getElementById('userInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleFreeInput();
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const first = scenario[0];
+    addMessage('ia', first.ia);
+    first.onAnswer('');
+    setProgress(5);
+    setTimeout(() => addOptions(first.options, ans => nextStep(ans)), 350);
+  }, 500);
+});
+</script>
+</body>
+</html>

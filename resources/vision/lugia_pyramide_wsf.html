@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lugia & Co — Pyramide WSF</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:#0a0c11; --bg2:#11141b; --bg3:#1a1e27; --line:#242a34;
+  --txt:#eceef2; --txt2:#8e96a4; --txt3:#4e5663;
+  --optimal:#34d399; --degrade:#fbbf24; --risque:#fb7185; --bloque:#ef4444;
+  --accent:#818cf8; --accent2:#a5b4fc;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--txt); height:100vh; overflow:hidden; display:flex; flex-direction:column; }
+
+.header { padding:13px 24px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:16px; flex-shrink:0; }
+.h-logo { font-family:'Fraunces',serif; font-size:17px; font-weight:900; }
+.h-logo span { color:var(--accent2); }
+.h-title { font-size:13px; color:var(--txt2); }
+
+.lens-bar { display:flex; gap:3px; background:var(--bg2); padding:3px; border-radius:8px; border:1px solid var(--line); margin-left:auto; flex-wrap:wrap; }
+.lens-btn { padding:5px 11px; border-radius:6px; font-size:10px; cursor:pointer; border:none; background:none; color:var(--txt3); font-family:'Inter',sans-serif; transition:all .2s; white-space:nowrap; }
+.lens-btn:hover { color:var(--txt2); }
+.lens-btn.active { background:var(--bg3); color:var(--txt); }
+
+.main { flex:1; display:grid; grid-template-columns:1fr 360px; overflow:hidden; }
+.pyramid-area { position:relative; border-right:1px solid var(--line); display:flex; align-items:center; justify-content:center; background:radial-gradient(ellipse at 50% 45%, rgba(129,140,248,0.04) 0%, transparent 60%), var(--bg); }
+
+svg#pyramid { width:100%; height:100%; max-width:780px; }
+
+.wsf-block { cursor:pointer; transition:all .25s; }
+.wsf-block:hover .block-shape { filter:brightness(1.15); stroke-width:2.5; }
+.block-shape { transition:all .25s; }
+.block-label { font-family:'Inter',sans-serif; font-weight:600; text-anchor:middle; dominant-baseline:middle; pointer-events:none; fill:var(--txt); }
+.block-state { font-family:'JetBrains Mono',monospace; font-size:9px; text-anchor:middle; pointer-events:none; }
+.side-label { font-family:'Inter',sans-serif; font-weight:600; letter-spacing:2px; pointer-events:none; }
+.arrow-link { stroke:var(--txt3); stroke-width:2; opacity:0.6; }
+
+.selected .block-shape { stroke-width:3 !important; }
+
+/* PANEL */
+.panel { padding:22px; overflow-y:auto; background:var(--bg); }
+.panel::-webkit-scrollbar { width:4px; }
+.panel::-webkit-scrollbar-thumb { background:var(--line); border-radius:2px; }
+
+.ps-title { font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.13em; color:var(--txt3); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.ps-title::after { content:''; flex:1; height:1px; background:var(--line); }
+.panel-section { margin-bottom:22px; }
+
+.detail-comp { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent2); text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px; }
+.detail-title { font-family:'Fraunces',serif; font-size:22px; font-weight:600; margin-bottom:6px; }
+.detail-desc { font-size:12px; color:var(--txt2); line-height:1.6; margin-bottom:14px; }
+.detail-state-badge { display:inline-block; padding:4px 11px; border-radius:13px; font-size:11px; font-weight:600; margin-bottom:14px; }
+
+.mermaid-card { background:var(--bg2); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:10px; }
+.mc-head { padding:10px 14px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; }
+.mc-type { font-size:12px; font-weight:600; color:var(--txt); }
+.mc-badge { font-size:9px; font-family:'JetBrains Mono',monospace; padding:2px 7px; border-radius:8px; background:var(--bg3); color:var(--accent2); margin-left:auto; }
+.mc-question { padding:8px 14px 4px; font-size:11px; color:var(--txt3); font-style:italic; }
+.mc-code { padding:10px 14px 14px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--txt2); line-height:1.6; white-space:pre-wrap; overflow-x:auto; }
+.mc-code .kw { color:var(--accent2); }
+.mc-code .node { color:var(--optimal); }
+
+.objects-list { display:flex; flex-direction:column; gap:6px; }
+.obj-item { display:flex; align-items:center; gap:9px; padding:8px 11px; background:var(--bg2); border:1px solid var(--line); border-radius:8px; font-size:12px; }
+.obj-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.obj-name { color:var(--txt); }
+.obj-role { margin-left:auto; font-size:10px; color:var(--txt3); font-family:'JetBrains Mono',monospace; }
+
+.intro-panel { color:var(--txt2); font-size:13px; line-height:1.7; }
+.intro-panel strong { color:var(--txt); }
+
+.legend-mini { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+.lm-item { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--txt3); }
+.lm-dot { width:8px; height:8px; border-radius:2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-logo">Lugia <span>&</span> Co</div>
+  <div class="h-title">Pyramide du Work System Framework · Alter</div>
+  <div class="lens-bar">
+    <button class="lens-btn active" onclick="setLens('sante',event)">Santé</button>
+    <button class="lens-btn" onclick="setLens('conformite',event)">Conformité</button>
+    <button class="lens-btn" onclick="setLens('charge',event)">Charge</button>
+    <button class="lens-btn" onclick="setLens('cout',event)">Coût</button>
+    <button class="lens-btn" onclick="setLens('maturite',event)">Maturité</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="pyramid-area">
+    <svg id="pyramid" viewBox="0 0 780 600" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <marker id="bidir-end" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#4e5663"/></marker>
+        <marker id="bidir-start" markerWidth="9" markerHeight="9" refX="1" refY="3" orient="auto"><path d="M7,0 L7,6 L0,3 z" fill="#4e5663"/></marker>
+      </defs>
+      <!-- contour pyramide -->
+      <polygon points="390,40 740,560 40,560" fill="none" stroke="#242a34" stroke-width="2"/>
+      <g id="pyramid-content"></g>
+    </svg>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="intro-panel">
+      <p>Voici votre cabinet selon le <strong>Work System Framework</strong> de Steven Alter — la structure canonique en pyramide.</p>
+      <br>
+      <p>Les <strong>9 composantes</strong> : au centre les 6 éléments internes empilés, encadrés par l'<strong>Environnement</strong> et les <strong>Stratégies</strong> (les côtés), posés sur l'<strong>Infrastructure</strong> (la base).</p>
+      <br>
+      <p>Cliquez sur n'importe quelle composante pour voir son détail, ses objets, et le <strong>type de diagramme Mermaid</strong> le mieux adapté pour la représenter.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── LES 9 COMPOSANTES ──
+const blocks = {
+  clients:       { label:'CLIENTS',              sante:0.85, conf:0.9, charge:0.2, cout:0.9, matur:0.8,
+    desc:"Les bénéficiaires de la valeur produite par le système de travail.",
+    objects:[['Patient','reçoit','#34d399']],
+    mermaid:{ type:'Flowchart', badge:'who→value', q:'Qui reçoit la valeur ?',
+      code:`flowchart LR
+  PROD[/Compte-rendu/] -->|délivre| CLI[Patient]` } },
+
+  produits:      { label:'PRODUITS / SERVICES',  sante:0.75, conf:0.8, charge:0.6, cout:0.6, matur:0.6,
+    desc:"Ce que le système produit : documents, actes, services rendus.",
+    objects:[['Compte-rendu','produit','#6ee7b7'],['Ordonnance','produit','#34d399'],['Courrier','produit','#fbbf24']],
+    mermaid:{ type:'Flowchart', badge:'outputs', q:'Que produit le système ?',
+      code:`flowchart LR
+  PROC(Consultation) -->|produit| CR[/Compte-rendu/]
+  CR -->|délivre| CLI[Patient]` } },
+
+  processus:     { label:'PROCESSUS & ACTIVITÉS', sante:0.60, conf:0.7, charge:0.95, cout:0.5, matur:0.4,
+    desc:"Comment le travail est réellement effectué — la séquence des actions.",
+    objects:[['Consultation','réalise','#6ee7b7'],['Rédaction','réalise','#fbbf24'],['Renouvellement','réalise','#6b7280']],
+    mermaid:{ type:'Sequence Diagram', badge:'qui→quoi→quand', q:'Comment se déroule le travail dans le temps ?',
+      code:`sequenceDiagram
+  actor Médecin
+  participant IA
+  Médecin->>IA: Soumet (tokenisé)
+  IA-->>Médecin: Restitue
+  Note over Médecin: Valide & signe` } },
+
+  participants:  { label:'PARTICIPANTS',          sante:0.80, conf:0.6, charge:0.9, cout:0.6, matur:0.7,
+    desc:"Qui fait le travail — les personnes et leurs rôles dans le système.",
+    objects:[['Médecin','rôle: complet','#6ee7b7'],['Secrétaire','rôle: agenda','#6ee7b7'],['Remplaçant','rôle: à définir','#fb7185']],
+    mermaid:{ type:'Class Diagram', badge:'rôles', q:'Qui a quel rôle et quelles permissions ?',
+      code:`classDiagram
+  class Participant {
+    +String nom
+    +Role role
+    +consulter()
+  }
+  Participant "1"-->"n" Acces : porte` } },
+
+  information:   { label:'INFORMATION',           sante:0.45, conf:0.3, charge:0.4, cout:0.4, matur:0.5,
+    desc:"Les données traitées et produites — souvent les plus sensibles.",
+    objects:[['Données patient','sensibilité: critique','#fb7185'],['Agenda','sensibilité: élevée','#fbbf24']],
+    mermaid:{ type:'Entity-Relationship', badge:'structure data', q:'Quelles données, quelles relations ?',
+      code:`erDiagram
+  PATIENT ||--o{ CONSULTATION : passe
+  CONSULTATION ||--|{ ORDONNANCE : génère
+  PATIENT {
+    string nom
+    string NIR
+  }` } },
+
+  technologies:  { label:'TECHNOLOGIES',          sante:0.55, conf:0.4, charge:0.5, cout:0.7, matur:0.9,
+    desc:"Les outils utilisés — logiciels, IA, dispositifs.",
+    objects:[['Logiciel DPI','utilisé','#6ee7b7'],['Outil IA','utilisé','#fb7185'],['Messagerie','utilisé','#6ee7b7']],
+    mermaid:{ type:'Class Diagram', badge:'outils', q:'Quels outils, quelles capacités ?',
+      code:`classDiagram
+  class OutilIA {
+    +String fournisseur
+    +bool tokenise
+    +traiter()
+  }
+  Participant --> OutilIA : utilise` } },
+
+  environnement: { label:'ENVIRONNEMENT',         sante:0.40, conf:0.2, charge:0.1, cout:0.2, matur:0.6, side:'left',
+    desc:"Le contexte externe qui contraint le système : réglementation, marché, normes.",
+    objects:[['RGPD / AI Act','contraint','#fb7185'],['Laboratoire','interface','#6b7280'],['Confrères','interface','#6ee7b7']],
+    mermaid:{ type:'State Diagram', badge:'contraintes', q:'Quelles contraintes externes pèsent ?',
+      code:`stateDiagram-v2
+  [*] --> Conforme
+  Conforme --> ARisque : nouvelle règle
+  ARisque --> Conforme : chantier` } },
+
+  strategies:    { label:'STRATÉGIES',            sante:0.65, conf:0.5, charge:0.2, cout:0.3, matur:0.4, side:'right',
+    desc:"Les orientations et objectifs qui guident le système de travail.",
+    objects:[['Gagner du temps','objectif','#6ee7b7'],['Être conforme','objectif','#fbbf24'],['Croître','objectif','#6b7280']],
+    mermaid:{ type:'Quadrant Chart', badge:'priorisation', q:'Les objectifs sont-ils alignés avec les moyens ?',
+      code:`quadrantChart
+  x-axis Effort faible --> élevé
+  y-axis Impact faible --> élevé
+  Registre RGPD: [0.2, 0.9]
+  Vault: [0.7, 0.85]` } },
+
+  infrastructure:{ label:'INFRASTRUCTURE',        sante:0.70, conf:0.6, charge:0.3, cout:0.8, matur:0.5, base:true,
+    desc:"Les ressources partagées qui supportent tout : locaux, réseau, hébergement, sauvegardes.",
+    objects:[['Hébergement HDS','supporte','#34d399'],['Réseau internet','supporte','#fbbf24'],['Sauvegardes','supporte','#fb7185']],
+    mermaid:{ type:'Flowchart', badge:'socle', q:'Qu\'est-ce qui supporte tout le reste ?',
+      code:`flowchart TB
+  INFRA[(Hébergement HDS)] -.->|supporte| TECH[Technologies]
+  INFRA -.->|supporte| PART[Participants]` } },
+};
+
+const ETAT_LABEL = v => v>=0.7?'Optimal':v>=0.5?'Fonctionnel':v>=0.4?'Dégradé':'À risque';
+const LENS = { sante:b=>b.sante, conformite:b=>b.conf, charge:b=>b.charge, cout:b=>b.cout, maturite:b=>b.matur };
+const LENS_COLOR = {
+  sante:v=>v>=0.7?'#34d399':v>=0.5?'#fbbf24':'#fb7185',
+  conformite:v=>v>=0.7?'#34d399':v>=0.4?'#fbbf24':'#fb7185',
+  charge:v=>v>=0.7?'#fb7185':v>=0.4?'#fbbf24':'#34d399',
+  cout:v=>`rgba(245,158,11,${0.4+v*0.6})`,
+  maturite:v=>`rgba(167,139,250,${0.35+v*0.65})`,
+};
+
+let currentLens='sante', selected=null;
+
+function color(id){ const b=blocks[id]; return LENS_COLOR[currentLens](LENS[currentLens](b)); }
+
+function renderPyramid(){
+  const g=document.getElementById('pyramid-content');
+  // Définition des formes internes (trapèzes empilés) façon Alter
+  // Coordonnées dans le triangle 40,560 → 740,560 → 390,40
+  const shapes = {
+    // sommet : Clients (petit triangle/trapèze)
+    clients:       { type:'poly', pts:'340,120 440,120 460,185 320,185', tx:390, ty:152 },
+    produits:      { type:'poly', pts:'305,200 475,200 495,265 285,265', tx:390, ty:232 },
+    processus:     { type:'rect', x:225, y:300, w:330, h:60, tx:390, ty:330 },
+    participants:  { type:'rect', x:150, y:400, w:150, h:55, tx:225, ty:427 },
+    information:   { type:'rect', x:315, y:400, w:150, h:55, tx:390, ty:427 },
+    technologies:  { type:'rect', x:480, y:400, w:150, h:55, tx:555, ty:427 },
+  };
+
+  let html='';
+
+  // flèches bidirectionnelles internes
+  const arrows=[
+    [390,185,390,200],[390,265,390,300], // clients-produits-processus
+    [300,340,255,400],[390,360,390,400],[480,340,540,400], // processus vers les 3
+  ];
+  arrows.forEach(([x1,y1,x2,y2])=>{
+    html+=`<line class="arrow-link" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#bidir-end)" marker-start="url(#bidir-start)"/>`;
+  });
+
+  // blocs internes
+  for(const [id,s] of Object.entries(shapes)){
+    const b=blocks[id];
+    const col=color(id);
+    const sel=selected===id?'selected':'';
+    let shape;
+    if(s.type==='poly'){
+      shape=`<polygon class="block-shape" points="${s.pts}" fill="${col}" fill-opacity="0.16" stroke="${col}" stroke-width="1.8"/>`;
+    } else {
+      shape=`<rect class="block-shape" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="6" fill="${col}" fill-opacity="0.16" stroke="${col}" stroke-width="1.8"/>`;
+    }
+    const fontSize = id==='processus'?12 : (s.type==='rect'&&s.w<200)?11:12;
+    html+=`<g class="wsf-block ${sel}" onclick="select('${id}')">
+      ${shape}
+      <text class="block-label" x="${s.tx}" y="${s.ty-5}" style="font-size:${fontSize}px" fill="${col}">${b.label}</text>
+      <text class="block-state" x="${s.tx}" y="${s.ty+10}" fill="${col}">${ETAT_LABEL(LENS[currentLens](b))}</text>
+    </g>`;
+  }
+
+  // ENVIRONNEMENT — côté gauche (vertical le long de l'arête gauche)
+  const envCol=color('environnement');
+  html+=`<g class="wsf-block ${selected==='environnement'?'selected':''}" onclick="select('environnement')">
+    <text class="side-label" x="175" y="340" fill="${envCol}" style="font-size:13px" transform="rotate(-58 175 340)">ENVIRONNEMENT</text>
+    <rect x="120" y="240" width="26" height="200" fill="${envCol}" fill-opacity="0.06" transform="rotate(-58 133 340)" rx="4"/>
+  </g>`;
+
+  // STRATÉGIES — côté droit
+  const stratCol=color('strategies');
+  html+=`<g class="wsf-block ${selected==='strategies'?'selected':''}" onclick="select('strategies')">
+    <text class="side-label" x="605" y="340" fill="${stratCol}" style="font-size:13px" transform="rotate(58 605 340)">STRATÉGIES</text>
+  </g>`;
+
+  // INFRASTRUCTURE — base
+  const infraCol=color('infrastructure');
+  html+=`<g class="wsf-block ${selected==='infrastructure'?'selected':''}" onclick="select('infrastructure')">
+    <rect class="block-shape" x="150" y="490" width="480" height="42" rx="6" fill="${infraCol}" fill-opacity="0.16" stroke="${infraCol}" stroke-width="1.8"/>
+    <text class="block-label" x="390" y="507" fill="${infraCol}" style="font-size:12px; letter-spacing:3px">INFRASTRUCTURE</text>
+    <text class="block-state" x="390" y="521" fill="${infraCol}">${ETAT_LABEL(LENS[currentLens](blocks.infrastructure))}</text>
+  </g>`;
+
+  g.innerHTML=html;
+}
+
+function select(id){
+  selected=id;
+  renderPyramid();
+  renderPanel(id);
+}
+
+function renderPanel(id){
+  const b=blocks[id];
+  const col=color(id);
+  const v=LENS[currentLens](b);
+  const panel=document.getElementById('panel');
+  panel.innerHTML=`
+    <div class="panel-section">
+      <div class="detail-comp">Composante WSF</div>
+      <div class="detail-title">${b.label.replace(/\b\w/g,c=>c.toUpperCase()).replace(/_/g,' ')}</div>
+      <div class="detail-state-badge" style="background:${col}22;color:${col}">${ETAT_LABEL(v)} · ${Math.round(v*100)}%</div>
+      <div class="detail-desc">${b.desc}</div>
+    </div>
+
+    <div class="panel-section">
+      <div class="ps-title">Objets de cette composante</div>
+      <div class="objects-list">
+        ${b.objects.map(([name,role,c])=>`<div class="obj-item">
+          <span class="obj-dot" style="background:${c}"></span>
+          <span class="obj-name">${name}</span>
+          <span class="obj-role">${role}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="ps-title">Représentation Mermaid adaptée</div>
+      <div class="mermaid-card">
+        <div class="mc-head">
+          <span class="mc-type">${b.mermaid.type}</span>
+          <span class="mc-badge">${b.mermaid.badge}</span>
+        </div>
+        <div class="mc-question">${b.mermaid.q}</div>
+        <div class="mc-code">${escapeHtml(b.mermaid.code)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function setLens(lens,ev){
+  currentLens=lens;
+  document.querySelectorAll('.lens-btn').forEach(x=>x.classList.remove('active'));
+  ev.target.classList.add('active');
+  renderPyramid();
+  if(selected) renderPanel(selected);
+}
+
+renderPyramid();
+</script>
+</body>
+</html>
