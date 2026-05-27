@@ -177,7 +177,7 @@ git push origin v1.1.9
 
 Les deux chantiers initialement prévus en V1.1.10 sont absorbés ailleurs :
 
-1. **Path A approfondissement** : remplacé par la discussion LLM 4 phases (chat A.2 v2 — D-036 + D-040 + D-043). Déjà livré en prod sur V3-charte. Limité à 20 messages en Demo, étendu en Work System payant.
+1. **Path A approfondissement** : remplacé par la discussion LLM 4 phases (chat A.2 v2 — D-036 + D-040 + D-043). Déjà livré en prod sur V3-charte. Limité à 10 messages en Demo (D-044), étendu en Work System payant.
 2. **Path B « En parler avec Lugia »** : Calendly câblé (D-037, livré). Le complément « répondre à une offre de conseil » (formulaire + lead email) est tracé en C.D du cap court terme — voir ROADMAP.
 
 Plus rien à faire spécifiquement sous V1.1.10. Les chantiers actifs sont remontés sous le cap court terme du Checkup Demo (C.A → C.D dans ROADMAP).
@@ -186,7 +186,7 @@ Plus rien à faire spécifiquement sous V1.1.10. Les chantiers actifs sont remon
 
 | Item | Statut | Description courte |
 |---|---|---|
-| **C.A — Schéma Mermaid simplifié du chantier** | ⏳ priorité 1 | Généré au tour 4 du chat, en même temps que PLAN_JSON. Affiché sous la carte plan d'action dans la modale. Compatible Claude + qwen WebLLM. |
+| **C.A — Schéma Mermaid simplifié du chantier** | ✅ livré (2026-05-27) | Deux niveaux : schéma WSF **statique** par chantier sur la page module (sans LLM), et schéma **enrichi** généré à la synthèse du chat (MERMAID_JSON) sous le plan d'action. Moteur WSF générique dans `web/lib/wsf/`. Compatible Claude + qwen WebLLM (7B + fallback 3B). |
 | **C.B — Polish PDF chantier** | ⏳ | Intégrer le schéma Mermaid produit en C.A dans le PDF reportlab existant. |
 | **C.C — Formaliser cross-sell Calendly** | ✅ déjà câblé | « En parler avec Lugia » via Calendly opérationnel (D-037). Tracking d'attribution à affiner si nécessaire. |
 | **C.D — Formulaire de réponse à offre conseil** | ⏳ | Formulaire structuré à la fin du diagnostic ou en pied de chantier, lead par email via Resend (déjà câblé pour magic links). Permet au médecin de répondre à une offre de conseil sans dépendre de Calendly. |

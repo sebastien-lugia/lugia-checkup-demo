@@ -20,7 +20,7 @@ Plateforme payante avec plusieurs offres d'abonnement (Starter / Pro / Instituti
 | **Périmètre méthodologique** | 3 axes vulgarisés WSF (Parcours / Équipe / Outils) | 9 éléments WSF complets (les 4 internes + Clients + Produits/Services + Infrastructure + Environnement + Stratégies) |
 | **Sortie diagnostic** | 1 chantier prioritaire + 3-4 autres proposés | Tous les chantiers hiérarchisés, accompagnés |
 | **Chat LLM** | Discussion limitée (20 msg max, 4 phases — D-036, D-043) | Assistant personnel multi-chantiers, persistant |
-| **Visuel** | Schéma Mermaid simplifié du chantier (C.A à construire) | Schémas Mermaid détaillés du fonctionnement du cabinet |
+| **Visuel** | Schéma Mermaid simplifié du chantier (C.A livré) | Schémas Mermaid détaillés du fonctionnement du cabinet |
 | **Livrables** | Plan d'action 4 étapes + PDF | Registre RGPD, notice patient AI Act, matrice d'accès, modèles courriers |
 | **Sécurité** | Cloud Claude + Mode Navigateur WebLLM (D-040) | SLM sécurisé étendu, vault de tokenisation côté browser |
 | **Conseil Lugia & Co** | Calendly direct (tarif standard) + formulaire offre (C.D) | Tarif réduit pour abonnés (~15-25%) |
@@ -81,9 +81,9 @@ Codes promo / tarifs réduits sur les missions de conseil Lugia & Co pour les ab
 
 Quatre chantiers identifiés pour rendre la démo robuste, prête pour des tests prospects et pour répondre à des offres de conseil.
 
-**C.A — Schéma Mermaid simplifié au tour 4 du chat (priorité 1)**
+**C.A — Schéma Mermaid simplifié du chantier (✅ livré 2026-05-27)**
 
-Le LLM génère un schéma Mermaid simplifié du process du chantier en même temps que le `PLAN_JSON` au tour 4 de la mécanique chat. Affichage sous la carte plan d'action dans la modale. Bénéfice : matérialise visuellement « le quoi » du chantier pour le médecin, sans alourdir le diagnostic. Marche pour Claude (mode Cloud) et qwen (mode Navigateur).
+Livré en deux niveaux : un schéma WSF **statique** par chantier sur la page module (prédéfini, sans LLM) et un schéma **enrichi** généré à la **synthèse** du chat (`MERMAID_JSON`, en même temps que le `PLAN_JSON`), affiché sous le plan d'action dans la modale. Moteur WSF générique dans `web/lib/wsf/` (types, rendu Mermaid tolérant, graphes statiques). Bénéfice : matérialise visuellement « le quoi » du chantier sans alourdir le diagnostic. Marche pour Claude (Cloud) et qwen 7B + fallback 3B (Navigateur). Reste C.B : intégrer ce schéma dans le PDF.
 
 **C.B — Polish PDF chantier (intégration Mermaid)**
 
