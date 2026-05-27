@@ -40,7 +40,7 @@
 | `lugia_navigation_multiniveaux.html` | Prototype navigation multi-niveaux (vignette → carte → fiche objet) avec fil d'Ariane. |
 | `lugia_dimension_documentaire.md` | Dimension documentaire — 8ème lentille « Documentation », objet documentaire (maturité 0-6), chantiers de structuration, synergie IA. |
 | `lugia_bibliotheque_lentilles.md` | **Bibliothèque complète des lentilles** — 22 angles de lecture par famille (fondamentales, stratégiques, métier, temporelles, humaines, protection), règles de conception R1-R5, ciblage par public, 3 vagues de développement. |
-| `lugia_circulation_savoir.md` | Dimension **Circulation du savoir** — diffusion des bonnes pratiques entre participants : lentille dédiée, nouveau lien `TRANSMET`, échelle de diffusion 0-5, distinction interne/externe, chantiers (briser un silo…). |
+| `lugia_circulation_savoir.md` | Lentille **Circulation du savoir** (famille humaine/organisationnelle de la bibliothèque) — diffusion des bonnes pratiques entre participants : lien `TRANSMET`, échelle de diffusion 0-5, distinction interne/externe, chantiers (briser un silo…). |
 | `lugia_mecanismes.html` | Prototype récapitulatif des mécanismes — 5 niveaux de zoom, 22 lentilles, 6 types de diagrammes, jumeau vivant, boucle vertueuse. Vue d'ensemble pédagogique. |
 
 ## Dialogue / onboarding (prototypes de construction du schéma)
