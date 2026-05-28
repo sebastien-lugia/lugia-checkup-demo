@@ -81,14 +81,19 @@ function shapeFor(type: string, label: string): string {
  * ───────────────────────────────────────────────────────────────────── */
 
 const ETAT_CLASS: Record<EtatObjet, { fill: string; stroke: string; color?: string }> = {
-  OPTIMAL: { fill: "#d1fae5", stroke: "#059669", color: "#064e3b" },
-  FONCTIONNEL: { fill: "#f0fdf4", stroke: "#16a34a", color: "#14532d" },
-  DEGRADE: { fill: "#fef3c7", stroke: "#d97706", color: "#78350f" },
-  A_RISQUE: { fill: "#fee2e2", stroke: "#dc2626", color: "#7f1d1d" },
-  BLOQUE: { fill: "#fca5a5", stroke: "#991b1b", color: "#450a0a" },
-  NON_DOCUMENTE: { fill: "#f3f4f6", stroke: "#9ca3af", color: "#374151" },
-  EN_TRANSFORMATION: { fill: "#dbeafe", stroke: "#2563eb", color: "#1e3a8a" },
-  INACTIF: { fill: "#e5e7eb", stroke: "#6b7280", color: "#374151" },
+  // Palette de marque Lugia (charte produit) — états sobres, pas de
+  // vert/ambre/rouge. Doit rester aligné avec src/wsf_render.py ETAT_COLORS.
+  // Mapping moteur->charte : DEGRADE/EN_TRANSFORMATION->vigilance (olive),
+  // A_RISQUE->risque (brun), BLOQUE->critique (terracotta),
+  // NON_DOCUMENTE/INACTIF->nondoc (argent clair).
+  OPTIMAL: { fill: "#EEEDEA", stroke: "#1A2333", color: "#1A2333" },
+  FONCTIONNEL: { fill: "#EEEEEA", stroke: "#8E8E91", color: "#3A4360" },
+  DEGRADE: { fill: "#EAE8DE", stroke: "#6B6630", color: "#6B6630" },
+  A_RISQUE: { fill: "#E9E4DA", stroke: "#7A6030", color: "#7A6030" },
+  BLOQUE: { fill: "#E9DED8", stroke: "#7A3320", color: "#7A3320" },
+  NON_DOCUMENTE: { fill: "#F3F3EF", stroke: "#B5B5B8", color: "#6E7795" },
+  EN_TRANSFORMATION: { fill: "#EAE8DE", stroke: "#6B6630", color: "#6B6630" },
+  INACTIF: { fill: "#F3F3EF", stroke: "#B5B5B8", color: "#6E7795" },
 };
 
 function classDefLine(etat: string): string {

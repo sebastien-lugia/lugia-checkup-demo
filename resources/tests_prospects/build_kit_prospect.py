@@ -14,13 +14,13 @@ import os
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lugia_kit_test_prospect.pdf")
 
 # Palette Lugia (sobre)
-NAVY = colors.HexColor("#27314d")
-NAVY_SOFT = colors.HexColor("#56607a")
+NAVY = colors.HexColor("#1A2333")
+NAVY_SOFT = colors.HexColor("#3A4360")
 ARGENT = colors.HexColor("#8e8e91")
-IVORY = colors.HexColor("#faf7f1")
-IVORY_LINE = colors.HexColor("#e7e1d6")
-WARN = colors.HexColor("#b5762a")
-LINE = colors.HexColor("#d8d2c6")
+IVORY = colors.HexColor("#F8F4EB")
+IVORY_LINE = colors.HexColor("#ECE6D8")
+WARN = colors.HexColor("#7A6030")
+LINE = colors.HexColor("#D8D2C6")
 
 SERIF = "Times-Roman"
 SERIF_B = "Times-Bold"

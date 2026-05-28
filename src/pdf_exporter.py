@@ -36,10 +36,10 @@ from reportlab.platypus import (
 NAVY = colors.HexColor("#1A2333")
 NAVY_600 = colors.HexColor("#4a5366")
 NAVY_400 = colors.HexColor("#6b7689")
-IVORY_LIGHT = colors.HexColor("#faf7f1")
+IVORY_LIGHT = colors.HexColor("#F8F4EB")
 ARGENT = colors.HexColor("#B5B5B8")
 ARGENT_DEEP = colors.HexColor("#8a8a8d")
-SIGNAL_WARN = colors.HexColor("#C8A04A")
+SIGNAL_WARN = colors.HexColor("#7A6030")
 LINE = colors.HexColor("#e8e3d6")
 
 
@@ -442,7 +442,7 @@ def build_chantier_pdf(
             ]
         ]], colWidths=[165*mm])
         bench_tbl.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#fdf6e7")),
+            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F2EEE2")),
             ("LINEBEFORE", (0, 0), (0, -1), 2, SIGNAL_WARN),
             ("LEFTPADDING", (0, 0), (-1, -1), 14),
             ("RIGHTPADDING", (0, 0), (-1, -1), 14),

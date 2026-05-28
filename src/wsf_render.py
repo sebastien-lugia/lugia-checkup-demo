@@ -23,18 +23,25 @@ from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon, Grou
 from reportlab.lib.colors import HexColor, Color
 
 # ─────────────────────────────────────────────────────────────────────
-# Couleurs par état (alignées sur web/lib/wsf/render-mermaid.ts ETAT_CLASS)
+# Couleurs par état — palette de marque Lugia (charte produit).
+# États sobres (navy / argent / olive / brun / terracotta), pas de
+# vert/ambre/rouge générique. Fills = teintes de marque aplaties sur paper
+# (#FBFAF6) pour reportlab. Mapping moteur (8 états) -> charte (6 états) :
+#   OPTIMAL->optimal · FONCTIONNEL->fonctionnel · DEGRADE->vigilance
+#   A_RISQUE->risque · BLOQUE->critique · NON_DOCUMENTE->nondoc
+#   EN_TRANSFORMATION->vigilance · INACTIF->nondoc
+# Doit rester aligné avec web/lib/wsf/render-mermaid.ts ETAT_CLASS.
 # ─────────────────────────────────────────────────────────────────────
 
 ETAT_COLORS: dict[str, dict[str, str]] = {
-    "OPTIMAL":           {"fill": "#d1fae5", "stroke": "#059669", "text": "#064e3b"},
-    "FONCTIONNEL":       {"fill": "#f0fdf4", "stroke": "#16a34a", "text": "#14532d"},
-    "DEGRADE":           {"fill": "#fef3c7", "stroke": "#d97706", "text": "#78350f"},
-    "A_RISQUE":          {"fill": "#fee2e2", "stroke": "#dc2626", "text": "#7f1d1d"},
-    "BLOQUE":            {"fill": "#fca5a5", "stroke": "#991b1b", "text": "#450a0a"},
-    "NON_DOCUMENTE":     {"fill": "#f3f4f6", "stroke": "#9ca3af", "text": "#374151"},
-    "EN_TRANSFORMATION": {"fill": "#dbeafe", "stroke": "#2563eb", "text": "#1e3a8a"},
-    "INACTIF":           {"fill": "#e5e7eb", "stroke": "#6b7280", "text": "#374151"},
+    "OPTIMAL":           {"fill": "#EEEDEA", "stroke": "#1A2333", "text": "#1A2333"},
+    "FONCTIONNEL":       {"fill": "#EEEEEA", "stroke": "#8E8E91", "text": "#3A4360"},
+    "DEGRADE":           {"fill": "#EAE8DE", "stroke": "#6B6630", "text": "#6B6630"},
+    "A_RISQUE":          {"fill": "#E9E4DA", "stroke": "#7A6030", "text": "#7A6030"},
+    "BLOQUE":            {"fill": "#E9DED8", "stroke": "#7A3320", "text": "#7A3320"},
+    "NON_DOCUMENTE":     {"fill": "#F3F3EF", "stroke": "#B5B5B8", "text": "#6E7795"},
+    "EN_TRANSFORMATION": {"fill": "#EAE8DE", "stroke": "#6B6630", "text": "#6B6630"},
+    "INACTIF":           {"fill": "#F3F3EF", "stroke": "#B5B5B8", "text": "#6E7795"},
 }
 _ETAT_DEFAULT = "FONCTIONNEL"
 
@@ -275,7 +282,7 @@ def build_wsf_drawing(graphe: dict[str, Any], max_width: float = 470.0) -> Optio
             y2 = cy + _BOX_H / 2.0
         else:
             y1, y2 = sy, cy
-        d.add(Line(sx, y1, cx, y2, strokeColor=HexColor("#94a3b8"), strokeWidth=1.0))
+        d.add(Line(sx, y1, cx, y2, strokeColor=HexColor("#B3B5B8"), strokeWidth=1.0))
         # Flèche à l'extrémité cible.
         _add_arrowhead(d, sx, y1, cx, y2)
         # Label de liaison (type en minuscule) au milieu.
@@ -286,7 +293,7 @@ def build_wsf_drawing(graphe: dict[str, Any], max_width: float = 470.0) -> Optio
             d.add(Rect(mx - tw / 2.0 - 2, my - 4, tw + 4, 9,
                        fillColor=HexColor("#ffffff"), strokeColor=None))
             d.add(String(mx, my - 2.5, label, fontName="Helvetica",
-                         fontSize=6.5, fillColor=HexColor("#64748b"),
+                         fontSize=6.5, fillColor=HexColor("#6E7795"),
                          textAnchor="middle"))
 
     # 2. Nœuds.
@@ -335,7 +342,7 @@ def _add_arrowhead(d: Drawing, x1: float, y1: float, x2: float, y2: float) -> No
     pts = [x2, y2,
            bx + px * half, by + py * half,
            bx - px * half, by - py * half]
-    d.add(Polygon(pts, fillColor=HexColor("#94a3b8"), strokeColor=None))
+    d.add(Polygon(pts, fillColor=HexColor("#B3B5B8"), strokeColor=None))
 
 
 # Légende état -> libellé lisible (pour une éventuelle légende sous le schéma).
