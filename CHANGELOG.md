@@ -4,6 +4,131 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-28 (suite 7) — Document maître v1.0 COMPLET · Bloc E + 12 annexes livrés
+
+**Document maître Lugia v1.0 finalisé** : 133 pages interne, 119 pages client. Référentiel technico-commercial complet livré en un cycle de production de quelques heures, sur la base du plan validé en 5 blocs A-E + 12 annexes.
+
+**Bloc E — Actifs, roadmap, conclusion — livré (+25 pages interne, +21 client par rapport au v0.4)**.
+
+**Section 19 — Actif stratégique** (5 sous-sections) : inventaire des actifs Lugia en 5 familles (bibliothèque patterns, cartographies sectorielles, jumeaux vivants clients, moteur WSF, méthode codifiée) avec état actuel et cible an 3, composition d'un pattern Lugia (description structurelle + conditions d'application + règles d'instanciation + mesures empiriques + versionnement), trajectoire de constitution interne (20-30 patterns an 1 → 600+ an 5), trois garde-fous (contractuel, technique, communicationnel), 5 caractéristiques du jumeau vivant, 3 mécanismes de switching cost cumulés (jumeau + architecte côté client + livrables réglementaires), 4 rituels de capitalisation des enseignements.
+
+**Section 20 — Feuille de route** (7 sous-sections) : plan 30 jours (8 actions), plan 60 jours (8 actions), plan 90 jours (8 actions), horizon 1 an (6 jalons), horizon 3 ans (8 jalons), horizon 10 ans (6 éléments de vision), tableau prêt/pas prêt au 28 mai 2026 (18 éléments avec triple cotation prêt / montrable / vendable).
+
+**Section 21 — Conclusion stratégique** (6 sous-sections) : synthèse des 11 choix structurants (positionnement, posture, architecture produit 4 couches, modèle hybride, méthode WSF, doctrine 10-partis, séquence sectorielle, souveraineté, recommandation pré-seed, anti-hockey-stick, deux versions du document), deux cibles prioritaires absolues (Pierre + Marie), 4 conditions cumulatives de viabilité, top 5 risques majeurs (renvoi BP), 6 décisions à prendre dans les 90 jours (interne strict), mot de la fin (verdict assumé en encart navy).
+
+**Les 12 annexes livrées** :
+- A1 Grilles WSF (questionnaire diagnostic 3 axes, observation sur poste, niveaux maturité, renvoi 22 lentilles)
+- A2 Work models exemples (renvoi sections 8.5-8.7 + extension future)
+- A3 Outils et fiches techniques (renvoi sections 9.3 + 17)
+- A4 Données, confidentialité, conformité (check-lists RGPD + AI Act + clauses minimales sous-traitance)
+- A5 Cas sensibles santé (finalités, anonymisation, durée de conservation)
+- A6 Simulations économiques (renvoi 15.2 + BP)
+- A7 Ressources visuelles et supports (inventaire existant / à produire)
+- A8 Partenaires et réseau (renvoi section 18 + état opérationnel à tenir à jour — interne strict)
+- A9 Contacts utiles (carnet à renseigner — interne strict)
+- A10 Hypothèses, points flous, décisions prises (décisions D-036 à D-046 + 7 points flous en cours — interne strict)
+- A11 Éléments non révélés en version client (interne strict — couche 5 multi-vertical, WS.9 inter-org, bibliothèque interne, analyses concurrentielles fines, partenaires en négociation, allocations détaillées, sélection commerciale, décisions ouvertes)
+- A12 Méthodologie de production du document maître (logique socle commun, travail par blocs, articulation BP, tableau de suivi, différence interne/client)
+
+**Bilan final du Document maître Lugia v1.0** :
+- 133 pages interne / 119 pages client
+- 5 blocs (A-E), 22 chapitres (0-21), 12 annexes (A1-A12)
+- ~14 pages d'écart total entre interne et client (annexe 11 entière, partenaires nominatifs, plans d'actions sensibles, doctrines internes, allocations détaillées, sélection commerciale)
+- 6 décisions ouvertes consignées (D1-D6) à trancher dans les 90 jours
+- 7 points flous identifiés en annexe A10 pour résolution progressive
+- Pipeline HTML/CSS + WeasyPrint reproductible (D-046), même source pour les deux versions
+- Charte Lugia v1 respectée à 100 % (Lora + Onest + IBM Plex Mono via @font-face)
+
+**Suite envisagée** : itérations sur retours Sébastien, mise à jour mensuelle par incréments, passage en v2.0 au prochain palier structurant (premier B2B2B signé, ou closing financement, ou première extension verticale validée). Production possible des supports dérivés mentionnés en annexe A7 (pitch deck investisseur 12 slides, plaquette commerciale 4 pages, trame devis Institution, scripts emails type).
+
+Fichiers : `etudes/Lugia_Document_Maitre.html` (source complet), `etudes/Lugia_Document_Maitre_INTERNE.pdf` (133 p.), `etudes/Lugia_Document_Maitre_CLIENT.pdf` (119 p.).
+
+---
+
+## 2026-05-28 (suite 6) — Document maître v0.4 · Bloc D livré (Réalisation & organisation)
+
+**Bloc D — Réalisation & organisation — livré (108 pages interne, 98 pages client, +28/+26 par rapport au v0.3)**.
+
+**Section 13 — Cadre juridique, contractuel, assurance** (8 sous-sections) : forme juridique SAS Lugia & Co (HYP à confirmer), 4 niveaux de confidentialité (NDA, clauses contrat, opérateurs, charte), structure du contrat-cadre en 13 articles (préambule à droit applicable), responsabilités en 3 principes (moyens pas résultat, limitation, exclusions absolues), accord sous-traitance RGPD article 28 détaillé, points de vigilance par secteur (santé / juridique / chiffre / PME B2B), assurances cibles (RC pro 500 k€-1 M€, cyber, garantie santé), check-list prérequis avant mission en 10 points.
+
+**Section 14 — Réalisation, planning, soutenabilité** (6 sous-sections) : déroulé type mission Lugia & Co en 5 phases (cadrage, recueil terrain, formalisation, restitution, post-mission), ratios présence sur site / à distance par phase (55-65 % sur site en moyenne mission), contrôle qualité en 5 étapes + 6 critères qualité Lugia, capacité réelle Lugia par scénario financement (1-2 / 3-5 / 8-12 missions parallèles), soutenabilité multi-clients en 4 règles (géographie groupée, max 2 recueils parallèles, décalage phases, plafond santé 50 %), 3 niveaux d'accompagnement post-diagnostic (Socle / Pro / Institution+L&Co).
+
+**Section 15 — Organisation économique** (3 sous-sections) : renvoi BP sections 5-8, 4 simulations de mission précises et chiffrées (libéral solo Pro / MSP Institution+L&Co / PME B2B Institution / Diagnostic→Socle), 4 seuils opérationnels de viabilité (conversion check-up<8 %, churn >4 %, délai signature >4 mois, runway <6 mois).
+
+**Section 16 — Organisation interne Lugia** (6 sous-sections) : schéma général actuel mono-fondateur + cible 12-18 mois post-pré-seed, 3 canaux de circulation information (stratégique / opérationnel / mission cloisonné), 7 agents IA spécialisés tabulés (Demo, assistant chantier, registre RGPD, notice AI Act, courriers, qualification prospects, capitalisation patterns) + doctrine d'usage en 3 principes non négociables (validation humaine, frontière auto/jugement, audit a posteriori), architecture documentaire en 8 dossiers + règles de nommage standardisées, contrôle qualité interne mensuel à annuel, check-list prérequis pour passer en mode opérationnel (interne strict).
+
+**Section 17 — Suite d'outils, matériel, architecture interne** (5 sous-sections) : stack technique production (Next/FastAPI/Postgres/Render/Vercel/Anthropic/Qwen/Resend/OVH/Stripe), outils internes collaboration (VS Code+Claude Code, GitHub, Notion, stockage cloud à figer, Calendly, Linear, visio, CRM léger, anti-virus, gestionnaire mots de passe), matériel (MacBook Pro M-series 32 Go, écran 27-32", iPhone, sauvegarde SSD chiffrée + cloud, fibre+4G), 8 règles de sécurité minimale (2FA, gestionnaire, chiffrement disque, VPN, logs, audit annuel, mots de passe forts, BYOD encadré), évolution V1/V2/V3.
+
+**Section 18 — Écosystème de partenaires** (7 sous-sections) : 6 catégories de partenaires (opérateurs Lugia & Co, techniques freelance, conseils experts, distribution B2B2B, méthodologiques/thématiques, investisseurs), critères de sélection collectif (6 critères), 3 régimes de rémunération (forfait jour, % mission, mix), 4 thématiques partenariales pressenties (Shift Project, Chistera, ENSCI, CNAM — HYP), état des partenaires identifiés au 28 mai 2026 + actions S2 2026 (interne strict), 3 niveaux de visibilité côté client, 3 règles de limitation de dépendance.
+
+**Mécanique deux versions** : 10 pages d'écart entre interne et client sur le bloc D (allocation pré-seed assurance, prérequis mode opérationnel, doctrine d'usage agents IA en discipline interne, état partenaires nominatifs, plan d'action S2 2026 contacts).
+
+**Suite** : bloc E (Actifs, roadmap, conclusion) + les 12 annexes. C'est le dernier bloc avant document complet.
+
+Fichiers : `etudes/Lugia_Document_Maitre.html` (source mis à jour), `etudes/Lugia_Document_Maitre_INTERNE.pdf` (108 p.), `etudes/Lugia_Document_Maitre_CLIENT.pdf` (98 p.).
+
+---
+
+## 2026-05-28 (suite 5) — Document maître v0.3 · Bloc C livré (Méthode & technique)
+
+**Bloc C — Méthode & technique — livré (80 pages interne, 72 pages client, +33/+30 par rapport au v0.2)**. C'est le cœur méthodologique du document, et le bloc le plus inédit puisqu'il porte la doctrine et les méthodes opérationnelles que ni le BP ni l'étude de marché ne traitent.
+
+**Section 07 — Méthode Lugia** (9 sous-sections) : triptyque prescrit/modélisé/réel comme fondement intellectuel (Dejours, Clot, Leplat), moteur WSF de Steven Alter avec 9 éléments tabulés + vulgarisation Demo 3 axes (D-041), bibliothèque des 22 lentilles en 7 familles (Santé, Conformité, Données, Maturité, Charge, Coût, Fragilité) + 8ᵉ famille Empreinte (sobriété IA), faire-ensemble Lugia & Co en 4 principes, savoirs à recueillir en 5 types (écrits, modélisés, tacites, irritants, décisions historiques), méthodes de recueil terrain en 4 méthodes (entretien semi-directif, observation poste, analyse documentaire, atelier collectif), formalisation en 4 artefacts standards (graphe, fiches rôles, cartes flux, fiches constats), passage du constat à l'action en 4 principes + format standard de restitution en 5 parties, capitalisation pour la bibliothèque interne avec garde-fou contractuel (patterns structurels anonymisés, jamais données client) + cible de constitution interne strict (20-30 patterns an 1, 600+ an 5).
+
+**Section 08 — Work models** (8 sous-sections) : définition opérationnelle avec 3 propriétés (vivant, marqué maturité, causal), 9 éléments WSF contextualisés santé, format standard en 3 couches (graphe Mermaid, narratif structuré, simulation causale), template standard avant/irritants/restructuré/appuyé technologie (doctrinalement non négociable — séparer l'étape « restructuré sans techno » pour résoudre 60-70% des irritants sans outil), exemple complet médecin GP solo (Pierre — 5 irritants, état restructuré, état appuyé techno, mesures), exemple MSP de 6 praticiens (Marie — surcharge associative, hétérogénéité DPI, conformité collective, CPTS), exemple cabinet d'avocats 8 personnes (extension test moteur générique — secret professionnel + AI Act), work models de crise (chantier WS.8 — absence personne-clé, cyberattaque, crise réglementaire).
+
+**Section 09 — Diagnostic technologique du client** (6 sous-sections) : périmètre en 3 couches (bureautique / outils métier / IA présente), grilles d'audit détaillées par couche, grille métier par secteur (santé / juridique / chiffre / PME B2B), grille IA présente (usage informel quasi-systématique), 4 types de constats récurrents (doublons, sous-utilisations, dettes applicatives, manques), cartographies type Lugia maintenues par secteur (état v1.0 médecin solo, v0.5 MSP, v0.2 juridique/chiffre, v0.1 PME — interne strict).
+
+**Section 10 — Modèles d'IA, coûts et usage** (5 sous-sections) : 3 familles (frontier cloud / intermédiaire cloud / SLM local), logique Cloud/Local toggle D-040 avec critères de recommandation, adéquation chantier ↔ modèle sobre (parti pris fondateur), coûts en ordres de grandeur (~5-15 €/mois en Haiku, 0 € en Local), règles d'usage interne Lugia + règles recommandées au client.
+
+**Section 11 — Donnée, confidentialité, conformité** (7 sous-sections) : grille de maturité de la donnée client (Fragile / En transition / Solide / Mature), plan d'action de remise en ordre en 6 étapes, RGPD pour libéraux et TPE (registre, information, droits, sous-traitants, sécurité minimale, violation), AI Act calendrier détaillé avec actions Lugia chez le client à chaque échéance, HDS avec stratégie d'évitement par design en V1 + partenariat hébergeur certifié pour Institution, ISO 42001 anticipée en compatibilité par construction, 3 niveaux de confidentialité interne Lugia + grille de risque.
+
+**Section 12 — Cas sensibles santé d'abord** (7 sous-sections) : tableau des finalités recevables vs non recevables (refus catégorique de l'aide au diagnostic médical, prescription, imagerie, triage), anonymisation et tokenisation en 3 mécanismes cascadés, stockage et accès (AES-256, TLS 1.3, lien magique, logs 12 mois), limites V1 explicitées (ce que Lugia NE fait PAS — discipline de périmètre commercialement stratégique), extensions à juridique (secret professionnel) et chiffre (déontologie OEC), protocole de prudence en 6 étapes (interne strict).
+
+**Mécanique deux versions** : 8 pages d'écart entre interne et client sur le bloc C (cibles de capitalisation patterns, état des cartographies sectorielles, stratégie HDS, protocole de prudence santé).
+
+**Suite** : bloc D (Réalisation & organisation) en attente de validation. Couvrira chapitres 13 juridique, 14 planning mission, 15 économique (renvoi BP avec ajout simulations missions), 16 organisation interne Lugia, 17 outils internes + agents spécialisés, 18 partenaires.
+
+Fichiers : `etudes/Lugia_Document_Maitre.html` (source mis à jour), `etudes/Lugia_Document_Maitre_INTERNE.pdf` (80 p.), `etudes/Lugia_Document_Maitre_CLIENT.pdf` (72 p.).
+
+---
+
+## 2026-05-28 (suite 4) — Document maître v0.2 · Bloc B livré (Offre & approche commerciale)
+
+**Bloc B — Offre & approche commerciale — livré (47 pages interne, 42 pages client, +19/+16 par rapport au v0.1)**.
+
+**Section 05 — Offre Lugia** : 5.1 architecture en 4 couches (Aimant Demo + Plateforme Work System + Missions Lugia & Co + Canal B2B2B, avec couche 4 non révélée en interne strict), 5.2 promesse centrale + bénéfices visibles + pertes évitées (deux tableaux symétriques), 5.3 paliers tarifaires (renvoi BP), 5.4 cinq modules add-on (Ordonnances, Synthèse, Reporting, Transmission, Work models de crise), 5.5 catalogue complet de livrables en 3 catégories (réglementaires, opérationnels, stratégiques) — 15+ livrables nommés avec format / personnalisation / palier d'inclusion, 5.6 articulation standard vs sur-mesure (parti pris 5), 5.7 logique de prix (4 principes + politique de remise en interne strict), 5.8 articulation des 4 couches dans un parcours client type (Pierre).
+
+**Section 06 — Approche client** : 6.1 cinq portes d'entrée par persona (Pierre/Marie/Antoine/Claire/Jean-Marc avec canal de contact dédié), 6.2 messages calibrés par persona en 5 temps (promesse + bénéfice + perte évitée + objection probable + réponse), 6.3 diagnostic d'entrée — séquences de conversion en 6 étapes (cycle court) ou 8 étapes (cycle moyen), 6.4 check-up gratuit comme aimant — mécanique en 4 éléments, 6.5 argument « convertir, pas ajouter » avec 3 substitutions chiffrées, 6.6 catalogue des 10 réponses aux objections classiques, 6.7 logique de montée en gamme (4 transitions avec déclencheur et argument), 6.8 trois registres de preuves (chiffrées, témoignages, démonstration) + 5 cas pilotes à constituer en S2 2026 (interne strict), 6.9 inventaire des supports visuels et matériaux commerciaux (statut existant/à produire), 6.10 sélection commerciale active + 5 scénarios sensibles à gérer (interne strict).
+
+**Apports du tableau des phases (uploadé par Sébastien)** : la richesse de production phase par phase (P12-P16 pour la section 5, P14 pour les réponses aux objections, P15 pour les séquences de conversion) est désormais intégrée. Le catalogue de livrables (P13) et l'argument « convertir, pas ajouter » (parti pris 9 ancré commercialement) sont les principales nouveautés vs l'approche initiale.
+
+**Mécanique deux versions opérationnelle** : 5 pages d'écart entre interne et client sur le bloc B (couche 4 non révélée, politique de remise, cas pilotes nominatifs, sélection commerciale et scénarios sensibles).
+
+**Suite** : bloc C (Méthode & technique) en attente de validation. C'est le bloc le plus inédit, qui détaillera moteur WSF, écart prescrit/modélisé/réel, work models avant/après, diagnostic technologique client, IA cloud/local, donnée et conformité, cas sensibles santé.
+
+Fichiers : `etudes/Lugia_Document_Maitre.html` (source mis à jour), `etudes/Lugia_Document_Maitre_INTERNE.pdf` (47 p.), `etudes/Lugia_Document_Maitre_CLIENT.pdf` (42 p.), `resources/phases_doc_maitre.rtf` + `.txt` (tableau des 46 phases sauvegardé).
+
+---
+
+## 2026-05-28 (suite 3) — Document maître v0.1 · Bloc A livré (Vision & marché)
+
+Lancement du Document maître Lugia — référentiel technico-commercial complet, complément du Business Plan, à usage interne strict avec une déclinaison client épurée. Cible finale : 5 blocs (A-E) + 12 annexes, ~120-150 pages, niveau playbook opérationnel détaillé.
+
+**Bloc A — Vision & marché — livré (28 pages interne, 26 pages client)** : 0 Résumé exécutif (Lugia en une page, utilité du document, deux versions, contexte mai 2026, priorités court terme, conditions de viabilité, prochaines décisions), 1 Fondation Lugia (genèse, constats, raison d'être, vision 5-7 ans, mission opérationnelle, définition est/n'est pas/devient, doctrine 10-partis, trajectoire court/moyen/long terme), 2 Marché et secteurs (TAM/SAM/SOM France, 7 transformations en cours, séquence santé → juridique → chiffre → ..., secteurs exclus V1, périmètre géographique, critère de bascule non négociable), 3 Typologie clients (4 cercles, 5 personas vivants Pierre/Marie/Antoine/Claire/Jean-Marc, 7 raisons d'achat, cibles V1 Pierre+Marie, cibles à éviter, grille de qualification /30), 4 Concurrence (6 familles 39 acteurs, statu quo + alternatives internes, quadrants A et B, 5 piliers en renvoi BP, visible/protégé, ce qui peut être copié vs pas).
+
+**Mécanique deux versions opérationnelle** : un seul HTML source (`etudes/Lugia_Document_Maitre.html`) + script `scripts/build_doc_maitre.py` qui génère `Lugia_Document_Maitre_INTERNE.pdf` (tout visible) et `Lugia_Document_Maitre_CLIENT.pdf` (CSS override `.strict-interne { display: none }`). Pagination régénérée automatiquement. Encadrés strict-interne marqués en rouge confidentiel avec label « INTERNE STRICT — NE PAS DIFFUSER ». Bloc A contient ~8 passages strict-interne (cibles à éviter, différenciation protégée, ce que peut copier la concurrence, décisions ouvertes D1-D6).
+
+**Articulation avec le BP assumée et explicite** : six encarts « → Voir Business Plan section X.Y » dans le bloc A. Les chapitres qui chevauchent le BP (résumé, marché, concurrence) sont courts et renvoient au détail chiffré.
+
+**Charte PDF Lugia v1 respectée à 100 %** : eyebrow ivory sobre pour le document maître (vs Ambre Nuit pour le BP), nouveau type de page « ouverture-section » avec ghost number, encart rouge confidentiel distinct des encarts Ambre et Navy.
+
+**Suite** : bloc B (Offre & approche commerciale) en attente de validation du bloc A. Cadence retenue : bloc par bloc, validation à chaque étape.
+
+Fichiers : `etudes/Lugia_Document_Maitre.html` (source), `etudes/Lugia_Document_Maitre_INTERNE.pdf` (28 p.), `etudes/Lugia_Document_Maitre_CLIENT.pdf` (26 p.), `scripts/build_doc_maitre.py` (build).
+
+---
+
 ## 2026-05-28 (suite 2) — BP v1.1 : polices Lugia chargées, rendu charte 100 %
 
 Polices Lora, Onest et IBM Plex Mono installées dans `assets/fonts/` (packs Fontsource v5 — fichiers `.woff2` + `.ttf` + licences). Le HTML du BP charge désormais ces fichiers via `@font-face` (poids 400/500/600/700 pour Onest, 400/500/600 pour Lora et Plex Mono, ranges latin + latin-ext). WeasyPrint résout les chemins relatifs depuis `etudes/` vers `../assets/fonts/<famille>_5/webfonts/...`.

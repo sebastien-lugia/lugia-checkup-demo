@@ -17,6 +17,20 @@ Le BP v1.1 est livré (`etudes/Lugia_Business_Plan_2026-05.html` + `.pdf`, 45 pa
 - **Itérer le BP au prochain palier** (post-pilotes ou pré-levée) — passer en v1.2.
 
 
+## Document maître — suivi (28 mai 2026)
+
+Lancement du document maître Lugia, complément au BP, à rédiger bloc par bloc.
+
+- ✅ **Bloc A — Vision & marché** (28 pages interne / 26 client) — livré 28 mai 2026.
+- ✅ **Bloc B — Offre & approche commerciale** (47 pages interne / 42 client) — livré 28 mai 2026.
+- ✅ **Bloc C — Méthode & technique** (80 pages interne / 72 client) — livré 28 mai 2026. Cœur méthodologique du document.
+- ✅ **Bloc D — Réalisation & organisation** (108 pages interne / 98 client) — livré 28 mai 2026.
+- ✅ **Bloc E — Actifs, roadmap, conclusion** + 12 annexes (133 pages interne / 119 client) — livré 28 mai 2026. Document maître v1.0 COMPLET.
+- **Décisions ouvertes** : section 0.7 du bloc A liste D1 (financement), D2 (CTO), D3 (médecin advisor), D4 (forme juridique), D5 (extension Lawyer vs Finance), D6 (politique communication externe).
+- **À surveiller** : maintenir la séparation claire entre passages `strict-interne` et passages publics dans tous les futurs blocs.
+
+---
+
 ## V3-brand EN COURS — 3ème carte beta alignée brand kit (20 mai 2026)
 
 Phase d'amorçage de la V3-brand : parcours entièrement aligné sur le brand kit Lugia (navy / ivoire / argent + signal ambre, Onest+Lora+IBM Plex Mono, layout angulaire, mode nuit par défaut). Route séparée `/checkup/v3-brand`, cohabitation avec V2.0 maintenue, dépréciation V2.0 après validation V3 (cf `DECISIONS.md` D-031).
