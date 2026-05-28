@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Lugia · Business Plan · Mai 2026</title>
+<style>
+  /* ── @font-face — polices locales Fontsource ──────────────────── */
+  /* Lora */
+  @font-face {
+    font-family: 'Lora'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Lora'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-ext-400-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'Lora'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-500-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Lora'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-ext-500-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'Lora'; font-style: normal; font-weight: 600;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-600-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Lora'; font-style: normal; font-weight: 600;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-ext-600-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  /* Onest */
+  @font-face {
+    font-family: 'Onest'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Onest'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-ext-400-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'Onest'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-500-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Onest'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-ext-500-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'Onest'; font-style: normal; font-weight: 600;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-600-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Onest'; font-style: normal; font-weight: 600;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-ext-600-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'Onest'; font-style: normal; font-weight: 700;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-700-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Onest'; font-style: normal; font-weight: 700;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-ext-700-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  /* IBM Plex Mono */
+  @font-face {
+    font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/ibm-plex-mono_5/webfonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/ibm-plex-mono_5/webfonts/ibm-plex-mono-latin-ext-400-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/ibm-plex-mono_5/webfonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/ibm-plex-mono_5/webfonts/ibm-plex-mono-latin-ext-500-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600;
+    src: url('../assets/fonts/ibm-plex-mono_5/webfonts/ibm-plex-mono-latin-600-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600;
+    src: url('../assets/fonts/ibm-plex-mono_5/webfonts/ibm-plex-mono-latin-ext-600-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  /* ── palette & polices ────────────────────────────────────────── */
+  :root {
+    --ivory: #F4EFE5;
+    --paper: #FBFAF6;
+    --navy: #1A2333;
+    --navy-2: #232B41;
+    --ink: #1A2333;
+    --ink-600: #3A4360;
+    --ink-400: #6E7795;
+    --ink-300: #95A0B3;
+    --ink-200: #BFC4CC;
+    --argent: #B5B5B8;
+    --argent-l: #D4D4D6;
+    --line: rgba(26,35,51,0.10);
+    --line-mid: rgba(26,35,51,0.20);
+    --ambre: #7A6030;
+    --ambre-nuit: #C4A055;
+    --serif: "Lora", "Iowan Old Style", "Times New Roman", serif;
+    --sans: "Onest", "Inter", "DejaVu Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "DejaVu Sans Mono", "Liberation Mono", monospace;
+  }
+
+  /* ── reset, italique interdit ─────────────────────────────────── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  em, i, cite { font-style: normal; }
+
+  /* ── @page rules ──────────────────────────────────────────────── */
+  /* Stratégie : pas de marges au niveau @page (sinon les fonds
+     full-bleed ne peuvent pas atteindre les bords). Les pages corps
+     reçoivent leurs marges via un wrapper interne .body-page. */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  @page body-page {
+    margin: 14mm 18mm 14mm 22mm;
+    @top-right {
+      content: counter(page);
+      font-family: var(--mono); font-size: 8pt;
+      color: var(--ink-400); letter-spacing: 0.1em;
+    }
+    @bottom-left {
+      content: "Lugia · Business Plan · Mai 2026";
+      font-family: var(--mono); font-size: 7.5pt;
+      color: var(--ink-300); letter-spacing: 0.08em;
+    }
+    @bottom-right {
+      content: counter(page) " / " counter(pages);
+      font-family: var(--mono); font-size: 7.5pt;
+      color: var(--ink-300); letter-spacing: 0.08em;
+    }
+  }
+
+  /* ── corps général ────────────────────────────────────────────── */
+  body {
+    font-family: var(--serif);
+    font-size: 10pt;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--paper);
+  }
+
+  /* ── COUVERTURE ───────────────────────────────────────────────── */
+  .cover {
+    page-break-after: always;
+    width: 210mm; height: 297mm;
+    background: var(--navy);
+    color: var(--ivory);
+    padding: 22mm 22mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+  .cover-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .cover-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 8pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(244,239,229,0.65);
+  }
+  .cover-brand svg { height: 14pt; width: auto; }
+  .cover-class {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ambre-nuit);
+    border: 0.5pt solid rgba(196,160,85,0.5);
+    background: rgba(196,160,85,0.08);
+    padding: 3pt 8pt;
+    border-radius: 1pt;
+  }
+  .cover-class::before { content: "● "; }
+  .cover-bottom { }
+  .cover-rule {
+    height: 0.5pt;
+    background: rgba(244,239,229,0.22);
+    width: 18%;
+    margin-bottom: 14mm;
+  }
+  .cover-eyebrow {
+    font-family: var(--mono);
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ambre-nuit);
+    margin-bottom: 12mm;
+  }
+  .cover-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 60pt;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--ivory);
+    margin-bottom: 10mm;
+  }
+  .cover-sub {
+    font-family: var(--sans);
+    font-size: 14pt;
+    line-height: 1.4;
+    color: rgba(244,239,229,0.65);
+    letter-spacing: -0.01em;
+    max-width: 130mm;
+    margin-bottom: 16mm;
+  }
+  .cover-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 6mm;
+    border-top: 0.5pt solid rgba(244,239,229,0.18);
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: rgba(244,239,229,0.45);
+  }
+  .cover-meta-left {
+    display: flex;
+    gap: 22pt;
+  }
+
+  /* ── OUVERTURE DE SECTION (navy plein) ────────────────────────── */
+  .opener {
+    page-break-before: always;
+    page-break-after: always;
+    width: 210mm; height: 297mm;
+    background: var(--navy);
+    color: var(--ivory);
+    padding: 22mm;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* Pages corps : reçoivent les marges via la règle @page body-page.
+     Toute <section> est par défaut une page corps, sauf cover/opener. */
+  section { page: body-page; }
+  section.cover, section.opener { page: auto; }
+  /* Page corps suivant un opener : page-break déjà forcé par opener.
+     Entre sections corps consécutives, pas de break forcé (flow naturel). */
+  .opener-ghost {
+    position: absolute;
+    top: -10mm; right: -10mm;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 280pt;
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    color: rgba(244,239,229,0.04);
+    pointer-events: none;
+    user-select: none;
+  }
+  .opener-content {
+    position: relative;
+    z-index: 1;
+    padding-bottom: 12mm;
+  }
+  .opener-rule {
+    height: 0.5pt;
+    background: rgba(244,239,229,0.20);
+    margin-bottom: 8mm;
+  }
+  .opener-kicker {
+    font-family: var(--mono);
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(244,239,229,0.45);
+    margin-bottom: 6mm;
+  }
+  .opener-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 54pt;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    color: var(--ivory);
+    margin-bottom: 6mm;
+  }
+  .opener-sub {
+    font-family: var(--sans);
+    font-size: 12pt;
+    line-height: 1.45;
+    color: rgba(244,239,229,0.55);
+    letter-spacing: -0.005em;
+    max-width: 140mm;
+  }
+
+  /* ── SOMMAIRE ─────────────────────────────────────────────────── */
+  .toc-page {
+    page-break-after: always;
+  }
+  .toc-eyebrow {
+    font-family: var(--mono);
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-400);
+    margin-bottom: 4mm;
+    margin-top: 4mm;
+  }
+  .toc-title {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 28pt;
+    color: var(--navy);
+    letter-spacing: -0.025em;
+    margin-bottom: 6mm;
+  }
+  .toc-list { }
+  .toc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 2mm 0;
+    border-bottom: 0.5pt solid rgba(26,35,51,0.09);
+    gap: 6mm;
+  }
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 9pt;
+    color: var(--ink-400);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    min-width: 14mm;
+  }
+  .toc-label {
+    font-family: var(--sans);
+    font-size: 12pt;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+    flex: 1;
+  }
+  .toc-page-num {
+    font-family: var(--mono);
+    font-size: 9pt;
+    color: var(--ink-300);
+    flex-shrink: 0;
+  }
+
+  /* ── TITRES SECTIONS COURANTES ────────────────────────────────── */
+  h2.h2 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 16pt;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+    margin-top: 8mm;
+    margin-bottom: 2mm;
+    line-height: 1.2;
+  }
+  h2.h2::after {
+    content: "";
+    display: block;
+    width: 14mm;
+    height: 1pt;
+    background: rgba(26,35,51,0.30);
+    margin-top: 3mm;
+    margin-bottom: 4mm;
+  }
+  h3.h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 13pt;
+    color: var(--ink);
+    margin-top: 6mm;
+    margin-bottom: 2mm;
+    line-height: 1.3;
+  }
+  h4.h4 {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 8.5pt;
+    color: var(--ink-600);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 5mm;
+    margin-bottom: 2mm;
+  }
+
+  p {
+    font-family: var(--serif);
+    font-size: 10pt;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 3mm;
+  }
+  p.lead {
+    font-family: var(--sans);
+    font-size: 11pt;
+    line-height: 1.55;
+    color: var(--ink-600);
+    margin-bottom: 5mm;
+  }
+  strong { font-weight: 600; color: var(--ink); }
+
+  /* ── ENCADRÉ AMBRE (signal / punchline) ───────────────────────── */
+  .callout {
+    background: rgba(122,96,48,0.07);
+    border-left: 2pt solid rgba(122,96,48,0.50);
+    padding: 5mm 6mm;
+    margin: 5mm 0;
+    border-radius: 0 1pt 1pt 0;
+    page-break-inside: avoid;
+  }
+  .callout-eyebrow {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    color: var(--ambre);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 2mm;
+  }
+  .callout-eyebrow::before { content: "↳ "; }
+  .callout p {
+    font-family: var(--serif);
+    font-size: 10pt;
+    line-height: 1.55;
+    color: var(--ink);
+    margin-bottom: 0;
+  }
+  .callout p + p { margin-top: 2mm; }
+
+  /* ── ENCART NAVY (verbatim, punchline forte) ──────────────────── */
+  .verbatim {
+    background: var(--navy);
+    color: var(--ivory);
+    padding: 6mm 7mm;
+    margin: 5mm 0;
+    border-radius: 1pt;
+    page-break-inside: avoid;
+  }
+  .verbatim-eyebrow {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    color: var(--ambre-nuit);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 2mm;
+  }
+  .verbatim p {
+    font-family: var(--serif);
+    font-size: 11pt;
+    line-height: 1.5;
+    color: var(--ivory);
+    margin-bottom: 0;
+  }
+
+  /* ── TABLEAUX ─────────────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4mm 0 4mm 0;
+    page-break-inside: avoid;
+  }
+  table thead th {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    font-weight: 400;
+    color: var(--ink-600);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2.5mm 2mm;
+    text-align: left;
+    border-top: 0.5pt solid var(--line-mid);
+    border-bottom: 0.5pt solid var(--line-mid);
+    background: rgba(26,35,51,0.025);
+    vertical-align: bottom;
+  }
+  table tbody td {
+    font-family: var(--serif);
+    font-size: 9pt;
+    line-height: 1.45;
+    color: var(--ink);
+    padding: 2mm;
+    border-bottom: 0.5pt solid rgba(26,35,51,0.07);
+    vertical-align: top;
+  }
+  table tbody td.label {
+    font-family: var(--serif);
+    color: var(--ink);
+    font-weight: 500;
+  }
+  table tbody td.num {
+    font-family: var(--mono);
+    font-size: 8.5pt;
+    text-align: right;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  table tbody td.num-bold {
+    font-family: var(--mono);
+    font-size: 9pt;
+    text-align: right;
+    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  table tbody tr.zebra td { background: rgba(26,35,51,0.022); }
+  table tbody tr.subtotal td {
+    background: rgba(26,35,51,0.045);
+    font-weight: 500;
+    border-top: 0.5pt solid var(--line-mid);
+    border-bottom: 0.5pt solid var(--line-mid);
+  }
+  table tbody tr.subtotal td.num,
+  table tbody tr.subtotal td.num-bold {
+    font-weight: 600;
+  }
+  table tbody tr.total td {
+    background: var(--navy);
+    color: var(--ivory);
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 9pt;
+  }
+  table tbody tr.total td.num,
+  table tbody tr.total td.num-bold {
+    font-family: var(--mono);
+    color: var(--ivory);
+    font-size: 9pt;
+  }
+  table tbody tr.total td.num.positive,
+  table tbody tr.total td.num-bold.positive {
+    color: var(--ambre-nuit);
+    font-weight: 600;
+  }
+  table caption {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    color: var(--ink-300);
+    letter-spacing: 0.04em;
+    text-align: left;
+    padding-bottom: 1.5mm;
+    caption-side: top;
+  }
+  table .indent { padding-left: 6mm; color: var(--ink-400); }
+
+  /* ── LISTES (utilisées avec parcimonie) ───────────────────────── */
+  ul.dash {
+    list-style: none;
+    margin: 2mm 0 3mm 0;
+    padding-left: 0;
+  }
+  ul.dash li {
+    font-family: var(--serif);
+    font-size: 10pt;
+    line-height: 1.55;
+    color: var(--ink);
+    padding-left: 6mm;
+    text-indent: -6mm;
+    margin-bottom: 1.5mm;
+  }
+  ul.dash li::before {
+    content: "— ";
+    color: var(--argent);
+  }
+
+  /* ── BLOC INFO (grille label + valeur) ────────────────────────── */
+  .spec-grid {
+    margin: 4mm 0;
+  }
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 2.5mm 0;
+    border-bottom: 0.5pt solid var(--line);
+    gap: 4mm;
+  }
+  .spec-row:first-child {
+    border-top: 0.5pt solid var(--line);
+  }
+  .spec-k {
+    font-family: var(--serif);
+    font-size: 10pt;
+    color: var(--ink-400);
+    flex-shrink: 0;
+    flex: 1;
+  }
+  .spec-v {
+    font-family: var(--mono);
+    font-size: 9pt;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    text-align: right;
+  }
+
+  /* ── ANNEXES (3 colonnes pour denses) ─────────────────────────── */
+  .annex-grid-3 {
+    column-count: 1;
+    column-gap: 5mm;
+  }
+
+  /* ── divers ───────────────────────────────────────────────────── */
+  .meta {
+    font-family: var(--mono);
+    font-size: 8pt;
+    color: var(--ink-300);
+    letter-spacing: 0.06em;
+    margin-top: 3mm;
+  }
+  .source-line {
+    font-family: var(--mono);
+    font-size: 7pt;
+    color: var(--ink-300);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 3mm;
+    padding-top: 2mm;
+    border-top: 0.5pt solid var(--line);
+  }
+  .pagebreak { page-break-before: always; }
+  .nobreak { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ COUVERTURE ════════════════════ -->
+<section class="cover">
+  <div class="cover-top">
+    <div class="cover-brand">
+      <svg viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#F4EFE5"/></svg>
+      Lugia
+    </div>
+    <div class="cover-class">Confidentiel</div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-rule"></div>
+    <p class="cover-eyebrow">Business Plan · Mai 2026</p>
+    <h1 class="cover-title">Business<br>Plan</h1>
+    <p class="cover-sub">Trajectoire économique, scénarios de financement, jalons opérationnels — pilotage interne et discussions investisseurs.</p>
+    <div class="cover-meta">
+      <div class="cover-meta-left">
+        <span>Mai 2026</span>
+        <span>v1.1</span>
+      </div>
+      <span>Doc. n° 2026-BP-001</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ SOMMAIRE ════════════════════ -->
+<section class="toc-page">
+  <p class="toc-eyebrow">Table des matières</p>
+  <h1 class="toc-title">Sommaire</h1>
+  <div class="toc-list">
+    <div class="toc-row"><span class="toc-num">01</span><span class="toc-label">Résumé exécutif</span></div>
+    <div class="toc-row"><span class="toc-num">02</span><span class="toc-label">Problème &amp; proposition de valeur</span></div>
+    <div class="toc-row"><span class="toc-num">03</span><span class="toc-label">Modèle économique</span></div>
+    <div class="toc-row"><span class="toc-num">04</span><span class="toc-label">Go-to-market</span></div>
+    <div class="toc-row"><span class="toc-num">05</span><span class="toc-label">Structure de coûts</span></div>
+    <div class="toc-row"><span class="toc-num">06</span><span class="toc-label">Unit economics</span></div>
+    <div class="toc-row"><span class="toc-num">07</span><span class="toc-label">Projections financières</span></div>
+    <div class="toc-row"><span class="toc-num">08</span><span class="toc-label">Besoins de financement</span></div>
+    <div class="toc-row"><span class="toc-num">09</span><span class="toc-label">Équipe &amp; jalons</span></div>
+    <div class="toc-row"><span class="toc-num">10</span><span class="toc-label">Risques &amp; mitigations</span></div>
+    <div class="toc-row"><span class="toc-num">11</span><span class="toc-label">KPIs</span></div>
+    <div class="toc-row"><span class="toc-num">A·B·C·D</span><span class="toc-label">Annexes — Hypothèses, Sources, Faits vs Hypothèses, Glossaire</span></div>
+  </div>
+  <p class="meta" style="margin-top:8mm">Chiffres marqués <strong>FAIT</strong> (sourcé, daté) ou <strong>HYP</strong> (à valider sur pilotes). Sources : Annexe B. Lecture double — sections 1-2 pour un lecteur pressé, ensemble pour le détail chiffré.</p>
+</section>
+
+<!-- ════════════════════ SECTION 01 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">01</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 01</p>
+    <h1 class="opener-title">Résumé<br>exécutif</h1>
+    <p class="opener-sub">La thèse en une page. Six retournements de discours qui résument ce que Lugia est, et ce que Lugia n'est pas.</p>
+  </div>
+</section>
+
+<!-- ════════════════════ SECTION 01 — CORPS ════════════════════ -->
+<section>
+  <h2 class="h2">1.1 — La thèse</h2>
+
+  <p><strong>Lugia est l'architecte et l'intégrateur méthodologique de la transformation du système de travail.</strong> Travail réel observé, redesign organisationnel, intégration utile de l'IA — en B2B multi-secteurs. Posture distinctive : métier et sécurité d'abord, IA jamais prononcée. Légitimité gagnée par les professions libérales — les médecins généralistes en pilote, extension rapide aux libéraux du juridique et du chiffre — puis aux secteurs réglementés voisins, puis au reste de l'économie via un moteur générique.</p>
+
+  <h2 class="h2">1.2 — Six retournements de discours</h2>
+
+  <p class="lead">Lugia ouvre une dispute de fond avec le marché. Six positions qui, mises bout à bout, distinguent Lugia de tout ce qui existe aujourd'hui — process intelligence, AI-first, cabinets ops, AI governance, éditeurs verticaux.</p>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Retournement 1 — l'outil au service du work model</p>
+    <p>Intègre l'outil au work model, et non l'inverse. Toute la logique SaaS — du process mining aux DPI, jusqu'aux AI-first — fait, in fine, adapter l'organisation à l'outil. Lugia inverse la flèche.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Retournement 2 — l'empilement est la maladie</p>
+    <p>L'empilement d'outils, d'agents et d'automatismes est d'abord un problème de cohérence organisationnelle avant d'être un problème technique. Le marché vend de l'empilement ; Lugia dit qu'il est le symptôme à traiter.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Retournement 3 — sur-mesure à l'ère de l'IA</p>
+    <p>L'IA ne rend pas le travail standard moins coûteux. Elle rend le sur-mesure enfin abordable. La doxa dit « IA = scale par templates » ; Lugia construit sur l'inverse : le coût marginal de modélisation chute, donc la modélisation fine et propre à chaque cabinet devient économiquement viable.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Retournement 4 — découpler veille et cadence</p>
+    <p>Lugia suit les innovations mais refuse de soumettre l'organisation à leur logique ou à leur rythme. Le marché construit sur la peur de rater le train ; Lugia construit sur la maîtrise du calendrier client.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Retournement 5 — convertir, pas ajouter</p>
+    <p>Convertir des budgets de réaction en budgets de transformation utile. Lugia ne demande pas un budget supplémentaire — il redirige l'existant. Les PME et professions libérales dépensent déjà un budget important à éteindre les feux ; Lugia transforme la dépense en investissement.</p>
+  </div>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Retournement 6 — ni KPI pur, ni humanisme pur</p>
+    <p>Lugia refuse simultanément la lecture purement financière (les cabinets conseil ROI) ET la lecture purement humaniste (les approches RPS/QVT déconnectées du système). Ce n'est pas une moyenne tiède : c'est la recherche d'un équilibre robuste, tendu, qui tient ensemble la performance opérationnelle et la soutenabilité humaine.</p>
+  </div>
+
+  <h2 class="h2">1.3 — Le marché, en repères</h2>
+
+  <p>France — TAM 1,3 Md€/an, SAM 0,2-0,4 Md€/an, SOM 3-7 M€ ARR sur 36 mois (1-2 % du SAM, ARPU mix 900 €/an). Cible cœur : 100 100 médecins libéraux exclusifs <strong>[FAIT — DREES 2024]</strong>, extension naturelle aux 1,3 M de professionnels libéraux français <strong>[FAIT — INSEE 2022]</strong>. Marché de la gouvernance IA en croissance 35-45 % par an <strong>[FAIT — MarketsandMarkets / Forrester 2024-25]</strong>. Vent réglementaire fort : AI Act phase opérationnelle 2 août 2026, facturation électronique 1ᵉʳ septembre 2026, CSRD en montée — Lugia y est nativement aligné.</p>
+
+  <h2 class="h2">1.4 — La traction visée</h2>
+
+  <p>Phase pilotes en cours (3-5 cabinets ciblés en S2 2026). Modèle freemium clair : Diagnostic gratuit (aimant et qualification) → Lugia Work System payant (Socle 49 €/mois, Pro 149 €/mois, Institution sur devis 300-2 000 €+/mois). Cross-sell services Lugia &amp; Co (faire-ensemble sur le terrain). Pistes B2B2B (assureurs RCP, URPS, OEM) à instruire en parallèle, cycles 6-18 mois.</p>
+
+  <h2 class="h2">1.5 — Le financement</h2>
+
+  <p>Trois scénarios honnêtes, sans hockey stick : bootstrap (atteinte du point mort en 4-5 ans), pré-seed 200-300 k€ (livraison Lugia Work System V1, 1 200-1 800 clients fin an 3, ~1,1-1,6 M€ ARR), seed 800 k€-1,2 M€ (équipe 5-6 personnes, expansion B2B2B, 2 500-4 000 clients fin an 3, ~2,3-3,6 M€ ARR — chiffres prudents). Recommandation interne : pré-seed semble le sweet spot tant que la traction reste à prouver. Cf décision D-045.</p>
+
+  <h2 class="h2">1.6 — Le verdict assumé</h2>
+
+  <p>Lugia est un challenger réellement différencié mais sous-doté. L'avantage est réel mais conditionnel : il dépend entièrement de l'exécution de la bascule services → bibliothèque de patterns, et du choix de gagner d'abord en profondeur (la santé) plutôt qu'en largeur (le multi-vertical). C'est ce que ce business plan organise.</p>
+</section>
+
+<!-- ════════════════════ SECTION 02 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">02</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 02</p>
+    <h1 class="opener-title">Problème<br>&amp; valeur</h1>
+    <p class="opener-sub">Pourquoi maintenant, pour qui, quels gains concrets — et pourquoi les solutions existantes ne résolvent pas le bon problème.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">2.1 — Pourquoi maintenant</h2>
+
+  <p>Trois forces se croisent en 2026-2027 et créent une fenêtre rare pour Lugia.</p>
+
+  <h3 class="h3">La fenêtre réglementaire</h3>
+  <p>L'AI Act européen entre dans sa phase opérationnelle : 2 août 2026 voit l'application de l'essentiel des règles (systèmes à haut risque, transparence, traçabilité, supervision humaine), 2 août 2027 la pleine application avec amendes jusqu'à 35 M€ ou 7 % du chiffre d'affaires mondial <strong>[FAIT — Commission UE]</strong>. En parallèle, la facturation électronique en France impose la réception obligatoire pour toutes les entreprises au 1ᵉʳ septembre 2026 et l'émission obligatoire pour PME et microentreprises au 1ᵉʳ septembre 2027 <strong>[FAIT — DGFiP]</strong>. S'y ajoutent RGPD transverse, hébergement HDS pour la santé, et la norme ISO/IEC 42001 (management de l'IA) qui émerge comme référentiel. Pour un professionnel libéral, c'est un empilement opaque.</p>
+
+  <h3 class="h3">La fatigue du hype IA</h3>
+  <p>95 % des initiatives IA en entreprise n'ont pas de ROI mesurable <strong>[FAIT — MIT NANDA 2025]</strong>. Les dirigeants ont financé des outils, formé des équipes, lancé des projets — et ne voient pas la valeur arriver. Cela crée un appel d'air pour une méthode crédible, qui ne survende pas, qui parle métier d'abord. C'est exactement la posture de Lugia.</p>
+
+  <h3 class="h3">Le retard structurel des TPE-PME</h3>
+  <p>79 % des dirigeants de TPE-PME voient le numérique comme un atout <strong>[FAIT — France Num 2024]</strong>, mais 37 % peinent à trouver un prestataire adapté. Moins de 15 % des cabinets médicaux ont leur registre RGPD à jour. La maturité moyenne des libéraux et TPE est faible, leurs solutions actuelles sont fragmentées (Doctolib + DPI + ChatGPT informel + Excel + comptable), et le diagnostic préalable n'existe pas. Le terrain est mûr.</p>
+
+  <h2 class="h2">2.2 — Le bon problème — l'écart prescrit / modélisé / réel</h2>
+
+  <p>La majorité des outils du marché observent ce qui s'exécute (process mining, work intelligence) ou décrivent ce qui devrait s'exécuter (cabinets org-design « to-be »). Personne ne tient les trois niveaux ensemble — et c'est précisément là que se joue la transformation utile.</p>
+
+  <div class="verbatim">
+    <p class="verbatim-eyebrow">Doctrine fondatrice</p>
+    <p>Lugia traite l'écart entre le travail prescrit (ce qu'on est censé faire), le travail modélisé (ce qu'on documente et qu'on outille) et le travail réellement exécuté (ce qui se passe vraiment). Cet écart est le problème central — et personne d'autre ne le nomme.</p>
+  </div>
+
+  <p>Cette posture vient de la tradition française d'ergonomie et de clinique du travail (Dejours, Clot) — quasiment jamais ramenée dans un produit tech. Elle donne à Lugia un fondement intellectuel défendable face à des investisseurs comme face à des prospects : on ne vend pas un dashboard, on vend une méthode de lecture conjointe des trois niveaux. Le moteur WSF (Work System Framework de Steven Alter, USF) en est l'instrumentation : graphe typé, règles, simulation causale en euros et heures.</p>
+
+  <h2 class="h2">2.3 — Le problème, formulé par les clients</h2>
+
+  <p>Cinq formulations qui ressortent des cinq personas étudiés (médecin généraliste, coordinateur de MSP, avocat associé, expert-comptable, dirigeant de PME) :</p>
+
+  <ul class="dash">
+    <li>« Mon système de travail grince — mais je ne sais pas exactement où. » Rôles flous, exceptions permanentes, dépendance à une ou deux personnes-clés, doublons d'outils.</li>
+    <li>« Je passe trop de temps loin du métier. » Chez les généralistes, 5 h 30 à 16 h par semaine en gestion-coordination <strong>[FAIT — DREES Panel]</strong>. Chez les avocats, time-tracking et facturation grignotent les heures.</li>
+    <li>« La conformité m'angoisse, je ne sais pas par quoi commencer. »</li>
+    <li>« L'IA m'attire mais je ne veux pas faire n'importe quoi avec mes données. » Usage informel de ChatGPT, peur du shadow IT, secret professionnel ou déontologie sous tension.</li>
+    <li>« Je ne sais pas par où commencer, ni qui appeler. » 37 % des TPE-PME peinent à trouver un prestataire adapté <strong>[FAIT — France Num 2024]</strong>.</li>
+  </ul>
+
+  <h2 class="h2">2.4 — Gains concrets et ancrage économique</h2>
+
+  <p>Lugia se mesure d'abord en temps et en charge mentale, pas en discours. Les gains documentés sur des chantiers comparables (pilotes santé internes ou benchmarks) :</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:38%">Chantier</th>
+        <th style="width:24%">Avant Lugia</th>
+        <th style="width:18%">Avec Lugia</th>
+        <th>Gain net</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Courrier patient sécurisé</td>
+        <td>8 minutes</td>
+        <td>2 minutes</td>
+        <td>6 minutes par courrier</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Synthèse de dossier complexe</td>
+        <td>15 minutes</td>
+        <td>4 minutes</td>
+        <td>11 minutes</td>
+      </tr>
+      <tr>
+        <td class="label">Registre RGPD à jour</td>
+        <td>2 à 5 jours</td>
+        <td>20 minutes</td>
+        <td>2 à 5 jours <strong>[HYP, à valider pilotes]</strong></td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Demi-journée hebdo gestion</td>
+        <td>5 h 30/sem</td>
+        <td>3 à 4 h/sem</td>
+        <td>~1 h 30/sem récupérée</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Ancrage économique.</strong> Le taux horaire de référence retenu en interne (décision D-038) est 70 € TTC/h pour un médecin généraliste, sur 220 jours travaillés par an. Une heure et demie récupérée par semaine, à 70 €, sur 44 semaines effectives, c'est environ <strong>4 600 € par an</strong> de temps qui retourne au soin ou à la marge cognitive. Le palier Socle à 49 €/mois (588 €/an) est rentabilisé en moins de deux mois.</p>
+
+  <h2 class="h2">2.5 — Cinq piliers de valeur — et ce qu'ils neutralisent</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:36%">Pilier Lugia</th>
+        <th>Ce qu'il neutralise chez les concurrents</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Moteur WSF formel (graphe typé, règles, simulation causale en € et heures)</td>
+        <td>Désarme les outils « AI maps your work » ad-hoc : Lugia a une méthode explicable, auditable, calibrée.</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Jumeau vivant à complétude progressive</td>
+        <td>Désarme le one-shot assessment des cabinets : Lugia est un actif qui persiste et s'enrichit.</td>
+      </tr>
+      <tr>
+        <td class="label">Souveraineté concrète (portabilité, données sous contrôle, tokenisation)</td>
+        <td>Désarme le SaaS multi-tenant US et les plateformes AI-first qui captent les données.</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Conformité intégrée (RGPD, AI Act, HDS, ISO 42001)</td>
+        <td>Désarme les acteurs AI governance centrés modèles : Lugia produit les livrables réglementaires comme sous-produit d'une organisation saine.</td>
+      </tr>
+      <tr>
+        <td class="label">Moteur générique multi-vertical par instanciation</td>
+        <td>Désarme les outils mono-secteur : un pattern santé sert dans le juridique sans tout réécrire.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>S'y ajoute un parti pris produit, conservé en interne et appliqué dès maintenant dans le code : la <strong>sobriété énergétique de l'usage IA</strong>. Centralisation des appels, adéquation chantier-modèle, modèles locaux progressifs (SLM en navigateur, décision D-040), 8ᵉ lentille « Empreinte » dans la bibliothèque. Argument secondaire en façade investisseur, mais identité forte qui prend de la valeur avec la montée de CSRD et la régulation de la sobriété numérique à 24-36 mois.</p>
+</section>
+
+<!-- ════════════════════ SECTION 03 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">03</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 03</p>
+    <h1 class="opener-title">Modèle<br>économique</h1>
+    <p class="opener-sub">Freemium en deux produits, paliers tarifaires, cross-sell services, B2B2B, et la défense du moat sur-mesure à l'ère de l'IA.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">3.1 — Architecture freemium en deux produits</h2>
+
+  <p>L'offre se décline en deux produits distincts dans le même portefeuille (décision D-041), articulés par un parcours d'acquisition naturel.</p>
+
+  <h3 class="h3">Lugia Checkup Demo — gratuit</h3>
+  <p>Diagnostic organisationnel sur 3 axes vulgarisés (Parcours patient, Équipe, Outils), un chantier prioritaire avec assistant LLM limité (10 messages max — décision D-044), schéma simplifié du système de travail, plan d'action en 4 étapes, PDF exportable. Le tout en moins de 30 minutes. C'est ce qui est en production aujourd'hui sur diagnostic.lugia.fr. Rôle dans le modèle : aimant d'acquisition zéro friction, qualification automatique des leads, cross-sell vers le payant. Pas un teaser de bas niveau — un produit fini en soi.</p>
+
+  <h3 class="h3">Lugia Work System — payant, à construire</h3>
+  <p>Diagnostic étendu aux 9 éléments du Work System Framework, tous chantiers débloqués, assistant LLM étendu multi-chantiers et persistant, schémas Mermaid détaillés du cabinet, livrables téléchargeables enrichis (registre RGPD complet, notice patient AI Act, matrice d'accès, modèles de courriers), vault de tokenisation côté navigateur. Articulation explicite avec le Demo : le diagnostic devient le point d'entrée du Work System, mais celui-ci a une valeur supérieure et complémentaire, pas une « version payante du checkup ».</p>
+
+  <h2 class="h2">3.2 — Paliers tarifaires</h2>
+
+  <p>Trois paliers SaaS plus un palier services, calibrés sur la willingness-to-pay observée et l'ancrage métier (un médecin facture 26,50 € la consultation, donc 49 €/mois est rentabilisé par deux consultations) :</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:18%">Palier</th>
+        <th style="width:24%">Cible</th>
+        <th style="width:18%">Tarif</th>
+        <th>Inclus</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Diagnostic</td>
+        <td>Tout professionnel</td>
+        <td class="num">Gratuit</td>
+        <td>Carte vivante + chantiers recommandés (15-20 min)</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Socle</td>
+        <td>Libéral solo</td>
+        <td class="num">~49 €/mois</td>
+        <td>2 chantiers/mois, registre RGPD, notice IA, logs de base</td>
+      </tr>
+      <tr>
+        <td class="label">Pro</td>
+        <td>Libéral installé, TPE</td>
+        <td class="num">~149 €/mois</td>
+        <td>Chantiers illimités, vault, proxy IA, support sous 2 minutes</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Institution</td>
+        <td>MSP, cabinet de groupe, PME-ETI</td>
+        <td class="num">300 à 2 000 €+/mois</td>
+        <td>Multi-praticiens, connecteurs DPI, certification HDS, faire-ensemble Lugia &amp; Co</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>ARPU mix modélisé à <strong>900 €/an</strong> <strong>[HYP — à valider pilotes]</strong>. La fourchette assume une majorité de Socle, une part significative de Pro, une minorité d'Institution. À titre de comparaison, les acteurs d'AI governance et GRC enterprise (OneTrust, IBM, Credo AI) facturent souvent à six chiffres ; le mid-market se vend en dizaines de milliers d'euros annuels. L'espace de prix sous Lugia est large et permet une remontée de tarifs en phase 2-3.</p>
+
+  <p><strong>Modules optionnels (add-on à 30-50 €/mois)</strong> prévus pour le Work System en V2 : Ordonnances enrichies, Synthèse de dossier, Reporting, Transmission de cabinet. Ils élèvent l'ARPU effectif sans bouger les paliers de base.</p>
+
+  <h2 class="h2">3.3 — Cross-sell services — Lugia &amp; Co</h2>
+
+  <p>Le collectif Lugia &amp; Co (opérateurs métier qui interviennent sur le terrain pour le faire-ensemble) constitue une seconde ligne de revenu. Deux régimes : pour les abonnés Pro et Institution, tarif réduit de 15 à 25 % sur les missions de conseil, dans une logique de fidélisation et d'upsell ; pour les prospects depuis la démo gratuite, plein tarif via Calendly direct (chantier C.C de la roadmap).</p>
+
+  <p>Les missions servent à la fois de revenu court terme (cycles 4-12 semaines) et de fabrique de patterns pour la bibliothèque produit. Ce double rôle justifie un investissement temps même quand la marge brute services seule serait moins attractive que le SaaS pur.</p>
+
+  <h2 class="h2">3.4 — Sur-mesure à l'ère de l'IA — défense du moat</h2>
+
+  <p>Le pari économique de Lugia est contrarien : alors que la doxa SaaS dit « IA = scale par templates », Lugia construit sur l'inverse. <strong>Le coût marginal de modélisation chute, donc la modélisation fine devient enfin économiquement viable.</strong> Chaque cabinet peut avoir son work model propre — pas un template, pas une fiche réutilisée — sans que le coût opérationnel ne soit prohibitif.</p>
+
+  <p>C'est la condition de défense du moat services → bibliothèque de patterns. La phase 1 (collectif Lugia &amp; Co qui fait-ensemble sur le terrain) produit des références crédibles et encode le savoir terrain en patterns WSF — des sous-graphes réutilisables, calibrés. La phase 2 (bibliothèque) devient un actif qui compose : effet de réseau de données, coût de sortie (le jumeau vivant spécifique au client), transversalité (un pattern santé sert dans le juridique).</p>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Garde-fou non négociable</p>
+    <p>La bibliothèque capture des patterns structurels abstraits et anonymisés, jamais des données client. Sinon « l'usage alimente notre bibliothèque » entrerait en contradiction frontale avec « vos données restent sous votre contrôle ». Ce point est verrouillé contractuellement et techniquement (séparation patterns / données dès le schéma de base).</p>
+  </div>
+
+  <h2 class="h2">3.5 — Work models de crise — module Pro+ et Institution</h2>
+
+  <p>Personne sur le marché ne vend aujourd'hui des modes de fonctionnement de crise activables rapidement, avec rôles, responsabilités et outils prédéfinis — ramenés au work model concret, pas à un PCA générique. Post-COVID, post-cyberattaques, post-crise énergétique 2022, le besoin est réel et reconnu, mais sans réponse produit.</p>
+
+  <p>Lugia propose un module dédié à activer sur les paliers Pro+ et Institution : préparation de 2 à 3 work models temporaires cadrés (par exemple : absence prolongée d'un praticien clé, cyberattaque sur le DPI, urgence sanitaire territoriale) avec basculement rapide depuis le jumeau vivant. Tarif d'amorce envisagé : 30-50 €/mois en add-on Pro, inclus dans Institution. À développer en V2 du Work System (chantier WS.8 — voir section 9).</p>
+
+  <h2 class="h2">3.6 — Pistes B2B2B</h2>
+
+  <p>Trois canaux à instruire en parallèle, avec des cycles longs (6 à 18 mois) mais des effets de levier puissants :</p>
+
+  <h3 class="h3">Assureurs RCP</h3>
+  <p>MACSF, MIC, Médicis et équivalents. Modèle envisagé : un volume reversé 5 à 15 €/médecin/mois, contre lequel l'assureur intègre Lugia à son offre de RCP. CAC quasi nul du côté Lugia, alignement d'intérêt (l'assureur a intérêt à ce que ses sociétaires soient en conformité). À initier en S2 2026, signature visée en 2027.</p>
+
+  <h3 class="h3">URPS et ordres professionnels</h3>
+  <p>Accord-cadre régional ou national, budgets disponibles, processus institutionnels lents. Pertinents pour la légitimité (label régional) plus que pour le volume immédiat.</p>
+
+  <h3 class="h3">Éditeurs métier (OEM)</h3>
+  <p>Doctolib, HelloDoc, Crossway, Weda côté santé ; Cegid, Sage, ACD côté chiffre ; Secib, Diapaz, Kleos côté juridique. Modèle royalties + intégration native. Forte distribution potentielle mais dépendance partenaire ; pertinent en phase 3, sur référence solide.</p>
+</section>
+
+<!-- ════════════════════ SECTION 04 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">04</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 04</p>
+    <h1 class="opener-title">Go-to-<br>market</h1>
+    <p class="opener-sub">Séquence de légitimité par la santé libérale, boucle d'acquisition par le check-up gratuit, ancrage commercial sur la conversion de budgets de réaction.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">4.1 — Séquence de légitimité — pas de séquence d'attaquabilité</h2>
+
+  <p>Lugia choisit délibérément le segment <strong>le plus exigeant en confiance</strong> avant les plus faciles à vendre. La matrice sectorielle de l'étude de marché place Services B2B et Finance en tête sur le score commercial (23/30 chacun), avec la Santé libérale juste derrière (22/30). Lugia entre par la santé. Pourquoi : une référence santé crée un halo de légitimité que les autres secteurs réglementés (juridique, chiffre, finance) reconnaissent immédiatement, là où une startup SaaS générique resterait inaudible. Inversement, entrer par Services B2B donnerait peut-être quelques clients plus vite mais n'ouvrirait aucune porte ailleurs.</p>
+
+  <p>La séquence est donc : <strong>médecins généralistes libéraux (pilote)</strong> → <strong>autres professions libérales santé, MSP, cabinets de groupe</strong> → <strong>juridique (avocats), chiffre (experts-comptables), finance</strong> → <strong>services B2B et numérique</strong> → <strong>industrie et BTP</strong>. Sur le plan international, France d'abord, puis francophone (Belgique, Suisse, Luxembourg, Québec — l'AI Act commun à l'UE donne sa cohérence au saut francophone et européen), puis UE.</p>
+
+  <h2 class="h2">4.2 — Argument commercial central — convertir, pas ajouter</h2>
+
+  <p>Le pitch ne demande pas un budget supplémentaire. Il demande un déplacement d'un budget déjà existant — celui de la réaction.</p>
+
+  <div class="verbatim">
+    <p class="verbatim-eyebrow">Argument d'ouverture</p>
+    <p>Les PME et professions libérales dépensent déjà un budget important à éteindre les feux — consultants ponctuels d'urgence, formations rattrapages, outils empilés pour combler les manques, contrôles CNIL coûteux et tardifs. Lugia transforme ce budget de réaction en budget de transformation utile.</p>
+  </div>
+
+  <p>Conséquence pratique sur l'argumentaire : un Socle à 49 €/mois ou un Pro à 149 €/mois ne se compare pas à « un abonnement de plus ». Il se compare à <strong>une intervention curative annuelle</strong> (1 500 à 5 000 € chez un consultant qualifié), à <strong>un audit CNIL après incident</strong> (3 000 à 10 000 €), ou à <strong>une formation rattrapage de demi-journée</strong> (300 à 800 €). Le ROI se construit sur la <strong>substitution</strong>, pas sur l'addition. C'est ce qui fait passer un refus en ouverture de discussion.</p>
+
+  <h2 class="h2">4.3 — Phasage des canaux</h2>
+
+  <h3 class="h3">Phase 1 — Légitimité (mois 0 à 6)</h3>
+  <p>Pilotes 3 à 5 cabinets médicaux. Diagnostic gratuit comme levier zéro friction. Cas d'usage documentés (temps économisé, NPS, retours qualitatifs). Première itération produit en boucle serrée avec les pilotes. Pas de commercial, founder-led.</p>
+
+  <h3 class="h3">Phase 2 — Acquisition directe (mois 6 à 18)</h3>
+  <p>Contenu éducatif (newsletter conformité métier, guides AI Act vulgarisés), présence congrès médecins (CMGF, WONCA, JLO), partenariats URPS, programme de parrainage médecin → médecin (« un confrère = un mois offert »), webinaires conjoints avec assureurs RCP. Initiation parallèle des canaux institutionnels. Première extension naturelle aux libéraux du juridique et du chiffre via les mêmes mécaniques de pairs.</p>
+
+  <h3 class="h3">Phase 3 — Institutionnels et OEM (mois 18+)</h3>
+  <p>Signature des premiers accords assureurs RCP, conventions URPS régionales, intégrations OEM (Doctolib, Cegid). Campagnes ciblées LinkedIn, salons sectoriels (Santexpo, Hôpital Expo, Congrès de l'Ordre des Experts-Comptables, congrès du barreau). Pairs influenceurs (médecins-tech, avocats-tech).</p>
+
+  <p>Constant : communauté d'utilisateurs (forum ou Slack interne), témoignages, présence active dans les réseaux de pairs.</p>
+
+  <h2 class="h2">4.4 — L'architecte des work models côté client</h2>
+
+  <p>Lugia ne garde pas la méthode pour elle. Le modèle de service classique du conseil — un junior backé par un senior à distance, qui repart avec le savoir — est explicitement refusé. À la place, Lugia <strong>fait émerger un rôle permanent chez le client : l'architecte des work models</strong>. C'est un médecin associé, un juriste référent, un coordinateur de MSP qui devient porteur de la cohérence dans le temps. Il est formé sur la méthode, équipé du jumeau vivant, capable de l'enrichir et de le faire évoluer.</p>
+
+  <p>Deux effets sur l'économie de la relation. <strong>Un coût de sortie supplémentaire</strong> : ce n'est pas seulement le jumeau qui est coûteux à abandonner, c'est la compétence interne formée. <strong>Une fidélité par compétence interne</strong>, plus solide que la fidélité par dépendance. Très peu d'acteurs osent ce modèle parce qu'il semble dépouiller le prestataire d'une partie de sa valeur ; en pratique, il crée une relation plus longue et un upsell plus naturel (modules, missions ponctuelles, extension multi-vertical).</p>
+
+  <h2 class="h2">4.5 — Boucle d'acquisition principale et métriques cibles</h2>
+
+  <p>Le check-up gratuit est l'aimant. Il est en production, il est complet, il qualifie automatiquement les leads (un médecin qui termine un diagnostic est par construction un lead chaud). À cette mécanique s'ajoutent deux portes de sortie déjà câblées dans le produit : Calendly direct pour les missions de conseil, formulaire « Répondre à une offre de conseil » pour les chantiers identifiés.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:34%">Métrique</th>
+        <th style="width:22%">Phase 1 (m0-6)</th>
+        <th style="width:22%">Phase 2 (m6-18)</th>
+        <th>Phase 3 (m18+)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Médecins actifs payants</td>
+        <td class="num">30-100</td>
+        <td class="num">300-800</td>
+        <td class="num">1 500-4 000</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Conversion diagnostic → payant</td>
+        <td class="num">12 % (prudent) / 20 % (base)</td>
+        <td class="num">&gt; 25 %</td>
+        <td class="num">&gt; 30 %</td>
+      </tr>
+      <tr>
+        <td class="label">Churn mensuel</td>
+        <td class="num">&lt; 3 %</td>
+        <td class="num">&lt; 2 %</td>
+        <td class="num">&lt; 1,5 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">NPS</td>
+        <td class="num">&gt; 40</td>
+        <td class="num">&gt; 50</td>
+        <td class="num">&gt; 60</td>
+      </tr>
+      <tr>
+        <td class="label">CAC</td>
+        <td class="num">&lt; 300 €</td>
+        <td class="num">&lt; 200 €</td>
+        <td class="num">&lt; 150 €</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">LTV par médecin moyen</td>
+        <td class="num">&gt; 2 000 €</td>
+        <td class="num">&gt; 3 500 €</td>
+        <td class="num">&gt; 5 000 €</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="meta">Chiffres prudents par rapport à ceux de la spec Co Doctor (qui visait 2 500 médecins / 4,5 M€ ARR en phase 2). On se cale sur la fourchette SOM France 3-7 M€ ARR / 36 mois de l'étude de marché.</p>
+</section>
+
+<!-- ════════════════════ SECTION 05 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">05</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 05</p>
+    <h1 class="opener-title">Structure<br>de coûts</h1>
+    <p class="opener-sub">Infrastructure, LLM, conformité, personnel, commercial — postes mensuels et annuels par scénario.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">5.1 — Infrastructure et stack</h2>
+
+  <p>Stack actuelle, en production : Next.js déployé sur Vercel (frontend), FastAPI plus PostgreSQL déployé sur Render (backend), Resend (email magic link), DNS OVH. Côté LLM, l'assistant chantier tourne au choix sur Claude Haiku (API Anthropic, mode Cloud) ou sur un SLM local Qwen 7B en navigateur via WebLLM (mode Local — décision D-040).</p>
+
+  <table>
+    <caption>Coûts mensuels estimés en early stage — HYP, à confirmer factures réelles</caption>
+    <thead>
+      <tr>
+        <th style="width:42%">Poste</th>
+        <th style="width:29%">Mensuel</th>
+        <th>Annuel</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Vercel (hébergement frontend)</td>
+        <td class="num">20-50 €</td>
+        <td class="num">240-600 €</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Render (backend + Postgres)</td>
+        <td class="num">50-150 €</td>
+        <td class="num">600-1 800 €</td>
+      </tr>
+      <tr>
+        <td class="label">Resend (email)</td>
+        <td class="num">0-30 €</td>
+        <td class="num">0-360 €</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">OVH (DNS, mail)</td>
+        <td class="num">10-20 €</td>
+        <td class="num">120-240 €</td>
+      </tr>
+      <tr>
+        <td class="label">API Claude Haiku (LLM)</td>
+        <td class="num">50-300 €</td>
+        <td class="num">600-3 600 €</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Outils (Notion, Linear, Stripe, etc.)</td>
+        <td class="num">50-100 €</td>
+        <td class="num">600-1 200 €</td>
+      </tr>
+      <tr class="subtotal">
+        <td class="label">Total infra / SaaS</td>
+        <td class="num-bold">180-650 €</td>
+        <td class="num-bold">2 160-7 800 €</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Le coût marginal d'un check-up gratuit est dominé par l'inférence LLM (~0,001 € par check-up sur Claude Haiku 4.5 <strong>[HYP — à mesurer]</strong>), écrasé à zéro côté serveur quand le médecin choisit le mode Local. Sur 10 000 check-ups annuels, on est dans l'ordre de 10 € de coût LLM — négligeable. Le coût significatif viendra côté Work System payant, avec un usage LLM étendu et persistant ; là, le toggle Cloud/Local et la sélection du modèle le plus sobre par chantier (parti pris produit) jouent leur rôle.</p>
+
+  <h2 class="h2">5.2 — Conformité</h2>
+
+  <p>Postes à anticiper, plus lourds en phase 2-3 :</p>
+
+  <ul class="dash">
+    <li><strong>DPO externalisé</strong> (registre RGPD, conseil) : 5 000 à 12 000 €/an <strong>[HYP]</strong></li>
+    <li><strong>Certification HDS</strong> (hébergement données santé) : 15 000 à 40 000 € en coût de mise en conformité initiale, puis audit annuel <strong>[HYP — dépendant de l'hébergeur partenaire]</strong></li>
+    <li><strong>Audit AI Act et notice patient</strong> : essentiellement effort interne en phase 1-2, externalisation possible en phase 3</li>
+    <li><strong>Certification ISO/IEC 42001</strong> : à viser en 2027-2028, coût estimé 20 000 à 50 000 € <strong>[HYP]</strong></li>
+  </ul>
+
+  <h2 class="h2">5.3 — Personnel et commercial</h2>
+
+  <p>Postes principaux selon scénario, à pondérer par les jalons d'embauche :</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:38%">Poste</th>
+        <th style="width:28%">Coût chargé annuel</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">CTO / lead engineering</td>
+        <td class="num">85-110 k€</td>
+        <td>Profil senior, plein temps</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Médecin advisor</td>
+        <td class="num">25-40 k€</td>
+        <td>Mi-temps ou freelance</td>
+      </tr>
+      <tr>
+        <td class="label">Designer produit</td>
+        <td class="num">70-90 k€</td>
+        <td>Plein temps, charte V3</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Premier commercial</td>
+        <td class="num">70-90 k€ + variable</td>
+        <td>Post-pilotes, phase 2</td>
+      </tr>
+      <tr>
+        <td class="label">DPO externalisé</td>
+        <td class="num">5-12 k€</td>
+        <td>Prestation</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Commercial et marketing — faible en phase 1 (founder-led, congrès, content). Phase 2 : webinaires, présence congrès (5-15 k€/an), production de contenu éducatif (5-10 k€/an si externalisé partiellement), publicité ciblée modérée (5-20 k€/an LinkedIn / Google). Phase 3 : campagnes plus structurées, salons, RP, événements business — entre 50 et 150 k€/an selon le scénario.</p>
+</section>
+
+<!-- ════════════════════ SECTION 06 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">06</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 06</p>
+    <h1 class="opener-title">Unit<br>economics</h1>
+    <p class="opener-sub">ARPU, marge brute, CAC, LTV, conversion freemium. La santé financière d'un client moyen — et ce qui la dégrade.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">6.1 — ARPU, marge brute, CAC cible</h2>
+
+  <p>ARPU mix modélisé : <strong>900 €/an</strong> <strong>[HYP]</strong> — base : majorité de Socle 49 €/mois, part significative de Pro 149 €/mois, minorité d'Institution sur devis.</p>
+
+  <p><strong>Marge brute estimée 80-85 %</strong> : SaaS hébergé, coûts marginaux LLM faibles (toggle SLM local, sélection chantier-modèle), coût d'hébergement par utilisateur très bas. La pression sur la marge viendra essentiellement de la conformité (HDS, audits) répartie sur la base abonnée — à mesure que la base grossit, l'effet est dilutif.</p>
+
+  <p>CAC cibles : <strong>&lt; 300 € en phase 1, &lt; 200 € en phase 2, &lt; 150 € en phase 3</strong>. Le coût bas en phase 1 vient de l'effet founder-led et de l'aimant gratuit ; il remonte mécaniquement en phase 2 (canaux payants), puis redescend en phase 3 sous l'effet du parrainage et des canaux institutionnels (URPS, RCP) dont le CAC est par construction faible.</p>
+
+  <h2 class="h2">6.2 — LTV et payback selon churn</h2>
+
+  <p>LTV calculé sur une marge contributive de 0,82 × 75 €/mois (ARPU mensuel) = 61,5 €/mois de marge par client, et une durée de vie 1/churn :</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:34%">Churn mensuel</th>
+        <th style="width:34%">Durée de vie moyenne</th>
+        <th>LTV</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">3 %</td>
+        <td class="num">33 mois</td>
+        <td class="num">~2 030 €</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">2 %</td>
+        <td class="num">50 mois</td>
+        <td class="num">~3 075 €</td>
+      </tr>
+      <tr>
+        <td class="label">1,5 %</td>
+        <td class="num">67 mois</td>
+        <td class="num">~4 120 €</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Avec un CAC à 200 €, ratio LTV/CAC ≈ 10× au scénario base — confortable, signe d'un modèle sain. Le payback CAC est de l'ordre de 3 à 4 mois sur le palier Pro, plus rapide sur Institution (ticket élevé, CAC absolu plus grand mais payback plus court en relatif). Ces unit economics sont compatibles avec un investisseur seed exigeant : la condition tient à ce que la conversion freemium et le churn restent dans les bornes.</p>
+
+  <h2 class="h2">6.3 — Conversion freemium → payant</h2>
+
+  <p>Hypothèses retenues, séparées en deux scénarios pour la sensibilité :</p>
+
+  <ul class="dash">
+    <li><strong>Prudent</strong> : 12 % de conversion phase 1 (sur les diagnostics finalisés), 20 % phase 2, 25 % phase 3.</li>
+    <li><strong>Base</strong> : 20 % phase 1, 30 % phase 2, 35 % phase 3.</li>
+  </ul>
+
+  <p>Les projections financières (section 7) sont construites sur l'hypothèse base avec mention explicite des écarts au prudent.</p>
+</section>
+
+<!-- ════════════════════ SECTION 07 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">07</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 07</p>
+    <h1 class="opener-title">Projections<br>financières</h1>
+    <p class="opener-sub">Trois scénarios, P&amp;L simplifié sur 3 ans + an 4-5 schématique, sensibilités. Posture anti-hockey-stick assumée.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">7.1 — Cadrage et avertissement</h2>
+
+  <p>Le SOM France modélisé dans l'étude de marché est <strong>3 à 7 M€ ARR sur 36 mois</strong> (1-2 % du SAM, 3 000 à 8 000 comptes, ARPU 900 €/an). Les projections ci-dessous restent à l'intérieur de cette enveloppe — c'est délibérément un BP sans hockey stick, qui assume la posture « challenger différencié mais sous-doté ». <strong>Les chiffres du scénario seed sont volontairement prudents par rapport à ce que la traction maximale pourrait permettre.</strong> Préférence assumée : sous-promettre, sur-livrer.</p>
+
+  <p>Année de référence : <strong>An 1 = juin 2026 - mai 2027</strong> (calendrier glissant à partir du lancement V1 Work System). An 2 = juin 2027 - mai 2028. An 3 = juin 2028 - mai 2029.</p>
+
+  <h2 class="h2">7.2 — Trois scénarios — clients actifs payants et ARR</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:18%">Scénario</th>
+        <th>Fin An 1</th>
+        <th>Fin An 2</th>
+        <th>Fin An 3</th>
+        <th>An 4 (schém.)</th>
+        <th>An 5 (schém.)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Bootstrap (1-2 ETP)</td>
+        <td class="num">30-60 cli. · 30-55 k€ ARR</td>
+        <td class="num">150-250 · 135-225 k€</td>
+        <td class="num">400-700 · 360-630 k€</td>
+        <td class="num">800-1 300 · 0,7-1,2 M€</td>
+        <td class="num">1 200-2 000 · 1,1-1,8 M€</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Pré-seed 200-300 k€ (3-4 ETP)</td>
+        <td class="num">80-120 · 75-110 k€</td>
+        <td class="num">400-600 · 360-540 k€</td>
+        <td class="num">1 200-1 800 · 1,1-1,6 M€</td>
+        <td class="num">2 200-3 200 · 2,0-2,9 M€</td>
+        <td class="num">3 500-5 500 · 3,2-5 M€</td>
+      </tr>
+      <tr>
+        <td class="label">Seed 800 k€-1,2 M€ (5-6 ETP)</td>
+        <td class="num">120-200 · 110-180 k€</td>
+        <td class="num">700-1 200 · 630 k€-1,1 M€</td>
+        <td class="num">2 500-4 000 · 2,3-3,6 M€</td>
+        <td class="num">4 500-7 000 · 4-6,3 M€</td>
+        <td class="num">7 000-11 000 · 6,3-10 M€</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Le scénario seed haut atteint le haut de l'enveloppe SOM France an 3 (≈ 4 000 clients × 900 € = 3,6 M€ ARR, juste au cœur de la fourchette 3-7 M€). En an 4-5, l'amorce francophone (Belgique, Suisse, Luxembourg, Québec) et l'extension juridique/chiffre France permettent de dépasser le plafond strictement France.</p>
+
+  <h2 class="h2">7.3 — P&amp;L scénario pré-seed (recommandé)</h2>
+
+  <p>Hypothèses : pré-seed 250 k€ levé en S2 2026, équipe 3-4 ETP (fondateur + CTO + dev/produit + médecin advisor mi-temps), bascule premier commercial fin an 2.</p>
+
+  <table>
+    <caption>Valeurs en k€</caption>
+    <thead>
+      <tr>
+        <th style="width:40%">Poste</th>
+        <th>An 1</th>
+        <th>An 2</th>
+        <th>An 3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Revenus SaaS (ARPU 900 €)</td>
+        <td class="num">90</td>
+        <td class="num">450</td>
+        <td class="num">1 350</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Revenus services (Lugia &amp; Co)</td>
+        <td class="num">30</td>
+        <td class="num">80</td>
+        <td class="num">150</td>
+      </tr>
+      <tr>
+        <td class="label">Revenus B2B2B (RCP/URPS init.)</td>
+        <td class="num">0</td>
+        <td class="num">20</td>
+        <td class="num">80</td>
+      </tr>
+      <tr class="subtotal">
+        <td class="label">Total revenus</td>
+        <td class="num-bold">120</td>
+        <td class="num-bold">550</td>
+        <td class="num-bold">1 580</td>
+      </tr>
+      <tr>
+        <td class="label">Coûts directs (LLM, infra, HDS)</td>
+        <td class="num">(15)</td>
+        <td class="num">(50)</td>
+        <td class="num">(130)</td>
+      </tr>
+      <tr class="subtotal">
+        <td class="label">Marge brute</td>
+        <td class="num-bold">105 (88 %)</td>
+        <td class="num-bold">500 (91 %)</td>
+        <td class="num-bold">1 450 (92 %)</td>
+      </tr>
+      <tr>
+        <td class="label">Personnel</td>
+        <td class="num">(200)</td>
+        <td class="num">(350)</td>
+        <td class="num">(600)</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Conformité (DPO, HDS, audits)</td>
+        <td class="num">(15)</td>
+        <td class="num">(30)</td>
+        <td class="num">(60)</td>
+      </tr>
+      <tr>
+        <td class="label">Commercial &amp; marketing</td>
+        <td class="num">(15)</td>
+        <td class="num">(40)</td>
+        <td class="num">(120)</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">G&amp;A (compta, juridique, outils)</td>
+        <td class="num">(25)</td>
+        <td class="num">(35)</td>
+        <td class="num">(55)</td>
+      </tr>
+      <tr class="subtotal">
+        <td class="label">Total OPEX</td>
+        <td class="num-bold">(255)</td>
+        <td class="num-bold">(455)</td>
+        <td class="num-bold">(835)</td>
+      </tr>
+      <tr class="total">
+        <td class="label">EBITDA</td>
+        <td class="num">(150)</td>
+        <td class="num positive">+45</td>
+        <td class="num positive">+615</td>
+      </tr>
+      <tr>
+        <td class="label">Cumul cash (post pré-seed 250 k€)</td>
+        <td class="num">100</td>
+        <td class="num">145</td>
+        <td class="num">760</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Point mort attendu en an 2</p>
+    <p>À un volume de l'ordre de 400-600 clients actifs. Cohérent avec la trajectoire d'un SaaS B2B early-stage à marge élevée. Le runway initial (pré-seed 250 k€) suffit à tenir 18 à 24 mois sans nouvelle levée, à condition de respecter la discipline de coûts et d'atteindre 100-200 k€ d'ARR fin an 1.</p>
+  </div>
+
+  <h2 class="h2">7.4 — P&amp;L scénario seed (chiffres prudents)</h2>
+
+  <p>Hypothèses : seed 1 M€ levé fin 2026 ou début 2027, équipe 5-6 ETP (fondateur + CTO + 2 devs/produit + designer + premier commercial à partir d'an 2), expansion B2B2B accélérée.</p>
+
+  <table>
+    <caption>Valeurs en k€ — chiffres prudents, marge de sécurité confortable</caption>
+    <thead>
+      <tr>
+        <th style="width:40%">Poste</th>
+        <th>An 1</th>
+        <th>An 2</th>
+        <th>An 3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Revenus SaaS</td>
+        <td class="num">145</td>
+        <td class="num">800</td>
+        <td class="num">2 800</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Revenus services</td>
+        <td class="num">50</td>
+        <td class="num">150</td>
+        <td class="num">300</td>
+      </tr>
+      <tr>
+        <td class="label">Revenus B2B2B</td>
+        <td class="num">0</td>
+        <td class="num">50</td>
+        <td class="num">250</td>
+      </tr>
+      <tr class="subtotal">
+        <td class="label">Total revenus</td>
+        <td class="num-bold">195</td>
+        <td class="num-bold">1 000</td>
+        <td class="num-bold">3 350</td>
+      </tr>
+      <tr>
+        <td class="label">Coûts directs</td>
+        <td class="num">(25)</td>
+        <td class="num">(90)</td>
+        <td class="num">(280)</td>
+      </tr>
+      <tr class="subtotal">
+        <td class="label">Marge brute</td>
+        <td class="num-bold">170 (87 %)</td>
+        <td class="num-bold">910 (91 %)</td>
+        <td class="num-bold">3 070 (92 %)</td>
+      </tr>
+      <tr>
+        <td class="label">Personnel</td>
+        <td class="num">(400)</td>
+        <td class="num">(600)</td>
+        <td class="num">(850)</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Conformité</td>
+        <td class="num">(25)</td>
+        <td class="num">(50)</td>
+        <td class="num">(90)</td>
+      </tr>
+      <tr>
+        <td class="label">Commercial &amp; marketing</td>
+        <td class="num">(60)</td>
+        <td class="num">(150)</td>
+        <td class="num">(350)</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">G&amp;A</td>
+        <td class="num">(40)</td>
+        <td class="num">(60)</td>
+        <td class="num">(90)</td>
+      </tr>
+      <tr class="subtotal">
+        <td class="label">Total OPEX</td>
+        <td class="num-bold">(525)</td>
+        <td class="num-bold">(860)</td>
+        <td class="num-bold">(1 380)</td>
+      </tr>
+      <tr class="total">
+        <td class="label">EBITDA</td>
+        <td class="num">(355)</td>
+        <td class="num positive">+50</td>
+        <td class="num positive">+1 690</td>
+      </tr>
+      <tr>
+        <td class="label">Cumul cash (post seed 1 M€)</td>
+        <td class="num">645</td>
+        <td class="num">695</td>
+        <td class="num">2 385</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Encore une fois, chiffres prudents. Un scénario seed agressif viserait plutôt 3 500-5 000 clients fin an 3 et 4-4,5 M€ d'ARR. Les chiffres ici laissent une marge de sécurité confortable : si la traction est meilleure, on dépasse ; si elle est moins bonne, on garde du runway.</p>
+
+  <h2 class="h2">7.5 — Sensibilités</h2>
+
+  <p>Trois leviers principaux pèsent sur les projections :</p>
+
+  <ul class="dash">
+    <li><strong>Taux de conversion freemium → payant.</strong> Passer de 20 % à 12 % en phase 1 divise les revenus an 1 par un peu moins de deux ; le point mort se décale de 6 à 12 mois.</li>
+    <li><strong>Churn mensuel.</strong> Passer de 2 % à 3 % réduit la LTV de 33 % ; à terme, dégrade significativement l'unit economics et impose de remonter les prix ou de renforcer la rétention.</li>
+    <li><strong>Vitesse de signature B2B2B</strong> (assureurs RCP, URPS). Un accord signé en an 2 plutôt qu'an 3 ajoute typiquement 100-300 k€/an d'ARR additionnel, avec un CAC quasi nul.</li>
+  </ul>
+
+  <p>Le triple lever inverse — moins de conversion, plus de churn, B2B2B retardé — est le scénario de stress à anticiper. Dans le pré-seed, il décale le point mort à an 3-4 et impose un sursis de financement (extension ou bridge). Dans le seed, il consomme une part importante du cash mais ne menace pas la viabilité à 24 mois.</p>
+</section>
+
+<!-- ════════════════════ SECTION 08 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">08</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 08</p>
+    <h1 class="opener-title">Besoins de<br>financement</h1>
+    <p class="opener-sub">Trois scénarios honnêtes — bootstrap, pré-seed, seed. Allocations détaillées et critères de bascule entre scénarios.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">8.1 — Vue d'ensemble</h2>
+
+  <p>Les trois scénarios servent autant à éclairer la décision interne qu'à présenter à un investisseur la gamme des trajectoires possibles. Aucun n'est intrinsèquement « le bon » : chacun a sa cohérence et son risque.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:28%">Caractéristique</th>
+        <th style="width:24%">Bootstrap</th>
+        <th style="width:24%">Pré-seed 200-300 k€</th>
+        <th>Seed 800 k€-1,2 M€</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Équipe</td>
+        <td>1-2 ETP</td>
+        <td>3-4 ETP</td>
+        <td>5-6 ETP</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Runway visé</td>
+        <td>Continu, autofinancé</td>
+        <td>18-24 mois</td>
+        <td>24-36 mois</td>
+      </tr>
+      <tr>
+        <td class="label">Atteinte du point mort</td>
+        <td>An 3-4</td>
+        <td>An 2</td>
+        <td>An 2-3</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">ARR fin an 3</td>
+        <td class="num">0,4-0,6 M€</td>
+        <td class="num">1,1-1,6 M€</td>
+        <td class="num">2,3-3,6 M€</td>
+      </tr>
+      <tr>
+        <td class="label">Risque principal</td>
+        <td>Rythme insuffisant face aux financés</td>
+        <td>Sous-investissement commercial</td>
+        <td>Pression de croissance</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Profil investisseur</td>
+        <td>n.a.</td>
+        <td>Business Angels, French Tech Émergence, love money</td>
+        <td>VC seed (impact / health-tech / dev-tools)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="h2">8.2 — Scénario bootstrap</h2>
+
+  <p>Pas de levée. Financement par l'activité (premières missions de conseil Lugia &amp; Co, premiers abonnements SaaS, économies personnelles ou apport en compte courant). Rythme lent mais sans dilution. Atteinte du point mort estimée en an 3-4. Cohérent avec la posture indépendance et souveraineté, mais expose à un risque concurrentiel : pendant qu'on construit en bootstrap, les concurrents AI-first financés (startups YC voisines notamment) peuvent prendre de l'avance sur la visibilité et certains canaux institutionnels.</p>
+
+  <p>Quand ce scénario fait sens : si la traction des premiers pilotes est forte mais lente, si le fondateur préfère la maîtrise totale, si l'écosystème français de financement reste prudent en 2026.</p>
+
+  <h2 class="h2">8.3 — Scénario pré-seed (200-300 k€) — recommandé en interne</h2>
+
+  <p>Levée auprès de Business Angels, programme French Tech Émergence (Bpifrance, jusqu'à 90 k€ en subvention/prêt à taux zéro), love money. Tient 12 à 18 mois de runway. Permet de livrer Lugia Work System V1 (chantiers WS.1 à WS.4 : 9 axes, auth payante, schémas Mermaid détaillés, livrables réglementaires) et d'initier les canaux assureurs RCP.</p>
+
+  <table>
+    <caption>Allocation type d'un pré-seed 250 k€</caption>
+    <thead>
+      <tr>
+        <th style="width:60%">Poste</th>
+        <th>Montant</th>
+        <th>Part</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Développement produit (1 ETP CTO + freelances)</td>
+        <td class="num">130 k€</td>
+        <td class="num">52 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Conformité (DPO, audit HDS, AI Act)</td>
+        <td class="num">40 k€</td>
+        <td class="num">16 %</td>
+      </tr>
+      <tr>
+        <td class="label">Commercial &amp; marketing (founder-led + congrès)</td>
+        <td class="num">30 k€</td>
+        <td class="num">12 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Médecin advisor mi-temps</td>
+        <td class="num">25 k€</td>
+        <td class="num">10 %</td>
+      </tr>
+      <tr>
+        <td class="label">Infrastructure &amp; SaaS</td>
+        <td class="num">10 k€</td>
+        <td class="num">4 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Réserve &amp; G&amp;A</td>
+        <td class="num">15 k€</td>
+        <td class="num">6 %</td>
+      </tr>
+      <tr class="total">
+        <td class="label">Total</td>
+        <td class="num-bold">250 k€</td>
+        <td class="num-bold">100 %</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>C'est le sweet spot tant que la traction reste à prouver et que le marché reste à éduquer. Il évite la pression de croissance d'un seed sans renoncer à la vitesse d'exécution.</p>
+
+  <h2 class="h2">8.4 — Scénario seed (800 k€-1,2 M€)</h2>
+
+  <p>VC seed (impact, health-tech, dev-tools selon l'angle pris en pitch). Équipe 5-6 personnes structurée, premier commercial, expansion B2B2B, conformité industrielle (ISO 42001 à 24 mois), exploration vertical Lawyer ou Finance via le moteur générique en an 2-3.</p>
+
+  <table>
+    <caption>Allocation type d'un seed 1 M€</caption>
+    <thead>
+      <tr>
+        <th style="width:60%">Poste</th>
+        <th>Montant</th>
+        <th>Part</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Développement produit (CTO + 2 devs + designer)</td>
+        <td class="num">450 k€</td>
+        <td class="num">45 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Premier commercial + marketing</td>
+        <td class="num">180 k€</td>
+        <td class="num">18 %</td>
+      </tr>
+      <tr>
+        <td class="label">Conformité (DPO interne, HDS, ISO 42001 amorce)</td>
+        <td class="num">100 k€</td>
+        <td class="num">10 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Médecin / juriste / expert-comptable advisors</td>
+        <td class="num">70 k€</td>
+        <td class="num">7 %</td>
+      </tr>
+      <tr>
+        <td class="label">Infrastructure &amp; SaaS</td>
+        <td class="num">30 k€</td>
+        <td class="num">3 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Expansion B2B2B (events RCP, URPS)</td>
+        <td class="num">70 k€</td>
+        <td class="num">7 %</td>
+      </tr>
+      <tr>
+        <td class="label">Réserve &amp; G&amp;A</td>
+        <td class="num">100 k€</td>
+        <td class="num">10 %</td>
+      </tr>
+      <tr class="total">
+        <td class="label">Total</td>
+        <td class="num-bold">1 000 k€</td>
+        <td class="num-bold">100 %</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>La cible est d'atteindre 2,3-3,6 M€ ARR fin an 3 avec un EBITDA positif. C'est compatible avec un Series A 18-24 mois après le seed, sur une thèse multi-vertical déjà amorcée.</p>
+
+  <h2 class="h2">8.5 — Recommandation interne et critères de bascule</h2>
+
+  <p><strong>Pré-seed semble le sweet spot</strong> étant donné la traction encore non prouvée (pilotes en cours, pas de revenu récurrent significatif à ce jour), la posture anti-hockey-stick assumée, et l'envie de garder la main sur le rythme produit. Le seed devient pertinent une fois que trois critères sont réunis :</p>
+
+  <ul class="dash">
+    <li>les pilotes ont confirmé la conversion freemium → payant (≥ 15 % en mesure réelle) ;</li>
+    <li>la première extension juridique ou chiffre a montré que le moteur générique tient ses promesses ;</li>
+    <li>un canal B2B2B (RCP ou URPS) est en cours de signature ou signé.</li>
+  </ul>
+
+  <p>À ce moment, la valorisation se construit sur du concret, pas sur la promesse. Décision D-045 (DECISIONS.md) consigne ce raisonnement.</p>
+</section>
+
+<!-- ════════════════════ SECTION 09 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">09</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 09</p>
+    <h1 class="opener-title">Équipe<br>&amp; jalons</h1>
+    <p class="opener-sub">Équipe actuelle et cible, jalons opérationnels semestriels, horizon long terme — y compris le pari inter-organisationnel.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">9.1 — Équipe actuelle et cible</h2>
+
+  <p><strong>Aujourd'hui</strong> : Sébastien fondateur (vision produit, méthodologie WSF, développement), ressources externes ponctuelles. Le moteur WSF est calibré sur les travaux de Steven Alter (Work System Framework, Université de San Francisco), avec une adaptation propre à la pratique libérale.</p>
+
+  <table>
+    <caption>Cible 12-18 mois — HYP, à pondérer par le scénario de financement</caption>
+    <thead>
+      <tr>
+        <th style="width:34%">Rôle</th>
+        <th style="width:30%">Temps</th>
+        <th>Quand</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">CTO / lead engineering</td>
+        <td>Plein temps</td>
+        <td>Dès financement</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Médecin advisor</td>
+        <td>Mi-temps ou freelance</td>
+        <td>Dès pilotes (en cours)</td>
+      </tr>
+      <tr>
+        <td class="label">Designer produit</td>
+        <td>Plein temps</td>
+        <td>M+6 à M+12 selon scénario</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Premier commercial</td>
+        <td>Plein temps</td>
+        <td>M+12 à M+18</td>
+      </tr>
+      <tr>
+        <td class="label">DPO externalisé</td>
+        <td>Prestation</td>
+        <td>Dès financement</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Le <strong>collectif Lugia &amp; Co</strong> (opérateurs métier qui font-ensemble sur le terrain) reste en mode contractuel à la mission. Force de frappe variable, qui produit revenu services et patterns pour la bibliothèque. Composition cible à 12 mois : 3-5 opérateurs métier (médecins en exercice, juristes, experts-comptables) en partenariat formalisé.</p>
+
+  <h2 class="h2">9.2 — Jalons opérationnels</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:22%">Horizon</th>
+        <th>Jalon</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">S2 2026</td>
+        <td>Pilotes 3-5 cabinets médicaux finalisés avec cas d'usage documentés. Mesures de temps économisé, NPS, retours qualitatifs. Première extension test au juridique ou au chiffre via 1-2 cabinets pilotes (validation du moteur générique).</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">T4 2026</td>
+        <td>Livraison de <strong>Lugia Work System V1</strong> — chantiers WS.1 à WS.4 (extension 9 axes WSF, authentification payante avec Stripe et quotas, schémas Mermaid détaillés et bibliothèque de lentilles, livrables téléchargeables enrichis RGPD / AI Act / matrice accès / courriers).</td>
+      </tr>
+      <tr>
+        <td class="label">S1 2027</td>
+        <td>Premier accord cadre avec un assureur RCP signé. Conformité AI Act validée (préparation 2 août 2026 → vérification 2 août 2027). 1 000 médecins actifs sur la plateforme (toutes offres confondues).</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">S2 2027</td>
+        <td>Livraison de <strong>Lugia Work System V2</strong> — chantiers WS.5 à WS.8 (assistant multi-chantiers persistant, usage sécurisé SLM étendu, cross-sell offres conseil structuré, module work models de crise). Première instanciation officielle du moteur générique : <strong>Lugia Lawyer</strong> ou <strong>Lugia Finance</strong>.</td>
+      </tr>
+      <tr>
+        <td class="label">2028</td>
+        <td>Exploration verticale n°2 (Lawyer si on a commencé par Finance, ou inverse). Amorce francophone (Belgique, Suisse, Luxembourg, Québec). Préparation Series A si trajectoire seed.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="h2">9.3 — Vision long terme — le pari inter-organisationnel</h2>
+
+  <p>À 4-5 ans et au-delà, Lugia élargit le périmètre du work model au-delà d'une seule entreprise. Réaligner les systèmes de travail inter-organisationnels — fournisseurs amont, clients aval, partenaires métier — est aujourd'hui un terrain quasi vide. La supply chain le tente côté flux (logistique, données produit), jamais côté work model (qui fait quoi, comment l'information circule, où sont les transmissions à risque).</p>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Effet de réseau quadratique</p>
+    <p>Si Lugia y arrive — et le moteur générique le rend techniquement possible — l'avantage devient structurel. La valeur du jumeau ne croît plus linéairement avec le nombre de clients, mais avec le carré du nombre de participants à un même work system étendu. C'est le moat ultime, à 5-7 ans, qui justifie la posture multi-vertical dès le départ.</p>
+  </div>
+
+  <p>Chantier roadmap correspondant : <strong>WS.9 — Inter-organisationnel</strong>. Prototypage envisageable en an 3 sur des relations bilatérales courtes (médecin / pharmacien, médecin / laboratoire), industrialisation en an 4-5.</p>
+</section>
+
+<!-- ════════════════════ SECTION 10 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">10</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 10</p>
+    <h1 class="opener-title">Risques<br>&amp; mitigations</h1>
+    <p class="opener-sub">Top 5 des risques structurels, risques spécifiques à la bibliothèque de patterns, risque opérationnel de la vitesse vs profondeur.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">10.1 — Top 5 risques structurels</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:32%">Risque</th>
+        <th>Mitigation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">1. Concurrence AI-first financée (startups YC voisines notamment). Mécanique « l'IA cartographie le travail » qui se commoditise rapidement. Risque de descente vers le réglementé ou de francisation.</td>
+        <td>Creuser l'écart là où ces concurrents ne peuvent pas suivre sans se renier (métier-first / IA invisible, faire-ensemble, données sous contrôle, sobriété). Tenir le coin haut-droit des quadrants de positionnement. Vitesse de bascule services → bibliothèque de patterns.</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">2. Commoditisation du diagnostic. L'AI readiness assessment et le process intelligence se standardisent. « Cartographier le travail » devient un commun.</td>
+        <td>Différenciation par la méthode (WSF formel, simulation causale, écart prescrit/modélisé/réel), la posture (métier-first, IA invisible) et l'actif (patterns réutilisables anonymisés), pas par la technologie sous-jacente. Le moteur reste un détail invisible côté client.</td>
+      </tr>
+      <tr>
+        <td class="label">3. Adoption lente des médecins libéraux. Cible historiquement difficile à équiper (statu quo majoritaire, faible maturité numérique sur certains profils, charge mentale qui réduit la disponibilité d'attention).</td>
+        <td>Freemium zéro friction comme aimant, parrainage médecin → médecin, canaux institutionnels (URPS, RCP) qui réduisent le CAC, discours non culpabilisant qui change radicalement la posture par rapport aux outils existants. Argument « budget de réaction → transformation » qui ouvre les discussions sans demander de budget nouveau.</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">4. Conformité réglementaire mouvante. Calendrier AI Act incertain (possible report Digital Omnibus en décembre 2027), évolution RGPD, durcissement HDS, normes ISO 42001 en émergence.</td>
+        <td>Conformité intégrée dès V1 (registre RGPD, notice AI Act, matrice d'accès sont des livrables monétisés, pas des contraintes subies). Veille active et architecture modulaire qui permet d'absorber les évolutions. Partenariat DPO externalisé pour le conseil pointu.</td>
+      </tr>
+      <tr>
+        <td class="label">5. Dépendance LLM cloud. Le produit s'appuie partiellement sur les API LLM (Claude, Mistral). Risque de hausse de prix, indisponibilité, ou divergence des conditions d'usage.</td>
+        <td>Architecture multi-fournisseurs dès le départ (Anthropic, Mistral, OpenAI selon le chantier), toggle Cloud/Local (D-040, déjà en production) qui démontre l'indépendance, déploiement progressif sur modèles locaux pour les usages courants. La sobriété produit (parti pris) renforce cette mitigation.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="h2">10.2 — Risque spécifique — bibliothèque de patterns</h2>
+
+  <p>Le moat de long terme dépend de la capacité à transformer le savoir terrain en bibliothèque réutilisable. Deux risques principaux :</p>
+
+  <h3 class="h3">Risque réputationnel sur captation</h3>
+  <p>Si « l'usage alimente notre bibliothèque » entre en contradiction perçue avec « vos données restent sous votre contrôle », c'est un dommage de marque difficile à rattraper. Mitigation : verrouillage contractuel et technique de la séparation patterns structurels anonymisés / données client. Communication explicite à chaque renouvellement contractuel. Audit indépendant de la bibliothèque sur demande client.</p>
+
+  <h3 class="h3">Risque méthodologique sur la fidélité</h3>
+  <p>Si l'estimation de gain en euros et heures est régulièrement contredite par la réalité observée, c'est la crédibilité produit qui est en jeu. Mitigation : phase pilote dédiée à mesurer cet écart, ajustement du moteur sur les retours terrain, communication transparente sur les fourchettes d'incertitude. Ne pas en faire un argument commercial fort avant validation.</p>
+
+  <h2 class="h2">10.3 — Risque opérationnel — vitesse vs profondeur</h2>
+
+  <p>Le verdict de l'étude de marché est clair : il faut gagner d'abord en profondeur (santé) avant en largeur (multi-vertical). Le risque est de se laisser détourner vers les segments commercialement plus simples (services B2B, finance) par effet d'opportunité, et de diluer la légitimité construite. Inversement, une santé sur-investie qui ne s'ouvrirait jamais aux verticales adjacentes priverait Lugia de son levier multi-vertical et de l'amortissement du moteur générique.</p>
+
+  <p>Mitigation : discipline de séquence (santé → juridique/chiffre → finance/services B2B → industrie/BTP) inscrite comme principe stratégique, ré-évaluée à chaque jalon. Critère de bascule explicite : pas d'ouverture d'une nouvelle verticale tant que la précédente n'a pas atteint 500-1 000 comptes actifs et un canal institutionnel signé.</p>
+</section>
+
+<!-- ════════════════════ SECTION 11 — OUVERTURE ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">11</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Section 11</p>
+    <h1 class="opener-title">KPIs</h1>
+    <p class="opener-sub">Six indicateurs à suivre mensuellement en pilotage, trimestriellement à l'investisseur. Avec trajectoires cibles par phase.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">11.1 — Indicateurs principaux</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:22%">KPI</th>
+        <th style="width:28%">Définition</th>
+        <th>Cible An 1</th>
+        <th>Cible An 2</th>
+        <th>Cible An 3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Clients actifs payants</td>
+        <td>Comptes ayant un abonnement actif (Socle, Pro, Institution)</td>
+        <td class="num">80-120 (pré-seed)</td>
+        <td class="num">400-600</td>
+        <td class="num">1 200-1 800</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">ARR</td>
+        <td>Annual Recurring Revenue (SaaS + B2B2B récurrent, hors services à la mission)</td>
+        <td class="num">75-110 k€</td>
+        <td class="num">360-540 k€</td>
+        <td class="num">1,1-1,6 M€</td>
+      </tr>
+      <tr>
+        <td class="label">Conversion diag → payant</td>
+        <td>Sur les diagnostics finalisés</td>
+        <td class="num">&gt; 20 % (base)</td>
+        <td class="num">&gt; 25 %</td>
+        <td class="num">&gt; 30 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">CAC</td>
+        <td>Coût d'acquisition tous canaux (commercial + marketing / nouveaux clients)</td>
+        <td class="num">&lt; 300 €</td>
+        <td class="num">&lt; 200 €</td>
+        <td class="num">&lt; 150 €</td>
+      </tr>
+      <tr>
+        <td class="label">Churn mensuel</td>
+        <td>Clients résiliés sur clients début de mois</td>
+        <td class="num">&lt; 3 %</td>
+        <td class="num">&lt; 2 %</td>
+        <td class="num">&lt; 1,5 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">NPS</td>
+        <td>Net Promoter Score, sur utilisateurs payants actifs</td>
+        <td class="num">&gt; 40</td>
+        <td class="num">&gt; 50</td>
+        <td class="num">&gt; 60</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="h2">11.2 — Indicateurs secondaires</h2>
+
+  <p>À suivre en interne, sans les présenter systématiquement à l'investisseur :</p>
+
+  <ul class="dash">
+    <li>Taux de chantiers menés par client (densité d'usage du Work System)</li>
+    <li>Complétude moyenne du jumeau vivant (proxy de la profondeur de relation)</li>
+    <li>Intensité énergétique IA par usage métier (parti pris sobriété, méthodologie à construire en année 2)</li>
+    <li>Part des revenus services Lugia &amp; Co dans le total (proxy de la maturité du modèle hybride)</li>
+    <li>Taux de signature des canaux B2B2B (RCP, URPS, OEM)</li>
+    <li>Nombre d'architectes des work models en poste chez les clients Institution (proxy du switching cost par compétence interne)</li>
+  </ul>
+</section>
+
+<!-- ════════════════════ ANNEXES ════════════════════ -->
+<section class="opener">
+  <div class="opener-ghost">A</div>
+  <div class="opener-content">
+    <div class="opener-rule"></div>
+    <p class="opener-kicker">Annexes</p>
+    <h1 class="opener-title">Annexes</h1>
+    <p class="opener-sub">Hypothèses chiffrées, sources, faits sourcés vs hypothèses, glossaire.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="h2">A — Hypothèses chiffrées</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:36%">Hypothèse</th>
+        <th style="width:30%">Valeur retenue</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">ARPU mix annuel</td>
+        <td class="num">900 €/an</td>
+        <td>Étude marché v2 Annexe A — HYP</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Pénétration SOM France / 36 mois</td>
+        <td class="num">1 à 2 % du SAM</td>
+        <td>Étude marché v2 Annexe A — HYP</td>
+      </tr>
+      <tr>
+        <td class="label">Conversion freemium → payant phase 1</td>
+        <td class="num">12 % prudent / 20 % base</td>
+        <td>Spec Co Doctor + BP — HYP</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Churn mensuel cible phase 2</td>
+        <td class="num">2 %</td>
+        <td>Spec Co Doctor — HYP</td>
+      </tr>
+      <tr>
+        <td class="label">CAC cible phase 1</td>
+        <td class="num">&lt; 300 €</td>
+        <td>Spec Co Doctor — HYP</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Marge brute SaaS</td>
+        <td class="num">80-85 %</td>
+        <td>Modélisation BP — HYP</td>
+      </tr>
+      <tr>
+        <td class="label">Taux horaire médecin référence</td>
+        <td class="num">70 € TTC/h</td>
+        <td>DECISIONS.md D-038</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Jours travaillés/an médecin</td>
+        <td class="num">220 j</td>
+        <td>DECISIONS.md D-038</td>
+      </tr>
+      <tr>
+        <td class="label">Réinvestissement temps libéré</td>
+        <td class="num">70 % productif / 30 % marge cognitive</td>
+        <td>DECISIONS.md D-038</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Coût LLM Haiku par check-up gratuit</td>
+        <td class="num">~0,001 €</td>
+        <td>Estimation interne — HYP</td>
+      </tr>
+      <tr>
+        <td class="label">Pré-seed envisageable</td>
+        <td class="num">200-300 k€</td>
+        <td>BP — recommandation interne</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">Seed envisageable</td>
+        <td class="num">800 k€ - 1,2 M€</td>
+        <td>BP — option</td>
+      </tr>
+      <tr>
+        <td class="label">Durée de vie moyenne client (base)</td>
+        <td class="num">50 mois</td>
+        <td>Calcul 1/churn 2 %</td>
+      </tr>
+      <tr class="zebra">
+        <td class="label">LTV scénario base</td>
+        <td class="num">~3 075 €</td>
+        <td>Calcul interne — HYP</td>
+      </tr>
+      <tr>
+        <td class="label">Ratio LTV/CAC cible</td>
+        <td class="num">&gt; 5× (sain), &gt; 10× (excellent)</td>
+        <td>Standard SaaS B2B</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="h2">B — Sources</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:5%">#</th>
+        <th style="width:50%">Donnée</th>
+        <th>Source · année</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="num">01</td><td>4,2 M entreprises FR ; PME/ETI/GE</td><td>INSEE Focus 372 · 2023</td></tr>
+      <tr class="zebra"><td class="num">02</td><td>1,30 M professionnels libéraux FR</td><td>INSEE Références ERI · 2025 (données 2022)</td></tr>
+      <tr><td class="num">03</td><td>237 200 médecins ; 100 100 libéraux exclusifs</td><td>DREES · 2024-2025</td></tr>
+      <tr class="zebra"><td class="num">04</td><td>54 h/sem dont 5 h 30 gestion ; féminisation</td><td>DREES Panel ; IRDES Qes 144</td></tr>
+      <tr><td class="num">05</td><td>37 % TPE-PME peinent à trouver prestataire</td><td>France Num / DGE · 2024</td></tr>
+      <tr class="zebra"><td class="num">06</td><td>75 % TPE-PME dépensé numérique 2024</td><td>France Num · 2024</td></tr>
+      <tr><td class="num">07</td><td>SaaS = 1ᵉʳ investissement TPE-PME</td><td>Sage Advice · 2023</td></tr>
+      <tr class="zebra"><td class="num">08</td><td>33 M entreprises UE ; 99,8 % PME</td><td>Eurostat · 2022-2024</td></tr>
+      <tr><td class="num">09</td><td>~400 M PME monde</td><td>Banque mondiale / SME Finance Forum</td></tr>
+      <tr class="zebra"><td class="num">10</td><td>AI governance 0,89→5,78 Md$ ; CAGR 35-45 %</td><td>MarketsandMarkets ; Forrester · 2024-25</td></tr>
+      <tr><td class="num">11</td><td>GRC ~21-62 Md$ ; BPM 20,4→61 Md$</td><td>Mordor ; CMI ; Grand View · 2024</td></tr>
+      <tr class="zebra"><td class="num">12</td><td>Conseil management EU 107 / Monde 467 Md$</td><td>CMI ; Fortune BI · 2024</td></tr>
+      <tr><td class="num">13</td><td>Calendrier AI Act ; Digital Omnibus 19 nov. 2025</td><td>artificialintelligenceact.eu ; Commission UE · 2025</td></tr>
+      <tr class="zebra"><td class="num">14</td><td>Calendrier facturation électronique 2026-2027</td><td>DGFiP / impots.gouv · 2025</td></tr>
+      <tr><td class="num">15</td><td>95 % initiatives IA sans ROI mesurable</td><td>MIT NANDA · 2025</td></tr>
+      <tr class="zebra"><td class="num">16</td><td>Datacenters monde 460 → 945 TWh d'ici 2030</td><td>IEA Electricity 2024 / Energy &amp; AI 2025</td></tr>
+      <tr><td class="num">17</td><td>CSRD / DPEF — reporting environnemental</td><td>Commission européenne · 2024-2025</td></tr>
+      <tr class="zebra"><td class="num">18</td><td>Cartographie concurrents (39 acteurs)</td><td>Cartographies internes + Gartner Peer Insights + presse spécialisée · 2024-2026</td></tr>
+    </tbody>
+  </table>
+
+  <p class="source-line">L'ensemble du sourcing détaillé est dans etudes/Lugia_Etude_de_marche_v2_complete_2026-05.pdf (Annexe B, page 34).</p>
+
+  <h2 class="h2">C — Faits sourcés vs hypothèses</h2>
+
+  <p><strong>Faits sourcés (datés, voir Annexe B)</strong> : comptages d'organisations, démographie médicale, maturité numérique TPE-PME, matrice sectorielle, tailles des marchés proxy (AI governance, GRC, BPM, conseil management), calendriers AI Act et facturation électronique, ordres de grandeur d'empreinte IA, identité et positionnement public des concurrents nommés.</p>
+
+  <p><strong>Hypothèses (à valider sur pilotes ou par retour terrain)</strong> :</p>
+
+  <ul class="dash">
+    <li>ARPU mixte ~900 €/an</li>
+    <li>Tarification 49 € / 149 € / Institution sur devis</li>
+    <li>Base adressable France 1,48 M structures, SAM 250-400 k</li>
+    <li>Pénétration SOM 1-2 % / 36 mois</li>
+    <li>TAM UE/Monde par « part gouvernance » des proxy — encadrement, non mesure</li>
+    <li>Taux de conversion freemium → payant (12-20 % phase 1)</li>
+    <li>Churn mensuel cible (1,5-3 %)</li>
+    <li>CAC tous canaux (150-300 €)</li>
+    <li>Allocation budgétaire par poste dans chaque scénario de financement</li>
+    <li>Trajectoire de signature des canaux B2B2B (assureurs RCP, URPS, OEM)</li>
+    <li>Calendrier des chantiers WS.1-WS.9 (effort interne estimé)</li>
+    <li>Réduction d'empreinte 5-10× par centralisation et adéquation modèle — à mesurer</li>
+  </ul>
+
+  <p>L'incertitude principale (ARPU réel, taux de conversion, fidélité de la simulation causale, mesure d'empreinte) ne se lèvera que par les pilotes sectoriels en cours.</p>
+
+  <h2 class="h2">D — Glossaire</h2>
+
+  <table>
+    <tbody>
+      <tr><td class="label" style="width:24%">ARPU</td><td>Average Revenue Per User. Revenu moyen par utilisateur, ici exprimé en €/an.</td></tr>
+      <tr class="zebra"><td class="label">ARR</td><td>Annual Recurring Revenue. Revenu récurrent annualisé issu des abonnements.</td></tr>
+      <tr><td class="label">B2B2B</td><td>Modèle où Lugia facture une institution (assureur, ordre, éditeur) qui distribue à ses propres clients ou membres.</td></tr>
+      <tr class="zebra"><td class="label">CAC</td><td>Customer Acquisition Cost. Coût d'acquisition d'un nouveau client payant.</td></tr>
+      <tr><td class="label">Cercle 1-4</td><td>Segmentation par taille d'organisation : libéraux solo (1), TPE structures &lt; 10 (2), PME 10-250 (3), ETI/GE 250+ (4).</td></tr>
+      <tr class="zebra"><td class="label">Chantier</td><td>Unité de travail Lugia (registre RGPD, notice patient IA, courrier sécurisé, etc.).</td></tr>
+      <tr><td class="label">Churn</td><td>Taux de résiliation d'abonnements. Exprimé mensuellement.</td></tr>
+      <tr class="zebra"><td class="label">CMGF / WONCA / JLO</td><td>Principaux congrès des médecins généralistes en France et au plan international.</td></tr>
+      <tr><td class="label">CPTS</td><td>Communauté Professionnelle Territoriale de Santé.</td></tr>
+      <tr class="zebra"><td class="label">CSRD</td><td>Corporate Sustainability Reporting Directive. Reporting d'impact environnemental obligatoire pour les grandes entreprises.</td></tr>
+      <tr><td class="label">DPI</td><td>Dossier Patient Informatisé (Weda, HelloDoc, Crossway, Medistory).</td></tr>
+      <tr class="zebra"><td class="label">DPO</td><td>Data Protection Officer. Délégué à la protection des données.</td></tr>
+      <tr><td class="label">HDS</td><td>Hébergement de Données de Santé. Certification française obligatoire.</td></tr>
+      <tr class="zebra"><td class="label">Jumeau vivant</td><td>Carte évolutive du système de travail du cabinet, qui s'enrichit à chaque usage.</td></tr>
+      <tr><td class="label">LTV</td><td>Lifetime Value. Valeur cumulée d'un client sur sa durée de vie.</td></tr>
+      <tr class="zebra"><td class="label">MSP</td><td>Maison de Santé Pluriprofessionnelle.</td></tr>
+      <tr><td class="label">OEM</td><td>Original Equipment Manufacturer. Ici, intégration native dans un éditeur logiciel métier.</td></tr>
+      <tr class="zebra"><td class="label">RCP</td><td>Responsabilité Civile Professionnelle (assurance).</td></tr>
+      <tr><td class="label">SAM</td><td>Serviceable Available Market. Sous-ensemble du TAM réellement adressable.</td></tr>
+      <tr class="zebra"><td class="label">SLM</td><td>Small Language Model. Modèle de langage de petite taille, exécutable en local.</td></tr>
+      <tr><td class="label">SOM</td><td>Serviceable Obtainable Market. Sous-ensemble du SAM capturable sur un horizon donné.</td></tr>
+      <tr class="zebra"><td class="label">TAM</td><td>Total Addressable Market. Marché total adressable.</td></tr>
+      <tr><td class="label">URPS</td><td>Union Régionale des Professionnels de Santé.</td></tr>
+      <tr class="zebra"><td class="label">Work model</td><td>Modèle vivant du système de travail (qui fait quoi, comment, avec quels outils, sous quelles règles). Objet central de Lugia.</td></tr>
+      <tr><td class="label">WSF</td><td>Work System Framework, méthode formelle développée par Steven Alter (USF).</td></tr>
+    </tbody>
+  </table>
+
+  <p class="source-line">Lugia · Business Plan · Mai 2026 — v1.1 — Document interne &amp; investisseurs.</p>
+</section>
+
+</body>
+</html>

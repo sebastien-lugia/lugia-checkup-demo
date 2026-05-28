@@ -4,6 +4,19 @@ Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court
 
 ---
 
+## Business plan — suivi (28 mai 2026, v1.1)
+
+Le BP v1.1 est livré (`etudes/Lugia_Business_Plan_2026-05.html` + `.pdf`, 45 pages, charte Lugia appliquée, doctrine 10-partis intégrée). Points à instruire :
+
+- **Faire valider le BP par Sébastien** — passage section par section. Corriger les zones `[HYP]` qui ont une valeur réelle disponible (coûts infra réels, ARPU effectif premiers prospects, forme juridique, etc.).
+- ~~Installer les polices Onest et IBM Plex Mono~~ ✅ Fait — `assets/fonts/` contient Lora, Onest, IBM Plex Mono (Fontsource v5) ; HTML BP les charge via @font-face. Rendu PDF 100 % conforme charte.
+- **Instrumenter les hypothèses clés dès les pilotes** : ARPU effectif, taux de conversion diagnostic → payant, churn mensuel par cohorte, CAC tous canaux. Pas attendre une éventuelle levée pour les mesurer.
+- **Mesurer la fidélité de la simulation causale** (gain en € et heures vs réalité observée sur pilote). Ne pas en faire un argument commercial fort avant validation.
+- **Préparer un pitch deck dérivé** (10-15 slides) si l'option pré-seed se confirme. Le BP v1.1 fournit déjà la matière pour les slides (six retournements, projections par scénario, allocation pré-seed/seed).
+- **Extraire un template HTML/CSS réutilisable** pour les prochaines études et rapports Lugia (cover + sommaire + opener + corps + tableaux + annexes en composants réutilisables).
+- **Itérer le BP au prochain palier** (post-pilotes ou pré-levée) — passer en v1.2.
+
+
 ## V3-brand EN COURS — 3ème carte beta alignée brand kit (20 mai 2026)
 
 Phase d'amorçage de la V3-brand : parcours entièrement aligné sur le brand kit Lugia (navy / ivoire / argent + signal ambre, Onest+Lora+IBM Plex Mono, layout angulaire, mode nuit par défaut). Route séparée `/checkup/v3-brand`, cohabitation avec V2.0 maintenue, dépréciation V2.0 après validation V3 (cf `DECISIONS.md` D-031).

@@ -4,6 +4,42 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-28 (suite 2) — BP v1.1 : polices Lugia chargées, rendu charte 100 %
+
+Polices Lora, Onest et IBM Plex Mono installées dans `assets/fonts/` (packs Fontsource v5 — fichiers `.woff2` + `.ttf` + licences). Le HTML du BP charge désormais ces fichiers via `@font-face` (poids 400/500/600/700 pour Onest, 400/500/600 pour Lora et Plex Mono, ranges latin + latin-ext). WeasyPrint résout les chemins relatifs depuis `etudes/` vers `../assets/fonts/<famille>_5/webfonts/...`.
+
+Résultat : rendu PDF 100 % conforme à la charte. Lora pour le corps éditorial et les intertitres, Onest pour les titres de section et le sommaire, IBM Plex Mono pour pagination, eyebrows et données tabulaires. Plus de fallback DejaVu.
+
+Aucun changement de contenu — seule la couche typographique évolue. Pas de changement de pagination (45 pages).
+
+---
+
+## 2026-05-28 (suite) — Business Plan v1.1 : doctrine 10-partis intégrée + charte PDF appliquée
+
+Refonte structurante du BP livré quelques heures plus tôt.
+
+**Contenu — intégration de la shortlist 10 partis pris**. L'exec sum (section 1) gagne un bloc « Six retournements de discours » qui condense en six encadrés Ambre les positions les plus disruptives : (1) intègre l'outil au work model, et non l'inverse, (2) l'empilement d'outils est d'abord un problème de cohérence, (3) sur-mesure à l'ère de l'IA, (4) découpler veille et cadence, (5) convertir budgets de réaction en budgets de transformation, (6) ni KPI pur ni humanisme pur. Section 2 enrichie avec l'écart prescrit / modélisé / réel comme fondement du moteur WSF (référence Dejours, Clot). Section 3 intègre la défense du moat sur-mesure et un nouveau module monétisable « work models de crise » (chantier WS.8). Section 4 ajoute l'argument commercial « convertir, pas ajouter » et le rôle d'architecte des work models côté client. Section 9 ajoute une vision long terme inter-organisationnelle (chantier WS.9) avec effet de réseau quadratique. Le terme « work model » est nommé explicitement partout.
+
+**Forme — charte PDF Lugia v1 appliquée**. Pipeline de génération basculé de pandoc (qui perdait des colonnes dans les tableaux à 3 colonnes) vers HTML/CSS + WeasyPrint, avec la charte fournie : couverture A4 navy full-bleed avec eyebrow Ambre Nuit « Business Plan · Mai 2026 », sommaire pleine page, openers de section navy avec ghost numbers en arrière-plan (opacity 4 %), pages corps en Lora 10pt sur fond Paper, tableaux propres (libellés Lora, chiffres mono alignés droite, ligne Total en navy/ivory, ligne Marge brute en sous-total), encadrés Ambre pour les punchlines et signaux, pagination « Lugia · Business Plan · Mai 2026 » + « N / 45 ». Polices : Lora locale OK ; Onest et IBM Plex Mono substitués par DejaVu Sans / DejaVu Sans Mono (réseau bloqué pour Google Fonts dans l'env de génération). Le caveat est noté dans le TODO : production finale nécessite les .woff2 d'Onest et IBM Plex Mono pour atteindre 100 % de conformité.
+
+**Fichiers** : `etudes/Lugia_Business_Plan_2026-05.html` (source HTML/CSS pour régénération), `etudes/Lugia_Business_Plan_2026-05.pdf` (livrable, 45 pages). L'ancien markdown `Lugia_Business_Plan_2026-05.md` reste à titre d'archive v1.0 mais n'est plus la source — bascule vers HTML/CSS assumée. Charte de référence sauvegardée dans `resources/charte_documents_pdf.html`.
+
+**Bug résolu** : tableaux à 3 colonnes du PDF v1.0 (allocation pré-seed, allocation seed, équipe cible) où pandoc perdait les colonnes Montant / Part / Quand. Tous les chiffres sont désormais présents.
+
+**Décision** : D-046 ouverte sur le choix du pipeline HTML/CSS + WeasyPrint comme standard de génération PDF Lugia.
+
+---
+
+## 2026-05-28 — Business plan V1 livré (etudes/)
+
+Premier business plan structuré (mai 2026) déposé en `etudes/` au format markdown source + PDF (22 pages). Lecture double — pilotage interne et discussions investisseurs. Structure conforme à la grille standard : résumé exécutif, problème & proposition de valeur, modèle économique, go-to-market, structure de coûts, unit economics, projections financières (3 ans détaillé + an 4-5 schématique), besoins de financement (trois scénarios — bootstrap / pré-seed 200-300 k€ / seed 800 k€-1,2 M€), équipe & jalons, risques & mitigations, KPIs, annexes (hypothèses, sources, faits vs hypothèses, glossaire).
+
+Le BP consomme directement les conclusions de `etudes/Lugia_Etude_de_marche_v2_complete_2026-05.pdf` (SOM France 3-7 M€ ARR / 36 mois, ARPU mix 900 €/an, tarifs 49 € / 149 € / Institution sur devis, séquence santé → libéraux juridique/chiffre → mid-market). Projections délibérément prudentes — posture anti-hockey-stick assumée. Recommandation interne explicitée : pré-seed sweet spot tant que la traction n'est pas prouvée. Sobriété IA mentionnée en proposition de valeur secondaire + risque traité, sans KPI dédié an 1 (parti pris produit conservé en interne). Foaster nommé en mémoire mais désigné dans le BP comme « concurrents AI-first financés (startups YC voisines) ».
+
+Fichiers : `etudes/Lugia_Business_Plan_2026-05.md` (source), `etudes/Lugia_Business_Plan_2026-05.pdf` (livrable). Décision D-045 ouverte sur le choix du scénario de financement.
+
+---
+
 ## 2026-05-27 (suite) — C.D : répondre à une offre de conseil depuis la démo
 
 Le médecin peut désormais demander à être recontacté par un consultant sans passer par Calendly. Nouveau composant `web/components/v3/LeadConseilForm.tsx` (texte libre + envoi), affiché **en pied de chantier** (ModuleV3) et **en fin de page résultats** (ResultatsV3). Nouvel endpoint `POST /interviews/{id}/conseil-lead` : il **stocke d'abord le lead** en base (nouvelle table `conseil_lead`, `src/db.py::add_lead`) — aucune demande perdue si l'email échoue — puis **notifie Sébastien par email** (`_send_conseil_lead_email`, Resend + fallback console, `reply_to` = email du médecin). Le contexte (profil cabinet + chantier d'origine) est joint pour qualifier le lead. Variable d'env `LEAD_NOTIFY_EMAIL` (défaut [email protected]). Clôt le cap court terme Checkup Demo (C.A → C.D tous livrés).
