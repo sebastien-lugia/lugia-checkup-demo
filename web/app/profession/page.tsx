@@ -74,7 +74,7 @@ export default function ProfessionPage() {
     setIsStarting(true);
     setError(null);
     try {
-      const { id } = await createInterviewV3();
+      const { interview_id: id } = await createInterviewV3();
       router.push(`/checkup/v3-charte?interview=${id}&fresh=1`);
     } catch {
       setError("Impossible de démarrer le check-up. Réessayez dans un instant.");
