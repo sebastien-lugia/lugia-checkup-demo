@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";  // ← ajouter cette ligne
+import { SpeedInsights } from "@vercel/speed-insights/next"; // ← ajouter
 
 import { Footer } from "@/components/Footer";
 
@@ -22,7 +23,8 @@ export default function RootLayout({
       <body>
         {children}
         <Footer />
-        <Analytics />  {/* ← ajouter cette ligne */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
