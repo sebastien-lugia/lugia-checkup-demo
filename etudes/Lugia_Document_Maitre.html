@@ -1936,58 +1936,106 @@
 
   <h2 class="h2">7.3 — La bibliothèque des 22 lentilles</h2>
 
-  <p>Au-dessus du moteur WSF, Lugia propose une <strong>bibliothèque de 22 lentilles transverses</strong> — des angles de lecture du work model qui révèlent différentes dimensions. Les lentilles existantes (cf <code class="meta">resources/vision/lugia_bibliotheque_lentilles.md</code>) couvrent 7 familles principales.</p>
+  <p>Au-dessus du moteur WSF, Lugia propose une <strong>bibliothèque de 22 lentilles transverses</strong> — des angles de lecture du work model qui révèlent différentes dimensions. La spécification de référence est dans <code class="meta">resources/vision/lugia_bibliotheque_lentilles.md</code>.</p>
+
+  <h3 class="h3">Ce qu'est une lentille</h3>
+
+  <p>Une lentille est un <strong>concept mesurable applicable à l'ensemble des objets d'au moins une composante WSF</strong>, et qui répond à une question distincte que se pose le professionnel. Cinq règles de conception encadrent la bibliothèque : (R1) unicité de question — pas de recouvrement entre lentilles ; (R2) mesurabilité — coloration calculée à partir des attributs des objets et liaisons ; (R3) universalité de niveau de zoom — la lentille fonctionne à tous les niveaux (vignette, carte, domaine, flux, objet) ; (R4) généricité sectorielle — la lentille sert toutes les verticales (Doctor, Lawyer, Finance) sans réécriture ; (R5) légende contextuelle — le professionnel comprend toujours ce qu'il regarde.</p>
+
+  <table>
+    <caption>Six familles, vingt-deux lentilles</caption>
+    <thead>
+      <tr>
+        <th style="width:14%">Famille</th>
+        <th style="width:22%">Lentille</th>
+        <th style="width:32%">Question</th>
+        <th>Composantes WSF principales</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="label" rowspan="8">Fondamentales (8)</td><td class="label">Santé</td><td>Où ça va mal ?</td><td>Transversale (toutes composantes)</td></tr>
+      <tr class="zebra"><td class="label">Conformité</td><td>Où suis-je à risque réglementaire ?</td><td>Information · Technologies · Environment · Participants</td></tr>
+      <tr><td class="label">Données</td><td>Où sont mes données critiques ?</td><td>Information · Technologies · Participants</td></tr>
+      <tr class="zebra"><td class="label">Maturité</td><td>Que reste-t-il à cartographier ?</td><td>Transversale</td></tr>
+      <tr><td class="label">Charge / Temps</td><td>Où part mon temps ?</td><td>Participants · Processes &amp; Activities</td></tr>
+      <tr class="zebra"><td class="label">Coût / Valeur</td><td>Où est l'argent ?</td><td>Transversale</td></tr>
+      <tr><td class="label">Fragilité</td><td>Qu'est-ce qui me rend vulnérable ?</td><td>Transversale</td></tr>
+      <tr class="zebra"><td class="label">Documentation</td><td>Quel savoir est fragile ?</td><td>Information · Processes &amp; Activities · Strategies</td></tr>
+
+      <tr><td class="label" rowspan="3">Stratégiques (3)</td><td class="label">Alignement stratégique</td><td>Mes moyens servent-ils mes buts ?</td><td>Strategies relié à toutes les autres composantes</td></tr>
+      <tr class="zebra"><td class="label">Retour sur investissement</td><td>Où mon effort sera-t-il le plus rentable ?</td><td>Processes &amp; Activities · Strategies · Technologies</td></tr>
+      <tr><td class="label">Effort de changement</td><td>Qu'est-ce qui est facile à changer, qu'est-ce qui est verrouillé ?</td><td>Transversale</td></tr>
+
+      <tr class="zebra"><td class="label" rowspan="3">Métier (3)</td><td class="label">Automatisation / Manuel</td><td>Qu'est-ce que je fais encore à la main qui pourrait être automatisé ?</td><td>Processes &amp; Activities · Technologies</td></tr>
+      <tr><td class="label">Adoption / Usage réel</td><td>Qu'est-ce que j'utilise vraiment vs ce que je paie sans m'en servir ?</td><td>Technologies · Processes &amp; Activities</td></tr>
+      <tr class="zebra"><td class="label">Dépendance externe</td><td>De qui ou quoi je dépends, et que se passe-t-il si ça disparaît ?</td><td>Technologies · Environment · Customers</td></tr>
+
+      <tr><td class="label" rowspan="3">Temporelles (3)</td><td class="label">Évolution / Tendance</td><td>Qu'est-ce qui va dans le bon sens, qu'est-ce qui se détériore ?</td><td>Transversale</td></tr>
+      <tr class="zebra"><td class="label">Récence / Fraîcheur</td><td>Qu'est-ce qui n'a pas été revu depuis longtemps ?</td><td>Information · Processes &amp; Activities · Strategies</td></tr>
+      <tr><td class="label">Saisonnalité</td><td>Qu'est-ce qui sature à certains moments ?</td><td>Customers · Processes &amp; Activities · Participants</td></tr>
+
+      <tr class="zebra"><td class="label" rowspan="3">Humaines (3)</td><td class="label">Charge mentale / Bien-être</td><td>Qu'est-ce qui m'épuise réellement ?</td><td>Participants (charge cognitive et émotionnelle)</td></tr>
+      <tr><td class="label">Satisfaction / Friction</td><td>Qu'est-ce qui m'agace tous les jours ?</td><td>Participants · Customers</td></tr>
+      <tr class="zebra"><td class="label">Compétence / Maîtrise</td><td>Où ai-je besoin de monter en compétence, ou de former quelqu'un ?</td><td>Participants · Technologies · Processes &amp; Activities</td></tr>
+
+      <tr><td class="label" rowspan="2">Protection (2)</td><td class="label">Cybersécurité / Exposition</td><td>Où suis-je vulnérable techniquement ?</td><td>Technologies · Information · Infrastructure</td></tr>
+      <tr class="zebra"><td class="label">Réversibilité</td><td>Si je me trompe, puis-je revenir en arrière ?</td><td>Transversale</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Lentilles prioritaires de vague 1.</strong> La spécification désigne deux lentilles comme prioritaires : <strong>Alignement stratégique</strong> — cœur du WSF d'Alter, presque la vue par défaut du diagnostic — et <strong>Automatisation / Manuel</strong> — la lentille qui pointe directement vers les opportunités concrètes de gain de temps et d'usage IA encadré.</p>
+
+  <h3 class="h3">Une 23ᵉ lentille — Empreinte (parti pris fondateur)</h3>
+
+  <p>L'étude de marché v2 (section 3.6, mai 2026) ajoute une lentille supplémentaire comme parti pris fondateur Lugia, en cohérence avec la doctrine 10-partis (sobriété IA).</p>
 
   <table>
     <thead>
       <tr>
-        <th style="width:16%">Famille</th>
-        <th>Lentilles</th>
-        <th>Ce qu'elles révèlent</th>
+        <th style="width:14%">Famille</th>
+        <th style="width:22%">Lentille</th>
+        <th style="width:32%">Question</th>
+        <th>Composantes WSF principales</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td class="label">Santé</td>
-        <td>Soin, Pratique, Patient</td>
-        <td>Qualité de l'acte médical, conditions d'exercice, expérience patient</td>
-      </tr>
-      <tr class="zebra">
-        <td class="label">Conformité</td>
-        <td>RGPD, AI Act, Déontologie, HDS</td>
-        <td>Risque réglementaire par élément du work model</td>
-      </tr>
-      <tr>
-        <td class="label">Données</td>
-        <td>Source, Qualité, Accès, Souveraineté</td>
-        <td>Maturité documentaire et risque de captation</td>
-      </tr>
-      <tr class="zebra">
-        <td class="label">Maturité</td>
-        <td>Numérique, Méthodologique, Organisationnelle</td>
-        <td>Niveau de structuration par dimension</td>
-      </tr>
-      <tr>
-        <td class="label">Charge</td>
-        <td>Cognitive, Administrative, Temporelle</td>
-        <td>Où le système surcharge ses participants</td>
-      </tr>
-      <tr class="zebra">
-        <td class="label">Coût</td>
-        <td>Direct, Caché, Opportunité</td>
-        <td>Économique total au-delà du visible</td>
-      </tr>
-      <tr>
-        <td class="label">Fragilité</td>
-        <td>Personne-clé, Outil-clé, Régulation, Transmission</td>
-        <td>Risques de rupture du système</td>
-      </tr>
+      <tr><td class="label">Sobriété (ajout)</td><td class="label">Empreinte</td><td>Quels usages pèsent énergétiquement, et où peut-on basculer en plus sobre ?</td><td>Technologies · Processes &amp; Activities</td></tr>
     </tbody>
   </table>
 
-  <p>Une <strong>8ᵉ famille — Empreinte</strong> — a été ajoutée comme parti pris fondateur (cf Étude de marché v2, section 3.6 ; doctrine 10-partis, sobriété IA). Elle recolore le work model selon l'intensité énergétique des usages IA et identifie les chantiers de sobriété.</p>
+  <h3 class="h3">Usage opérationnel — sélection de lentilles selon la raison d'achat</h3>
 
-  <p>L'usage opérationnel : selon la <strong>raison d'achat dominante du client</strong> (les 7 raisons identifiées en section 3.3), on active 2 à 4 lentilles principales pour la restitution. Un client en raison « Conformité » verra son work model recoloré par les lentilles RGPD + AI Act + Déontologie + HDS. Un client en raison « Désorganisation » verra Fragilité + Charge cognitive + Maturité organisationnelle.</p>
+  <p>Selon la <strong>raison d'achat dominante du client</strong> (les sept raisons identifiées en section 3.3), on active 2 à 4 lentilles principales pour la restitution.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:24%">Raison d'achat dominante</th>
+        <th>Lentilles activées en priorité</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="label">Conformité</td><td>Conformité · Données · Cybersécurité · Documentation</td></tr>
+      <tr class="zebra"><td class="label">Désorganisation</td><td>Alignement stratégique · Fragilité · Adoption / Usage réel · Charge mentale</td></tr>
+      <tr><td class="label">Croissance</td><td>Saisonnalité · Charge / Temps · Compétence · Évolution</td></tr>
+      <tr class="zebra"><td class="label">Compétitivité</td><td>Coût / Valeur · Retour sur investissement · Automatisation · Adoption</td></tr>
+      <tr><td class="label">Savoir</td><td>Documentation · Fragilité · Compétence · Récence</td></tr>
+      <tr class="zebra"><td class="label">Qualité</td><td>Santé · Satisfaction / Friction · Évolution · Fragilité</td></tr>
+      <tr><td class="label">Modernisation</td><td>Maturité · Dépendance externe · Effort de changement · Réversibilité</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="h3">Lentilles et publics — levier produit</h3>
+
+  <p>Toutes les lentilles ne servent pas tout le monde. Le ciblage par public est un levier produit (lentilles d'entrée vs lentilles avancées réservées aux paliers supérieurs).</p>
+
+  <ul class="dash">
+    <li><strong>Médecin / professionnel</strong> : Santé, Charge / Temps, Charge mentale, Automatisation, Satisfaction, Documentation.</li>
+    <li><strong>DPO / responsable conformité</strong> : Conformité, Données, Cybersécurité, Réversibilité.</li>
+    <li><strong>Investisseur / repreneur</strong> : Retour sur investissement, Fragilité, Dépendance externe, Documentation.</li>
+    <li><strong>Institution (URPS, ARS, ordre)</strong> : Alignement stratégique, Évolution, Maturité — agrégés et anonymisés.</li>
+    <li><strong>Responsable d'équipe / coordinateur MSP</strong> : Compétence, Charge / Temps, Adoption, Alignement stratégique.</li>
+  </ul>
 
   <h2 class="h2">7.4 — Le faire-ensemble — posture Lugia &amp; Co</h2>
 

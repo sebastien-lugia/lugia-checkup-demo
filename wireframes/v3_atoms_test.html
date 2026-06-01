@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V3-brand · T-V3-2 · Démo atomes partagés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --serif:"Lora", serif;
+    --sans:"Onest", -apple-system, sans-serif;
+    --mono:"IBM Plex Mono", Menlo, monospace;
+  }
+  /* Mode jour */
+  .day {
+    --bg:#fbfaf6;
+    --navy:#1a2333;
+    --navy600:#3a4360;
+    --navy400:#6e7795;
+    --ivory:#f4efe5;
+    --argent:#B5B5B8;
+    --line:rgba(26,35,51,0.12);
+    --warn:#7a6030;
+    --warn-surface:rgba(122,96,48,0.10);
+    --warn-border:rgba(122,96,48,0.32);
+    --axis-a:#2d7a5e;
+    --axis-b:#2a4fa0;
+    --axis-c:#b5420a;
+  }
+  /* Mode nuit */
+  .night {
+    --bg:#192030;
+    --navy:#f4efe5;
+    --navy600:#a8b2c8;
+    --navy400:#6e7a95;
+    --ivory:#1e2738;
+    --argent:#8E8E91;
+    --line:rgba(251,250,246,0.10);
+    --warn:#c4a055;
+    --warn-surface:rgba(196,160,85,0.10);
+    --warn-border:rgba(196,160,85,0.32);
+    --axis-a:#4aab84;
+    --axis-b:#5b82d4;
+    --axis-c:#e07040;
+  }
+  * { box-sizing: border-box; }
+  /* Brand rule absolue : jamais d'italique. */
+  em, i, cite, address { font-style: normal; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: #f1ece1;
+    color: #1a2333;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 56px 40px 96px; }
+  .head { border-bottom: 1px solid rgba(26,35,51,0.12); padding-bottom: 32px; margin-bottom: 40px; }
+  .eyebrow-page {
+    font-family: var(--mono);
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(26,35,51,0.55);
+    margin: 0 0 16px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 52px; line-height: 1.05; font-weight: 400;
+    letter-spacing: -0.02em; margin: 0 0 12px;
+  }
+  .lead {
+    font-family: var(--serif); font-size: 20px; line-height: 1.5;
+    color: rgba(26,35,51,0.75); max-width: 760px; margin: 0;
+  }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .panel {
+    background: var(--bg);
+    color: var(--navy);
+    padding: 40px 36px 44px;
+    border: 1px solid var(--line);
+    position: relative;
+    min-height: 200px;
+  }
+  .panel-label {
+    position: absolute; top: 14px; right: 18px;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--navy400); opacity: 0.7;
+  }
+  .grouph {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--navy400);
+    margin: 28px 0 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .grouph:first-child { margin-top: 0; }
+
+  /* — Atomes — */
+
+  .dvmono {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--navy600);
+  }
+  .dvmono.sm {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--navy400);
+  }
+
+  /* DVCorners — sur container relative */
+  .corner-frame {
+    position: relative;
+    height: 120px;
+    border: 1px solid var(--line);
+    margin-top: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .corner-frame .corner {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--navy400);
+    opacity: 0.55;
+  }
+  .corner.tl { top: 12px; left: 12px; }
+  .corner.tr { top: 12px; right: 12px; text-align: right; }
+  .corner.bl { bottom: 12px; left: 12px; }
+  .corner.br { bottom: 12px; right: 12px; text-align: right; }
+  .corner-frame .center {
+    font-family: var(--serif); font-size: 22px;
+  }
+
+  /* LevelBar */
+  .levelbar { display: inline-flex; flex-direction: column; gap: 8px; width: 170px; margin-right: 24px; vertical-align: top; }
+  .levelbar-track { display: flex; gap: 6px; width: 100%; }
+  .levelbar-track > div {
+    flex: 1; height: 3;
+    height: 3px;
+  }
+  .levelbar.fragile .levelbar-track > div:nth-child(-n+1) { background: var(--navy); }
+  .levelbar.fragile .levelbar-track > div:nth-child(n+2) { background: var(--line); }
+  .levelbar.transition .levelbar-track > div:nth-child(-n+2) { background: var(--navy); }
+  .levelbar.transition .levelbar-track > div:nth-child(n+3) { background: var(--line); }
+  .levelbar.solide .levelbar-track > div:nth-child(-n+3) { background: var(--navy); }
+  .levelbar.solide .levelbar-track > div:nth-child(n+4) { background: var(--line); }
+  .levelbar.mature .levelbar-track > div { background: var(--navy); }
+
+  /* LevelBar colorées (axe) — variantes */
+  .levelbar.axis-a.solide .levelbar-track > div:nth-child(-n+3) { background: var(--axis-a); }
+  .levelbar.axis-b.transition .levelbar-track > div:nth-child(-n+2) { background: var(--axis-b); }
+  .levelbar.axis-c.fragile .levelbar-track > div:nth-child(-n+1) { background: var(--axis-c); }
+
+  /* EffortBadge */
+  .effort {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--navy600);
+    margin-right: 24px;
+  }
+  .effort-bars { display: inline-flex; gap: 3px; }
+  .effort-bars > span {
+    display: inline-block; width: 14px; height: 2px;
+    background: var(--line);
+  }
+  .effort.low .effort-bars > span:nth-child(-n+1) { background: var(--navy); }
+  .effort.med .effort-bars > span:nth-child(-n+2) { background: var(--navy); }
+  .effort.high .effort-bars > span { background: var(--navy); }
+
+  /* GainBadge */
+  .gain {
+    display: inline-flex; align-items: baseline; gap: 8px;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--navy600);
+    margin-right: 24px;
+  }
+  .gain .lbl {
+    font-size: 10px; letter-spacing: 0.16em; color: var(--navy400);
+  }
+  .gain .val { color: var(--navy); }
+
+  /* Em — remplacement non-italique */
+  .em-argent { color: var(--argent); font-style: normal; }
+  .em-warn { color: var(--warn); font-style: normal; }
+
+  .demo-quote {
+    font-family: var(--serif);
+    font-size: 24px; line-height: 1.4;
+    margin: 12px 0 0;
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--line); margin: 28px 0; }
+
+  /* SurfaceShimmer */
+  .shimmer-light {
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0.08) 1px, rgba(0,0,0,0.05) 2px, rgba(255,255,255,0) 3px),
+      linear-gradient(90deg, #8E8E91 0%, #C5C5C8 12%, #ECECEE 24%, #B5B5B8 38%, #DDDDDF 52%, #A1A1A4 64%, #DBDBDD 78%, #ABABAE 90%, #8E8E91 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-family: var(--serif); font-size: 40px; font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .shimmer-ink {
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0.10) 1px, rgba(0,0,0,0.08) 2px, rgba(255,255,255,0) 3px),
+      linear-gradient(90deg, #3A3A3D 0%, #6A6A6E 14%, #8E8E92 28%, #4F4F53 42%, #7D7D81 56%, #3F3F43 70%, #757579 84%, #3A3A3D 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-family: var(--serif); font-size: 40px; font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .row-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 6px; }
+
+  .footnote {
+    margin-top: 56px;
+    padding: 28px;
+    background: rgba(26,35,51,0.04);
+    border: 1px solid rgba(26,35,51,0.10);
+    font-size: 14px; line-height: 1.6;
+    color: rgba(26,35,51,0.75);
+  }
+  .footnote h2 {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    margin: 0 0 14px;
+  }
+  .footnote p { margin: 0 0 10px; max-width: 920px; }
+  .footnote code {
+    font-family: var(--mono); font-size: 12.5px;
+    background: rgba(26,35,51,0.07);
+    padding: 1px 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="head">
+      <p class="eyebrow-page">V3-brand · T-V3-2 · Démo atomes partagés</p>
+      <h1>Six atomes, deux modes.</h1>
+      <p class="lead">Vue côte à côte mode jour / mode nuit des composants visuels de base utilisés à travers tous les écrans V3. Aucun italique nulle part — l'emphase passe par la couleur argent ou par le signal-warn.</p>
+    </header>
+
+    <!-- DVMono -->
+    <div class="pair">
+      <div class="panel day">
+        <span class="panel-label">Mode jour</span>
+        <p class="grouph">DVMono · eyebrow / caption</p>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <span class="dvmono">Bloc A · Parcours patient</span>
+          <span class="dvmono">Question 4 sur 18</span>
+          <span class="dvmono sm">Benchmark · DREES 2023</span>
+        </div>
+
+        <p class="grouph">DVCorners · captions des 4 coins</p>
+        <div class="corner-frame">
+          <span class="corner tl">Lugia&nbsp;&amp;&nbsp;Co</span>
+          <span class="corner tr">V3-brand-0</span>
+          <span class="corner bl">2026-05-20</span>
+          <span class="corner br">Mode jour</span>
+          <span class="center">Frame avec coins</span>
+        </div>
+      </div>
+      <div class="panel night">
+        <span class="panel-label">Mode nuit</span>
+        <p class="grouph">DVMono · eyebrow / caption</p>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <span class="dvmono">Bloc A · Parcours patient</span>
+          <span class="dvmono">Question 4 sur 18</span>
+          <span class="dvmono sm">Benchmark · DREES 2023</span>
+        </div>
+
+        <p class="grouph">DVCorners · captions des 4 coins</p>
+        <div class="corner-frame">
+          <span class="corner tl">Lugia&nbsp;&amp;&nbsp;Co</span>
+          <span class="corner tr">V3-brand-0</span>
+          <span class="corner bl">2026-05-20</span>
+          <span class="corner br">Mode nuit</span>
+          <span class="center">Frame avec coins</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LevelBar -->
+    <div class="pair">
+      <div class="panel day">
+        <span class="panel-label">Mode jour</span>
+        <p class="grouph">LevelBar · niveau qualitatif (score 0–100 → 4 paliers)</p>
+        <div style="display:flex; flex-wrap:wrap; gap:24px 32px">
+          <div class="levelbar fragile">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">Fragile · 22 %</span>
+          </div>
+          <div class="levelbar transition">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">En transition · 47 %</span>
+          </div>
+          <div class="levelbar solide">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">Solide · 68 %</span>
+          </div>
+          <div class="levelbar mature">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">Mature · 84 %</span>
+          </div>
+        </div>
+
+        <p class="grouph">Variantes colorées par axe</p>
+        <div style="display:flex; flex-wrap:wrap; gap:24px 32px">
+          <div class="levelbar axis-a solide">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">A · Solide · 71 %</span>
+          </div>
+          <div class="levelbar axis-b transition">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">B · En transition · 51 %</span>
+          </div>
+          <div class="levelbar axis-c fragile">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">C · Fragile · 28 %</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel night">
+        <span class="panel-label">Mode nuit</span>
+        <p class="grouph">LevelBar · niveau qualitatif (score 0–100 → 4 paliers)</p>
+        <div style="display:flex; flex-wrap:wrap; gap:24px 32px">
+          <div class="levelbar fragile">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">Fragile · 22 %</span>
+          </div>
+          <div class="levelbar transition">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">En transition · 47 %</span>
+          </div>
+          <div class="levelbar solide">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">Solide · 68 %</span>
+          </div>
+          <div class="levelbar mature">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">Mature · 84 %</span>
+          </div>
+        </div>
+
+        <p class="grouph">Variantes colorées par axe</p>
+        <div style="display:flex; flex-wrap:wrap; gap:24px 32px">
+          <div class="levelbar axis-a solide">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">A · Solide · 71 %</span>
+          </div>
+          <div class="levelbar axis-b transition">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">B · En transition · 51 %</span>
+          </div>
+          <div class="levelbar axis-c fragile">
+            <div class="levelbar-track"><div></div><div></div><div></div><div></div></div>
+            <span class="dvmono">C · Fragile · 28 %</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EffortBadge + GainBadge -->
+    <div class="pair">
+      <div class="panel day">
+        <span class="panel-label">Mode jour</span>
+        <p class="grouph">EffortBadge · charge estimée</p>
+        <div class="row-inline">
+          <span class="effort low"><span class="effort-bars"><span></span><span></span><span></span></span>Effort léger</span>
+          <span class="effort med"><span class="effort-bars"><span></span><span></span><span></span></span>Effort moyen</span>
+          <span class="effort high"><span class="effort-bars"><span></span><span></span><span></span></span>Effort soutenu</span>
+        </div>
+
+        <p class="grouph">GainBadge · délai de gain attendu</p>
+        <div class="row-inline">
+          <span class="gain"><span class="lbl">Gain</span><span class="val">&lt; 1 semaine</span></span>
+          <span class="gain"><span class="lbl">Gain</span><span class="val">2 à 4 semaines</span></span>
+          <span class="gain"><span class="lbl">Gain</span><span class="val">1 à 3 mois</span></span>
+        </div>
+      </div>
+      <div class="panel night">
+        <span class="panel-label">Mode nuit</span>
+        <p class="grouph">EffortBadge · charge estimée</p>
+        <div class="row-inline">
+          <span class="effort low"><span class="effort-bars"><span></span><span></span><span></span></span>Effort léger</span>
+          <span class="effort med"><span class="effort-bars"><span></span><span></span><span></span></span>Effort moyen</span>
+          <span class="effort high"><span class="effort-bars"><span></span><span></span><span></span></span>Effort soutenu</span>
+        </div>
+
+        <p class="grouph">GainBadge · délai de gain attendu</p>
+        <div class="row-inline">
+          <span class="gain"><span class="lbl">Gain</span><span class="val">&lt; 1 semaine</span></span>
+          <span class="gain"><span class="lbl">Gain</span><span class="val">2 à 4 semaines</span></span>
+          <span class="gain"><span class="lbl">Gain</span><span class="val">1 à 3 mois</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Em (non italique) + Divider + SurfaceShimmer -->
+    <div class="pair">
+      <div class="panel day">
+        <span class="panel-label">Mode jour</span>
+        <p class="grouph">Em · emphase inline sans italique</p>
+        <p class="demo-quote">On part de ce que les équipes <em class="em-argent">font vraiment</em>, pas de ce qui est censé être fait.</p>
+        <p class="demo-quote" style="margin-top:18px">Un diagnostic qui ne se met pas en place <em class="em-warn">n'a pas de valeur</em>.</p>
+
+        <p class="grouph">Divider</p>
+        <div class="divider"></div>
+        <p class="dvmono sm">Filet aware du thème — 1 px, couleur de ligne du contexte.</p>
+
+        <p class="grouph">SurfaceShimmer · argent brossé pour fonds clairs</p>
+        <div class="shimmer-ink">Lugia&nbsp;&amp;&nbsp;Co</div>
+      </div>
+      <div class="panel night">
+        <span class="panel-label">Mode nuit</span>
+        <p class="grouph">Em · emphase inline sans italique</p>
+        <p class="demo-quote">On part de ce que les équipes <em class="em-argent">font vraiment</em>, pas de ce qui est censé être fait.</p>
+        <p class="demo-quote" style="margin-top:18px">Un diagnostic qui ne se met pas en place <em class="em-warn">n'a pas de valeur</em>.</p>
+
+        <p class="grouph">Divider</p>
+        <div class="divider"></div>
+        <p class="dvmono sm">Filet aware du thème — 1 px, couleur de ligne du contexte.</p>
+
+        <p class="grouph">SurfaceShimmer · argent brossé pour fonds sombres</p>
+        <div class="shimmer-light">Lugia&nbsp;&amp;&nbsp;Co</div>
+      </div>
+    </div>
+
+    <aside class="footnote">
+      <h2>Ce qui est testé ici</h2>
+      <p>Chaque atome est rendu côté React dans <code>web/components/v3/atoms.tsx</code> avec le même contrat visuel que ce que tu vois ci-dessus. Les couleurs viennent de <code>web/lib/v3/tokens.ts</code> via <code>paletteFor(theme)</code> — aucun atome ne code en dur une couleur.</p>
+      <p>Le composant <code>Em</code> remplace strictement <code>&lt;em&gt;</code> avec deux variantes : <em class="em-argent">argent</em> pour une emphase neutre, <em class="em-warn">warn</em> pour une emphase fonctionnelle (alerte sémantique). Plus jamais d'italique dans V3 — la règle est encodée à trois endroits (reset CSS, <code>fontRules.italicAllowed: false</code>, <code>fontStyle: "normal"</code> explicite dans Em).</p>
+      <p>Atomes posés : <strong>DVMono</strong>, <strong>DVCorners</strong>, <strong>LevelBar</strong> (avec variantes colorées par axe), <strong>EffortBadge</strong> (low / med / high), <strong>GainBadge</strong> (fast / mid / slow), <strong>Em</strong> (argent / warn), <strong>Divider</strong>, <strong>SurfaceShimmer</strong>. Toutes les variantes acceptent <code>theme: "day" | "night"</code>.</p>
+    </aside>
+  </div>
+</body>
+</html>

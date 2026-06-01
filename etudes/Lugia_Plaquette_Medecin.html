@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Lugia · Plaquette médecin · Mai 2026</title>
+<style>
+  /* ── @font-face ──────────────────────────────────────────────── */
+  @font-face { font-family: 'Lora'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Lora'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-ext-400-normal.woff2') format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: 'Lora'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-500-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Lora'; font-style: normal; font-weight: 600;
+    src: url('../assets/fonts/lora_5/webfonts/lora-latin-600-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Onest'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Onest'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-500-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Onest'; font-style: normal; font-weight: 600;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-600-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Onest'; font-style: normal; font-weight: 700;
+    src: url('../assets/fonts/onest_5/webfonts/onest-latin-700-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400;
+    src: url('../assets/fonts/ibm-plex-mono_5/webfonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500;
+    src: url('../assets/fonts/ibm-plex-mono_5/webfonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+  :root {
+    --ivory: #F4EFE5;
+    --paper: #FBFAF6;
+    --navy: #1A2333;
+    --ink: #1A2333;
+    --ink-600: #3A4360;
+    --ink-400: #6E7795;
+    --ink-300: #95A0B3;
+    --argent: #B5B5B8;
+    --line: rgba(26,35,51,0.10);
+    --line-mid: rgba(26,35,51,0.20);
+    --ambre: #7A6030;
+    --ambre-nuit: #C4A055;
+    --serif: "Lora", "Iowan Old Style", "Times New Roman", serif;
+    --sans: "Onest", "Inter", "DejaVu Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "DejaVu Sans Mono", "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  em, i, cite { font-style: normal; }
+
+  /* A4 paysage, marge 0 — chaque page = un côté du tri-fold */
+  @page { size: A4 landscape; margin: 0; }
+  body { font-family: var(--serif); color: var(--ink); }
+
+  /* Conteneur : page A4 paysage = 297 × 210 mm, divisée en 3 colonnes
+     de 99 mm chacune. Petite marge de 8 mm sur chaque bord pour
+     respecter les contraintes d'imprimante grand public. */
+  .sheet {
+    width: 297mm; height: 210mm;
+    position: relative;
+    page-break-after: always;
+    overflow: hidden;
+  }
+  .sheet:last-of-type { page-break-after: auto; }
+
+  .panel {
+    position: absolute; top: 0;
+    width: 99mm; height: 210mm;
+    padding: 14mm 10mm 14mm 10mm;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    word-wrap: break-word;
+  }
+  .panel.col-1 { left: 0; }
+  .panel.col-2 { left: 99mm; }
+  .panel.col-3 { left: 198mm; }
+
+  /* Repères de pli — petits tirets en haut/bas entre les volets */
+  .fold-mark {
+    position: absolute; top: 0; bottom: 0; width: 0;
+    border-left: 0.4pt dashed rgba(26,35,51,0.18);
+  }
+  .fold-mark.left { left: 99mm; }
+  .fold-mark.right { left: 198mm; }
+
+  /* ── PAGE EXTÉRIEURE (vue quand le flyer est plié ou rabattu) ──
+     Pli enroulé : volet 1 = dos (à gauche), volet 2 = couverture (au centre une fois plié,
+     puis devient visible quand on ouvre une fois), volet 3 = couverture extérieure (à droite). */
+
+  /* Volet COUVERTURE (extérieur droit de la feuille = ce qui se voit fermé) */
+  .cover {
+    background: var(--navy); color: var(--ivory);
+    padding: 16mm 12mm 14mm 12mm;
+  }
+  .cover-brand { display: flex; align-items: center; gap: 6pt; font-family: var(--mono); font-size: 8pt; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(244,239,229,0.65); margin-bottom: 18mm; }
+  .cover-brand svg { height: 14pt; width: auto; }
+  .cover-rule { height: 0.5pt; background: rgba(244,239,229,0.22); width: 22%; margin-bottom: 12mm; }
+  .cover-eyebrow { font-family: var(--mono); font-size: 8.5pt; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ambre-nuit); margin-bottom: 8mm; }
+  .cover-title { font-family: var(--serif); font-weight: 500; font-size: 26pt; line-height: 1.02; letter-spacing: -0.025em; color: var(--ivory); margin-bottom: 10mm; }
+  .cover-sub { font-family: var(--sans); font-size: 13pt; line-height: 1.42; color: rgba(244,239,229,0.78); letter-spacing: -0.005em; }
+  .cover-foot { margin-top: auto; font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.10em; text-transform: uppercase; color: rgba(244,239,229,0.45); padding-top: 6mm; border-top: 0.5pt solid rgba(244,239,229,0.18); }
+
+  /* Volet DOS (extérieur gauche de la feuille = visible quand le flyer est plié ouvert au dos) */
+  .back {
+    background: var(--paper); color: var(--ink);
+    padding: 16mm 12mm 14mm 12mm;
+  }
+  .back-brand { display: flex; align-items: center; gap: 6pt; font-family: var(--mono); font-size: 8pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-400); margin-bottom: 14mm; }
+  .back-brand svg { height: 12pt; width: auto; }
+  .back-tagline { font-family: var(--serif); font-weight: 500; font-size: 17pt; line-height: 1.2; color: var(--navy); letter-spacing: -0.015em; margin-bottom: 10mm; }
+  .back-text { font-family: var(--serif); font-size: 10.5pt; line-height: 1.5; color: var(--ink); margin-bottom: 5mm; }
+  .back-contact-label { font-family: var(--mono); font-size: 7.5pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); margin-top: auto; margin-bottom: 3mm; padding-top: 6mm; border-top: 0.5pt solid var(--line); }
+  .back-contact-item { font-family: var(--mono); font-size: 9.5pt; color: var(--ink); margin-bottom: 1.5mm; letter-spacing: 0.02em; }
+  .back-contact-note { font-family: var(--sans); font-size: 8pt; color: var(--ink-400); letter-spacing: 0; margin-top: 0.5mm; margin-bottom: 2mm; font-style: normal; }
+  .back-foot { font-family: var(--mono); font-size: 7pt; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink-300); margin-top: 6mm; }
+
+  /* Volet RABATTU (extérieur centre de la feuille = devient visible quand on ouvre une fois) */
+  .qr-panel {
+    background: var(--ivory); color: var(--ink);
+    padding: 16mm 10mm 14mm 10mm;
+    text-align: center;
+  }
+  .qr-eyebrow { font-family: var(--mono); font-size: 9pt; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ambre); margin-bottom: 6mm; }
+  .qr-title { font-family: var(--serif); font-weight: 500; font-size: 19pt; line-height: 1.15; letter-spacing: -0.02em; color: var(--navy); margin-bottom: 8mm; }
+  .qr-frame {
+    width: 55mm; height: 55mm;
+    margin: 0 auto 8mm auto;
+    background: white;
+    padding: 4mm;
+    border: 0.5pt solid var(--line-mid);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-frame svg { width: 100%; height: 100%; }
+  .qr-url { font-family: var(--mono); font-size: 11pt; color: var(--navy); letter-spacing: 0.05em; font-weight: 500; margin-bottom: 4mm; }
+  .qr-sub { font-family: var(--sans); font-size: 10pt; color: var(--ink-600); line-height: 1.45; max-width: 75mm; margin: 0 auto; }
+  .qr-foot { margin-top: auto; font-family: var(--mono); font-size: 7pt; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink-300); padding-top: 6mm; border-top: 0.5pt solid var(--line); text-align: left; }
+
+  /* ── PAGE INTÉRIEURE (3 volets en lecture continue de gauche à droite) ── */
+  .inner {
+    background: var(--paper); color: var(--ink);
+    padding: 14mm 9mm 12mm 9mm;
+  }
+  .inner-num { font-family: var(--mono); font-size: 9pt; color: var(--ambre); letter-spacing: 0.15em; font-weight: 500; margin-bottom: 4mm; }
+  .inner-h { font-family: var(--sans); font-weight: 500; font-size: 15pt; line-height: 1.2; color: var(--navy); letter-spacing: -0.02em; margin-bottom: 3mm; }
+  .inner-h::after { content: ""; display: block; width: 12mm; height: 1pt; background: rgba(26,35,51,0.3); margin-top: 3mm; margin-bottom: 4mm; }
+  .inner-p { font-family: var(--serif); font-size: 10.5pt; line-height: 1.5; color: var(--ink); margin-bottom: 3mm; }
+  .inner-p strong { font-weight: 600; }
+
+  /* Métrique mise en avant : grand chiffre + courte légende */
+  .metric { margin: 5mm 0 5mm 0; padding: 4mm 4mm 4mm 4mm; background: rgba(122,96,48,0.07); border-left: 2pt solid rgba(122,96,48,0.5); border-radius: 0 1pt 1pt 0; }
+  .metric-value { font-family: var(--serif); font-weight: 600; font-size: 22pt; color: var(--navy); line-height: 1.0; margin-bottom: 2mm; letter-spacing: -0.02em; }
+  .metric-label { font-family: var(--mono); font-size: 8pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ambre); margin-bottom: 2mm; }
+  .metric-sub { font-family: var(--serif); font-size: 9.5pt; line-height: 1.45; color: var(--ink-600); }
+
+  /* Étapes numérotées (Comment ça marche) */
+  .step { display: flex; gap: 5mm; margin-bottom: 4.5mm; }
+  .step-num { font-family: var(--mono); font-size: 9.5pt; color: var(--ambre); letter-spacing: 0.1em; font-weight: 500; flex-shrink: 0; min-width: 8mm; padding-top: 1pt; }
+  .step-content { flex: 1; }
+  .step-title { font-family: var(--sans); font-weight: 500; font-size: 11pt; color: var(--navy); margin-bottom: 1.5mm; line-height: 1.3; }
+  .step-text { font-family: var(--serif); font-size: 10pt; line-height: 1.5; color: var(--ink); }
+
+  .inner-foot { margin-top: auto; font-family: var(--mono); font-size: 7pt; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink-300); padding-top: 5mm; border-top: 0.5pt solid var(--line); }
+
+  /* Encart verbatim (sur volet de droite, pour ouvrir la conversation) */
+  .verbatim-inline { padding: 5mm 5mm; background: var(--navy); color: var(--ivory); margin: 4mm 0 5mm 0; border-radius: 1pt; }
+  .verbatim-label { font-family: var(--mono); font-size: 7pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ambre-nuit); margin-bottom: 2mm; }
+  .verbatim-q { font-family: var(--serif); font-weight: 500; font-size: 11pt; line-height: 1.4; color: var(--ivory); }
+</style>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ║ FACE EXTÉRIEURE (recto)                                       ║ -->
+<!-- ║ Ordre de lecture quand le flyer est replié en enroulé :      ║ -->
+<!-- ║ - volet 3 (droite) = couverture visible                       ║ -->
+<!-- ║ - volet 2 (centre) = devient visible quand on déplie une fois ║ -->
+<!-- ║ - volet 1 (gauche) = visible à plat (dos du flyer)            ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="sheet">
+  <span class="fold-mark left"></span>
+  <span class="fold-mark right"></span>
+
+  <!-- Volet 1 — DOS (gauche de la feuille) -->
+  <div class="panel col-1 back">
+    <div class="back-brand">
+      <svg viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+      Lugia
+    </div>
+
+    <p class="back-tagline">Métier d'abord.<br>Conformité comme sous-produit<br>d'une organisation saine.</p>
+
+    <p class="back-text">Lugia est un cabinet d'architectes du système de travail des professionnels libéraux. Une méthode formelle, des livrables concrets, vos données toujours dans votre cabinet.</p>
+
+    <p class="back-text">Aucune donnée patient identifiable ne sort de chez vous. Aucun stockage extérieur, aucun envoi à un service tiers.</p>
+
+    <p class="back-contact-label">Nous joindre</p>
+    <p class="back-contact-item">diagnostic.lugia.fr</p>
+    <p class="back-contact-item">sebastien@lugia.fr</p>
+    <p class="back-contact-item">06 XX XX XX XX</p>
+    <p class="back-contact-note">SMS à privilégier — réponse sous 24 h ouvrées</p>
+
+    <p class="back-foot">Mai 2026</p>
+  </div>
+
+  <!-- Volet 2 — RABATTU (centre, QR + accroche) -->
+  <div class="panel col-2 qr-panel">
+    <p class="qr-eyebrow">Votre audit · offert</p>
+    <p class="qr-title">30 minutes pour voir clair dans votre cabinet</p>
+
+    <div class="qr-frame"><svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet" version="1.1" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><path d="M1,1H2V2H1zM2,1H3V2H2zM3,1H4V2H3zM4,1H5V2H4zM5,1H6V2H5zM6,1H7V2H6zM7,1H8V2H7zM12,1H13V2H12zM13,1H14V2H13zM14,1H15V2H14zM15,1H16V2H15zM16,1H17V2H16zM19,1H20V2H19zM23,1H24V2H23zM24,1H25V2H24zM25,1H26V2H25zM26,1H27V2H26zM27,1H28V2H27zM28,1H29V2H28zM29,1H30V2H29zM1,2H2V3H1zM7,2H8V3H7zM9,2H10V3H9zM12,2H13V3H12zM13,2H14V3H13zM16,2H17V3H16zM19,2H20V3H19zM21,2H22V3H21zM23,2H24V3H23zM29,2H30V3H29zM1,3H2V4H1zM3,3H4V4H3zM4,3H5V4H4zM5,3H6V4H5zM7,3H8V4H7zM9,3H10V4H9zM10,3H11V4H10zM11,3H12V4H11zM15,3H16V4H15zM17,3H18V4H17zM20,3H21V4H20zM21,3H22V4H21zM23,3H24V4H23zM25,3H26V4H25zM26,3H27V4H26zM27,3H28V4H27zM29,3H30V4H29zM1,4H2V5H1zM3,4H4V5H3zM4,4H5V5H4zM5,4H6V5H5zM7,4H8V5H7zM9,4H10V5H9zM10,4H11V5H10zM15,4H16V5H15zM16,4H17V5H16zM18,4H19V5H18zM21,4H22V5H21zM23,4H24V5H23zM25,4H26V5H25zM26,4H27V5H26zM27,4H28V5H27zM29,4H30V5H29zM1,5H2V6H1zM3,5H4V6H3zM4,5H5V6H4zM5,5H6V6H5zM7,5H8V6H7zM10,5H11V6H10zM11,5H12V6H11zM14,5H15V6H14zM15,5H16V6H15zM16,5H17V6H16zM19,5H20V6H19zM20,5H21V6H20zM21,5H22V6H21zM23,5H24V6H23zM25,5H26V6H25zM26,5H27V6H26zM27,5H28V6H27zM29,5H30V6H29zM1,6H2V7H1zM7,6H8V7H7zM10,6H11V7H10zM11,6H12V7H11zM14,6H15V7H14zM15,6H16V7H15zM17,6H18V7H17zM19,6H20V7H19zM21,6H22V7H21zM23,6H24V7H23zM29,6H30V7H29zM1,7H2V8H1zM2,7H3V8H2zM3,7H4V8H3zM4,7H5V8H4zM5,7H6V8H5zM6,7H7V8H6zM7,7H8V8H7zM9,7H10V8H9zM11,7H12V8H11zM13,7H14V8H13zM15,7H16V8H15zM17,7H18V8H17zM19,7H20V8H19zM21,7H22V8H21zM23,7H24V8H23zM24,7H25V8H24zM25,7H26V8H25zM26,7H27V8H26zM27,7H28V8H27zM28,7H29V8H28zM29,7H30V8H29zM9,8H10V9H9zM11,8H12V9H11zM14,8H15V9H14zM21,8H22V9H21zM1,9H2V10H1zM7,9H8V10H7zM9,9H10V10H9zM10,9H11V10H10zM11,9H12V10H11zM13,9H14V10H13zM15,9H16V10H15zM16,9H17V10H16zM18,9H19V10H18zM19,9H20V10H19zM21,9H22V10H21zM22,9H23V10H22zM23,9H24V10H23zM26,9H27V10H26zM27,9H28V10H27zM28,9H29V10H28zM3,10H4V11H3zM6,10H7V11H6zM8,10H9V11H8zM9,10H10V11H9zM10,10H11V11H10zM13,10H14V11H13zM15,10H16V11H15zM18,10H19V11H18zM19,10H20V11H19zM20,10H21V11H20zM24,10H25V11H24zM25,10H26V11H25zM27,10H28V11H27zM28,10H29V11H28zM4,11H5V12H4zM5,11H6V12H5zM7,11H8V12H7zM8,11H9V12H8zM10,11H11V12H10zM11,11H12V12H11zM13,11H14V12H13zM18,11H19V12H18zM23,11H24V12H23zM24,11H25V12H24zM1,12H2V13H1zM2,12H3V13H2zM3,12H4V13H3zM4,12H5V13H4zM5,12H6V13H5zM9,12H10V13H9zM12,12H13V13H12zM15,12H16V13H15zM16,12H17V13H16zM17,12H18V13H17zM19,12H20V13H19zM21,12H22V13H21zM23,12H24V13H23zM24,12H25V13H24zM25,12H26V13H25zM26,12H27V13H26zM1,13H2V14H1zM4,13H5V14H4zM5,13H6V14H5zM6,13H7V14H6zM7,13H8V14H7zM9,13H10V14H9zM13,13H14V14H13zM14,13H15V14H14zM15,13H16V14H15zM21,13H22V14H21zM23,13H24V14H23zM24,13H25V14H24zM29,13H30V14H29zM2,14H3V15H2zM3,14H4V15H3zM9,14H10V15H9zM10,14H11V15H10zM12,14H13V15H12zM13,14H14V15H13zM14,14H15V15H14zM15,14H16V15H15zM19,14H20V15H19zM20,14H21V15H20zM21,14H22V15H21zM23,14H24V15H23zM24,14H25V15H24zM25,14H26V15H25zM28,14H29V15H28zM29,14H30V15H29zM7,15H8V16H7zM8,15H9V16H8zM9,15H10V16H9zM10,15H11V16H10zM12,15H13V16H12zM14,15H15V16H14zM15,15H16V16H15zM16,15H17V16H16zM17,15H18V16H17zM18,15H19V16H18zM23,15H24V16H23zM24,15H25V16H24zM25,15H26V16H25zM26,15H27V16H26zM27,15H28V16H27zM2,16H3V17H2zM3,16H4V17H3zM4,16H5V17H4zM5,16H6V17H5zM9,16H10V17H9zM10,16H11V17H10zM12,16H13V17H12zM13,16H14V17H13zM14,16H15V17H14zM15,16H16V17H15zM17,16H18V17H17zM19,16H20V17H19zM20,16H21V17H20zM22,16H23V17H22zM25,16H26V17H25zM27,16H28V17H27zM29,16H30V17H29zM1,17H2V18H1zM3,17H4V18H3zM4,17H5V18H4zM7,17H8V18H7zM8,17H9V18H8zM9,17H10V18H9zM10,17H11V18H10zM11,17H12V18H11zM13,17H14V18H13zM15,17H16V18H15zM16,17H17V18H16zM18,17H19V18H18zM20,17H21V18H20zM26,17H27V18H26zM27,17H28V18H27zM1,18H2V19H1zM3,18H4V19H3zM5,18H6V19H5zM11,18H12V19H11zM13,18H14V19H13zM17,18H18V19H17zM20,18H21V19H20zM22,18H23V19H22zM23,18H24V19H23zM24,18H25V19H24zM25,18H26V19H25zM27,18H28V19H27zM28,18H29V19H28zM29,18H30V19H29zM1,19H2V20H1zM2,19H3V20H2zM3,19H4V20H3zM5,19H6V20H5zM6,19H7V20H6zM7,19H8V20H7zM9,19H10V20H9zM11,19H12V20H11zM13,19H14V20H13zM14,19H15V20H14zM15,19H16V20H15zM17,19H18V20H17zM19,19H20V20H19zM20,19H21V20H20zM22,19H23V20H22zM23,19H24V20H23zM25,19H26V20H25zM26,19H27V20H26zM29,19H30V20H29zM1,20H2V21H1zM3,20H4V21H3zM6,20H7V21H6zM9,20H10V21H9zM11,20H12V21H11zM13,20H14V21H13zM15,20H16V21H15zM16,20H17V21H16zM17,20H18V21H17zM19,20H20V21H19zM20,20H21V21H20zM22,20H23V21H22zM23,20H24V21H23zM1,21H2V22H1zM4,21H5V22H4zM5,21H6V22H5zM6,21H7V22H6zM7,21H8V22H7zM9,21H10V22H9zM10,21H11V22H10zM12,21H13V22H12zM13,21H14V22H13zM17,21H18V22H17zM19,21H20V22H19zM21,21H22V22H21zM22,21H23V22H22zM23,21H24V22H23zM24,21H25V22H24zM25,21H26V22H25zM27,21H28V22H27zM28,21H29V22H28zM29,21H30V22H29zM9,22H10V23H9zM11,22H12V23H11zM12,22H13V23H12zM14,22H15V23H14zM17,22H18V23H17zM18,22H19V23H18zM19,22H20V23H19zM21,22H22V23H21zM25,22H26V23H25zM26,22H27V23H26zM1,23H2V24H1zM2,23H3V24H2zM3,23H4V24H3zM4,23H5V24H4zM5,23H6V24H5zM6,23H7V24H6zM7,23H8V24H7zM12,23H13V24H12zM13,23H14V24H13zM14,23H15V24H14zM15,23H16V24H15zM16,23H17V24H16zM17,23H18V24H17zM18,23H19V24H18zM20,23H21V24H20zM21,23H22V24H21zM23,23H24V24H23zM25,23H26V24H25zM26,23H27V24H26zM27,23H28V24H27zM1,24H2V25H1zM7,24H8V25H7zM10,24H11V25H10zM11,24H12V25H11zM12,24H13V25H12zM13,24H14V25H13zM14,24H15V25H14zM18,24H19V25H18zM19,24H20V25H19zM20,24H21V25H20zM21,24H22V25H21zM25,24H26V25H25zM28,24H29V25H28zM29,24H30V25H29zM1,25H2V26H1zM3,25H4V26H3zM4,25H5V26H4zM5,25H6V26H5zM7,25H8V26H7zM14,25H15V26H14zM16,25H17V26H16zM17,25H18V26H17zM18,25H19V26H18zM20,25H21V26H20zM21,25H22V26H21zM22,25H23V26H22zM23,25H24V26H23zM24,25H25V26H24zM25,25H26V26H25zM26,25H27V26H26zM28,25H29V26H28zM1,26H2V27H1zM3,26H4V27H3zM4,26H5V27H4zM5,26H6V27H5zM7,26H8V27H7zM11,26H12V27H11zM13,26H14V27H13zM17,26H18V27H17zM19,26H20V27H19zM20,26H21V27H20zM22,26H23V27H22zM26,26H27V27H26zM27,26H28V27H27zM28,26H29V27H28zM1,27H2V28H1zM3,27H4V28H3zM4,27H5V28H4zM5,27H6V28H5zM7,27H8V28H7zM11,27H12V28H11zM13,27H14V28H13zM14,27H15V28H14zM15,27H16V28H15zM19,27H20V28H19zM21,27H22V28H21zM23,27H24V28H23zM24,27H25V28H24zM25,27H26V28H25zM26,27H27V28H26zM27,27H28V28H27zM28,27H29V28H28zM1,28H2V29H1zM7,28H8V29H7zM10,28H11V29H10zM11,28H12V29H11zM16,28H17V29H16zM22,28H23V29H22zM23,28H24V29H23zM25,28H26V29H25zM26,28H27V29H26zM27,28H28V29H27zM29,28H30V29H29zM1,29H2V30H1zM2,29H3V30H2zM3,29H4V30H3zM4,29H5V30H4zM5,29H6V30H5zM6,29H7V30H6zM7,29H8V30H7zM9,29H10V30H9zM10,29H11V30H10zM12,29H13V30H12zM13,29H14V30H13zM17,29H18V30H17zM19,29H20V30H19zM20,29H21V30H20zM22,29H23V30H22zM24,29H25V30H24zM25,29H26V30H25zM27,29H28V30H27z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"/></svg></div>
+
+    <p class="qr-url">diagnostic.lugia.fr</p>
+    <p class="qr-sub">Questionnaire structuré sur 3 axes : parcours patient, équipe, outils. Vous repartez avec un PDF de restitution.</p>
+
+    <p class="qr-foot">Anonyme · sans donnée patient · 30 min</p>
+  </div>
+
+  <!-- Volet 3 — COUVERTURE (droite de la feuille, visible quand plié) -->
+  <div class="panel col-3 cover">
+    <div class="cover-brand">
+      <svg viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#F4EFE5"/></svg>
+      Lugia
+    </div>
+
+    <div class="cover-rule"></div>
+
+    <p class="cover-eyebrow">Pour médecins libéraux</p>
+
+    <h1 class="cover-title">Où en est<br>votre cabinet,<br>vraiment ?</h1>
+
+    <p class="cover-sub">Un audit complet de votre organisation et de votre conformité — offert par Lugia, en moins de 30 minutes.</p>
+
+    <p class="cover-foot">Nouvelles obligations · 2026</p>
+  </div>
+</section>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ║ FACE INTÉRIEURE (verso, lecture continue gauche → droite)     ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="sheet">
+  <span class="fold-mark left"></span>
+  <span class="fold-mark right"></span>
+
+  <!-- Volet 4 — Ce qu'est cet audit -->
+  <div class="panel col-1 inner">
+    <p class="inner-num">01 · Ce qu'est cet audit</p>
+    <h2 class="inner-h">Votre cabinet, vu de l'extérieur</h2>
+
+    <p class="inner-p">Un audit organisationnel structuré, qui rend lisibles votre parcours patient, votre équipe et vos outils. Le genre de regard extérieur qu'on commande d'habitude à un cabinet de conseil.</p>
+
+    <div class="metric">
+      <p class="metric-label">Valeur de l'audit</p>
+      <p class="metric-value">1 500 à 3 000 €</p>
+      <p class="metric-sub">C'est ce que facturerait un cabinet de conseil pour un travail équivalent. Lugia vous l'offre — pour amorcer la relation et vous donner un point de départ utile.</p>
+    </div>
+
+    <p class="inner-p">Vous ressortez avec une vision claire de ce qui tient, de ce qui grince, et d'un chantier prioritaire à attaquer en premier.</p>
+
+    <p class="inner-p">Aucune donnée patient demandée. Vous restez maître de la suite.</p>
+
+    <p class="inner-foot">Méthode formelle calibrée sur les travaux de Steven Alter (USF)</p>
+  </div>
+
+  <!-- Volet 5 — Comment ça marche (3 étapes) -->
+  <div class="panel col-2 inner">
+    <p class="inner-num">02 · Comment ça marche</p>
+    <h2 class="inner-h">Trois étapes simples, sans engagement</h2>
+
+    <div class="step">
+      <span class="step-num">01</span>
+      <div class="step-content">
+        <p class="step-title">L'audit en ligne</p>
+        <p class="step-text">30 minutes, depuis votre cabinet ou votre canapé. Questionnaire structuré sur 3 axes : parcours patient, équipe, outils. Anonyme, sans donnée patient.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-num">02</span>
+      <div class="step-content">
+        <p class="step-title">Un PDF de restitution</p>
+        <p class="step-text">Schéma de votre cabinet, score sur les 3 axes, 1 chantier prioritaire identifié, plan d'action en 4 étapes. Lecture immédiate, à garder.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-num">03</span>
+      <div class="step-content">
+        <p class="step-title">Vous décidez de la suite</p>
+        <p class="step-text">Soit vous prenez le plan en main vous-même — c'est votre PDF, c'est gratuit. Soit vous activez Lugia (49 € ou 149 €/mois) pour les livrables réglementaires automatiques et un accompagnement continu.</p>
+      </div>
+    </div>
+
+    <div class="metric">
+      <p class="metric-label">Temps récupéré sur les pilotes</p>
+      <p class="metric-value">~1 h 30/sem</p>
+      <p class="metric-sub">Temps moyen récupéré sur la paperasse dès les premiers mois — environ 4 600 €/an sur un taux horaire de 70 €.</p>
+    </div>
+  </div>
+
+  <!-- Volet 6 — Ce que vous obtenez + CTA -->
+  <div class="panel col-3 inner">
+    <p class="inner-num">03 · Ce que vous obtenez</p>
+    <h2 class="inner-h">Livrables concrets, pas des slides</h2>
+
+    <p class="inner-p"><strong>Registre RGPD à jour</strong> en 20 minutes (vs 2 à 5 jours en autonomie).</p>
+
+    <p class="inner-p"><strong>Notice patient conforme</strong> aux nouvelles obligations 2026, prête à afficher.</p>
+
+    <p class="inner-p"><strong>Matrice d'accès aux données</strong> claire — qui peut voir quoi, pour vos associés, remplaçants, internes.</p>
+
+    <p class="inner-p"><strong>Schéma vivant du cabinet</strong> — votre fonctionnement réel rendu lisible, partageable, mis à jour à chaque chantier.</p>
+
+    <p class="inner-p"><strong>Aide à la rédaction des courriers</strong> — vos données patient restent dans votre cabinet.</p>
+
+    <div class="verbatim-inline">
+      <p class="verbatim-label">Posture Lugia</p>
+      <p class="verbatim-q">Lugia analyse le système de travail, pas les individus. Aucun diagnostic médical produit. Vos données restent chez vous.</p>
+    </div>
+
+    <p class="inner-foot">→ Commencez par diagnostic.lugia.fr</p>
+  </div>
+</section>
+
+</body>
+</html>

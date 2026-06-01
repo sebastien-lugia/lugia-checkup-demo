@@ -4,6 +4,42 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-28 (suite 9) — Document maître v1.0.1 · Correction section 7.3 (bibliothèque des lentilles)
+
+Correction d'une erreur d'écriture dans la section 7.3 du Document maître. La version initiale listait des sous-dimensions inventées par famille (« Santé : Soin, Pratique, Patient » ; « Conformité : RGPD, AI Act, Déontologie, HDS »…) au lieu de citer les vraies lentilles documentées dans `resources/vision/lugia_bibliotheque_lentilles.md`.
+
+**Contenu corrigé** :
+- Les 22 lentilles réelles en 6 familles (Fondamentales 8, Stratégiques 3, Métier 3, Temporelles 3, Humaines 3, Protection 2), avec pour chacune sa question et sa ou ses composantes WSF d'application principale (Customers, Products & Services, Processes & Activities, Participants, Information, Technologies, Environment, Strategies, Infrastructure — ou « transversale »).
+- Rappel des 5 règles de conception (unicité de question, mesurabilité, universalité de niveau de zoom, généricité sectorielle, légende contextuelle) + règle ajoutée explicitement par Sébastien : « une lentille doit s'appliquer à l'ensemble des objets d'au moins une composante WSF ».
+- Mention des deux lentilles prioritaires de vague 1 selon la spec : Alignement stratégique et Automatisation / Manuel.
+- Mini-tableau séparé pour la 23ᵉ lentille Empreinte (parti pris fondateur ajouté par l'étude de marché v2, section 3.6).
+- Tableau d'usage opérationnel : pour chacune des 7 raisons d'achat (Conformité, Désorganisation, Croissance, Compétitivité, Savoir, Qualité, Modernisation), les 4 lentilles activées en priorité pour la restitution.
+- Liste des lentilles prioritaires par public (médecin, DPO, investisseur/repreneur, institution URPS-ARS-ordre, coordinateur MSP) comme levier produit.
+
+Document maître v1.0.1 : 135 pages interne, 121 pages client. Régénération PDF interne et client.
+
+Fichiers : `etudes/Lugia_Document_Maitre.html` (section 7.3 réécrite), `etudes/Lugia_Document_Maitre_INTERNE.pdf`, `etudes/Lugia_Document_Maitre_CLIENT.pdf`.
+
+---
+
+## 2026-05-28 (suite 8) — Plaquette tri-fold médecin · livrée
+
+Plaquette commerciale tri-fold A4 paysage livrée pour distribution main propre en cabinet médical. Format imprimable recto-verso sur une feuille A4, à plier en 3 (99 mm par volet, pli enroulé).
+
+**Recto (face extérieure quand plié)** : dos avec tagline « Métier d'abord. Conformité comme sous-produit. IA encadrée. » + contacts (diagnostic.lugia.fr, sebastien@lugia.fr) · centre avec QR code vers diagnostic.lugia.fr et accroche « 30 minutes pour voir où en est votre cabinet » · couverture navy « Où en est votre cabinet, vraiment ? » + sous-titre + mention « AI Act · 2 août 2026 · approche ».
+
+**Verso (face intérieure, lecture continue)** : volet 1 « Pourquoi maintenant » avec 3 forces (AI Act, RGPD <15 %, ChatGPT informel) + métrique 5 h 30/sem de charge non soignante · volet 2 « Comment ça marche » en 3 étapes (check-up gratuit → PDF de restitution → Lugia Work System optionnel) + métrique ~1 h 30/sem récupérée · volet 3 « Ce que vous obtenez » avec 5 livrables nommés (registre RGPD, notice AI Act, matrice d'accès, schéma vivant, courriers sécurisés) + verbatim navy « Posture Lugia » + CTA final.
+
+Ton factuel et chiffré (chiffres calibrés sur le BP). Charte Lugia v1 appliquée (Lora, Onest, IBM Plex Mono, palette navy/ivory/argent/ambre). QR code SVG généré via lib python qrcode, embarqué inline.
+
+Pipeline technique : HTML/CSS avec `position: absolute` strict sur les panels (le flexbox laissait déborder le 3e volet, le grid ne respectait pas les hauteurs). WeasyPrint convertit en PDF 2 pages A4 paysage exactement, marges 0.
+
+Fichiers : `etudes/Lugia_Plaquette_Medecin.html` (source), `etudes/Lugia_Plaquette_Medecin.pdf` (2 pages, ~85 KB), `assets/qr_diagnostic_lugia.svg` (QR code réutilisable).
+
+**Instructions d'impression** : imprimer recto-verso sur une feuille A4 paysage (option « bord court » côté retournement). Plier en 3 selon les repères : volet 3 (couverture navy) rabattu vers la gauche par-dessus le volet 2 (QR), puis volet 1 (dos) rabattu par-dessus l'ensemble. La couverture navy doit être visible quand le flyer est replié.
+
+---
+
 ## 2026-05-28 (suite 7) — Document maître v1.0 COMPLET · Bloc E + 12 annexes livrés
 
 **Document maître Lugia v1.0 finalisé** : 133 pages interne, 119 pages client. Référentiel technico-commercial complet livré en un cycle de production de quelques heures, sur la base du plan validé en 5 blocs A-E + 12 annexes.

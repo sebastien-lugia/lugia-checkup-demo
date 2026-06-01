@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V3-brand · T-V3-6-fix · Blocs complets + transitions refaites</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --serif:"Lora", serif; --sans:"Onest", -apple-system, sans-serif; --mono:"IBM Plex Mono", Menlo, monospace; }
+  body.night {
+    --bg:#192030; --navy:#f4efe5; --navy400:#6e7a95; --navy600:#a8b2c8;
+    --ivory:#1e2738; --ivory2:#222d3e; --argent:#8E8E91;
+    --line:rgba(251,250,246,0.10); --line-strong:rgba(251,250,246,0.20);
+    --paper:#192030; --topbar-bg:rgba(25,32,48,0.93);
+    --axis-a:#4aab84; --axis-ag:rgba(74,171,132,0.12);
+    --axis-b:#5b82d4; --axis-bg:rgba(91,130,212,0.12);
+    --axis-c:#e07040; --axis-cg:rgba(224,112,64,0.12);
+    --warn:#c4a055; --warn-surface:rgba(196,160,85,0.10); --warn-border:rgba(196,160,85,0.32);
+  }
+  body.day {
+    --bg:#fbfaf6; --navy:#1a2333; --navy400:#6e7795; --navy600:#3a4360;
+    --ivory:#f4efe5; --ivory2:#f8f4eb; --argent:#B5B5B8;
+    --line:rgba(26,35,51,0.18); --line-strong:rgba(26,35,51,0.28);
+    --paper:#fbfaf6; --topbar-bg:rgba(251,250,246,0.92);
+    --axis-a:#2d7a5e; --axis-ag:rgba(45,122,94,0.10);
+    --axis-b:#2a4fa0; --axis-bg:rgba(42,79,160,0.10);
+    --axis-c:#b5420a; --axis-cg:rgba(181,66,10,0.09);
+    --warn:#7a6030; --warn-surface:rgba(122,96,48,0.10); --warn-border:rgba(122,96,48,0.32);
+  }
+  * { box-sizing: border-box; }
+  em, i, cite, address { font-style: normal; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--navy);
+    -webkit-font-smoothing: antialiased;
+    transition: background 350ms ease-out, color 350ms ease-out;
+  }
+  .screen-sep { height: 1px; background: var(--line-strong); opacity: 0.5; max-width: 680px; margin: 0 auto; }
+  .screen-tag {
+    text-align: center; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--navy400); padding: 24px 0 8px;
+  }
+
+  /* Toggle thème pill */
+  #theme-toggle {
+    position: fixed; top: 11px; right: 20px; z-index: 300;
+    display: inline-flex; align-items: stretch; gap: 0;
+    background: var(--ivory); border: 1px solid var(--line-strong);
+    cursor: pointer; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    user-select: none; overflow: hidden;
+    transition: border-color 200ms ease-out, background 350ms ease-out;
+    padding: 0; width: 152px; height: 28px;
+  }
+  .tg-pill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 76px;
+    background: var(--ivory2); border-right: 1px solid var(--line-strong);
+    transition: transform 250ms cubic-bezier(.4, 0, .2, 1);
+  }
+  body.day .tg-pill { transform: translateX(0); }
+  body.night .tg-pill { transform: translateX(76px); border-right: none; border-left: 1px solid var(--line-strong); }
+  .tg-opt {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    width: 76px;
+    background: transparent; border: none; padding: 0; margin: 0;
+    color: var(--navy400); opacity: 0.45;
+    font-family: inherit; font-size: inherit;
+    letter-spacing: inherit; text-transform: inherit;
+    transition: color 250ms ease-out, opacity 250ms ease-out, font-weight 250ms ease-out;
+    cursor: pointer;
+  }
+  body.day .tg-opt.day,
+  body.night .tg-opt.night {
+    color: var(--navy);
+    opacity: 1;
+    font-weight: 600;
+    cursor: default;
+  }
+
+  /* Topbar */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: var(--topbar-bg);
+    -webkit-backdrop-filter: saturate(140%) blur(12px); backdrop-filter: saturate(140%) blur(12px);
+    padding: 12px 0;
+  }
+  .tb-inner { max-width: 720px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
+  .tb-brand { display: flex; align-items: center; gap: 9px; flex-shrink: 0; color: var(--navy); }
+  .tb-name { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--navy); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+  .tb-label { font-family: var(--mono); font-size: 10px; color: var(--navy400); white-space: nowrap; letter-spacing: 0.08em; text-transform: uppercase; }
+  .tb-sep { width: 1px; height: 14px; background: var(--line-strong); flex-shrink: 0; }
+  .tb-track { flex: 1; height: 1px; background: var(--line-strong); overflow: hidden; }
+  .tb-fill { height: 100%; background: var(--navy); transition: width 500ms ease-out; }
+  .tb-pct { font-family: var(--mono); font-size: 10px; color: var(--navy400); min-width: 32px; text-align: right; }
+
+  /* Shell */
+  .shell { max-width: 680px; margin: 0 auto; padding: 88px 24px 48px; }
+
+  /* Eyebrow — filet à DROITE qui s'étend jusqu'au bout */
+  .eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; margin: 0 0 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .eyebrow > span:first-child { flex-shrink: 0; }
+  .eyebrow::after { content: ""; flex: 1; height: 1px; opacity: 0.4; }
+  .eyebrow.a { color: var(--axis-a); }
+  .eyebrow.a::after { background: var(--axis-a); }
+  .eyebrow.b { color: var(--axis-b); }
+  .eyebrow.b::after { background: var(--axis-b); }
+  .eyebrow.c { color: var(--axis-c); }
+  .eyebrow.c::after { background: var(--axis-c); }
+
+  /* Titre de bloc (filet désormais à droite de l'eyebrow, plus sous le titre) */
+  .bloc-title {
+    font-family: var(--serif); font-size: clamp(26px, 4vw, 36px);
+    font-weight: 400; line-height: 1.1; letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+  .bloc-title.a { color: var(--axis-a); }
+  .bloc-title.b { color: var(--axis-b); }
+  .bloc-title.c { color: var(--axis-c); }
+  .bloc-sub {
+    font-family: var(--mono); font-size: 12px; color: var(--navy400);
+    margin: 0 0 32px; letter-spacing: 0.02em; line-height: 1.55;
+  }
+
+  /* Question card */
+  .q-card {
+    margin-bottom: 24px; padding: 24px;
+    background: var(--ivory); border: 1px solid var(--line);
+    transition: border-color 250ms ease-out;
+  }
+  .q-card.answered { border-color: color-mix(in srgb, var(--argent) 50%, transparent); }
+  .q-num { font-family: var(--mono); font-size: 10px; color: var(--navy400); margin: 0 0 8px; letter-spacing: 0.1em; }
+  .q-text {
+    font-family: var(--serif); font-size: 16px; font-weight: 400;
+    line-height: 1.5; margin: 0 0 8px; color: var(--navy); letter-spacing: -0.01em;
+  }
+  .q-ctx {
+    font-family: var(--mono); font-size: 12px; color: var(--navy400);
+    margin: 0 0 16px; padding-left: 12px;
+    border-left: 1px solid var(--line-strong);
+    letter-spacing: 0.02em;
+  }
+  .opts { display: flex; flex-direction: column; gap: 5px; }
+  .opt {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 13px;
+    background: var(--paper); border: 1px solid var(--line);
+    cursor: pointer; text-align: left; font-size: 13px;
+    color: var(--navy); line-height: 1.5;
+    transition: all 150ms ease-out; width: 100%; font-family: var(--sans);
+  }
+  .opt:hover { border-color: var(--navy400); }
+  .opt-letter { font-family: var(--mono); font-size: 9px; color: var(--navy400); flex-shrink: 0; padding-top: 2px; min-width: 14px; letter-spacing: 0.06em; }
+  /* Sélection en argent semi-transparent (cohérent avec chips de profil) */
+  .opt.on-argent {
+    background: color-mix(in srgb, var(--argent) 18%, transparent);
+    border-color: color-mix(in srgb, var(--argent) 60%, transparent);
+    color: var(--navy);
+    font-weight: 500;
+  }
+
+  /* Reformulation colorée par axe (gardée) */
+  .reformul {
+    margin-top: 10px; padding: 10px 13px;
+    font-size: 12px; line-height: 1.65;
+    border-left: 2px solid;
+    animation: v3FadeSlide 300ms ease-out both;
+  }
+  .reformul.a { background: var(--axis-ag); border-color: var(--axis-a); color: var(--axis-a); }
+  .reformul.b { background: var(--axis-bg); border-color: var(--axis-b); color: var(--axis-b); }
+  .reformul.c { background: var(--axis-cg); border-color: var(--axis-c); color: var(--axis-c); }
+
+  /* Benchmark ambre warn (gardé) */
+  .benchmark {
+    margin-top: 6px; padding: 8px 12px;
+    background: var(--warn-surface); border-left: 2px solid var(--warn);
+    font-size: 12px; color: var(--warn); line-height: 1.6;
+    animation: v3FadeSlide 300ms 100ms ease-out both;
+    font-family: var(--mono); letter-spacing: 0.02em;
+  }
+  @keyframes v3FadeSlide { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Nav bloc */
+  .bloc-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 32px; padding-top: 24px; gap: 16px; flex-wrap: wrap;
+    border-top: 1px solid var(--line);
+  }
+  .bloc-nav-left { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .bloc-prog { font-family: var(--mono); font-size: 11px; color: var(--navy400); letter-spacing: 0.08em; }
+  .btn-back {
+    background: transparent; border: none; padding: 0; cursor: pointer;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--navy400); letter-spacing: 0.08em;
+    text-transform: uppercase; transition: color 180ms ease-out;
+  }
+  .btn-back:hover { color: var(--navy); }
+  .cta {
+    background: var(--navy); color: var(--paper); border: none;
+    padding: 13px 28px; font-family: var(--sans); font-size: 14px;
+    font-weight: 500; letter-spacing: 0.02em; cursor: pointer;
+  }
+  .cta:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Page transition (refaite modèle cible) */
+  .transition-shell {
+    max-width: 560px; margin: 0 auto; padding: 88px 24px 64px;
+    text-align: center;
+  }
+  .trans-logo { display: block; margin: 0 auto 32px; color: var(--navy); }
+  .trans-eyebrow {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--navy400); margin: 0 0 14px;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .trans-dots { display: inline-flex; gap: 4px; align-items: center; }
+  .trans-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    border: 1px solid var(--navy400); background: transparent;
+    display: inline-block;
+  }
+  .trans-dot.done { background: var(--navy); border-color: var(--navy); }
+  .trans-title {
+    font-family: var(--serif); font-size: clamp(28px, 4vw, 36px);
+    font-weight: 400; line-height: 1.15; letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  /* Phrase encourageante sur les transitions — remplace le titre du bloc fermé */
+  .trans-phrase {
+    font-family: var(--serif);
+    font-size: clamp(15px, 1.6vw, 17px);
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: 0;
+    margin: 0 auto 40px;
+    color: var(--navy);
+    /* 17 px max calibré pour tenir sur 1 ligne dans le shell 560 px */
+  }
+  .trans-title.a { color: var(--axis-a); }
+  .trans-title.b { color: var(--axis-b); }
+  .trans-title.c { color: var(--axis-c); }
+  .trans-rule { width: 60px; height: 1px; opacity: 0.4; margin: 0 auto 22px; }
+  .trans-rule.a { background: var(--axis-a); }
+  .trans-rule.b { background: var(--axis-b); }
+  .trans-rule.c { background: var(--axis-c); }
+  .trans-body {
+    font-family: var(--sans); font-size: 14px;
+    color: var(--navy600); margin: 0 auto 40px;
+    line-height: 1.7; max-width: 440px;
+  }
+  .trans-scores { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+  .tsc { padding: 12px 18px; border: 1px solid; text-align: center; min-width: 140px; }
+  .tsc.a { border-color: color-mix(in srgb, var(--axis-a) 40%, transparent); background: var(--axis-ag); }
+  .tsc.b { border-color: color-mix(in srgb, var(--axis-b) 40%, transparent); background: var(--axis-bg); }
+  .tsc.c { border-color: color-mix(in srgb, var(--axis-c) 40%, transparent); background: var(--axis-cg); }
+  .tsc-name { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 6px; }
+  .tsc-level { font-family: var(--serif); font-size: 17px; font-weight: 400; margin: 0; }
+  .tsc.a .tsc-name, .tsc.a .tsc-level { color: var(--axis-a); }
+  .tsc.b .tsc-name, .tsc.b .tsc-level { color: var(--axis-b); }
+  .tsc.c .tsc-name, .tsc.c .tsc-level { color: var(--axis-c); }
+  .trans-next { padding-top: 24px; border-top: 1px solid var(--line); }
+  .trans-next-eyebrow {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--navy400); margin: 0 0 10px;
+  }
+  .trans-next-label { font-family: var(--serif); font-size: 17px; color: var(--navy); margin: 0 0 28px; }
+  .trans-actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+  }
+  .trans-actions .btn-back {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Radar live (visible ≥ 1140 px, masqué sur transitions via .hide-radar parent) */
+  #radar-live {
+    position: fixed;
+    right: max(24px, calc(50vw - 340px - 220px));
+    top: 50%; transform: translateY(-50%);
+    width: 200px; z-index: 50;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .rl-title { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--navy400); margin: 0 0 4px; text-align: center; }
+  .rl-scores { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 0 4px; }
+  .rl-row { display: flex; align-items: center; gap: 8px; }
+  .rl-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .rl-name { font-family: var(--mono); font-size: 9px; color: var(--navy400); flex: 1; letter-spacing: 0.04em; }
+  .rl-level { font-family: var(--mono); font-size: 9px; font-weight: 600; }
+  .rl-row.a .rl-dot { background: var(--axis-a); }  .rl-row.a .rl-level { color: var(--axis-a); }
+  .rl-row.b .rl-dot { background: var(--axis-b); }  .rl-row.b .rl-level { color: var(--axis-b); }
+  .rl-row.c .rl-dot { background: var(--axis-c); }  .rl-row.c .rl-level { color: var(--axis-c); }
+  @media (max-width: 1140px) { #radar-live { display: none !important; } }
+</style>
+</head>
+<body class="night">
+
+  <!-- Toggle thème : deux boutons distincts (no-op si on est déjà sur l'option active) -->
+  <div id="theme-toggle" role="group" aria-label="Thème">
+    <span class="tg-pill"></span>
+    <button class="tg-opt day" onclick="setTheme('day')" type="button" aria-label="Passer en mode jour">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="2.4" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="6" y1="0.5" x2="6" y2="2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="6" y1="9.5" x2="6" y2="11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="0.5" y1="6" x2="2.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="9.5" y1="6" x2="11.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="2.1" y1="2.1" x2="3.5" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="8.5" y1="8.5" x2="9.9" y2="9.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="9.9" y1="2.1" x2="8.5" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="3.5" y1="8.5" x2="2.1" y2="9.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Jour
+    </button>
+    <button class="tg-opt night" onclick="setTheme('night')" type="button" aria-label="Passer en mode nuit">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <path d="M12.5 10.5A6.5 6.5 0 1 1 5 2a5.5 5.5 0 0 0 7.5 8.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      Nuit
+    </button>
+  </div>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="tb-inner">
+      <div class="tb-brand">
+        <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+        <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+      </div>
+      <span class="tb-sep"></span>
+      <span class="tb-label">3 / 5 · Parcours patient</span>
+      <div class="tb-track"><div class="tb-fill" style="width:54%"></div></div>
+      <span class="tb-pct">54 %</span>
+    </div>
+  </div>
+
+  <!-- Radar live (visible ≥ 1140 px) — formule angle corrigée, sommet A en HAUT -->
+  <!-- Coordonnées : A=-90°, B=30°, C=150°, formule a=angle*π/180
+       size=160, cx=cy=80, r=52. Scores : A=68%, B=42%, C=55%
+       A: (cx + r*0.68*cos(-90°), cy + r*0.68*sin(-90°)) = (80, 80-35.36) = (80, 44.64)
+       B: (cx + r*0.42*cos(30°), cy + r*0.42*sin(30°)) = (80+18.91, 80+10.92) = (98.91, 90.92)
+       C: (cx + r*0.55*cos(150°), cy + r*0.55*sin(150°)) = (80-24.77, 80+14.30) = (55.23, 94.30)
+       Grille 100% : A=(80, 28), B=(125.03, 106), C=(34.97, 106) -->
+  <aside id="radar-live">
+    <p class="rl-title">Profil en cours</p>
+    <svg width="160" height="160" viewBox="0 0 160 160">
+      <defs>
+        <filter id="glow-a" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feFlood flood-color="var(--axis-a)" result="color"/>
+          <feComposite in="color" in2="blur" operator="in" result="glow"/>
+          <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-b" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feFlood flood-color="var(--axis-b)" result="color"/>
+          <feComposite in="color" in2="blur" operator="in" result="glow"/>
+          <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-c" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feFlood flood-color="var(--axis-c)" result="color"/>
+          <feComposite in="color" in2="blur" operator="in" result="glow"/>
+          <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- Grilles concentriques (formule modèle cible : sommet A à GAUCHE) — opacité 0.3 -->
+      <polygon points="67,80 86.5,68.74 86.5,91.26" fill="none" stroke="var(--line)" stroke-width="0.5" opacity="0.3"/>
+      <polygon points="54,80 93,57.48 93,102.52" fill="none" stroke="var(--line)" stroke-width="0.5" opacity="0.3"/>
+      <polygon points="41,80 99.5,46.23 99.5,113.77" fill="none" stroke="var(--line)" stroke-width="0.5" opacity="0.3"/>
+      <polygon points="28,80 106,34.97 106,125.03" fill="none" stroke="var(--line-strong)" stroke-width="1" opacity="0.4"/>
+      <!-- Lignes d'axes vers les sommets — opacité 0.4 -->
+      <line x1="80" y1="80" x2="28" y2="80" stroke="var(--line)" opacity="0.4"/>
+      <line x1="80" y1="80" x2="106" y2="34.97" stroke="var(--line)" opacity="0.4"/>
+      <line x1="80" y1="80" x2="106" y2="125.03" stroke="var(--line)" opacity="0.4"/>
+      <!-- Polygone scores : A 68%, B 42%, C 55% -->
+      <path d="M44.64,80 L90.92,61.09 L94.30,104.77 Z" fill="color-mix(in srgb, var(--argent) 12%, transparent)" stroke="var(--argent)" stroke-width="1" stroke-linejoin="round"/>
+      <!-- Dots glow : A à gauche (44.64, 80), B haut-droite (90.92, 61.09), C bas-droite (94.30, 104.77) -->
+      <circle cx="44.64" cy="80" r="4" fill="var(--axis-a)" filter="url(#glow-a)"/>
+      <circle cx="90.92" cy="61.09" r="4" fill="var(--axis-b)" filter="url(#glow-b)"/>
+      <circle cx="94.30" cy="104.77" r="4" fill="var(--axis-c)" filter="url(#glow-c)"/>
+    </svg>
+    <div class="rl-scores">
+      <div class="rl-row a"><div class="rl-dot"></div><span class="rl-name">Parcours patient</span><span class="rl-level">Solide</span></div>
+      <div class="rl-row b"><div class="rl-dot"></div><span class="rl-name">Équipe</span><span class="rl-level">En transition</span></div>
+      <div class="rl-row c"><div class="rl-dot"></div><span class="rl-name">Outils</span><span class="rl-level">En transition</span></div>
+    </div>
+  </aside>
+
+<div class="screen-tag">Écran 1 · Bloc A (6 questions, 3 répondues)</div>
+<div class="shell with-radar">
+  <p class="eyebrow a"><span>Bloc 1 / 3 — Parcours patient</span></p>
+  <h2 class="bloc-title a">Parcours patient</h2>
+    <p class="bloc-sub">De la prise de rendez-vous à la transmission vers les spécialistes</p>
+  <article class="q-card answered">
+    <p class="q-num">Q1</p>
+    <p class="q-text">Quand un patient appelle pour un motif urgent, que se passe-t-il ?</p>
+    <p class="q-ctx">Pensez à la semaine dernière.</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Il est renvoyé aux urgences ou rappelle de lui-même.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Le secrétariat évalue et propose un créneau si possible.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">C</span><span>Des créneaux dédiés sont bloqués chaque matin, avec des critères connus de tous.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>La régulation est partagée avec d'autres praticiens du territoire.</span></button>
+    </div>
+    <div class="reformul a">Un protocole formalisé. Ce que ça libère ne se voit pas tout de suite — c'est la charge mentale qui baisse en arrière-plan.</div>
+  </article>
+  <article class="q-card answered">
+    <p class="q-num">Q2</p>
+    <p class="q-text">Comment gérez-vous les demandes non programmées hors urgences — ordonnance à renouveler, résultat à commenter, question simple ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Tout passe par une consultation, je n'ai pas d'autre canal.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">B</span><span>Je traite ces demandes au fil de l'eau, sans cadre formalisé.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Le secrétariat absorbe les demandes simples avec des critères connus.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Un canal asynchrone structuré (messagerie sécurisée, espace patient) traite ces demandes.</span></button>
+    </div>
+    <div class="reformul a">Le « fil de l'eau » est efficace tant qu'il reste léger. Au-delà, il devient un mode d'usure invisible — quelques minutes par-ci, par-là, qui n'apparaissent dans aucun planning.</div>
+  </article>
+  <article class="q-card answered">
+    <p class="q-num">Q3</p>
+    <p class="q-text">Comment le patient sait-il ce qu'il doit faire entre deux consultations ?</p>
+    <p class="q-ctx">Résultats d'analyses, ordonnances, surveillance de symptômes.</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Il rappelle ou revient — on gère à ce moment-là.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>J'explique à l'oral en fin de consultation.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">C</span><span>Une consigne écrite (impression ou SMS) part systématiquement avec lui.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Le patient accède à son suivi en ligne (messagerie sécurisée, espace patient).</span></button>
+    </div>
+    <div class="reformul a">La trace écrite multiplie la compliance. Et accessoirement, elle réduit les rappels « pour confirmer ».</div>
+  </article>
+  <article class="q-card">
+    <p class="q-num">Q4</p>
+    <p class="q-text">Comment gérez-vous le suivi de vos patients chroniques connus ?</p>
+    <p class="q-ctx">Diabète, HTA, insuffisance cardiaque, BPCO…</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Ils rappellent quand ils ont besoin — je les vois alors.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>J'essaie de programmer des renouvellements, sans système formalisé.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Une liste de patients chroniques est tenue à jour avec des rappels de suivi.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Le suivi est intégré dans le logiciel avec alertes et indicateurs.</span></button>
+    </div>
+  </article>
+  <article class="q-card">
+    <p class="q-num">Q5</p>
+    <p class="q-text">Comment identifiez-vous les patients chroniques qui devraient revenir mais ne viennent plus ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Je ne le fais pas — je ne vois pas comment m'y prendre.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Je m'en rends compte par hasard, quand un patient revient après un long délai.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Je relance ponctuellement les patients que j'identifie à risque.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Une extraction logiciel régulière identifie les patients sans consultation depuis X mois et déclenche une relance.</span></button>
+    </div>
+  </article>
+  <article class="q-card">
+    <p class="q-num">Q6</p>
+    <p class="q-text">Comment êtes-vous alerté quand un résultat d'examen important arrive pour un patient ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Vérification opportuniste — je consulte les résultats quand j'y pense.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Tri délégué — le secrétariat vérifie et m'alerte sur ce qui me semble critique.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Vérification régulière — je consulte les résultats à heures fixes plusieurs fois par jour.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Signalement automatique — le logiciel ou la plateforme m'alerte sur les valeurs hors normes.</span></button>
+    </div>
+  </article>
+  <div class="bloc-nav">
+    <div class="bloc-nav-left">
+      <button class="btn-back">← Précédent</button>
+      <span class="bloc-prog">3 / 6 réponses</span>
+    </div>
+    <button class="cta" disabled>Bloc suivant →</button>
+  </div>
+</div>
+<div class="screen-sep"></div>
+
+  <!-- ═══ Écran 2 · Transition A → B (refaite modèle cible) ═══ -->
+  <div class="screen-tag">Écran 2 · Transition A → B</div>
+  <div class="transition-shell">
+    <!-- Logo Lugia centré -->
+    <svg class="trans-logo" width="56" height="47" viewBox="0 0 261 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/>
+    </svg>
+    <!-- Plus d'eyebrow ●○○ ni de filet ni de body redondant — le titre seul
+         + les 3 score cards ci-dessous suffisent : Solide en card A vs « — » sur B/C. -->
+    <h2 class="trans-phrase">Un premier axe posé. Le profil commence à se dessiner.</h2>
+
+    <div class="trans-scores">
+      <div class="tsc a"><p class="tsc-name">Parcours patient</p><p class="tsc-level">Solide</p></div>
+      <div class="tsc b"><p class="tsc-name">Équipe</p><p class="tsc-level">—</p></div>
+      <div class="tsc c"><p class="tsc-name">Outils</p><p class="tsc-level">—</p></div>
+    </div>
+
+    <div class="trans-next">
+      <p class="trans-next-eyebrow">Suite</p>
+      <p class="trans-next-label">Équipe &amp; secrétariat</p>
+      <div class="trans-actions">
+        <button class="btn-back">← Précédent</button>
+        <button class="cta">Continuer →</button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-sep"></div>
+
+<div class="screen-tag">Écran 3 · Bloc B (6 questions, 4 répondues)</div>
+<div class="shell with-radar">
+  <p class="eyebrow b"><span>Bloc 2 / 3 — Équipe &amp; secrétariat</span></p>
+  <h2 class="bloc-title b">Équipe & secrétariat</h2>
+    <p class="bloc-sub">Organisation humaine, rôles et charge de travail partagée</p>
+  <article class="q-card answered">
+    <p class="q-num">Q1</p>
+    <p class="q-text">Comment sont répartis les rôles dans votre cabinet ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Je gère tout moi-même, ou avec une aide ponctuelle non formalisée.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">B</span><span>Il y a une répartition, mais elle s'est faite au fil du temps sans être vraiment définie.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Chacun a un périmètre clair — on déborde parfois pour s'entraider.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Les rôles sont formalisés et évoluent avec les compétences (délégation, protocoles de coopération).</span></button>
+    </div>
+    <div class="reformul b">Les rôles existent mais ne sont pas nommés. Tant que tout le monde est là, ça tient ; à la première absence ou nouvelle recrue, les angles morts apparaissent.</div>
+  </article>
+  <article class="q-card answered">
+    <p class="q-num">Q2</p>
+    <p class="q-text">Comment décririez-vous la charge de travail du secrétariat ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Chroniquement débordé — on gère les urgences en permanence.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">B</span><span>Variable — gérable certains jours, tendu d'autres.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Globalement maîtrisé grâce à une organisation rodée.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Optimisé — le secrétariat se concentre sur ce qui a vraiment de la valeur.</span></button>
+    </div>
+    <div class="reformul b">La variabilité non maîtrisée. Elle use autant que la surcharge constante, parce que l'équipe ne peut pas anticiper et alterne entre surchauffe et décompression.</div>
+  </article>
+  <article class="q-card answered">
+    <p class="q-num">Q3</p>
+    <p class="q-text">Comment les informations circulent-elles entre les membres de l'équipe ?</p>
+    <p class="q-ctx">Messages patients, urgences du jour, tâches en attente.</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>À l'oral, quand on se croise — ce n'est pas toujours idéal.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">B</span><span>Par notes papier ou messages informels, avec quelques ratés.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Il y a un outil ou un rituel de transmission (carnet, tableau, point quotidien).</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>La communication est structurée : outil partagé, points réguliers, traçabilité.</span></button>
+    </div>
+    <div class="reformul b">Le papier fonctionne jusqu'à un certain seuil de volume. Au-delà, les erreurs s'accumulent silencieusement — un message oublié sur un bureau, une note qui se perd.</div>
+  </article>
+  <article class="q-card answered">
+    <p class="q-num">Q4</p>
+    <p class="q-text">Imaginez que vous deviez vous absenter — pour des congés prévus ou un imprévu de plusieurs jours.</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>C'est compliqué — les patients sans solution et le retour chaotique, je l'évite.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">B</span><span>On bricole une solution à chaque fois — ça dépend des disponibilités.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Préparé pour les congés, fragile pour l'imprévu — je sais fermer pour mes congés, je ne sais pas comment je gérerais une absence soudaine.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>La continuité est organisée : remplaçants rodés, protocoles, patients informés.</span></button>
+    </div>
+    <div class="reformul b">Le bricolage récurrent est un chantier déguisé en anecdote. Chaque absence demande une énergie de coordination disproportionnée pour ce qui devrait être routinier.</div>
+  </article>
+  <article class="q-card">
+    <p class="q-num">Q5</p>
+    <p class="q-text">La dernière fois que vous avez changé quelque chose dans l'organisation du cabinet — un protocole, une habitude, une règle de tri —, comment ça s'est passé ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Le changement reste souvent à l'état d'intention — j'ai du mal à le rendre effectif.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Plusieurs semaines d'allers-retours et des oublis avant que ça tienne.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Quelques semaines, avec un peu de vérification et de rappels au début.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Quelques jours — l'équipe (ou moi en solo) sait mettre en œuvre rapidement.</span></button>
+    </div>
+  </article>
+  <article class="q-card">
+    <p class="q-num">Q6</p>
+    <p class="q-text">À quelle fréquence prenez-vous du recul sur l'organisation du cabinet — bilan court, point d'équipe, revue informelle —, en dehors de la gestion clinique quotidienne ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Jamais — j'avance, je ne prends pas le temps. On en parle quand un problème surgit.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Rarement — quelques échanges informels, sans rythme défini.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Quelques moments structurés par trimestre — point d'équipe ou réflexion personnelle.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Rituel installé — moments réguliers (mensuels au minimum), avec décisions tracées et suivies.</span></button>
+    </div>
+  </article>
+  <div class="bloc-nav">
+    <div class="bloc-nav-left">
+      <button class="btn-back">← Précédent</button>
+      <span class="bloc-prog">4 / 6 réponses</span>
+    </div>
+    <button class="cta" disabled>Bloc suivant →</button>
+  </div>
+</div>
+<div class="screen-sep"></div>
+
+<!-- ═══ Écran 4 · Transition B → C (●●○) ═══ -->
+  <div class="screen-tag">Écran 4 · Transition B → C</div>
+  <div class="transition-shell">
+    <svg class="trans-logo" width="56" height="47" viewBox="0 0 261 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/>
+    </svg>
+    <h2 class="trans-phrase">Deux axes sur trois. Le profil prend forme.</h2>
+
+    <div class="trans-scores">
+      <div class="tsc a"><p class="tsc-name">Parcours patient</p><p class="tsc-level">Solide</p></div>
+      <div class="tsc b"><p class="tsc-name">Équipe</p><p class="tsc-level">En transition</p></div>
+      <div class="tsc c"><p class="tsc-name">Outils</p><p class="tsc-level">—</p></div>
+    </div>
+
+    <div class="trans-next">
+      <p class="trans-next-eyebrow">Suite</p>
+      <p class="trans-next-label">Outils &amp; dossiers</p>
+      <div class="trans-actions">
+        <button class="btn-back">← Précédent</button>
+        <button class="cta">Continuer →</button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-sep"></div>
+
+<div class="screen-tag">Écran 5 · Bloc C — Outils & dossiers (6 questions, 4 répondues)</div>
+<div class="shell with-radar">
+  <p class="eyebrow c"><span>Bloc 3 / 3 — Outils & dossiers</span></p>
+  <h2 class="bloc-title c">Outils & dossiers</h2>
+  <p class="bloc-sub">Logiciel médical, données patients, administration numérique</p>
+  <article class="q-card answered">
+    <p class="q-num">Q1</p>
+    <p class="q-text">Comment qualifieriez-vous votre maîtrise de votre logiciel médical ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>J'utilise les fonctions de base — le reste, je ne sais pas ce que ça fait.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">B</span><span>Je me débrouille, avec quelques fonctions apprises au fil du temps.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Je connais bien mon logiciel et j'utilise la plupart des fonctions utiles.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Workflow optimisé : modèles, raccourcis, automatisations.</span></button>
+    </div>
+    <div class="reformul c">L'apprentissage autodidacte couvre l'usage quotidien mais laisse des angles morts coûteux — souvent les fonctions de gain de temps les plus rentables.</div>
+  </article>
+  <article class="q-card answered">
+    <p class="q-num">Q2</p>
+    <p class="q-text">Comment sont tenus les dossiers patients dans votre cabinet ?</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Les dossiers sont là, mais leur contenu varie beaucoup selon les patients.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Il y a une structure de base, mais elle n'est pas toujours respectée.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">C</span><span>Les dossiers suivent une trame cohérente, les informations importantes sont accessibles rapidement.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Dossiers structurés permettant une prise en charge par n'importe quel praticien.</span></button>
+    </div>
+    <div class="reformul c">Une trame cohérente respectée — c'est ce qui rend la consultation plus rapide à l'ouverture du dossier, et qui sécurise les prises en charge complexes.</div>
+    <div class="benchmark">Un dossier structuré réduit le temps de consultation de 2 à 4 minutes en moyenne.</div>
+  </article>
+  <article class="q-card answered">
+    <p class="q-num">Q3</p>
+    <p class="q-text">Comment gérez-vous le flux administratif quotidien ?</p>
+    <p class="q-ctx">Courriers, résultats, ordonnances, feuilles de soins.</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>C'est une source de stress — j'ai toujours du retard.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">B</span><span>Je gère, mais ça prend beaucoup de temps hors des heures de consultation.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>J'ai des plages dédiées et des méthodes pour traiter ce flux efficacement.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Le flux est largement délégué ou automatisé.</span></button>
+    </div>
+    <div class="reformul c">Le débordement sur les plages hors-consultation est un signal d'alerte sur la soutenabilité — pas un défaut d'organisation individuelle, mais un système qui n'a pas encore intégré ses tâches admin dans son rythme.</div>
+  </article>
+  <article class="q-card answered">
+    <p class="q-num">Q4</p>
+    <p class="q-text">Quels outils numériques de santé utilisez-vous au quotidien ?</p>
+    <p class="q-ctx">Mon Espace Santé, MSSanté, téléconsultation, dossier régional.</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Aucun ou presque — je n'en ressens pas le besoin.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Quelques-uns par obligation (carte Vitale, télétransmission), sans en exploiter le potentiel.</span></button>
+      <button class="opt on-argent"><span class="opt-letter">C</span><span>J'utilise activement plusieurs (MSSanté, Mon Espace Santé, téléconsultation), avec retour positif.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>Ces outils sont intégrés dans mon workflow et je les utilise pour optimiser le parcours patient.</span></button>
+    </div>
+    <div class="reformul c">Une posture sélective et active. Vous adoptez ce qui apporte un bénéfice tangible, sans céder à l'effet de mode — la posture la plus saine vis-à-vis du numérique en santé.</div>
+  </article>
+  <article class="q-card">
+    <p class="q-num">Q5</p>
+    <p class="q-text">Comment positionnez-vous l'IA générative dans votre activité ?</p>
+    <p class="q-ctx">Rédaction de courriers, synthèses, recherches cliniques, aide à la décision.</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Je ne l'utilise pas — je ne vois pas encore l'intérêt pour mon exercice, ou je préfère attendre.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Je l'utilise ponctuellement, sur des sujets génériques (recherche, rédaction), avec des questions sur le cadre.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Je l'utilise régulièrement avec une vigilance active sur la conformité — sans m'être encore équipé d'un dispositif dédié au médical.</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>J'ai intégré un dispositif IA conforme au secret médical (hébergeur HDS, IA locale, prestataire certifié santé) dans mon workflow.</span></button>
+    </div>
+  </article>
+  <article class="q-card">
+    <p class="q-num">Q6</p>
+    <p class="q-text">À quel point les enjeux de conformité de votre cabinet sont-ils suivis activement ?</p>
+    <p class="q-ctx">RGPD, HDS, secret médical, DMP, pharmacovigilance, DPC, accessibilité PMR, conventionnement CCAM, numérique en santé / MSSanté…</p>
+    <div class="opts">
+      <button class="opt"><span class="opt-letter">A</span><span>Je sais qu'il y a des enjeux mais je n'ai pas le temps de m'y pencher au quotidien.</span></button>
+      <button class="opt"><span class="opt-letter">B</span><span>Je suis ce qu'on m'envoie (CPAM, DPC, instances), sans démarche proactive.</span></button>
+      <button class="opt"><span class="opt-letter">C</span><span>Je suis activement 2 ou 3 sujets majeurs et je m'informe régulièrement (HAS, RGPD, MSSanté).</span></button>
+      <button class="opt"><span class="opt-letter">D</span><span>J'ai cartographié les enjeux applicables à mon cabinet et je les suis systématiquement — revue régulière, mise à jour, traçabilité.</span></button>
+    </div>
+  </article>
+  <div class="bloc-nav">
+    <div class="bloc-nav-left">
+      <button class="btn-back">← Précédent</button>
+      <span class="bloc-prog">4 / 6 réponses</span>
+    </div>
+    <button class="cta" disabled>Voir mon diagnostic →</button>
+  </div>
+</div>
+<div class="screen-sep"></div>
+
+  <!-- ═══ Écran 6 · Transition C → Résultats (3 dots pleins) ═══ -->
+  <div class="screen-tag">Écran 6 · Transition C → Résultats</div>
+  <div class="transition-shell">
+    <svg class="trans-logo" width="56" height="47" viewBox="0 0 261 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/>
+    </svg>
+    <h2 class="trans-phrase">Les trois axes sont posés. Votre profil est prêt.</h2>
+
+    <div class="trans-scores">
+      <div class="tsc a"><p class="tsc-name">Parcours patient</p><p class="tsc-level">Solide</p></div>
+      <div class="tsc b"><p class="tsc-name">Équipe</p><p class="tsc-level">En transition</p></div>
+      <div class="tsc c"><p class="tsc-name">Outils</p><p class="tsc-level">En transition</p></div>
+    </div>
+
+    <div class="trans-next">
+      <p class="trans-next-eyebrow">Diagnostic</p>
+      <p class="trans-next-label">Votre profil et trois leviers à votre main.</p>
+      <div class="trans-actions">
+        <button class="btn-back">← Précédent</button>
+        <button class="cta">Voir mon diagnostic →</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Set thème direct : no-op si on est déjà sur l'option active.
+  function setTheme(theme) {
+    const b = document.body;
+    if (theme === 'day' && b.classList.contains('night')) {
+      b.classList.remove('night'); b.classList.add('day');
+    } else if (theme === 'night' && b.classList.contains('day')) {
+      b.classList.remove('day'); b.classList.add('night');
+    }
+    // sinon : no-op, on est déjà sur le bon thème.
+  }
+</script>
+</body>
+</html>

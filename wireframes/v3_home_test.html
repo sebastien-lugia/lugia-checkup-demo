@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V3-brand · T-V3-9 · Page d'accueil avec 3ème carte beta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --serif: "Lora", serif;
+    --sans: "Onest", -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", Menlo, monospace;
+    /* Palette V1.1.9 / V2.0 (mode jour) */
+    --bg: #fbf9f1;
+    --bg-card: white;
+    --bg-card-active: #fbf9f1;
+    --text: #111;
+    --text-2: #444;
+    --text-3: #888780;
+    --border: #d4cfbf;
+    --border-strong: #888780;
+    --accent-v2: #1a56a0;
+    --accent-v2-bg: #1a56a0;
+    /* Accents brand V3 */
+    --ivory: #f4efe5;
+    --ivory-light: #faf7f1;
+    --navy-v3: #1a2333;
+    --argent: #8E8E91;
+    --argent-light: #D2D2D5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  em, i, cite, address { font-style: normal; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 24px 80px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  /* Header */
+  .head { margin-bottom: 40px; }
+  .head .brand {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--mono); font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 32px;
+  }
+  .head h1 {
+    font-family: var(--serif); font-size: 32px;
+    font-weight: 500; line-height: 1.25;
+    margin-bottom: 14px;
+  }
+  .head .lead {
+    font-size: 16px; line-height: 1.55;
+    color: var(--text-2); margin-bottom: 0;
+    max-width: 720px;
+  }
+
+  /* Grille 3 cartes */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 880px) {
+    .cards-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Carte générique */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 26px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 200ms, transform 200ms, box-shadow 250ms;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .card:hover { border-color: var(--border-strong); }
+  .card-eyebrow {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-3);
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-family: var(--serif); font-size: 22px;
+    font-weight: 500; color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 13px; line-height: 1.55;
+    color: var(--text-2); margin-bottom: 20px;
+    flex: 1;
+  }
+  .card-pills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 18px;
+  }
+  .pill {
+    display: inline-block;
+    font-size: 11px; padding: 4px 10px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.6);
+    border-radius: 999px;
+    color: var(--text-2);
+  }
+  .card-cta {
+    font-size: 14px; font-weight: 500;
+    color: var(--accent-v2);
+    margin-top: auto;
+  }
+  .card:hover .card-cta { text-decoration: underline; }
+
+  /* Carte 1 — V1.1.9 classique (sobre) */
+  .card.v1 .card-eyebrow { color: var(--text-3); }
+
+  /* Carte 2 — V2.0 (badge bleu) */
+  .card.v2 {
+    border: 2px solid var(--accent-v2);
+  }
+  .card.v2 .badge-version {
+    position: absolute; top: 14px; right: 14px;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: white; background: var(--accent-v2);
+    padding: 4px 10px; border-radius: 999px;
+    font-weight: 600;
+  }
+  .card.v2 .card-eyebrow { color: var(--accent-v2); }
+
+  /* Carte 3 — V3-brand BETA (signature brand kit) */
+  .card.v3 {
+    background: var(--ivory);
+    border: 1px solid var(--argent);
+    border-radius: 0; /* rectangulaire brand */
+  }
+  .card.v3:hover {
+    border-color: var(--navy-v3);
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px var(--argent), 0 12px 32px -10px rgba(142,142,145,0.4);
+  }
+  .card.v3 .badge-version {
+    position: absolute; top: 14px; right: 14px;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--navy-v3);
+    background: linear-gradient(90deg, var(--argent-light) 0%, var(--ivory-light) 50%, var(--argent-light) 100%);
+    padding: 4px 10px;
+    font-weight: 700;
+    border: 1px solid var(--argent);
+  }
+  .card.v3 .card-eyebrow {
+    color: var(--argent);
+    font-family: var(--mono);
+  }
+  .card.v3 .card-title {
+    font-family: var(--serif); font-size: 22px;
+    color: var(--navy-v3);
+    font-weight: 500;
+  }
+  .card.v3 .card-title em {
+    font-style: normal; color: var(--argent);
+  }
+  .card.v3 .card-desc { color: var(--text-2); }
+  .card.v3 .pill {
+    border: 1px solid var(--argent);
+    background: rgba(244,239,229,0.8);
+    color: var(--navy-v3);
+    border-radius: 0;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+  .card.v3 .card-cta {
+    color: var(--navy-v3); font-weight: 600;
+  }
+
+  /* Mini preview V3 — fond navy nuit en aperçu visuel */
+  .v3-preview {
+    background: #192030;
+    color: #f4efe5;
+    padding: 12px 14px;
+    margin: 0 -26px 18px;
+    margin-top: -2px;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .v3-preview-mark {
+    width: 16px; height: 13px; flex-shrink: 0;
+  }
+  .v3-preview-text { flex: 1; color: rgba(244,239,229,0.6); }
+
+  /* Garde-fous communs */
+  .gardefous {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 26px;
+  }
+  .gardefous-title {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    font-weight: 600; color: var(--text-3);
+    margin-bottom: 12px;
+  }
+  .gardefous ul {
+    list-style: none; padding: 0; margin: 0;
+    font-size: 13px; line-height: 1.6; color: var(--text-2);
+  }
+  .gardefous li { padding-left: 14px; position: relative; margin-bottom: 4px; }
+  .gardefous li::before { content: "—"; position: absolute; left: 0; }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <header class="head">
+      <div class="brand">
+        <svg width="18" height="15" viewBox="0 0 261 220" fill="none">
+          <path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/>
+        </svg>
+        Lugia&nbsp;&amp;&nbsp;Co · Check-up cabinet
+      </div>
+      <h1>Votre cabinet aussi mérite un check-up.</h1>
+      <p class="lead">Trois versions du check-up sont disponibles aujourd'hui — la version actuelle, la nouvelle version pilote, et la version brand kit en beta. Choisissez celle que vous voulez tester.</p>
+    </header>
+
+    <!-- Grille des 3 cartes -->
+    <div class="cards-grid">
+
+      <!-- Carte 1 : V1.1.9 classique -->
+      <button class="card v1" type="button">
+        <p class="card-eyebrow">Version actuelle</p>
+        <h2 class="card-title">Check-up classique</h2>
+        <p class="card-desc">14 questions, ~25 min. Format question par question. Rapport en 3 facettes, 3 chantiers proposés.</p>
+        <div class="card-pills">
+          <span class="pill">14 questions</span>
+          <span class="pill">~25 min</span>
+        </div>
+        <span class="card-cta">Commencer →</span>
+      </button>
+
+      <!-- Carte 2 : V2.0 pilote -->
+      <button class="card v2" type="button">
+        <span class="badge-version">Pilote</span>
+        <p class="card-eyebrow">Nouvelle version</p>
+        <h2 class="card-title">Diagnostic organisationnel V2</h2>
+        <p class="card-desc">Mini-profil en chips, 18 questions sur 3 axes, radar dynamique qui se construit en direct. Reformulations terrain inline, benchmarks chiffrés.</p>
+        <div class="card-pills">
+          <span class="pill">18 questions</span>
+          <span class="pill">~25 min</span>
+          <span class="pill">Radar live</span>
+        </div>
+        <span class="card-cta">Essayer la nouvelle version →</span>
+      </button>
+
+      <!-- Carte 3 : V3-brand BETA -->
+      <button class="card v3" type="button">
+        <span class="badge-version">Beta · Brand</span>
+        <p class="card-eyebrow">Direction brand · Mode nuit</p>
+        <h2 class="card-title">Check-up V3 — <em>brand kit</em></h2>
+        <p class="card-desc">Refonte visuelle complète selon le brand kit Lugia. Mode nuit par défaut, radar incliné, analyse croisée signalée, plans d'action chiffrés (gain temps + euros).</p>
+
+        <!-- Mini preview mode nuit -->
+        <div class="v3-preview">
+          <svg class="v3-preview-mark" viewBox="0 0 261 220" fill="none">
+            <path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/>
+          </svg>
+          <span class="v3-preview-text">Aperçu mode nuit · Lora + ivoire</span>
+        </div>
+
+        <div class="card-pills">
+          <span class="pill">18 questions</span>
+          <span class="pill">~25 min</span>
+          <span class="pill">Gains chiffrés</span>
+        </div>
+        <span class="card-cta">Découvrir la version beta →</span>
+      </button>
+
+    </div>
+
+    <!-- Garde-fous -->
+    <div class="gardefous">
+      <p class="gardefous-title">Vos garde-fous (les trois versions)</p>
+      <ul>
+        <li>Aucune donnée patient identifiable ne vous est demandée.</li>
+        <li>Le check-up porte sur votre organisation, pas sur votre clinique.</li>
+        <li>Vous pouvez interrompre et reprendre plus tard à tout moment.</li>
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

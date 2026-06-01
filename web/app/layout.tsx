@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";  // ← ajouter cette ligne
 
 import { Footer } from "@/components/Footer";
 
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body>
         {children}
         <Footer />
+        <Analytics />  {/* ← ajouter cette ligne */}
       </body>
     </html>
   );

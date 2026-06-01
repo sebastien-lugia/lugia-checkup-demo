@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V3-brand · T-V3-7 · Page résultats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --serif:"Lora", serif; --sans:"Onest", -apple-system, sans-serif; --mono:"IBM Plex Mono", Menlo, monospace; }
+  body.night {
+    --bg:#192030; --navy:#f4efe5; --navy400:#6e7a95; --navy600:#a8b2c8;
+    --ivory:#1e2738; --ivory2:#222d3e; --argent:#8E8E91;
+    --line:rgba(251,250,246,0.10); --line-strong:rgba(251,250,246,0.20);
+    --paper:#192030;
+    --axis-a:#4aab84; --axis-ag:rgba(74,171,132,0.12);
+    --axis-b:#5b82d4; --axis-bg:rgba(91,130,212,0.12);
+    --axis-c:#e07040; --axis-cg:rgba(224,112,64,0.12);
+    --warn:#c4a055;
+  }
+  body.day {
+    --bg:#fbfaf6; --navy:#1a2333; --navy400:#6e7795; --navy600:#3a4360;
+    --ivory:#f4efe5; --ivory2:#f8f4eb; --argent:#B5B5B8;
+    --line:rgba(26,35,51,0.18); --line-strong:rgba(26,35,51,0.28);
+    --paper:#fbfaf6;
+    --axis-a:#2d7a5e; --axis-ag:rgba(45,122,94,0.10);
+    --axis-b:#2a4fa0; --axis-bg:rgba(42,79,160,0.10);
+    --axis-c:#b5420a; --axis-cg:rgba(181,66,10,0.09);
+    --warn:#7a6030;
+  }
+  * { box-sizing: border-box; }
+  em, i, cite, address { font-style: normal; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--navy);
+    -webkit-font-smoothing: antialiased;
+    transition: background 350ms ease-out, color 350ms ease-out;
+  }
+
+  /* Toggle thème */
+  #theme-toggle {
+    position: fixed; top: 11px; right: 20px; z-index: 300;
+    display: inline-flex; align-items: stretch; gap: 0;
+    background: var(--ivory); border: 1px solid var(--line-strong);
+    cursor: pointer;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    user-select: none; overflow: hidden;
+    transition: border-color 200ms ease-out, background 350ms ease-out;
+    padding: 0; width: 152px; height: 28px;
+  }
+  .tg-pill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 76px;
+    background: var(--ivory2); border-right: 1px solid var(--line-strong);
+    transition: transform 250ms cubic-bezier(.4, 0, .2, 1);
+  }
+  body.day .tg-pill { transform: translateX(0); }
+  body.night .tg-pill { transform: translateX(76px); border-right: none; border-left: 1px solid var(--line-strong); }
+  .tg-opt {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    width: 76px;
+    background: transparent; border: none; padding: 0; margin: 0;
+    color: var(--navy400); opacity: 0.45;
+    font-family: inherit; font-size: inherit;
+    letter-spacing: inherit; text-transform: inherit;
+    transition: color 250ms ease-out, opacity 250ms ease-out, font-weight 250ms ease-out;
+    cursor: pointer;
+  }
+  body.day .tg-opt.day, body.night .tg-opt.night {
+    color: var(--navy); opacity: 1; font-weight: 600; cursor: default;
+  }
+
+  /* Topbar */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: rgba(25,32,48,0.93);
+    -webkit-backdrop-filter: saturate(140%) blur(12px); backdrop-filter: saturate(140%) blur(12px);
+    padding: 12px 0;
+  }
+  body.day .topbar { background: rgba(251,250,246,0.92); }
+  .tb-inner { max-width: 720px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
+  .tb-brand { display: flex; align-items: center; gap: 9px; flex-shrink: 0; color: var(--navy); }
+  .tb-name { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--navy); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+  .tb-label { font-family: var(--mono); font-size: 10px; color: var(--navy400); white-space: nowrap; letter-spacing: 0.08em; text-transform: uppercase; }
+  .tb-sep { width: 1px; height: 14px; background: var(--line-strong); flex-shrink: 0; }
+  .tb-track { flex: 1; height: 1px; background: var(--line-strong); overflow: hidden; }
+  .tb-fill { height: 100%; background: var(--navy); width: 100%; }
+  .tb-pct { font-family: var(--mono); font-size: 10px; color: var(--navy400); min-width: 32px; text-align: right; }
+
+  /* Shell */
+  .shell { max-width: 680px; margin: 0 auto; padding: 88px 24px 96px; }
+
+  /* Eyebrow avec filet à droite */
+  .eyebrow {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--navy400); margin: 0 0 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .eyebrow > span:first-child { flex-shrink: 0; }
+  .eyebrow::after { content: ""; flex: 1; height: 1px; background: var(--navy400); opacity: 0.4; }
+
+  /* Titre principal */
+  .res-title {
+    font-family: var(--serif);
+    font-size: clamp(34px, 5vw, 50px);
+    font-weight: 400; line-height: 1.05; letter-spacing: -0.02em;
+    margin: 0 0 24px; color: var(--navy);
+  }
+
+  .res-meta {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 6px 14px;
+    margin: 0 0 16px;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--navy600);
+  }
+  .res-meta-sep { opacity: 0.4; }
+
+  .res-phrase {
+    font-family: var(--serif); font-size: 17px;
+    line-height: 1.5; color: var(--navy);
+    margin: 0 0 32px; max-width: 540px;
+    opacity: 0.85;
+  }
+  /* Phrase d'accroche choc — citation argent sans encadré */
+  .accroche-choc {
+    font-family: var(--serif);
+    font-size: clamp(24px, 3vw, 30px);
+    font-weight: 400; line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--argent);
+    margin: 0 0 40px;
+    max-width: 580px;
+  }
+
+  /* Radar grand format */
+  .radar-section { margin: 32px 0 56px; }
+  .radar-section-title {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--navy400); text-align: center; margin: 0 0 16px;
+  }
+  .radar-result-svg { max-width: 380px; display: block; margin: 0 auto; width: 100%; height: auto; }
+
+  /* Analyse croisée */
+  .signal-block {
+    padding: 20px 24px;
+    background: color-mix(in srgb, var(--warn) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--warn) 32%, transparent);
+    border-left: 2px solid var(--warn);
+    margin-bottom: 48px;
+  }
+  .signal-title-big {
+    font-family: var(--serif); font-size: 22px;
+    font-weight: 400; line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px; color: var(--warn);
+  }
+  .signal-body {
+    font-family: var(--sans); font-size: 13px;
+    line-height: 1.7; color: var(--navy600); margin: 0;
+  }
+
+  /* Axis cards (3 niveaux par axe) */
+  .axis-cards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 48px; }
+  .axis-card {
+    background: var(--ivory); border: 1px solid var(--line);
+    border-left-width: 2px;
+  }
+  .axis-card.a { border-left-color: var(--axis-a); }
+  .axis-card.b { border-left-color: var(--axis-b); }
+  .axis-card.c { border-left-color: var(--axis-c); }
+  /* Section heading (Forces / Risques) — filet horizontal à droite */
+  .section-heading {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--navy400);
+    margin: 0 0 16px;
+    display: flex; align-items: center; gap: 16px;
+    font-weight: 400;
+  }
+  .section-heading > span:first-child { flex-shrink: 0; }
+  .section-heading::after { content: ""; flex: 1; height: 1px; background: var(--navy400); opacity: 0.4; }
+
+  /* Axis card dépliante : utilise <details>/<summary> natifs */
+  .axis-card { overflow: hidden; padding: 0; }
+  .axis-card-summary {
+    display: block; cursor: pointer; padding: 20px 24px;
+    list-style: none;
+  }
+  .axis-card-summary::-webkit-details-marker { display: none; }
+  .axis-card[open] .axis-card-toggle { transform: rotate(45deg); }
+  /* Phrase d'invitation visible uniquement quand la card est collapsed */
+  .axis-card-hint {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--navy400);
+    margin: 12px 0 0;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .axis-card[open] .axis-card-hint { display: none; }
+  .axis-card-toggle {
+    font-family: var(--mono); font-size: 14px;
+    color: var(--navy400);
+    display: inline-block;
+    transition: transform 200ms ease-out;
+  }
+  .axis-card-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; margin-bottom: 10px;
+  }
+  .axis-card-head-right { display: inline-flex; align-items: baseline; gap: 12px; flex-shrink: 0; }
+  .axis-card-detail {
+    padding: 18px 24px 22px;
+    border-top: 1px solid var(--line);
+    margin: 0;
+  }
+  .axis-card-detail-eyebrow {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--navy400); margin: 0 0 8px;
+  }
+  .axis-card-list {
+    margin: 0; padding: 0; list-style: none;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .axis-card-list li {
+    font-family: var(--sans); font-size: 13px;
+    line-height: 1.6; color: var(--navy600);
+    padding-left: 16px; position: relative;
+  }
+  .axis-card-list.dim li { color: var(--navy600); }
+  .axis-card-list .dot {
+    position: absolute; left: 0; top: 0;
+  }
+  .axis-card-list .dot.a { color: var(--axis-a); }
+  .axis-card-list .dot.b { color: var(--axis-b); }
+  .axis-card-list .dot.c { color: var(--axis-c); }
+  .axis-card-list .dot:not(.a):not(.b):not(.c) { color: var(--argent); }
+  .axis-card-title {
+    font-family: var(--serif); font-size: 22px;
+    font-weight: 400; line-height: 1.2; letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .axis-card.a .axis-card-title { color: var(--axis-a); }
+  .axis-card.b .axis-card-title { color: var(--axis-b); }
+  .axis-card.c .axis-card-title { color: var(--axis-c); }
+  .axis-card-level {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 500; flex-shrink: 0;
+  }
+  .axis-card.a .axis-card-level { color: var(--axis-a); }
+  .axis-card.b .axis-card-level { color: var(--axis-b); }
+  .axis-card.c .axis-card-level { color: var(--axis-c); }
+  .axis-card-body {
+    font-family: var(--sans); font-size: 13px;
+    line-height: 1.7; color: var(--navy600); margin: 0;
+  }
+
+  /* Opportunités */
+  .opps-title {
+    font-family: var(--serif); font-size: clamp(24px, 2.8vw, 28px);
+    font-weight: 400; line-height: 1.2; letter-spacing: -0.015em;
+    margin: 0 0 24px; color: var(--navy);
+  }
+  .opp-cards { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 56px; }
+  .opp-card {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 20px 24px;
+    background: var(--ivory); border: 1px solid var(--line);
+    cursor: pointer; text-align: left; width: 100%;
+    transition: border-color 180ms ease-out;
+    font-family: var(--sans);
+  }
+  .opp-card:hover { border-color: var(--navy400); }
+  .opp-card-icon { font-size: 22px; line-height: 1; flex-shrink: 0; padding-top: 2px; }
+  .opp-card-content { flex: 1; min-width: 0; }
+  .opp-card-badge {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--argent); margin: 0 0 6px;
+  }
+  .opp-card-title {
+    font-family: var(--serif); font-size: 17px;
+    font-weight: 400; line-height: 1.3; letter-spacing: -0.01em;
+    margin: 0 0 6px; color: var(--navy);
+  }
+  .opp-card-desc {
+    font-family: var(--sans); font-size: 13px;
+    line-height: 1.55; color: var(--navy600);
+    margin: 0 0 14px;
+  }
+  .opp-card-meta {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--navy400);
+  }
+  .opp-card-meta > span {
+    display: inline-flex; align-items: center; gap: 8px;
+    line-height: 1;
+  }
+  .effort-pips {
+    display: inline-flex; gap: 3px; align-items: center;
+    vertical-align: middle;
+  }
+  .effort-pip {
+    display: inline-block;
+    width: 14px; height: 2px;
+    background: var(--line);
+    vertical-align: middle;
+  }
+  .effort-pip.on { background: var(--navy); }
+  .gain-lbl { color: var(--argent); }
+  .gain-val { color: var(--navy); }
+
+  /* Prochaine étape (autonomie / Lugia) */
+  .next-title {
+    font-family: var(--serif); font-size: clamp(24px, 2.8vw, 28px);
+    font-weight: 400; line-height: 1.2; letter-spacing: -0.015em;
+    margin: 0 0 18px; color: var(--navy);
+  }
+  .next-cards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+  .next-card {
+    background: var(--ivory); border: 1px solid var(--line);
+    padding: 20px 24px; text-align: left; cursor: pointer;
+    font-family: var(--sans);
+    transition: border-color 180ms ease-out;
+  }
+  .next-card:hover { border-color: var(--navy400); }
+  .next-card.lugia { border-left: 2px solid var(--navy); }
+  .next-eyebrow {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+  .next-eyebrow .next-eyebrow-argent { color: var(--argent); }
+  .next-eyebrow.strong { color: var(--navy); font-weight: 600; }
+  .next-card-title {
+    font-family: var(--serif); font-size: 18px;
+    font-weight: 400; line-height: 1.3; letter-spacing: -0.01em;
+    margin: 0 0 6px; color: var(--navy);
+  }
+  .next-card-desc {
+    font-family: var(--sans); font-size: 13px;
+    line-height: 1.6; color: var(--navy600); margin: 0;
+  }
+  /* Lien « Voir tous les chantiers » */
+  .all-chantiers-link {
+    text-align: center; margin-top: 8px;
+  }
+  .all-chantiers-link a {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--navy400); text-decoration: none;
+    border-bottom: 1px solid var(--line-strong);
+    padding-bottom: 2px;
+    transition: color 180ms ease-out;
+  }
+  .all-chantiers-link a:hover { color: var(--navy); }
+  /* CTA-btn (ancien — peut servir ailleurs) */
+  .cta-btn {
+    background: transparent; border: 1px solid var(--line-strong);
+    padding: 10px 16px; font-family: var(--sans); font-size: 13px;
+    color: var(--navy); cursor: pointer;
+    transition: border-color 180ms ease-out;
+  }
+  .cta-btn:hover { border-color: var(--navy); }
+</style>
+</head>
+<body class="night">
+
+  <!-- Toggle thème -->
+  <div id="theme-toggle" role="group" aria-label="Thème">
+    <span class="tg-pill"></span>
+    <button class="tg-opt day" onclick="setTheme('day')" type="button">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="2.4" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="6" y1="0.5" x2="6" y2="2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="6" y1="9.5" x2="6" y2="11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="0.5" y1="6" x2="2.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="9.5" y1="6" x2="11.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="2.1" y1="2.1" x2="3.5" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="8.5" y1="8.5" x2="9.9" y2="9.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="9.9" y1="2.1" x2="8.5" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="3.5" y1="8.5" x2="2.1" y2="9.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg> Jour
+    </button>
+    <button class="tg-opt night" onclick="setTheme('night')" type="button">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <path d="M12.5 10.5A6.5 6.5 0 1 1 5 2a5.5 5.5 0 0 0 7.5 8.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg> Nuit
+    </button>
+  </div>
+
+  <!-- Topbar — parcours terminé, barre à 100% -->
+  <div class="topbar">
+    <div class="tb-inner">
+      <div class="tb-brand">
+        <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+        <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+      </div>
+      <span class="tb-sep"></span>
+      <span class="tb-label">Résultats</span>
+      <div class="tb-track"><div class="tb-fill"></div></div>
+      <span class="tb-pct">100 %</span>
+    </div>
+  </div>
+
+  <!-- Page résultats -->
+  <div class="shell">
+    <p class="eyebrow"><span>Diagnostic complet</span></p>
+
+    <h1 class="res-title">Votre cabinet<br>en trois dimensions</h1>
+
+    <div class="res-meta">
+      <span>Dr Chateau</span>
+      <span class="res-meta-sep" aria-hidden="true">·</span>
+      <span>Réalisé le 20 mai 2026</span>
+      <span class="res-meta-sep" aria-hidden="true">·</span>
+      <span>Durée 18 min</span>
+    </div>
+    <p class="res-phrase">Vous, Marie et Pierre avez démarré ce check-up pour réduire votre charge actuelle, à un moment où le cabinet a son rythme — c'est le bon moment pour le clarifier.</p>
+
+    <!-- Phrase d'accroche choc — signal.title en serif argent sans encadré -->
+    <p class="accroche-choc">Paradoxe : bon parcours patient, équipe fragile.</p>
+
+    <!-- Radar grand format — A=68%, B=42%, C=55% -->
+    <section class="radar-section">
+      <p class="radar-section-title">Cartographie organisationnelle</p>
+      <svg class="radar-result-svg" viewBox="0 0 380 340" xmlns="http://www.w3.org/2000/svg" aria-label="Radar de votre profil — 3 axes">
+        <defs>
+          <filter id="rg-a" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feFlood flood-color="var(--axis-a)" result="color"/>
+            <feComposite in="color" in2="blur" operator="in" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="rg-b" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feFlood flood-color="var(--axis-b)" result="color"/>
+            <feComposite in="color" in2="blur" operator="in" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="rg-c" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feFlood flood-color="var(--axis-c)" result="color"/>
+            <feComposite in="color" in2="blur" operator="in" result="glow"/>
+            <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Grilles concentriques 25/50/75/100% — opacités atténuées -->
+        <polygon points="173,170 213.5,146.62 213.5,193.38" fill="none" stroke="var(--line)" stroke-width="0.6" opacity="0.35"/>
+        <polygon points="146,170 227,123.23 227,216.77" fill="none" stroke="var(--line)" stroke-width="0.6" opacity="0.35"/>
+        <polygon points="119,170 240.5,99.85 240.5,240.15" fill="none" stroke="var(--line)" stroke-width="0.6" opacity="0.35"/>
+        <polygon points="92,170 254,76.47 254,263.53" fill="color-mix(in srgb, var(--argent) 6%, transparent)" stroke="var(--line-strong)" stroke-width="1.5" opacity="0.5"/>
+
+        <!-- Axes -->
+        <line x1="200" y1="170" x2="92" y2="170" stroke="var(--line)" stroke-width="1.2" opacity="0.5"/>
+        <line x1="200" y1="170" x2="254" y2="76.47" stroke="var(--line)" stroke-width="1.2" opacity="0.5"/>
+        <line x1="200" y1="170" x2="254" y2="263.53" stroke="var(--line)" stroke-width="1.2" opacity="0.5"/>
+
+        <!-- Polygone scores A=68 B=42 C=55 -->
+        <path d="M126.56,170 L222.68,130.72 L229.70,221.44 Z"
+              fill="color-mix(in srgb, var(--argent) 14%, transparent)"
+              stroke="var(--argent)" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+
+        <!-- Dots avec glow -->
+        <circle cx="126.56" cy="170" r="5.5" fill="var(--axis-a)" filter="url(#rg-a)"/>
+        <circle cx="222.68" cy="130.72" r="5.5" fill="var(--axis-b)" filter="url(#rg-b)"/>
+        <circle cx="229.70" cy="221.44" r="5.5" fill="var(--axis-c)" filter="url(#rg-c)"/>
+
+        <!-- Labels d'axes -->
+        <text x="52" y="163" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--axis-a)" letter-spacing="0.04em" font-weight="500">Parcours</text>
+        <text x="52" y="177" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--axis-a)" letter-spacing="0.04em" font-weight="500">patient</text>
+
+        <text x="274" y="34.83" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--axis-b)" letter-spacing="0.04em" font-weight="500">Équipe &amp;</text>
+        <text x="274" y="48.83" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--axis-b)" letter-spacing="0.04em" font-weight="500">secrétariat</text>
+
+        <text x="274" y="291.17" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--axis-c)" letter-spacing="0.04em" font-weight="500">Outils &amp;</text>
+        <text x="274" y="305.17" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--axis-c)" letter-spacing="0.04em" font-weight="500">dossiers</text>
+      </svg>
+    </section>
+
+    <!-- Analyse croisée (fallback) — un seul titre h2 en warn, pas de doublon eyebrow -->
+    <section class="signal-block">
+      <h2 class="signal-title-big">Pourquoi cette lecture</h2>
+      <p class="signal-body">Votre profil révèle des déséquilibres entre les trois axes. Les chantiers prioritaires ci-dessous ont été sélectionnés pour leur effet de levier croisé — agir sur l'un améliore souvent la situation sur les autres.</p>
+    </section>
+
+    <!-- Lecture narrative V1.1.9 — Forces (axes ≥ Solide) -->
+    <h2 class="section-heading"><span>Forces</span></h2>
+    <div class="axis-cards" style="margin-bottom:40px">
+      <details class="axis-card a">
+        <summary class="axis-card-summary">
+          <div class="axis-card-head">
+            <h3 class="axis-card-title">Parcours patient</h3>
+            <span class="axis-card-head-right">
+              <span class="axis-card-level">Solide</span>
+              <span class="axis-card-toggle" aria-hidden="true">+</span>
+            </span>
+          </div>
+          <p class="axis-card-body">Un parcours patient solide, qui demande encore à être étendu aux silences (patients perdus de vue, alertes résultats).</p>
+          <p class="axis-card-hint"><span aria-hidden="true">↓</span> Cliquer pour les pistes d'action</p>
+        </summary>
+        <div class="axis-card-detail">
+          <p class="axis-card-detail-eyebrow">Forces</p>
+          <ul class="axis-card-list">
+            <li><span class="dot a" aria-hidden="true">·</span> Tri des urgences en place.</li>
+            <li><span class="dot a" aria-hidden="true">·</span> Suivi des chroniques actif.</li>
+          </ul>
+          <p class="axis-card-detail-eyebrow" style="margin-top:16px">Marges de progression</p>
+          <ul class="axis-card-list dim">
+            <li><span class="dot" aria-hidden="true">·</span> Repérer les patients chroniques silencieux (extraction logiciel).</li>
+            <li><span class="dot" aria-hidden="true">·</span> Mettre en place une alerte sur les résultats hors normes.</li>
+          </ul>
+        </div>
+      </details>
+      </div>
+
+    <!-- Risques (axes ≤ En transition) -->
+    <h2 class="section-heading"><span>Risques</span></h2>
+    <div class="axis-cards" style="margin-bottom:48px">
+      <details class="axis-card b">
+        <summary class="axis-card-summary">
+          <div class="axis-card-head">
+            <h3 class="axis-card-title">Équipe &amp; secrétariat</h3>
+            <span class="axis-card-head-right">
+              <span class="axis-card-level">En transition</span>
+              <span class="axis-card-toggle" aria-hidden="true">+</span>
+            </span>
+          </div>
+          <p class="axis-card-body">Les rôles existent mais sans cadre. Les angles morts apparaissent dès qu'une absence se présente.</p>
+          <p class="axis-card-hint"><span aria-hidden="true">↓</span> Cliquer pour les pistes d'action</p>
+        </summary>
+        <div class="axis-card-detail">
+          <p class="axis-card-detail-eyebrow">Forces</p>
+          <ul class="axis-card-list">
+            <li><span class="dot b" aria-hidden="true">·</span> L'équipe est là — ce qui manque, c'est le cadre formel.</li>
+          </ul>
+          <p class="axis-card-detail-eyebrow" style="margin-top:16px">Marges de progression</p>
+          <ul class="axis-card-list dim">
+            <li><span class="dot" aria-hidden="true">·</span> Formaliser les rôles pour préparer les absences.</li>
+            <li><span class="dot" aria-hidden="true">·</span> Outiller la circulation d'information (messagerie partagée).</li>
+          </ul>
+        </div>
+      </details>
+      <details class="axis-card c">
+        <summary class="axis-card-summary">
+          <div class="axis-card-head">
+            <h3 class="axis-card-title">Outils &amp; dossiers</h3>
+            <span class="axis-card-head-right">
+              <span class="axis-card-level">En transition</span>
+              <span class="axis-card-toggle" aria-hidden="true">+</span>
+            </span>
+          </div>
+          <p class="axis-card-body">Quelques fonctions utilisées, le reste en sommeil. Le logiciel pourrait porter bien plus qu'aujourd'hui.</p>
+          <p class="axis-card-hint"><span aria-hidden="true">↓</span> Cliquer pour les pistes d'action</p>
+        </summary>
+        <div class="axis-card-detail">
+          <p class="axis-card-detail-eyebrow">Forces</p>
+          <ul class="axis-card-list">
+            <li><span class="dot c" aria-hidden="true">·</span> Quelques outils maîtrisés — base pour aller plus loin.</li>
+          </ul>
+          <p class="axis-card-detail-eyebrow" style="margin-top:16px">Marges de progression</p>
+          <ul class="axis-card-list dim">
+            <li><span class="dot" aria-hidden="true">·</span> Étendre l'usage du logiciel (formation courte ciblée).</li>
+            <li><span class="dot" aria-hidden="true">·</span> Mettre en place un pilotage simple (3 indicateurs).</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <h3 class="opps-title">Chantiers prioritaires</h3>
+
+    <div class="opp-cards">
+      <button class="opp-card">
+        <span class="opp-card-icon">📋</span>
+        <div class="opp-card-content">
+          <p class="opp-card-badge">★ Recommandé pour commencer</p>
+          <h4 class="opp-card-title">Structurer le suivi des chroniques</h4>
+          <p class="opp-card-desc">File active tracée et rappels de suivi automatiques.</p>
+          <div class="opp-card-meta">
+            <span><span class="effort-pips"><span class="effort-pip on"></span><span class="effort-pip on"></span><span class="effort-pip"></span></span>Effort moyen</span>
+            <span><span class="gain-lbl">Gain</span> <span class="gain-val">&lt; 1 semaine</span></span>
+          </div>
+        </div>
+      </button>
+      <button class="opp-card">
+        <span class="opp-card-icon">🤝</span>
+        <div class="opp-card-content">
+          <h4 class="opp-card-title">Déléguer les tâches non médicales</h4>
+          <p class="opp-card-desc">Périmètre clair de l'équipe — gain typique 45 min/jour.</p>
+          <div class="opp-card-meta">
+            <span><span class="effort-pips"><span class="effort-pip on"></span><span class="effort-pip on"></span><span class="effort-pip on"></span></span>Effort soutenu</span>
+            <span><span class="gain-lbl">Gain</span> <span class="gain-val">2 à 4 semaines</span></span>
+          </div>
+        </div>
+      </button>
+      <button class="opp-card">
+        <span class="opp-card-icon">💬</span>
+        <div class="opp-card-content">
+          <h4 class="opp-card-title">Rituel de communication d'équipe</h4>
+          <p class="opp-card-desc">15 min/jour pour fluidifier l'info entre l'équipe.</p>
+          <div class="opp-card-meta">
+            <span><span class="effort-pips"><span class="effort-pip on"></span><span class="effort-pip"></span><span class="effort-pip"></span></span>Effort léger</span>
+            <span><span class="gain-lbl">Gain</span> <span class="gain-val">&lt; 1 semaine</span></span>
+          </div>
+        </div>
+      </button>
+      <button class="opp-card">
+        <span class="opp-card-icon">💻</span>
+        <div class="opp-card-content">
+          <h4 class="opp-card-title">Optimiser le logiciel médical</h4>
+          <p class="opp-card-desc">3 fonctions sous-exploitées qui changent le quotidien.</p>
+          <div class="opp-card-meta">
+            <span><span class="effort-pips"><span class="effort-pip on"></span><span class="effort-pip on"></span><span class="effort-pip"></span></span>Effort moyen</span>
+            <span><span class="gain-lbl">Gain</span> <span class="gain-val">&lt; 1 semaine</span></span>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Prochaine étape — 2 cartes autonomie / Lugia (pattern V1.1.9 adapté V3) -->
+    <h3 class="next-title">Prochaine étape</h3>
+    <div class="next-cards">
+      <button class="next-card autonomie">
+        <p class="next-eyebrow"><span class="next-eyebrow-argent">En autonomie · 1<sup>er</sup> chantier gratuit</span></p>
+        <h4 class="next-card-title">Approfondir un chantier de votre choix</h4>
+        <p class="next-card-desc">Une discussion ciblée avec un assistant Lugia — 15 minutes, à votre rythme. Le premier chantier est offert ; les suivants sont accessibles sur abonnement.</p>
+      </button>
+      <button class="next-card lugia">
+        <p class="next-eyebrow strong">★ Recommandé · Avec Lugia, en réel</p>
+        <h4 class="next-card-title">Avancer avec Lugia, dans votre cabinet</h4>
+        <p class="next-card-desc">Vous choisissez un chantier, on le traite ensemble dans votre cabinet. Pas un appel d'identification — le chantier lui-même, structuré à partir de dispositifs éprouvés chez d'autres confrères.</p>
+      </button>
+    </div>
+
+    <!-- Lien discret vers la liste étendue des chantiers (page T-V3-9) -->
+    <div class="all-chantiers-link">
+      <a href="#tous-les-chantiers" onclick="openModule('Liste complète des chantiers'); return false;">→ Voir tous les chantiers</a>
+    </div>
+  </div>
+
+<!-- Placeholder module (T-V3-8 livrera la vraie page) -->
+  <div id="module-placeholder" class="shell" style="padding-top:32px;display:none">
+    <p class="eyebrow"><span>Chantier sélectionné</span></p>
+    <h2 class="res-title" style="font-size:32px">Plan d'action — bientôt</h2>
+    <p class="res-phrase">La page module dédiée arrive en T-V3-8 (4 étapes du plan d'action adapté à votre profil).</p>
+    <button class="cta-btn" onclick="closeModule()">← Retour au diagnostic</button>
+  </div>
+
+<script>
+  function setTheme(theme) {
+    const b = document.body;
+    if (theme === 'day' && b.classList.contains('night')) { b.classList.remove('night'); b.classList.add('day'); }
+    else if (theme === 'night' && b.classList.contains('day')) { b.classList.remove('day'); b.classList.add('night'); }
+  }
+  // Demo : click sur une opp-card ou cta-btn → scroll vers placeholder module
+  function openModule(name) {
+    const ph = document.getElementById('module-placeholder');
+    if (ph) {
+      ph.style.display = 'block';
+      ph.querySelector('h2').textContent = name + ' — plan d\'action bientôt';
+      ph.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+  function closeModule() {
+    document.getElementById('module-placeholder').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  // Câblage : opp-card + next-card appellent openModule()
+  document.querySelectorAll('.opp-card').forEach(b => {
+    b.addEventListener('click', () => {
+      const title = b.querySelector('.opp-card-title').textContent;
+      openModule(title);
+    });
+  });
+  document.querySelectorAll('.next-card').forEach(b => {
+    b.addEventListener('click', () => {
+      const title = b.querySelector('.next-card-title').textContent;
+      openModule(title);
+    });
+  });
+  document.querySelectorAll('.cta-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      if (b.textContent.startsWith('←')) return;
+      openModule(b.textContent.trim());
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>V2.0 — Démo interactive complète</title>
+<style>
+  :root {
+    --bg: #faf9f5; --bg-card: #fbf9f1; --bg-card-alt: #f5f4ef;
+    --text: #111; --text-soft: #1a1a1a;
+    --text-secondary: #595959; --text-tertiary: #444; --text-muted: #888780;
+    --border: #d4cfbf; --border-soft: #e0dccc; --border-very-soft: #e8e3d3;
+    --accent: #1a56a0; --accent-bg: #e6edf6;
+    --axis-a: #2e7d4f; --axis-a-bg: #e8f1ec;
+    --axis-b: #a85d2b; --axis-b-bg: #f6ece2;
+    --axis-c: #1a56a0; --axis-c-bg: #e6edf6;
+    --bench-bg: #fbf3e3; --bench-border: #c48a2a;
+    --bench-text: #5a3d10; --bench-eyebrow: #8a5a14;
+    --alert-bg: #fbeae0; --alert-border: #a85d2b; --alert-text: #8a3a14;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text-soft); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 15px; line-height: 1.5; }
+  .serif { font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; }
+  .app-header { padding: 14px 24px; border-bottom: 1px solid var(--border-very-soft); display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: "Iowan Old Style", Georgia, serif; font-size: 22px; font-weight: 500; }
+  .header-right { font-size: 13px; color: var(--text-tertiary); display: flex; gap: 16px; align-items: center; }
+  .email { color: var(--text-muted); }
+  .reset-btn { background: none; border: 1px solid var(--border); color: var(--text-tertiary); font-size: 11px; padding: 4px 10px; border-radius: 12px; cursor: pointer; }
+  .reset-btn:hover { border-color: var(--text-muted); }
+  .btn-primary { background: #1f1f1f; color: #fff; font-weight: 500; font-size: 15px; border-radius: 999px; padding: 12px 28px; border: none; cursor: pointer; font-family: inherit; transition: background .15s; }
+  .btn-primary:hover:not(:disabled) { background: #2c2c2c; }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-link { background: none; border: none; color: var(--text-secondary); font-size: 14px; cursor: pointer; padding: 6px 0; font-family: inherit; }
+  .btn-link:hover { color: var(--text); text-decoration: underline; text-underline-offset: 4px; }
+
+  .intro { max-width: 820px; margin: 0 auto; padding: 64px 32px; }
+  .intro-eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .18em; font-weight: 600; color: var(--accent); margin-bottom: 32px; }
+  .intro-h1 { font-size: clamp(40px, 6vw, 64px); font-weight: 500; line-height: 1.05; letter-spacing: -.02em; margin: 0 0 28px; }
+  .intro-h1 em { font-style: italic; color: var(--accent); }
+  .intro-sub { font-size: 19px; line-height: 1.55; color: var(--text-secondary); max-width: 680px; margin: 0 0 40px; }
+  .axis-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; }
+  .axis-chip { font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 999px; border: 1px solid; }
+  .axis-chip.a { color: var(--axis-a); background: var(--axis-a-bg); border-color: rgba(46,125,79,.25); }
+  .axis-chip.b { color: var(--axis-b); background: var(--axis-b-bg); border-color: rgba(168,93,43,.25); }
+  .axis-chip.c { color: var(--axis-c); background: var(--axis-c-bg); border-color: rgba(26,86,160,.25); }
+  .promesses { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 56px; }
+  .promesse { border: 1px solid var(--border-very-soft); background: rgba(255,255,255,.4); border-radius: 8px; padding: 24px; }
+  .promesse h3 { font-size: 20px; font-weight: 500; margin: 0 0 8px; }
+  .promesse p { font-size: 14px; line-height: 1.55; color: var(--text-secondary); margin: 0; }
+
+  .profil { max-width: 680px; margin: 0 auto; padding: 48px 32px; }
+  .small-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .16em; font-weight: 600; color: var(--text-muted); margin-bottom: 16px; }
+  .profil h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 500; line-height: 1.15; letter-spacing: -.015em; margin: 0 0 12px; }
+  .profil-intro { font-size: 15px; line-height: 1.6; color: var(--text-secondary); max-width: 580px; margin: 0 0 40px; }
+  .field { margin-bottom: 28px; }
+  .field-label { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
+  .chips-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 14px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.6); color: var(--text-soft); cursor: pointer; font-family: inherit; transition: all .15s; }
+  .chip:hover { border-color: var(--text-muted); background: #fff; }
+  .chip.sel { background: #1f1f1f; color: #fff; border-color: #1f1f1f; }
+  .other-input { margin-top: 10px; max-width: 420px; width: 100%; font-size: 14px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: rgba(255,255,255,.8); }
+  .other-input:focus { outline: none; border-color: var(--accent); }
+  .cta-row { display: flex; align-items: center; gap: 16px; margin-top: 40px; }
+  .cta-hint { font-size: 13px; color: var(--text-muted); }
+
+  .energie { max-width: 680px; margin: 0 auto; padding: 48px 32px; }
+  .energie-q { font-size: clamp(26px, 4vw, 36px); font-weight: 500; line-height: 1.2; letter-spacing: -.01em; margin: 0 0 12px; }
+  .energie-note { font-size: 14px; line-height: 1.55; color: var(--text-muted); font-style: italic; margin: 0 0 36px; max-width: 560px; }
+  .opt-big { display: block; width: 100%; text-align: left; background: rgba(255,255,255,.6); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 10px; cursor: pointer; transition: all .15s; font-size: 15px; line-height: 1.5; color: var(--text-soft); font-family: inherit; }
+  .opt-big:hover { border-color: var(--text-muted); background: #fff; }
+  .opt-big.sel { background: var(--bg-card); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,86,160,.08); }
+  .opt-big-inner { display: inline-flex; align-items: center; gap: 12px; }
+  .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); background: #fff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .opt-big.sel .radio, .opt.sel .opt-radio { border-color: var(--accent); background: var(--accent); }
+  .radio svg, .opt-radio svg { width: 12px; height: 12px; color: #fff; display: none; }
+  .opt-big.sel .radio svg, .opt.sel .opt-radio svg { display: block; }
+
+  .topbar { border-bottom: 1px solid var(--border-very-soft); }
+  .topbar-inner { max-width: 680px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 12px; }
+  .chapter-num { font-size: 11px; text-transform: uppercase; letter-spacing: .16em; font-weight: 600; color: var(--text-muted); }
+  .chapter-label { font-size: 13px; color: var(--text-tertiary); }
+  .bloc-layout { max-width: 1080px; margin: 0 auto; display: flex; gap: 32px; }
+  .bloc-main { flex: 1; max-width: 680px; margin: 0 auto; padding: 40px 32px; }
+  .bloc-section-header { margin-bottom: 40px; }
+  .bloc-section-header h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 500; line-height: 1.15; letter-spacing: -.015em; margin: 12px 0 0; }
+  .question { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .q-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; }
+  .q-title { font-size: clamp(20px, 3vw, 26px); font-weight: 500; line-height: 1.3; margin: 0 0 8px; }
+  .q-context { font-size: 13px; color: var(--text-muted); font-style: italic; margin: 0 0 20px; }
+  .opt { display: block; width: 100%; text-align: left; background: rgba(255,255,255,.6); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; margin-bottom: 8px; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .opt:hover { border-color: var(--text-muted); background: #fff; }
+  .opt.sel { background: var(--bg-card); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,86,160,.08); }
+  .opt-flex { display: flex; align-items: flex-start; gap: 12px; }
+  .opt-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); background: #fff; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; }
+  .opt-text { font-size: 15px; line-height: 1.5; }
+  .reformulation { margin-top: 12px; padding-left: 32px; font-size: 14px; line-height: 1.6; color: var(--text-tertiary); font-style: italic; animation: fadeIn .22s ease-out; }
+  .benchmark { margin-top: 12px; margin-left: 32px; background: var(--bench-bg); border-left: 3px solid var(--bench-border); border-radius: 4px; padding: 12px 16px; animation: fadeIn .3s ease-out; }
+  .b-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; font-weight: 600; color: var(--bench-eyebrow); margin-bottom: 4px; }
+  .b-text { font-size: 13px; line-height: 1.5; color: var(--bench-text); }
+  .b-source { font-size: 11px; color: var(--bench-eyebrow); font-style: italic; margin-top: 4px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes revealUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .reformulation, .benchmark, .transition-niveau, .transition-quote { animation: none !important; }
+  }
+
+  .radar-aside { width: 220px; flex-shrink: 0; position: sticky; top: 24px; align-self: flex-start; padding-top: 40px; }
+  .radar-svg-wrap { text-align: center; margin-bottom: 16px; }
+  .radar-axes { border-top: 1px solid var(--border-soft); padding-top: 16px; }
+  .radar-axis-row { margin-bottom: 12px; }
+  .axis-line1 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .axis-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .axis-dot.a { background: var(--axis-a); }
+  .axis-dot.b { background: var(--axis-b); }
+  .axis-dot.c { background: var(--axis-c); }
+  .axis-name { font-size: 11px; font-weight: 500; color: var(--text-tertiary); }
+  .axis-niveau { font-size: 12px; font-weight: 500; padding-left: 16px; margin-bottom: 6px; }
+  .axis-bar { margin-left: 16px; height: 2px; background: var(--border-very-soft); border-radius: 1px; overflow: hidden; }
+  .axis-bar-fill { height: 100%; border-radius: 1px; transition: width .4s ease-out; }
+  .bloc-footer { margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--border-soft); display: flex; align-items: center; gap: 16px; }
+  @media (max-width: 1079px) {
+    .radar-aside { display: none; }
+    .topbar-mini-radar { background: rgba(251, 249, 241, .4); border-bottom: 1px solid var(--border-very-soft); }
+    .topbar-mini-radar-inner { max-width: 680px; margin: 0 auto; padding: 8px 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 11px; }
+  }
+  @media (min-width: 1080px) { .topbar-mini-radar { display: none; } }
+  .mini-axis-row .axis-line1 { margin-bottom: 0; }
+  .mini-axis-niveau { padding-left: 12px; color: var(--text-soft); font-weight: 500; }
+
+  .transition-screen { max-width: 640px; margin: 0 auto; padding: 80px 32px; text-align: center; }
+  .transition-eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .16em; font-weight: 600; color: var(--text-muted); margin-bottom: 24px; }
+  .transition-h1 { font-size: clamp(32px, 5vw, 44px); font-weight: 500; line-height: 1.15; letter-spacing: -.015em; margin: 0 0 12px; }
+  .transition-niveau { font-size: 18px; line-height: 1.55; color: var(--text-tertiary); margin: 0 0 28px; animation: revealUp .5s ease-out .2s both; }
+  .transition-niveau strong { color: var(--text-soft); font-weight: 500; }
+  .transition-quote { font-size: 20px; font-style: italic; line-height: 1.4; color: var(--text-tertiary); max-width: 520px; margin: 0 auto 48px; animation: revealUp .5s ease-out .35s both; }
+  .transition-suite { border-top: 1px solid var(--border-soft); padding-top: 32px; }
+  .ts-eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+  .ts-label { font-size: 18px; font-weight: 500; margin-bottom: 28px; }
+
+  .resultats { max-width: 840px; margin: 0 auto; padding: 56px 32px; }
+  .res-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .16em; font-weight: 600; color: var(--accent); margin-bottom: 20px; }
+  .res-h1 { font-size: clamp(32px, 5vw, 44px); font-weight: 500; line-height: 1.1; letter-spacing: -.015em; margin: 0 0 16px; }
+  .res-intro { font-size: 19px; line-height: 1.5; color: var(--text-tertiary); font-style: italic; max-width: 680px; margin: 0 0 48px; }
+  .radar-result { margin: 48px 0; text-align: center; }
+  .signal-banner { margin: 40px 0; padding: 20px 24px; border-radius: 6px; border-left: 3px solid; }
+  .signal-banner.alerte { background: var(--alert-bg); border-left-color: var(--alert-border); }
+  .signal-banner.recadrage { background: var(--accent-bg); border-left-color: var(--accent); }
+  .signal-banner.positif { background: var(--axis-a-bg); border-left-color: var(--axis-a); }
+  .signal-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; font-weight: 600; color: var(--text-tertiary); margin-bottom: 8px; }
+  .signal-title { font-size: 20px; font-weight: 500; line-height: 1.3; margin: 0 0 8px; }
+  .signal-msg { font-size: 14px; line-height: 1.55; color: var(--text-tertiary); margin: 0; }
+  .tonalite-aside { font-size: 14px; font-style: italic; color: #666; border-left: 3px solid var(--border); padding-left: 16px; margin: 40px 0; max-width: 640px; }
+  .section-title { border-top: 1px solid var(--border-soft); padding-top: 32px; margin-top: 56px; display: flex; align-items: baseline; gap: 16px; }
+  .section-number { font-size: 36px; color: var(--border); font-weight: 500; }
+  .section-title h2 { font-size: 28px; font-weight: 500; margin: 0; }
+  .section-intro { font-size: 14px; color: var(--text-secondary); font-style: italic; margin: 8px 0 0; max-width: 560px; }
+  .facet-card { border: 1px solid var(--border-soft); background: rgba(255,255,255,.4); border-radius: 8px; padding: 20px 24px; margin-bottom: 16px; }
+  .facet-card-row { display: flex; align-items: flex-start; gap: 16px; }
+  .facet-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .facet-axe { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; font-weight: 600; color: var(--text-muted); }
+  .facet-badge { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; padding: 2px 8px; border-radius: 999px; }
+  .facet-badge.surveiller { background: #f0f0f0; color: var(--text-tertiary); }
+  .facet-badge.risque { background: var(--alert-bg); color: var(--alert-text); }
+  .facet-title { font-size: 22px; font-weight: 500; line-height: 1.3; margin: 0; }
+  .facet-level-soft { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+  .bench-combi-box { margin-bottom: 16px; background: var(--bench-bg); border-left: 3px solid var(--bench-border); border-radius: 4px; padding: 16px 20px; }
+  .chantier-card { background: rgba(255,255,255,.4); border: 1px solid var(--border-soft); border-radius: 8px; padding: 20px 24px; margin-bottom: 12px; transition: all .15s; display: block; cursor: pointer; text-decoration: none; color: inherit; }
+  .chantier-card.reco { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,86,160,.06); }
+  .chantier-card:hover { background: rgba(255,255,255,.7); border-color: var(--text-muted); }
+  .chantier-row { display: flex; align-items: flex-start; gap: 20px; }
+  .chantier-num { font-size: 44px; line-height: 1; color: var(--border); font-weight: 500; flex-shrink: 0; }
+  .chantier-reco-tag { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+  .chantier-title { font-size: 20px; font-weight: 500; line-height: 1.3; margin: 0 0 8px; }
+  .chantier-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-muted); }
+  .effort-pips { display: inline-flex; gap: 2px; }
+  .pip { width: 8px; height: 8px; border-radius: 50%; background: var(--border-soft); }
+  .pip.on { background: var(--text-muted); }
+  .chantier-cta { margin-top: 12px; font-size: 13px; font-weight: 500; color: var(--accent); }
+  .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .module-tile { border: 1px solid var(--border-soft); border-radius: 6px; background: rgba(255,255,255,.3); padding: 14px 16px; text-decoration: none; color: inherit; transition: all .15s; display: block; cursor: pointer; }
+  .module-tile:hover { border-color: var(--text-muted); background: rgba(255,255,255,.7); }
+  .module-tile-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .module-tile-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+
+  .module-detail { max-width: 760px; margin: 0 auto; padding: 56px 32px; }
+  .module-back { font-size: 13px; color: var(--text-secondary); margin-bottom: 32px; cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+  .module-back:hover { color: var(--text); text-decoration: underline; text-underline-offset: 4px; }
+  .module-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .16em; font-weight: 600; color: var(--accent); margin-bottom: 20px; }
+  .module-h1 { font-size: clamp(32px, 5vw, 44px); font-weight: 500; line-height: 1.15; letter-spacing: -.015em; margin: 0 0 16px; }
+  .module-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 13px; color: var(--text-secondary); margin-bottom: 40px; }
+  .module-etapes { border-top: 1px solid var(--border-soft); padding-top: 40px; margin-bottom: 48px; }
+  .module-etape { display: flex; align-items: baseline; gap: 20px; margin-bottom: 40px; }
+  .module-etape-num { font-size: 40px; line-height: 1; color: var(--border); font-weight: 500; flex-shrink: 0; }
+  .module-etape-title { font-size: 22px; font-weight: 500; line-height: 1.3; margin: 0 0 8px; }
+  .tag-temp { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; font-weight: 600; padding: 4px 10px; border-radius: 999px; margin-bottom: 12px; }
+  .tag-temp.quick { background: var(--axis-a-bg); color: var(--axis-a); }
+  .tag-temp.medium { background: var(--bench-bg); color: var(--bench-eyebrow); }
+  .tag-temp.invest { background: var(--accent-bg); color: var(--accent); }
+  .module-etape-body { font-size: 15px; line-height: 1.65; color: var(--text-tertiary); margin: 0; }
+  .module-share { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border-soft); font-size: 13px; color: var(--text-muted); font-style: italic; }
+  .module-share code { background: var(--bg-card-alt); padding: 2px 6px; border-radius: 3px; font-size: 12px; font-style: normal; }
+
+  @media (max-width: 1079px) {
+    .promesses { grid-template-columns: 1fr; }
+    .modules-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <span class="logo">Lugia</span>
+  <div class="header-right">
+    <span class="email">[email protected]</span>
+    <button class="reset-btn" onclick="resetDemo()">↺ Réinitialiser</button>
+  </div>
+</div>
+
+<div id="app"></div>
+
+<script>
+const DB = {"protocol": {"version": "2.0", "last_updated": "2026-05-19", "schema_doc": "Protocole d'entretien V2.0 du check-up Lugia. Mode A pur sur tout le parcours scoré (cf spec V2 §2). 3 blocs successifs × 6 questions, profil préliminaire en 2 étapes (5 chips factuels + 4 chips réflexifs), ancrage énergie non scoré en ouverture. Routing solo : b2 = b1b (assistant médical) si cabinet_type=solo, b3 (charge secrétariat) sinon. Toutes les options portent score s∈{1,2,3,4}, reformulation terrain Lugia, et benchmark optionnel marqué source_status=to_confirm tant que non sourcé.", "rendering_hints": {"format": "bloc-entier", "auto_scroll_after_answer_ms": 250, "respects_prefers_reduced_motion": true, "radar_aside_min_width_px": 1081, "radar_topbar_max_width_px": 1080}, "profile": {"step1": {"doc": "5 chips factuels — 2 minutes. Calibre les questions et le rendu du diagnostic.", "intro": "Cinq questions factuelles, deux minutes. Ces informations adaptent les questions et calibrent le diagnostic.", "fields": [{"id": "cabinet_type", "label": "Type de cabinet", "options": [{"id": "solo", "label": "Solo"}, {"id": "groupe_2_3", "label": "Groupe 2-3 médecins"}, {"id": "groupe_4_5", "label": "Groupe 4-5 médecins"}, {"id": "msp", "label": "MSP"}]}, {"id": "volume", "label": "Volume hebdomadaire d'actes", "options": [{"id": "lt_80", "label": "Moins de 80 actes"}, {"id": "80_120", "label": "80 à 120 actes"}, {"id": "gt_120", "label": "Plus de 120 actes"}]}, {"id": "paramedical_team", "label": "Équipe paramédicale sur place", "options": [{"id": "non", "label": "Non"}, {"id": "infirmiere", "label": "Infirmière(s)"}, {"id": "plusieurs", "label": "Plusieurs paramédicaux"}, {"id": "msp_complete", "label": "MSP complète"}]}, {"id": "logiciel_metier", "label": "Logiciel médical principal", "options": [{"id": "medidoc", "label": "Médidoc"}, {"id": "crossway", "label": "Crossway"}, {"id": "cegedim", "label": "Cegedim"}, {"id": "doctolib_pro", "label": "Doctolib Pro"}, {"id": "maiia", "label": "Maiia"}, {"id": "medistory", "label": "MédiStory"}, {"id": "hellodoc", "label": "HelloDoc"}, {"id": "autre", "label": "Autre (saisie libre)", "free_text_field": "logiciel_metier_other"}]}, {"id": "rdv_canal", "label": "Comment vos patients prennent-ils RDV ?", "options": [{"id": "doctolib", "label": "Doctolib"}, {"id": "maiia", "label": "Maiia"}, {"id": "plateforme_cabinet", "label": "Plateforme dédiée du cabinet"}, {"id": "tel_secretariat", "label": "Téléphone via secrétariat"}, {"id": "tel_direct", "label": "Téléphone direct"}, {"id": "mixte", "label": "Mixte"}]}]}, "step2": {"doc": "4 chips réflexifs — calibre la tonalité, la priorisation, le filtrage des chantiers.", "intro": "Quatre questions pour personnaliser le diagnostic.", "fields": [{"id": "status", "label": "Depuis combien de temps exercez-vous ici ?", "options": [{"id": "recent", "label": "Récent (moins de 3 ans)"}, {"id": "installe", "label": "Installé (3 à 15 ans)"}, {"id": "senior", "label": "Senior (plus de 15 ans)"}, {"id": "approche_transmission", "label": "Approche transmission (moins de 5 ans)"}, {"id": "remplacant", "label": "Remplaçant"}]}, {"id": "territoire", "label": "Comment décririez-vous votre territoire ?", "context_doc": "R-territoire-context : enrichit la formulation des chantiers de coordination, ne modifie jamais le scoring (cf spec V2 §3.3).", "options": [{"id": "urbain_dense", "label": "Urbain dense"}, {"id": "periurbain", "label": "Périurbain"}, {"id": "rural", "label": "Rural / semi-rural"}, {"id": "zone_sous_dotee", "label": "Zone sous-dotée"}]}, {"id": "horizon", "label": "Horizon 3 ans", "options": [{"id": "reconduire", "label": "Reconduire à l'identique"}, {"id": "renforcer_equipe", "label": "Renforcer l'équipe"}, {"id": "demenager_agrandir", "label": "Déménager / agrandir"}, {"id": "preparer_transmission", "label": "Préparer la transmission"}, {"id": "incertain", "label": "Encore incertain"}]}, {"id": "motivation", "label": "Pourquoi ce check-up ?", "options": [{"id": "charge", "label": "Réduire ma charge actuelle"}, {"id": "evenement", "label": "Anticiper un événement à venir"}, {"id": "risque", "label": "Sécuriser un risque identifié"}, {"id": "curiosite", "label": "Curiosité"}]}]}}, "energy": {"id": "energy", "scored": false, "doc": "Question d'ancrage non scorée. Stockée avec scored=false. Pilote la règle R-energy-prio (priorisation des chantiers).", "label": "En fin de semaine ordinaire, à quel niveau d'énergie repartez-vous ?", "options": [{"id": "energy_a", "label": "Bien — je tiens le rythme, c'est soutenable."}, {"id": "energy_b", "label": "Tendu, mais ça passe — quelques semaines sont plus dures."}, {"id": "energy_c", "label": "Souvent vidé — je récupère sur le week-end."}, {"id": "energy_d", "label": "Au bord — je ne sais pas combien de temps je peux tenir."}]}, "blocks": [{"id": "A", "label": "Parcours patient", "color_token": "--lugia-axis-a", "questions": [{"id": "a1", "label": "Quand un patient appelle pour un motif urgent, que se passe-t-il ?", "context": "Pensez à la semaine dernière.", "options": [{"id": "a1_a", "label": "Il est renvoyé aux urgences ou rappelle de lui-même.", "s": 1, "reformulation": "La demande urgente sans filet interne est le premier point de tension d'un cabinet saturé. C'est souvent ce qui finit par déborder en premier.", "benchmark": {"texte": "Environ 60 % des passages aux urgences non programmés pourraient être absorbés par un cabinet de proximité avec un protocole de tri simple.", "source_status": "to_confirm", "source_hint": "Panorama DREES sur l'aval des urgences"}}, {"id": "a1_b", "label": "Le secrétariat évalue et propose un créneau si possible.", "s": 2, "reformulation": "Un premier tri existe — il dépend de la personne qui décroche, pas d'une règle partagée. Ça tient jusqu'au jour où elle est absente.", "benchmark": null}, {"id": "a1_c", "label": "Des créneaux dédiés sont bloqués chaque matin, avec des critères connus de tous.", "s": 3, "reformulation": "Un protocole formalisé. Ce que ça libère ne se voit pas tout de suite — c'est la charge mentale qui baisse en arrière-plan.", "benchmark": null}, {"id": "a1_d", "label": "La régulation est partagée avec d'autres praticiens du territoire.", "s": 4, "reformulation": "Une coordination qui dépasse le cabinet. Rare en médecine générale, et c'est ce qui rend l'organisation soutenable à long terme.", "benchmark": null}]}, {"id": "a2", "label": "Comment gérez-vous les demandes non programmées hors urgences — ordonnance à renouveler, résultat à commenter, question simple ?", "context": null, "options": [{"id": "a2_a", "label": "Tout passe par une consultation, je n'ai pas d'autre canal.", "s": 1, "reformulation": "Toute demande devient une consultation. Pour le médecin, c'est du flux qui se compresse ; pour le patient, c'est de l'attente pour des choses parfois mineures.", "benchmark": {"texte": "30 à 40 % des consultations courtes pourraient être traitées par un autre canal sans perte de qualité de soin.", "source_status": "to_confirm", "source_hint": "Études CNAM sur la téléconsultation asynchrone"}}, {"id": "a2_b", "label": "Je traite ces demandes au fil de l'eau, sans cadre formalisé.", "s": 2, "reformulation": "Le « fil de l'eau » est efficace tant qu'il reste léger. Au-delà, il devient un mode d'usure invisible — quelques minutes par-ci, par-là, qui n'apparaissent dans aucun planning.", "benchmark": null}, {"id": "a2_c", "label": "Le secrétariat absorbe les demandes simples avec des critères connus.", "s": 3, "reformulation": "La délégation des demandes simples avec un cadre clair. Le secrétariat retrouve de la marge, le médecin garde le temps cognitif pour les vraies décisions.", "benchmark": null}, {"id": "a2_d", "label": "Un canal asynchrone structuré (messagerie sécurisée, espace patient) traite ces demandes.", "s": 4, "reformulation": "Un canal asynchrone bien rodé change la temporalité du cabinet. Les demandes simples ne consomment plus de créneaux et le patient reste informé.", "benchmark": null}]}, {"id": "a3", "label": "Comment le patient sait-il ce qu'il doit faire entre deux consultations ?", "context": "Résultats d'analyses, ordonnances, surveillance de symptômes.", "options": [{"id": "a3_a", "label": "Il rappelle ou revient — on gère à ce moment-là.", "s": 1, "reformulation": "La boucle ouverte. Chaque rappel est légitime côté patient et coûte du temps côté cabinet — sans qu'on puisse anticiper le moment.", "benchmark": {"texte": "40 % des rappels entrants seraient évitables avec une consigne de sortie systématique.", "source_status": "to_confirm", "source_hint": "Enquête organisationnelle URPS"}}, {"id": "a3_b", "label": "J'explique à l'oral en fin de consultation.", "s": 2, "reformulation": "L'oral est précieux pendant la consultation. 48 h après, le patient retient rarement les 3 points clés — c'est le moment où la consigne devient utile.", "benchmark": null}, {"id": "a3_c", "label": "Une consigne écrite (impression ou SMS) part systématiquement avec lui.", "s": 3, "reformulation": "La trace écrite multiplie la compliance. Et accessoirement, elle réduit les rappels « pour confirmer ».", "benchmark": null}, {"id": "a3_d", "label": "Le patient accède à son suivi en ligne (messagerie sécurisée, espace patient).", "s": 4, "reformulation": "L'autonomisation numérique du suivi. Le patient devient acteur entre les consultations, votre charge de coordination diminue de façon significative.", "benchmark": null}]}, {"id": "a4", "label": "Comment gérez-vous le suivi de vos patients chroniques connus ?", "context": "Diabète, HTA, insuffisance cardiaque, BPCO…", "options": [{"id": "a4_a", "label": "Ils rappellent quand ils ont besoin — je les vois alors.", "s": 1, "reformulation": "Un suivi qui dépend de l'initiative du patient. Les plus organisés reviennent, les plus fragiles disparaissent — souvent sans signal.", "benchmark": {"texte": "15 à 20 % des patients chroniques n'ont pas eu de consultation dédiée dans l'année.", "source_status": "to_confirm", "source_hint": "Indicateurs ROSP / DREES"}}, {"id": "a4_b", "label": "J'essaie de programmer des renouvellements, sans système formalisé.", "s": 2, "reformulation": "Une intention de suivi qui se diffuse dans le flux quotidien. Sans outil de relance, les files actives se perdent dans le rythme des consultations.", "benchmark": null}, {"id": "a4_c", "label": "Une liste de patients chroniques est tenue à jour avec des rappels de suivi.", "s": 3, "reformulation": "La file active tracée. C'est l'un des leviers de qualité les plus impactants en médecine de famille — et celui qui se voit le moins de l'extérieur.", "benchmark": null}, {"id": "a4_d", "label": "Le suivi est intégré dans le logiciel avec alertes et indicateurs.", "s": 4, "reformulation": "Le suivi industrialisé. Vous avez préparé l'organisation à pouvoir tenir sur la durée, indépendamment de votre charge mémoire.", "benchmark": null}]}, {"id": "a5", "label": "Comment identifiez-vous les patients chroniques qui devraient revenir mais ne viennent plus ?", "context": null, "options": [{"id": "a5_a", "label": "Je ne le fais pas — je ne vois pas comment m'y prendre.", "s": 1, "reformulation": "L'angle mort de la médecine de famille. Les patients silencieux sont souvent les plus à risque — et les plus difficiles à repérer sans outil dédié.", "benchmark": {"texte": "Un programme de relance simple récupère 70 % des patients chroniques perdus de vue dans les 3 mois.", "source_status": "to_confirm", "source_hint": "Retours CPTS sur les expérimentations de relance"}}, {"id": "a5_b", "label": "Je m'en rends compte par hasard, quand un patient revient après un long délai.", "s": 2, "reformulation": "La détection au coup par coup. Vous repérez certains patients, mais sans pouvoir agir sur ceux que vous n'avez pas vus depuis 18 mois.", "benchmark": null}, {"id": "a5_c", "label": "Je relance ponctuellement les patients que j'identifie à risque.", "s": 3, "reformulation": "Une démarche active sur les profils que vous avez en tête. La marge de progression : étendre à des critères systématiques pour ne plus dépendre de votre seule mémoire.", "benchmark": null}, {"id": "a5_d", "label": "Une extraction logiciel régulière identifie les patients sans consultation depuis X mois et déclenche une relance.", "s": 4, "reformulation": "Un dispositif qui chasse les silences. C'est un changement de posture — vous ne réagissez plus à la demande, vous prévenez l'absence.", "benchmark": null}]}, {"id": "a6", "label": "Comment êtes-vous alerté quand un résultat d'examen important arrive pour un patient ?", "context": null, "options": [{"id": "a6_a", "label": "Vérification opportuniste — je consulte les résultats quand j'y pense.", "s": 1, "reformulation": "Le tri dépend entièrement de votre présence d'esprit. Une journée chargée et un résultat critique peut attendre — c'est rarement un défaut de vigilance, c'est un défaut de système.", "benchmark": null}, {"id": "a6_b", "label": "Tri délégué — le secrétariat vérifie et m'alerte sur ce qui me semble critique.", "s": 2, "reformulation": "Un premier filet en relais. Sa fiabilité dépend du temps disponible du secrétariat et de la clarté des critères d'alerte que vous avez partagés.", "benchmark": null}, {"id": "a6_c", "label": "Vérification régulière — je consulte les résultats à heures fixes plusieurs fois par jour.", "s": 3, "reformulation": "Une discipline personnelle solide. Reste un point d'attention : c'est une vigilance qui repose sur vous seul — et qui s'use les jours de fatigue.", "benchmark": null}, {"id": "a6_d", "label": "Signalement automatique — le logiciel ou la plateforme m'alerte sur les valeurs hors normes.", "s": 4, "reformulation": "L'alerte structurelle. Vous gagnez du temps cognitif et vous réduisez le risque qu'un résultat critique passe entre les mailles.", "benchmark": null}]}]}, {"id": "B", "label": "Équipe & secrétariat", "color_token": "--lugia-axis-b", "routing_doc": "Position 2 du bloc B : routing R-routing-solo. Si profile.cabinet_type=solo → afficher b1b (assistant médical envisagé). Sinon → afficher b3 (charge secrétariat). Le médecin voit toujours 6 questions dans le bloc B, juste calibrées sur son profil. Le calcul de score utilise N_visible=6 (jamais l'union b1b+b3).", "questions": [{"id": "b1", "label": "Comment sont répartis les rôles dans votre cabinet ?", "context": null, "options": [{"id": "b1_a", "label": "Je gère tout moi-même, ou avec une aide ponctuelle non formalisée.", "s": 1, "reformulation": "Le médecin qui fait tout. C'est le modèle le plus courant en libéral solo — et celui qui s'use le plus vite, parce que tout repose sur la même personne.", "benchmark": {"texte": "62 % des généralistes déclarent gérer plus de 30 % de tâches non médicales faute d'organisation.", "source_status": "to_confirm", "source_hint": "Enquête CMG ou URPS sur le temps médical"}}, {"id": "b1_b", "label": "Il y a une répartition, mais elle s'est faite au fil du temps sans être vraiment définie.", "s": 2, "reformulation": "Les rôles existent mais ne sont pas nommés. Tant que tout le monde est là, ça tient ; à la première absence ou nouvelle recrue, les angles morts apparaissent.", "benchmark": null}, {"id": "b1_c", "label": "Chacun a un périmètre clair — on déborde parfois pour s'entraider.", "s": 3, "reformulation": "Des rôles clairs avec une porosité contrôlée. C'est l'équilibre qui rend l'équipe à la fois lisible et solidaire — il faut le maintenir consciemment.", "benchmark": null}, {"id": "b1_d", "label": "Les rôles sont formalisés et évoluent avec les compétences (délégation, protocoles de coopération).", "s": 4, "reformulation": "Une délégation formalisée qui évolue avec l'équipe. C'est l'organisation qui tient quand quelqu'un change de poste, part en formation ou s'absente.", "benchmark": {"texte": "Les cabinets avec assistant médical récupèrent 45 minutes de temps médical par jour.", "source_status": "to_confirm", "source_hint": "Bilan CNAM du dispositif assistant médical"}, "has_entity_field": true, "entity_field_label": "Prénom de l'associé / collaborateur principal (optionnel)"}]}, {"id": "b1b", "position": 2, "routing": "cabinet_type==solo", "label": "Vous gérez seul votre cabinet — avez-vous envisagé un assistant médical ?", "context": "Ce dispositif est soutenu financièrement par les accords conventionnels.", "options": [{"id": "b1b_a", "label": "Non, je ne connais pas bien ce dispositif.", "s": 1, "reformulation": "Le dispositif assistant médical reste mal connu, alors qu'il est éligible à un financement conventionnel pour un médecin solo. Ça ne se transforme pas en projet sans information de départ.", "benchmark": null}, {"id": "b1b_b", "label": "J'y ai pensé, mais les contraintes m'ont découragé.", "s": 2, "reformulation": "Les contraintes du dispositif sont réelles, mais souvent surévaluées par rapport à ce qu'elles permettent de récupérer ensuite. Le frein est rarement le bon — c'est généralement la première lecture qui décourage.", "benchmark": null}, {"id": "b1b_c", "label": "C'est un projet que j'explore activement.", "s": 3, "reformulation": "Un projet en cours d'exploration. Les structures d'appui (CPTS, CPAM, URPS) peuvent accompagner concrètement les démarches — vous n'avez pas à tout porter seul.", "benchmark": null}, {"id": "b1b_d", "label": "J'ai déjà un assistant médical ou une secrétaire à temps plein.", "s": 4, "reformulation": "Vous avez passé ce cap structurant. L'enjeu se déplace : il s'agit maintenant d'optimiser la répartition des tâches et de tirer pleinement parti du dispositif.", "benchmark": null, "has_entity_field": true, "entity_field_label": "Prénom de l'assistant médical (optionnel)"}]}, {"id": "b3", "position": 2, "routing": "cabinet_type!=solo", "label": "Comment décririez-vous la charge de travail du secrétariat ?", "context": null, "options": [{"id": "b3_a", "label": "Chroniquement débordé — on gère les urgences en permanence.", "s": 1, "reformulation": "Un secrétariat en surrégime continu. Les tâches à valeur ajoutée disparaissent au profit du flux — et avec elles, ce qui pourrait alléger le cabinet à moyen terme.", "benchmark": {"texte": "Un secrétariat débordé traite jusqu'à 2,3× plus d'appels que nécessaire faute de protocoles de tri.", "source_status": "to_confirm", "source_hint": "Retours d'études de cas CPTS sur l'optimisation des appels"}}, {"id": "b3_b", "label": "Variable — gérable certains jours, tendu d'autres.", "s": 2, "reformulation": "La variabilité non maîtrisée. Elle use autant que la surcharge constante, parce que l'équipe ne peut pas anticiper et alterne entre surchauffe et décompression.", "benchmark": null}, {"id": "b3_c", "label": "Globalement maîtrisé grâce à une organisation rodée.", "s": 3, "reformulation": "Une charge maîtrisée. C'est le signe d'un système, pas d'une chance — il faut continuer à l'entretenir pour qu'il tienne dans la durée.", "benchmark": null, "has_entity_field": true, "entity_field_label": "Prénom de la secrétaire référente (optionnel)"}, {"id": "b3_d", "label": "Optimisé — le secrétariat se concentre sur ce qui a vraiment de la valeur.", "s": 4, "reformulation": "L'optimisation du front-office. Souvent le levier le plus rapide pour améliorer simultanément l'expérience patient et la sérénité de l'équipe.", "benchmark": null, "has_entity_field": true, "entity_field_label": "Prénom de la secrétaire référente (optionnel)"}]}, {"id": "b4", "label": "Comment les informations circulent-elles entre les membres de l'équipe ?", "context": "Messages patients, urgences du jour, tâches en attente.", "options": [{"id": "b4_a", "label": "À l'oral, quand on se croise — ce n'est pas toujours idéal.", "s": 1, "reformulation": "La transmission orale au vol. Elle dépend entièrement de la présence simultanée — ce qui devient fragile dès qu'un membre s'absente ou change de rythme.", "benchmark": null}, {"id": "b4_b", "label": "Par notes papier ou messages informels, avec quelques ratés.", "s": 2, "reformulation": "Le papier fonctionne jusqu'à un certain seuil de volume. Au-delà, les erreurs s'accumulent silencieusement — un message oublié sur un bureau, une note qui se perd.", "benchmark": null}, {"id": "b4_c", "label": "Il y a un outil ou un rituel de transmission (carnet, tableau, point quotidien).", "s": 3, "reformulation": "Un rituel de transmission, même simple, change la dynamique. Les oublis baissent et la cohésion d'équipe se renforce — c'est ce qui se voit le moins dans le quotidien et qui fait le plus de différence.", "benchmark": {"texte": "78 % des cabinets bien organisés citent le point d'équipe de 10 min en début de journée comme la pratique la plus impactante.", "source_status": "to_confirm", "source_hint": "Enquête organisationnelle CMG ou MG France"}}, {"id": "b4_d", "label": "La communication est structurée : outil partagé, points réguliers, traçabilité.", "s": 4, "reformulation": "Une communication structurée libère la charge mentale collective. Chacun sait où l'information se trouve et qui en est responsable.", "benchmark": null}]}, {"id": "b5", "label": "Imaginez que vous deviez vous absenter — pour des congés prévus ou un imprévu de plusieurs jours.", "context": null, "options": [{"id": "b5_a", "label": "C'est compliqué — les patients sans solution et le retour chaotique, je l'évite.", "s": 1, "reformulation": "L'absence révèle que tout repose sur des personnes, rien sur des processus. C'est la signature d'un cabinet construit autour d'une personne clé.", "benchmark": null}, {"id": "b5_b", "label": "On bricole une solution à chaque fois — ça dépend des disponibilités.", "s": 2, "reformulation": "Le bricolage récurrent est un chantier déguisé en anecdote. Chaque absence demande une énergie de coordination disproportionnée pour ce qui devrait être routinier.", "benchmark": null}, {"id": "b5_c", "label": "Préparé pour les congés, fragile pour l'imprévu — je sais fermer pour mes congés, je ne sais pas comment je gérerais une absence soudaine.", "s": 3, "reformulation": "Le profil le plus fréquent en libéral — préparé pour ce qui se programme, vulnérable face à l'imprévu. La marge de progression est précisément là : une fiche de relais courte couvre l'essentiel.", "benchmark": null}, {"id": "b5_d", "label": "La continuité est organisée : remplaçants rodés, protocoles, patients informés.", "s": 4, "reformulation": "La résilience organisationnelle — un critère peu visible et très précieux. Vous pouvez vous absenter sans que le cabinet vacille.", "benchmark": null}]}, {"id": "b6", "label": "La dernière fois que vous avez changé quelque chose dans l'organisation du cabinet — un protocole, une habitude, une règle de tri —, comment ça s'est passé ?", "context": null, "options": [{"id": "b6_a", "label": "Le changement reste souvent à l'état d'intention — j'ai du mal à le rendre effectif.", "s": 1, "reformulation": "L'intention sans exécution se transforme en frustration. Souvent ce n'est pas un défaut de décision, c'est l'absence d'un canal qui fait passer la décision à l'action quotidienne.", "benchmark": null}, {"id": "b6_b", "label": "Plusieurs semaines d'allers-retours et des oublis avant que ça tienne.", "s": 2, "reformulation": "Le changement diffuse lentement et de manière incomplète. Quelques rappels suffisent souvent à faire passer le palier — mais sans canal dédié, l'effort à fournir est démesuré.", "benchmark": null}, {"id": "b6_c", "label": "Quelques semaines, avec un peu de vérification et de rappels au début.", "s": 3, "reformulation": "Un rythme d'ajustement raisonnable. Vous avez un canal qui fonctionne — la marge porte sur la rapidité avec laquelle un nouveau protocole devient un automatisme.", "benchmark": null}, {"id": "b6_d", "label": "Quelques jours — l'équipe (ou moi en solo) sait mettre en œuvre rapidement.", "s": 4, "reformulation": "Une organisation qui sait absorber et ancrer le changement vite. C'est rare et c'est précieux — ça multiplie la fréquence à laquelle vous pouvez ajuster.", "benchmark": null}]}, {"id": "b7", "label": "À quelle fréquence prenez-vous du recul sur l'organisation du cabinet — bilan court, point d'équipe, revue informelle —, en dehors de la gestion clinique quotidienne ?", "context": null, "options": [{"id": "b7_a", "label": "Jamais — j'avance, je ne prends pas le temps. On en parle quand un problème surgit.", "s": 1, "reformulation": "Sans canal régulier pour traiter l'organisation, les décisions ne se prennent qu'en mode urgence. L'inertie qui s'accumule entre deux crises pèse, même quand elle ne se voit pas.", "benchmark": null}, {"id": "b7_b", "label": "Rarement — quelques échanges informels, sans rythme défini.", "s": 2, "reformulation": "Des échanges existent, mais sans cadence ils dépendent du hasard des disponibilités. Les sujets de fond passent souvent après l'opérationnel du jour.", "benchmark": null}, {"id": "b7_c", "label": "Quelques moments structurés par trimestre — point d'équipe ou réflexion personnelle.", "s": 3, "reformulation": "Un rythme de réflexion qui permet de faire bouger les choses. La régularité compte davantage que le formalisme — un trimestriel court vaut mieux qu'un annuel exhaustif.", "benchmark": null}, {"id": "b7_d", "label": "Rituel installé — moments réguliers (mensuels au minimum), avec décisions tracées et suivies.", "s": 4, "reformulation": "Un rituel d'amélioration continue. C'est ce qui permet à un cabinet de se transformer dans la durée sans tout réinventer à chaque cycle.", "benchmark": null}]}]}, {"id": "C", "label": "Outils & dossiers", "color_token": "--lugia-axis-c", "questions": [{"id": "c1", "label": "Comment qualifieriez-vous votre maîtrise de votre logiciel médical ?", "context": null, "logiciel_dynamique": true, "logiciel_dynamique_doc": "Les reformulations peuvent nommer dynamiquement le logiciel via profile.logiciel_metier. Logique côté templates V2.", "options": [{"id": "c1_a", "label": "J'utilise les fonctions de base — le reste, je ne sais pas ce que ça fait.", "s": 1, "reformulation": "Les fonctions de base couvrent l'essentiel mais laissent beaucoup de potentiel inexploité. La plupart des médecins découvrent ce que leur logiciel sait faire en quelques heures de formation ciblée.", "benchmark": {"texte": "Une demi-journée de formation ciblée sur le logiciel métier permet de gagner 25 à 40 minutes par jour de consultation.", "source_status": "to_confirm", "source_hint": "Enquête CMG ou retours formations URPS"}}, {"id": "c1_b", "label": "Je me débrouille, avec quelques fonctions apprises au fil du temps.", "s": 2, "reformulation": "L'apprentissage autodidacte couvre l'usage quotidien mais laisse des angles morts coûteux — souvent les fonctions de gain de temps les plus rentables.", "benchmark": null}, {"id": "c1_c", "label": "Je connais bien mon logiciel et j'utilise la plupart des fonctions utiles.", "s": 3, "reformulation": "Une bonne maîtrise outil. C'est un multiplicateur de temps qui se voit peu, parce qu'il est intégré dans chaque consultation.", "benchmark": null}, {"id": "c1_d", "label": "Workflow optimisé : modèles, raccourcis, automatisations.", "s": 4, "reformulation": "L'optimisation workflow est l'un des leviers à plus fort retour sur temps investi en cabinet. Vous récoltez le bénéfice à chaque consultation, chaque journée.", "benchmark": null}]}, {"id": "c2", "label": "Comment sont tenus les dossiers patients dans votre cabinet ?", "context": null, "options": [{"id": "c2_a", "label": "Les dossiers sont là, mais leur contenu varie beaucoup selon les patients.", "s": 1, "reformulation": "Des dossiers hétérogènes posent deux problèmes : un risque qualité quand on retrouve un patient après plusieurs mois, et un frein à toute délégation possible.", "benchmark": null}, {"id": "c2_b", "label": "Il y a une structure de base, mais elle n'est pas toujours respectée.", "s": 2, "reformulation": "La structure non appliquée donne l'illusion du système sans les bénéfices. Il manque souvent peu de chose pour franchir le palier — un rappel partagé, un modèle par défaut.", "benchmark": null}, {"id": "c2_c", "label": "Les dossiers suivent une trame cohérente, les informations importantes sont accessibles rapidement.", "s": 3, "reformulation": "Une trame cohérente respectée — c'est ce qui rend la consultation plus rapide à l'ouverture du dossier, et qui sécurise les prises en charge complexes.", "benchmark": {"texte": "Un dossier structuré réduit le temps de consultation de 2 à 4 minutes en moyenne.", "source_status": "to_confirm", "source_hint": "Étude ergonomie logiciels métiers — possiblement ANS ou CNAM"}}, {"id": "c2_d", "label": "Dossiers structurés permettant une prise en charge par n'importe quel praticien.", "s": 4, "reformulation": "La qualité dossier est la fondation de la continuité des soins. À ce niveau, votre cabinet peut absorber sereinement un remplaçant, un associé, une délégation.", "benchmark": null}]}, {"id": "c3", "label": "Comment gérez-vous le flux administratif quotidien ?", "context": "Courriers, résultats, ordonnances, feuilles de soins.", "options": [{"id": "c3_a", "label": "C'est une source de stress — j'ai toujours du retard.", "s": 1, "reformulation": "Le flux administratif non maîtrisé est l'un des premiers facteurs cités dans le mal-être professionnel des généralistes. Ce qui pèse n'est pas le volume — c'est l'absence d'espace dédié dans la semaine.", "benchmark": {"texte": "Les généralistes consacrent en moyenne 2 h 30 par jour aux tâches administratives, dont environ 40 % pourraient être déléguées.", "source_status": "to_confirm", "source_hint": "Enquête CNOM ou DREES sur le temps médecin libéral"}}, {"id": "c3_b", "label": "Je gère, mais ça prend beaucoup de temps hors des heures de consultation.", "s": 2, "reformulation": "Le débordement sur les plages hors-consultation est un signal d'alerte sur la soutenabilité — pas un défaut d'organisation individuelle, mais un système qui n'a pas encore intégré ses tâches admin dans son rythme.", "benchmark": null}, {"id": "c3_c", "label": "J'ai des plages dédiées et des méthodes pour traiter ce flux efficacement.", "s": 3, "reformulation": "Traiter l'administratif en temps masqué est souvent le premier pas vers une semaine vraiment organisée. Le travail est fait, mais sans grignoter les marges personnelles.", "benchmark": null}, {"id": "c3_d", "label": "Le flux est largement délégué ou automatisé.", "s": 4, "reformulation": "La délégation administrative est souvent la transformation la plus rapide et la plus impactante quand un cabinet l'engage. Vous récupérez ce que ces tâches ne devraient jamais avoir consommé.", "benchmark": null}]}, {"id": "c4", "label": "Quels outils numériques de santé utilisez-vous au quotidien ?", "context": "Mon Espace Santé, MSSanté, téléconsultation, dossier régional.", "routing_doc": "R-routing-rdv : si profile.rdv_canal in {doctolib, maiia}, la reformulation peut nommer la plateforme déjà utilisée (cf src/v2/personalize.py).", "options": [{"id": "c4_a", "label": "Aucun ou presque — je n'en ressens pas le besoin.", "s": 1, "reformulation": "L'écart se creuse à mesure que ces outils deviennent la norme. Ce qui paraît évitable aujourd'hui peut devenir un point de friction demain — avec les patients, les confrères, les caisses.", "benchmark": {"texte": "Mon Espace Santé est activé pour plus de 12 millions de Français — l'écosystème numérique s'installe rapidement comme nouveau standard d'échange.", "source_status": "to_confirm", "source_hint": "Chiffres ANS / DNS sur l'adoption Mon Espace Santé"}}, {"id": "c4_b", "label": "Quelques-uns par obligation (carte Vitale, télétransmission), sans en exploiter le potentiel.", "s": 2, "reformulation": "Le minimum réglementaire est en place. Les fonctionnalités qui changent vraiment la donne (messagerie sécurisée, alimentation DMP, téléexpertise) demandent un investissement minime pour un gain rapide.", "benchmark": null}, {"id": "c4_c", "label": "J'utilise activement plusieurs (MSSanté, Mon Espace Santé, téléconsultation), avec retour positif.", "s": 3, "reformulation": "Une posture sélective et active. Vous adoptez ce qui apporte un bénéfice tangible, sans céder à l'effet de mode — la posture la plus saine vis-à-vis du numérique en santé.", "benchmark": null}, {"id": "c4_d", "label": "Ces outils sont intégrés dans mon workflow et je les utilise pour optimiser le parcours patient.", "s": 4, "reformulation": "L'intégration dans le workflow change la nature de ces outils — ils deviennent des leviers organisationnels, pas des cases à cocher. Vous êtes en position de tester les évolutions à venir avant la grande majorité.", "benchmark": null}]}, {"id": "c5", "label": "Comment positionnez-vous l'IA générative dans votre activité ?", "context": "Rédaction de courriers, synthèses, recherches cliniques, aide à la décision.", "doc_anti_desirabilite": "Question reformulée post-revue (spec V2 §7.5) : mesure la maturité de positionnement, ne présuppose pas de comportement illicite. Options s=1 et s=2 doivent rester assumables par un médecin honnête. La reformulation terrain pour s=3 nomme le sujet de fond (RGPD/secret médical) en levier d'action, jamais en culpabilité.", "options": [{"id": "c5_a", "label": "Je ne l'utilise pas — je ne vois pas encore l'intérêt pour mon exercice, ou je préfère attendre.", "s": 1, "reformulation": "Attendre est une posture légitime tant que les dispositifs conformes ne sont pas matures. Le risque d'attente trop longue : que les confrères équipés prennent une avance organisationnelle difficile à rattraper ensuite.", "benchmark": null}, {"id": "c5_b", "label": "Je l'utilise ponctuellement, sur des sujets génériques (recherche, rédaction), avec des questions sur le cadre.", "s": 2, "reformulation": "Un usage prudent sur des sujets non patient. C'est probablement la posture la plus répandue actuellement — et celle où les questions de cadre vont devenir de plus en plus présentes.", "benchmark": null}, {"id": "c5_c", "label": "Je l'utilise régulièrement avec une vigilance active sur la conformité — sans m'être encore équipé d'un dispositif dédié au médical.", "s": 3, "reformulation": "L'usage régulier d'une IA grand public sur des éléments métier, même avec vigilance, sort du cadre RGPD et du secret médical. C'est précisément ce que Lugia vient sécuriser — sans changer vos habitudes au quotidien, dans un environnement conforme.", "benchmark": {"texte": "Une majorité de médecins ayant testé l'IA générative l'utilisent désormais régulièrement sur des tâches admin ou cliniques, le plus souvent en dehors du cadre légal.", "source_status": "to_confirm", "source_hint": "Enquête CNOM 2024-2025 sur l'usage de l'IA générative"}}, {"id": "c5_d", "label": "J'ai intégré un dispositif IA conforme au secret médical (hébergeur HDS, IA locale, prestataire certifié santé) dans mon workflow.", "s": 4, "reformulation": "L'usage conforme du secret médical structuré dans le workflow. Vous êtes en avance sur la transition que beaucoup de cabinets vont devoir engager dans les 24 prochains mois.", "benchmark": null}]}, {"id": "c6", "label": "À quel point les enjeux de conformité de votre cabinet sont-ils suivis activement ?", "context": "RGPD, HDS, secret médical, DMP, pharmacovigilance, DPC, accessibilité PMR, conventionnement CCAM, numérique en santé / MSSanté…", "options": [{"id": "c6_a", "label": "Je sais qu'il y a des enjeux mais je n'ai pas le temps de m'y pencher au quotidien.", "s": 1, "reformulation": "Les enjeux de conformité avancent en arrière-plan, parfois sans signal — jusqu'au jour où un contrôle CPAM, une plainte ou un incident les ramène au premier plan. C'est rarement gérable à chaud sans un minimum de veille en amont.", "benchmark": null}, {"id": "c6_b", "label": "Je suis ce qu'on m'envoie (CPAM, DPC, instances), sans démarche proactive.", "s": 2, "reformulation": "La conformité subie. Vous traitez ce qui arrive, mais sans hiérarchiser ce qui est applicable à votre cabinet en particulier — ce qui peut laisser passer des évolutions importantes.", "benchmark": null}, {"id": "c6_c", "label": "Je suis activement 2 ou 3 sujets majeurs et je m'informe régulièrement (HAS, RGPD, MSSanté).", "s": 3, "reformulation": "Une veille ciblée sur les sujets prioritaires. C'est une posture mature qui évite la surcharge informationnelle tout en gardant un cadre clair.", "benchmark": null}, {"id": "c6_d", "label": "J'ai cartographié les enjeux applicables à mon cabinet et je les suis systématiquement — revue régulière, mise à jour, traçabilité.", "s": 4, "reformulation": "Une démarche structurée de gouvernance de la conformité. Rare en médecine libérale — vous transformez ces enjeux en levier de qualité plutôt qu'en source d'inquiétude.", "benchmark": null}]}]}], "scoring": {"doc": "Voir spec V2 §8.1. score_bloc = (Σ s_choisi) / (N_visible × 4) × 100, où N_visible est le nombre de questions effectivement servies au profil (toujours 6 par bloc, b1b XOR b3). Mapping seuils dans diagnostics_v2.json. Aucun score numérique exposé au médecin (D-013, D-023).", "n_visible_per_block": 6, "score_min_pct": 25, "score_max_pct": 100, "global_score_doc": "global_score = round((score_a + score_b + score_c) / 3), stocké pour analyses cohortes, jamais affiché au médecin."}, "routing_rules": [{"id": "R-routing-solo", "block": "B", "position": 2, "rule": "if profile.cabinet_type == 'solo' then show 'b1b' else show 'b3'", "doc": "Comportement silencieux pour le médecin — il voit toujours 6 questions dans le bloc B."}]}, "diagnostics": {"version": "2.0", "last_updated": "2026-05-19", "schema_doc": "12 titres de diagnostic par couple (axe, niveau qualitatif) + 6 signaux croisés inter-axes. Les titres sont des accroches serif courtes pour la page résultats V2.0. Les signaux sont évalués par priorité (S-burnout d'abord, S-structured en dernier), un seul affiché à la fois.", "titres_diagnostic": {"A": {"axe": "Parcours patient", "a_risque": "Le patient navigue à vue.", "a_surveiller": "Des bases existent, mais elles restent fragiles.", "operationnel": "Le parcours est maîtrisé sur les situations courantes.", "maitrise": "Un parcours fluide, de bout en bout."}, "B": {"axe": "Équipe & secrétariat", "a_risque": "L'organisation repose sur vous seul.", "a_surveiller": "Une équipe qui fonctionne, mais sous tension.", "operationnel": "Une équipe organisée et relativement autonome.", "maitrise": "Un cabinet bien gouverné, équipe responsabilisée."}, "C": {"axe": "Outils & dossiers", "a_risque": "Les outils travaillent contre vous.", "a_surveiller": "Les outils sont là, mais pas encore au service du soin.", "operationnel": "Les outils soutiennent l'activité clinique.", "maitrise": "Un cabinet numérique mature."}}, "seuils_niveaux": {"_doc": "Mapping score % → niveau qualitatif Lugia (cf spec V2 §8.2). Affichés en texte uniquement, jamais en chiffre.", "maitrise": {"min": 78, "max": 100}, "operationnel": {"min": 55, "max": 77}, "a_surveiller": {"min": 35, "max": 54}, "a_risque": {"min": 0, "max": 34}}, "signaux_croises": [{"id": "S-burnout", "ordre_priorite": 1, "condition": "A <= 34 AND B <= 34 AND C <= 54", "condition_doc": "Inhibé si au moins un axe tient (typiquement C >= 55 — cf S-tech-vs-organisation qui prend la main).", "titre": "Signal fort : risque d'épuisement professionnel", "tonalite": "alerte_forte", "message": "Les trois axes sont sous tension simultanément. Ce n'est pas un défaut d'organisation individuelle — c'est un système qui ne s'auto-régule plus. La priorité n'est pas de tout reprendre, c'est de dégager une marge sur un seul levier pour permettre aux autres de respirer."}, {"id": "S-tech-vs-organisation", "ordre_priorite": 2, "condition": "C >= 55 AND A <= 34 AND B <= 34", "condition_doc": "Médecin équipé techniquement mais dont l'organisation humaine ne suit pas. Cas limite typique : C=90, A=33, B=34 — ne déclenche plus S-burnout mais ce recadrage plus juste.", "titre": "Vous avez investi sur les outils — l'organisation humaine est le prochain palier", "tonalite": "recadrage", "message": "Vos outils sont à un bon niveau de maîtrise. Ce qui pèse aujourd'hui ne se résoudra pas par plus de technologie — c'est sur le parcours patient et l'équipe que le levier suivant se trouve."}, {"id": "S-admin", "ordre_priorite": 3, "condition": "B <= 34 AND C <= 34", "condition_doc": "Surcharge administrative chronique combinée à une équipe fragile.", "titre": "Surcharge administrative chronique", "tonalite": "alerte", "message": "L'équipe et les outils sont simultanément en difficulté — ce qui produit cette sensation que l'administratif occupe une part démesurée du temps. La voie de sortie commence par identifier une seule tâche à déléguer ou automatiser sur 6 semaines, pas par une refonte globale."}, {"id": "S-paradox", "ordre_priorite": 4, "condition": "A >= 55 AND B <= 34", "condition_doc": "Bon parcours patient malgré une équipe fragile — typiquement, médecin solo qui porte beaucoup.", "titre": "Paradoxe : bon parcours patient, équipe fragile", "tonalite": "paradoxe", "message": "Vous parvenez à délivrer un bon parcours patient en compensant côté équipe. C'est tenable à court terme — la question est : pour combien de temps encore, et à quel coût personnel ?"}, {"id": "S-tools-opp", "ordre_priorite": 5, "condition": "C <= 34 AND A >= 55", "condition_doc": "Outils faibles, mais pratiques de soin déjà solides. Opportunité d'investissement.", "titre": "Opportunité : vos pratiques méritent de meilleurs outils", "tonalite": "opportunite", "message": "Votre pratique de soin tient debout sans appui technologique fort — c'est une compétence rare. Les outils numériques sont aujourd'hui un démultiplicateur, pas une condition. Vous pourriez gagner significativement en investissant légèrement de ce côté."}, {"id": "S-structured", "ordre_priorite": 6, "condition": "A >= 55 AND B >= 55 AND C >= 55", "condition_doc": "Cabinet structuré — ferme le tableau, ne masque jamais une alerte (priorité la plus basse).", "titre": "Cabinet structuré — voici où concentrer votre énergie pour passer au niveau suivant", "tonalite": "positif", "message": "Les trois axes sont au moins opérationnels. Le check-up sert ici à identifier la marche suivante — pas un point de rupture, mais un palier de maturité supplémentaire que vous pouvez choisir d'engager."}]}, "modules": {"version": "2.0", "last_updated": "2026-05-19", "schema_doc": "7 modules d'approfondissement statiques en ton Lugia. Chaque module : 4 étapes numérotées (01-04) avec titre court + body + tag temporalité (quick < 1 semaine / medium 1-4 semaines / invest 1-3 mois) + benchmark de conclusion marqué [À CONFIRMER] quand non sourcé. Activables depuis la page résultats V2 ou directement depuis /modules/{id}.", "tag_temporalite_labels": {"quick": "Action rapide — < 1 semaine", "medium": "Projet court — 1 à 4 semaines", "invest": "Investissement — 1 à 3 mois"}, "effort_levels": {"1": "Léger", "2": "Modéré", "3": "Significatif"}, "impact_horizons": {"immediat": "Immédiat (< 2 mois)", "court_terme": "Court terme (2-6 mois)", "moyen_terme": "Moyen terme (6 mois+)"}, "modules": [{"id": "urgences", "icone": "🔴", "label": "Organiser les urgences du jour", "effort": 2, "impact": "immediat", "etapes": [{"num": "01", "titre": "Définir ce qu'est une « urgence du jour »", "body": "Pas les urgences vitales — celles-ci ont leur circuit propre. On parle ici des consultations qui ne peuvent pas attendre 48 h. Listez avec votre secrétariat les motifs qui rentrent dans cette catégorie : douleur thoracique, fièvre élevée chez un enfant, décompensation psychiatrique, suspicion d'infection sévère. Définir ces critères une fois pour toutes évite de rejouer l'arbitrage à chaque appel.", "tag": "quick"}, {"num": "02", "titre": "Bloquer deux créneaux dédiés par jour", "body": "Un le matin, un l'après-midi. S'ils ne sont pas utilisés pour des urgences, ils sont récupérés pour des chroniques en fin de journée. Testez le format 3 semaines avant d'évaluer — il faut ce délai pour que l'équipe et les patients s'y habituent.", "tag": "quick"}, {"num": "03", "titre": "Former le secrétariat au tri téléphonique", "body": "Trois questions suffisent pour trier 80 % des situations : depuis quand le symptôme dure-t-il, est-ce que ça s'aggrave, le patient a-t-il déjà eu ça ? Avec ces trois questions partagées, le secrétariat oriente sans vous interrompre — vous ne récupérez que les cas qui le nécessitent vraiment.", "tag": "medium"}, {"num": "04", "titre": "Évaluer après un mois", "body": "Combien de créneaux urgence utilisés par semaine ? Combien d'interruptions en consultation ? Renvois aux urgences en hausse ou en baisse ? Ces trois indicateurs suffisent à ajuster le nombre de créneaux et à valider le tri.", "tag": "medium"}], "benchmark_conclusion": {"texte": "Les cabinets qui mettent en place des créneaux dédiés réduisent de 60 à 70 % les interruptions en consultation. Un médecin interrompu huit fois par jour perd en moyenne 1 h 15 de concentration productive.", "source_status": "to_confirm", "source_hint": "Retours d'expérience CPTS sur les protocoles d'urgences du jour"}}, {"id": "chroniques", "icone": "📋", "label": "Structurer le suivi des patients chroniques", "effort": 2, "impact": "court_terme", "etapes": [{"num": "01", "titre": "Extraire votre file active du logiciel", "body": "Tous les logiciels métiers permettent d'extraire la liste des patients avec une pathologie chronique codée. Faites-le pour trois pathologies pour commencer : diabète, HTA, insuffisance cardiaque. Le chiffre exact réserve souvent une surprise — il est généralement plus élevé que l'estimation à vue.", "tag": "quick"}, {"num": "02", "titre": "Identifier les patients sans consultation depuis plus de 12 mois", "body": "Ce sont vos « patients silencieux » — souvent les plus fragiles. Un SMS de rappel simple suffit dans environ 70 % des cas à les faire reprendre contact, sans démarche complexe.", "tag": "quick"}, {"num": "03", "titre": "Créer des rappels automatiques dans le logiciel", "body": "Pour chaque patient chronique revu en consultation, définissez une date de prochaine consultation recommandée. La plupart des logiciels modernes peuvent générer des alertes automatiques à cette date.", "tag": "medium"}, {"num": "04", "titre": "Déléguer le suivi de routine", "body": "Le renouvellement simple, le bilan annuel de suivi, le rappel de vaccination — autant d'actes préparables par un assistant médical selon les protocoles de coopération en vigueur dans votre territoire. C'est l'étape la plus structurante quand elle est possible.", "tag": "invest"}], "benchmark_conclusion": {"texte": "Un programme de relance simple permet de récupérer environ 70 % des patients chroniques perdus de vue dans les trois mois. La file active tracée est l'un des leviers de qualité les plus impactants en médecine de famille.", "source_status": "to_confirm", "source_hint": "Indicateurs ROSP et expérimentations CPTS sur la relance des chroniques"}}, {"id": "delegation", "icone": "🤝", "label": "Déléguer des tâches non médicales", "effort": 3, "impact": "moyen_terme", "etapes": [{"num": "01", "titre": "Cartographier vos tâches non médicales", "body": "Passez une journée à noter tout ce que vous faites en dehors de la consultation directe. Vous découvrirez souvent que 60 à 70 % de ces tâches ne nécessitent pas votre expertise médicale — appel pour confirmer un résultat, saisie d'une lettre, préparation d'une feuille de soins.", "tag": "quick"}, {"num": "02", "titre": "Identifier les tâches délégables en priorité", "body": "Appels de résultats simples, préparation des renouvellements, saisie de courriers, rappels de suivi. Commencez par une seule tâche — celle qui revient le plus souvent — et faites-la déléguer pendant deux semaines. Évaluez avant d'en ajouter d'autres.", "tag": "quick"}, {"num": "03", "titre": "Formaliser avec l'équipe", "body": "30 minutes de réunion suffisent : expliquez pourquoi vous déléguez (pas juste « j'ai trop de travail », mais ce que vous voulez récupérer comme temps médical), montrez concrètement comment faire la tâche, et définissez le critère d'escalade — dans quel cas l'équipe vous transmet plutôt que de gérer seule. Ce dernier point sécurise toute la délégation.", "tag": "medium"}, {"num": "04", "titre": "Explorer le dispositif assistant médical", "body": "Le cadre conventionnel permet un financement partiel du recrutement. Contactez votre CPAM ou votre CPTS — les délais sont souvent plus courts que prévu, et l'accompagnement administratif disponible.", "tag": "invest"}], "benchmark_conclusion": {"texte": "Les cabinets ayant formalisé la délégation sur deux ou trois tâches récupèrent en moyenne 45 minutes de temps médical par jour. À votre profil, cela représente entre trois et cinq consultations supplémentaires possibles par semaine — ou autant de temps personnel récupéré, à votre choix.", "source_status": "to_confirm", "source_hint": "Bilans CNAM dispositif assistant médical 2023-2024"}}, {"id": "comm", "icone": "💬", "label": "Instaurer un rituel de communication d'équipe", "effort": 1, "impact": "immediat", "etapes": [{"num": "01", "titre": "Le point du matin : 10 minutes, pas plus", "body": "Avant d'ouvrir les consultations, trois questions à l'équipe : qui a quoi aujourd'hui (planning, examens, créneaux particuliers), y a-t-il des imprévus à signaler, y a-t-il un patient à surveiller ? Testez le format deux semaines avant d'évaluer.", "tag": "quick"}, {"num": "02", "titre": "Créer un outil de messages partagés", "body": "Un simple cahier à la réception suffit pour commencer : une colonne par praticien, une ligne par message. L'objectif n'est pas l'outil, c'est que chaque information en attente soit visible par tous, à un seul endroit.", "tag": "quick"}, {"num": "03", "titre": "Définir le protocole d'escalade", "body": "« Dans quel cas est-ce que vous me dérangez pendant une consultation ? » — la réponse doit être connue de tous. Formulez trois critères précis, affichez-les au secrétariat. Cette clarté seule réduit environ 80 % des interruptions non justifiées.", "tag": "medium"}, {"num": "04", "titre": "Revue mensuelle de 30 minutes", "body": "Une fois par mois : qu'est-ce qui a bien marché, qu'est-ce qui a coincé, une seule chose à améliorer pour le mois suivant. Quelqu'un note la décision prise. Ce qui paraît modeste devient en 6 mois un cycle d'amélioration continue.", "tag": "medium"}], "benchmark_conclusion": {"texte": "Les cabinets ayant instauré un point matinal régulier signalent une réduction de 40 % des malentendus et une nette amélioration du sentiment de cohésion d'équipe. Une dizaine de minutes par jour qui change la qualité de la journée.", "source_status": "to_confirm", "source_hint": "Enquête CMG ou MG France sur les pratiques d'équipe"}}, {"id": "logiciel", "icone": "💻", "label": "Optimiser le logiciel médical", "effort": 2, "impact": "court_terme", "logiciel_dynamique": true, "logiciel_dynamique_doc": "Ce module peut nommer dynamiquement le logiciel via profile.logiciel_metier dans le rendu (« dans Médidoc », « dans Crossway », etc.). Logique à implémenter dans src/v2/templates.py.", "etapes": [{"num": "01", "titre": "Identifier les trois actions les plus répétitives", "body": "Rédaction de courriers, saisie d'ordonnances, comptes-rendus de visite — notez les trois actions que vous faites le plus dans la semaine et qui vous prennent le plus de temps. Ces trois actions sont vos cibles prioritaires de formation.", "tag": "quick"}, {"num": "02", "titre": "Programmer une demi-journée de formation ciblée", "body": "Contactez votre éditeur logiciel — les formations sont souvent gratuites et largement sous-utilisées. Ne demandez pas « une formation générale », mais « comment faire X en moins de 30 secondes ». C'est ce ciblage qui fait toute la différence sur le retour d'investissement.", "tag": "quick"}, {"num": "03", "titre": "Créer cinq modèles de documents", "body": "Lettre de liaison, ordonnance chronique, compte-rendu complexe, arrêt de travail, résultat de bilan — partez de vos documents existants et faites-en des modèles dans le logiciel. Vous économisez 3 à 5 minutes par document, à chaque utilisation.", "tag": "medium"}, {"num": "04", "titre": "Activer le tableau de bord activité", "body": "Tous les logiciels modernes ont un module statistiques. Regardez trois indicateurs chaque vendredi : nombre d'actes de la semaine, délai moyen pour obtenir un RDV, top 5 des motifs. Dix minutes pour piloter votre cabinet — pas pour analyser à fond, juste pour voir les variations.", "tag": "medium"}], "benchmark_conclusion": {"texte": "Une optimisation logiciel bien ciblée représente 25 à 40 minutes gagnées par jour — soit 80 à 130 heures de travail récupérées sur l'année. C'est l'un des leviers à plus fort retour sur temps investi en cabinet.", "source_status": "to_confirm", "source_hint": "Retours formations URPS ou enquête CMG sur l'usage des logiciels métiers"}}, {"id": "admin", "icone": "📁", "label": "Réduire la charge administrative quotidienne", "effort": 2, "impact": "court_terme", "etapes": [{"num": "01", "titre": "Chronométrer votre temps administratif sur trois jours", "body": "Pas pour vous culpabiliser — pour savoir. Notez chaque tâche administrative et le temps passé pendant trois jours représentatifs. La plupart des médecins sous-estiment leur temps administratif réel d'environ 30 %.", "tag": "quick"}, {"num": "02", "titre": "Identifier les trois tâches les plus chronophages et délégables", "body": "Traitement des résultats normaux, préparation des renouvellements, saisie des courriers — ces trois familles de tâches représentent souvent à elles seules 60 % du temps administratif total. Elles sont aussi les plus délégables.", "tag": "quick"}, {"num": "03", "titre": "Créer des plages admin dédiées", "body": "30 minutes le matin avant les consultations, 20 minutes entre midi et deux. Ces plages sont fermées aux consultations. Traiter l'administratif en temps masqué réduit considérablement le sentiment de surcharge — non pas parce que la quantité change, mais parce qu'il a sa place dans la semaine.", "tag": "medium"}, {"num": "04", "titre": "Explorer les outils d'automatisation", "body": "Votre logiciel propose probablement des fonctions de traitement automatique des résultats biologiques normaux, d'envoi de rappels patients, de génération de courriers types. Demandez une démonstration ciblée à votre éditeur — ces fonctions sont souvent disponibles mais peu activées.", "tag": "invest"}], "benchmark_conclusion": {"texte": "Une réorganisation ciblée permet de réduire le temps administratif de 35 à 50 % en six semaines — sans investissement technologique majeur. La différence vient surtout de l'organisation des plages et de la priorisation des tâches délégables.", "source_status": "to_confirm", "source_hint": "Enquête CNOM ou DREES temps médecin libéral"}}, {"id": "pilotage", "icone": "📊", "label": "Mettre en place un pilotage simple de l'activité", "effort": 1, "impact": "moyen_terme", "etapes": [{"num": "01", "titre": "Choisir trois indicateurs, pas plus", "body": "Délai moyen pour obtenir un RDV non urgent (en jours), nombre d'actes hebdomadaires, taux de consultations hors plage normale. Ces trois indicateurs donnent une vision suffisante pour repérer une dérive sans se noyer dans la donnée.", "tag": "quick"}, {"num": "02", "titre": "Activer le module statistiques du logiciel", "body": "Dix minutes chaque vendredi pour regarder ces trois indicateurs. Pas pour analyser — juste pour voir. En quatre semaines, vous saurez où vous en êtes et ce qui bouge dans votre activité.", "tag": "quick"}, {"num": "03", "titre": "Créer un tableau de bord mensuel simple", "body": "Un fichier de trois colonnes, une ligne par semaine. En trois mois, vous aurez une tendance suffisamment claire pour prendre des décisions éclairées — recruter, ajuster les plages, refuser de nouveaux patients, étendre les horaires.", "tag": "medium"}, {"num": "04", "titre": "Utiliser les données pour une décision concrète", "body": "Au bout de deux mois, posez-vous une question précise : le délai de RDV augmente-t-il ? Si oui, sur quels créneaux particulièrement ? Cette granularité simple permet de cibler une action précise — bloquer plus de créneaux le mardi matin, déléguer un type de consultation, etc.", "tag": "medium"}], "benchmark_conclusion": {"texte": "Les cabinets qui suivent trois indicateurs hebdomadaires identifient leurs déséquilibres environ trois fois plus vite que ceux qui pilotent à l'intuition. Ce n'est pas la complexité du tableau de bord qui compte, c'est la régularité du regard.", "source_status": "to_confirm", "source_hint": "Retours expérimentations CPTS sur le pilotage de cabinet ou enquête CMG"}}]}};
+const PROTOCOL = DB.protocol;
+const DIAGNOSTICS = DB.diagnostics;
+const MODULES_DATA = DB.modules;
+
+const initialState = () => ({ step: 'intro', profile: {}, answers: {}, moduleId: null });
+let state = initialState();
+
+function resetDemo() {
+  if (!confirm('Réinitialiser la démo ? (toutes les réponses seront effacées)')) return;
+  state = initialState();
+  render();
+}
+
+function isSolo() { return (state.profile.cabinet_type || '').toLowerCase() === 'solo'; }
+
+function getVisibleQuestions(blockId) {
+  const block = PROTOCOL.blocks.find(b => b.id === blockId);
+  if (!block) return [];
+  if (blockId !== 'B') return block.questions;
+  const solo = isSolo();
+  return block.questions.filter(q => {
+    if (!q.routing) return true;
+    if (q.routing === 'cabinet_type==solo') return solo;
+    if (q.routing === 'cabinet_type!=solo') return !solo;
+    return true;
+  });
+}
+
+function scoreBlock(blockId) {
+  const visible = getVisibleQuestions(blockId);
+  if (visible.length === 0) return null;
+  const optionScore = {};
+  visible.forEach(q => q.options.forEach(o => { optionScore[o.id] = o.s; }));
+  let sum = 0, answered = 0;
+  visible.forEach(q => {
+    const ans = state.answers[q.id];
+    if (ans && optionScore[ans.selected_option] != null) {
+      sum += optionScore[ans.selected_option];
+      answered++;
+    }
+  });
+  if (answered === 0) return null;
+  return { pct: Math.round((sum / (visible.length * 4)) * 100), answered, total: visible.length };
+}
+
+function scoreToLevel(pct) {
+  if (pct >= 78) return { id: 'maitrise', label: 'Maîtrisé' };
+  if (pct >= 55) return { id: 'operationnel', label: 'Opérationnel' };
+  if (pct >= 35) return { id: 'a_surveiller', label: 'À surveiller' };
+  return { id: 'a_risque', label: 'À risque' };
+}
+
+function computeAllScores() {
+  const out = { A: null, B: null, C: null, completeness: { A: 0, B: 0, C: 0 } };
+  ['A', 'B', 'C'].forEach(b => {
+    const s = scoreBlock(b);
+    if (s) {
+      const level = scoreToLevel(s.pct);
+      out[b] = { pct: s.pct, level: level.id, label: level.label, title: DIAGNOSTICS.titres_diagnostic[b][level.id], axe_label: DIAGNOSTICS.titres_diagnostic[b].axe };
+      out.completeness[b] = s.answered / s.total;
+    }
+  });
+  if (out.A && out.B && out.C) {
+    out.global_score = Math.round((out.A.pct + out.B.pct + out.C.pct) / 3);
+  }
+  return out;
+}
+
+function evaluateSignal(scores) {
+  if (!scores.A || !scores.B || !scores.C) return null;
+  const A = scores.A.pct, B = scores.B.pct, C = scores.C.pct;
+  const sorted = [...DIAGNOSTICS.signaux_croises].sort((a, b) => a.ordre_priorite - b.ordre_priorite);
+  for (const sig of sorted) { if (matches(sig.condition, A, B, C)) return sig; }
+  return null;
+}
+function matches(cond, A, B, C) {
+  return cond.split('AND').map(s => s.trim()).every(c => evalClause(c, A, B, C));
+}
+function evalClause(c, A, B, C) {
+  for (const op of ['<=', '>=', '==', '<', '>']) {
+    if (c.includes(op)) {
+      const [l, r] = c.split(op).map(s => s.trim());
+      const lv = ({ A, B, C })[l]; const rv = parseInt(r, 10);
+      if (op === '<=') return lv <= rv;
+      if (op === '>=') return lv >= rv;
+      if (op === '<') return lv < rv;
+      if (op === '>') return lv > rv;
+      if (op === '==') return lv === rv;
+    }
+  }
+  return false;
+}
+
+function computeOpportunities(scores) {
+  const axisFor = { urgences: 'A', chroniques: 'A', delegation: 'B', comm: 'B', logiciel: 'C', admin: 'C', pilotage: 'C' };
+  return [...MODULES_DATA.modules]
+    .map(m => ({ ...m, axisPct: scores[axisFor[m.id]] ? scores[axisFor[m.id]].pct : 100 }))
+    .sort((a, b) => a.axisPct - b.axisPct || a.effort - b.effort);
+}
+
+function applyRules(scores) {
+  const p = state.profile; const out = { tonality: {}, benchmarks: [] };
+  const motivIntros = {
+    charge: "Vous avez démarré ce check-up pour identifier ce qui pèse le plus dans votre semaine. Voici ce qui ressort.",
+    evenement: "Vous avez démarré ce check-up pour préparer un événement à venir dans votre cabinet. Voici ce que ce diagnostic met en lumière.",
+    risque: "Vous avez démarré ce check-up pour sécuriser un risque identifié. Voici les points sur lesquels concentrer votre attention.",
+    curiosite: "Voici la lecture que ce check-up produit de votre cabinet.",
+  };
+  out.tonality.motivation_intro = motivIntros[p.motivation] || motivIntros.curiosite;
+  if (p.status === 'recent') out.tonality.status_msg = "C'est courant à ce stade d'installation — la plupart des cabinets prennent 2 à 3 ans à construire leurs routines.";
+  else if (p.status === 'senior' || p.status === 'approche_transmission') out.tonality.status_msg = "À votre stade, les chantiers utiles sont souvent ceux qui rendent le cabinet transmissible — pas ceux qui le complexifient.";
+  if (p.cabinet_type === 'solo' && scores.B && scores.B.pct <= 34) out.benchmarks.push({ id: 'R-bench-solo-charge', message: "À votre profil, sans équipe formalisée, vous portez seul l'équivalent d'1,5 ETP d'organisation." });
+  if (p.volume === 'gt_120' && scores.C && scores.C.pct <= 54) out.benchmarks.push({ id: 'R-bench-volume-admin', message: "À votre volume hebdomadaire, la moyenne du temps administratif est de 2 h 45 par jour — vous êtes probablement au-dessus." });
+  if (p.status === 'approche_transmission' && scores.B && scores.B.pct <= 54) out.benchmarks.push({ id: 'R-bench-transmission', message: "Un cabinet bien organisé se valorise 30 à 40 % mieux à la transmission." });
+  if (p.cabinet_type === 'solo' && p.paramedical_team === 'non' && scores.A && scores.A.pct >= 55 && scores.B && scores.B.pct <= 34) out.benchmarks.push({ id: 'R-bench-soloHero', message: "Vous tenez votre cabinet à bout de bras, et vous le tenez bien. La question : pour combien de temps encore, sans relai ?" });
+  return out;
+}
+
+function setStep(step) {
+  state.step = step;
+  if (step !== 'module_detail') state.moduleId = null;
+  render();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+function renderIntro() {
+  return `
+    <main class="intro">
+      <div class="intro-eyebrow">Diagnostic organisationnel</div>
+      <h1 class="serif intro-h1">Comment fonctionne <em>vraiment</em> votre cabinet ?</h1>
+      <p class="intro-sub">25 minutes. 18 questions adaptées à votre profil. Une analyse qui se construit en temps réel — pas un formulaire muet qui promet un résultat à la fin.</p>
+      <div class="axis-chips">
+        <span class="axis-chip a">Parcours patient</span>
+        <span class="axis-chip b">Équipe & secrétariat</span>
+        <span class="axis-chip c">Outils & dossiers</span>
+      </div>
+      <div class="promesses">
+        <div class="promesse"><h3 class="serif">Adaptatif</h3><p>Questions calibrées selon votre type de cabinet, votre logiciel et votre territoire.</p></div>
+        <div class="promesse"><h3 class="serif">Terrain</h3><p>Reformulations en langage praticien, pas consultant. Reflets immédiats à chaque réponse.</p></div>
+        <div class="promesse"><h3 class="serif">Croisé</h3><p>Détection de signaux entre les 3 axes organisationnels — ce que les scores isolés ne montrent pas.</p></div>
+        <div class="promesse"><h3 class="serif">Actionnable</h3><p>Plan d'action en 4 étapes pour le chantier que vous choisirez d'engager en priorité.</p></div>
+      </div>
+      <button class="btn-primary" onclick="setStep('profil_step1')">Commencer →</button>
+    </main>
+  `;
+}
+
+function selectChip(fieldId, optionId) {
+  state.profile[fieldId] = optionId;
+  if (fieldId === 'logiciel_metier' && optionId !== 'autre') state.profile.logiciel_metier_other = '';
+  render();
+}
+function updateOtherInput(value) { state.profile.logiciel_metier_other = value; }
+
+function renderChips(field) {
+  const cur = state.profile[field.id];
+  const buttons = field.options.map(o => `<button class="chip ${cur === o.id ? 'sel' : ''}" onclick="selectChip('${field.id}', '${o.id}')">${escapeHtml(o.label)}</button>`).join('');
+  let extra = '';
+  if (cur === 'autre' && field.options.find(o => o.id === 'autre' && o.free_text_field)) {
+    const other = state.profile.logiciel_metier_other || '';
+    extra = `<input type="text" class="other-input" placeholder="Précisez…" value="${escapeHtml(other)}" oninput="updateOtherInput(this.value)">`;
+  }
+  return `<div class="field"><div class="field-label">${escapeHtml(field.label)}</div><div class="chips-row">${buttons}</div>${extra}</div>`;
+}
+
+function isStep1Complete() {
+  const p = state.profile;
+  if (!p.cabinet_type || !p.volume || !p.paramedical_team || !p.logiciel_metier || !p.rdv_canal) return false;
+  if (p.logiciel_metier === 'autre' && !(p.logiciel_metier_other || '').trim()) return false;
+  return true;
+}
+function isStep2Complete() {
+  const p = state.profile;
+  return p.status && p.territoire && p.horizon && p.motivation;
+}
+
+function renderProfilStep1() {
+  const fields = PROTOCOL.profile.step1.fields.map(f => renderChips(f)).join('');
+  const ready = isStep1Complete();
+  return `
+    <div class="topbar"><div class="topbar-inner"><span class="chapter-num">1/5</span><span class="chapter-label">Profil</span></div></div>
+    <main class="profil">
+      <div class="small-eyebrow">Profil — étape 1 sur 2</div>
+      <h1 class="serif">Quelques informations sur votre cabinet</h1>
+      <p class="profil-intro">${escapeHtml(PROTOCOL.profile.step1.intro)}</p>
+      ${fields}
+      <div class="cta-row">
+        <button class="btn-primary" ${ready ? '' : 'disabled'} onclick="setStep('profil_step2')">Étape suivante →</button>
+        ${ready ? '' : '<span class="cta-hint">Complétez les 5 champs pour continuer</span>'}
+      </div>
+    </main>
+  `;
+}
+
+function renderProfilStep2() {
+  const fields = PROTOCOL.profile.step2.fields.map(f => renderChips(f)).join('');
+  const ready = isStep2Complete();
+  return `
+    <div class="topbar"><div class="topbar-inner"><span class="chapter-num">1/5</span><span class="chapter-label">Profil</span></div></div>
+    <main class="profil">
+      <div class="small-eyebrow">Profil — étape 2 sur 2</div>
+      <h1 class="serif">Votre regard sur la situation</h1>
+      <p class="profil-intro">${escapeHtml(PROTOCOL.profile.step2.intro)}</p>
+      ${fields}
+      <div class="cta-row">
+        <button class="btn-link" onclick="setStep('profil_step1')">← Retour</button>
+        <button class="btn-primary" ${ready ? '' : 'disabled'} onclick="setStep('energy')">Commencer le check-up →</button>
+      </div>
+    </main>
+  `;
+}
+
+function pickEnergy(optId, label) {
+  state.answers.energy = { selected_option: optId, selected_option_label: label, scored: false };
+  render();
+}
+
+function renderEnergy() {
+  const energy = PROTOCOL.energy;
+  const cur = state.answers.energy ? state.answers.energy.selected_option : null;
+  const opts = energy.options.map(o => `
+    <button class="opt-big ${cur === o.id ? 'sel' : ''}" onclick='pickEnergy("${o.id}", ${JSON.stringify(o.label)})'>
+      <span class="opt-big-inner">
+        <span class="radio"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        ${escapeHtml(o.label)}
+      </span>
+    </button>
+  `).join('');
+  return `
+    <div class="topbar"><div class="topbar-inner"><span class="chapter-num">2/5</span><span class="chapter-label">Ancrage</span></div></div>
+    <main class="energie">
+      <div class="small-eyebrow">Ancrage — avant les questions</div>
+      <h1 class="serif energie-q">${escapeHtml(energy.label)}</h1>
+      <p class="energie-note">Ce repère n'entre pas dans le calcul. Il sert juste à mieux situer ce qui ressortira du diagnostic.</p>
+      <div style="margin-bottom: 40px;">${opts}</div>
+      <button class="btn-primary" ${cur ? '' : 'disabled'} onclick="setStep('bloc_A')">Continuer →</button>
+    </main>
+  `;
+}
+
+function pickOption(questionId, optionId, label) {
+  state.answers[questionId] = { selected_option: optionId, selected_option_label: label, scored: true };
+  render();
+  setTimeout(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const el = document.getElementById('q-' + questionId);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const target = window.innerHeight * 0.7;
+    const delta = rect.bottom - target;
+    if (Math.abs(delta) > 24) window.scrollBy({ top: delta, behavior: 'smooth' });
+  }, 250);
+}
+
+function renderBenchmark(b) {
+  return `
+    <div class="benchmark">
+      <div class="b-eyebrow">Repère terrain</div>
+      <div class="b-text">${escapeHtml(b.texte)}</div>
+      ${b.source_status === 'to_confirm' ? `<div class="b-source">[À confirmer${b.source_hint ? ' — source : ' + escapeHtml(b.source_hint) : ''}]</div>` : ''}
+    </div>
+  `;
+}
+
+function renderQuestion(q, idx, total) {
+  const ans = state.answers[q.id];
+  const sel = ans ? ans.selected_option : null;
+  const opts = q.options.map(o => {
+    const isSel = sel === o.id;
+    const refl = isSel ? `<div class="reformulation">${escapeHtml(o.reformulation)}</div>` : '';
+    const bench = (isSel && o.benchmark) ? renderBenchmark(o.benchmark) : '';
+    return `
+      <button class="opt ${isSel ? 'sel' : ''}" onclick='pickOption("${q.id}", "${o.id}", ${JSON.stringify(o.label)})'>
+        <div class="opt-flex">
+          <span class="opt-radio"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="opt-text">${escapeHtml(o.label)}</span>
+        </div>
+      </button>
+      ${refl}${bench}
+    `;
+  }).join('');
+  return `
+    <div class="question" id="q-${q.id}">
+      <div class="q-eyebrow">Question ${idx} sur ${total}</div>
+      <h2 class="serif q-title">${escapeHtml(q.label)}</h2>
+      ${q.context ? `<p class="q-context">${escapeHtml(q.context)}</p>` : ''}
+      ${opts}
+    </div>
+  `;
+}
+
+function polar(angleDeg, r, cx, cy) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+}
+function ringPath(level, R, cx, cy) {
+  const angles = { A: 0, C: 120, B: 240 };
+  return 'M ' + ['A','C','B'].map(a => { const p = polar(angles[a], R * level, cx, cy); return `${p.x.toFixed(2)},${p.y.toFixed(2)}`; }).join(' L ') + ' Z';
+}
+function polyPath(scores, R, cx, cy) {
+  const angles = { A: 0, C: 120, B: 240 };
+  return 'M ' + ['A','C','B'].map(a => {
+    const pct = scores[a] ? scores[a].pct / 100 : 0.04;
+    const p = polar(angles[a], R * pct, cx, cy);
+    return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+  }).join(' L ') + ' Z';
+}
+
+function renderRadarAside() {
+  const scores = computeAllScores();
+  const SVG = 150, CX = 75, CY = 75, R = 60;
+  const colors = { A: '#2e7d4f', B: '#a85d2b', C: '#1a56a0' };
+  const labels = { A: 'Parcours patient', B: 'Équipe & secrétariat', C: 'Outils & dossiers' };
+  const angles = { A: 0, C: 120, B: 240 };
+  return `
+    <aside class="radar-aside">
+      <div class="radar-svg-wrap">
+        <svg viewBox="0 0 ${SVG} ${SVG}" width="100%" style="max-width: ${SVG}px;">
+          ${[0.25, 0.5, 0.75, 1].map((l, i) => `<path d="${ringPath(l, R, CX, CY)}" fill="none" stroke="${i === 3 ? '#d4cfbf' : '#e8e3d3'}" stroke-width="${i === 3 ? 1.2 : 0.8}"/>`).join('')}
+          ${['A','C','B'].map(a => { const p = polar(angles[a], R, CX, CY); return `<line x1="${CX}" y1="${CY}" x2="${p.x}" y2="${p.y}" stroke="#e0dccc" stroke-width="0.8"/>`; }).join('')}
+          <path d="${polyPath(scores, R, CX, CY)}" fill="rgba(26,86,160,.08)" stroke="#1a56a0" stroke-width="1.5"/>
+          ${['A','C','B'].map(a => {
+            const pct = scores[a] ? scores[a].pct / 100 : 0.04;
+            const p = polar(angles[a], R * pct, CX, CY);
+            return `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="4" fill="${colors[a]}" stroke="#faf9f5" stroke-width="1.5"/>`;
+          }).join('')}
+        </svg>
+      </div>
+      <div class="radar-axes">
+        ${['A','B','C'].map(a => {
+          const block = scores[a];
+          const niveau = block ? block.label : 'À évaluer';
+          const pct = block ? block.pct : 0;
+          return `
+            <div class="radar-axis-row">
+              <div class="axis-line1"><span class="axis-dot ${a.toLowerCase()}"></span><span class="axis-name">${labels[a]}</span></div>
+              <div class="axis-niveau">${niveau}</div>
+              <div class="axis-bar"><div class="axis-bar-fill" style="width: ${pct}%; background: ${colors[a]};"></div></div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </aside>
+  `;
+}
+
+function renderTopbarMiniRadar() {
+  const scores = computeAllScores();
+  const labels = { A: 'Parcours patient', B: 'Équipe', C: 'Outils & dossiers' };
+  return `
+    <div class="topbar-mini-radar">
+      <div class="topbar-mini-radar-inner">
+        ${['A','B','C'].map(a => {
+          const block = scores[a];
+          return `
+            <div class="mini-axis-row">
+              <div class="axis-line1"><span class="axis-dot ${a.toLowerCase()}"></span><span class="axis-name">${labels[a]}</span></div>
+              <div class="mini-axis-niveau">${block ? block.label : '—'}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function completeBlock(blockId) {
+  if (blockId === 'A') setStep('transition_A');
+  else if (blockId === 'B') setStep('transition_B');
+  else setStep('transition_C');
+}
+
+function renderBloc(blockId) {
+  const visible = getVisibleQuestions(blockId);
+  const chapter = { A: 3, B: 4, C: 5 }[blockId];
+  const chapterLabel = { A: 'Parcours patient', B: 'Équipe & secrétariat', C: 'Outils & dossiers' }[blockId];
+  const questionsHtml = visible.map((q, idx) => renderQuestion(q, idx + 1, visible.length)).join('');
+  const allAnswered = visible.every(q => state.answers[q.id]);
+  const nbMissing = visible.filter(q => !state.answers[q.id]).length;
+  return `
+    <div class="topbar"><div class="topbar-inner"><span class="chapter-num">${chapter}/5</span><span class="chapter-label">${chapterLabel}</span></div></div>
+    ${renderTopbarMiniRadar()}
+    <div class="bloc-layout">
+      <main class="bloc-main">
+        <div class="bloc-section-header">
+          <div class="small-eyebrow">Bloc en cours</div>
+          <h1 class="serif">${chapterLabel}</h1>
+        </div>
+        ${questionsHtml}
+        <div class="bloc-footer">
+          <button class="btn-primary" ${allAnswered ? '' : 'disabled'} onclick="completeBlock('${blockId}')">Bloc suivant →</button>
+          ${allAnswered ? '' : `<span class="cta-hint">Répondez aux ${nbMissing} question${nbMissing > 1 ? 's' : ''} restante${nbMissing > 1 ? 's' : ''}</span>`}
+        </div>
+      </main>
+      ${renderRadarAside()}
+    </div>
+  `;
+}
+
+function renderTransition(blockId) {
+  const scores = computeAllScores();
+  const block = scores[blockId];
+  const labelBloc = { A: 'Parcours patient', B: 'Équipe & secrétariat', C: 'Outils & dossiers' }[blockId];
+  const isFinal = blockId === 'C';
+  const nextLabel = isFinal ? 'Vos résultats du diagnostic' : (blockId === 'A' ? 'Bloc 2 — Équipe & secrétariat' : 'Bloc 3 — Outils & dossiers');
+  const nextStep = isFinal ? 'resultats' : (blockId === 'A' ? 'bloc_B' : 'bloc_C');
+  const cta = isFinal ? 'Voir vos résultats →' : 'Continuer →';
+  return `
+    <main class="transition-screen">
+      <div class="transition-eyebrow">Bloc ${blockId} terminé</div>
+      <h1 class="serif transition-h1">${labelBloc}</h1>
+      ${block ? `<p class="transition-niveau">Niveau de maturité : <strong>${block.label}</strong></p>` : ''}
+      ${block ? `<p class="serif transition-quote">« ${escapeHtml(block.title)} »</p>` : ''}
+      <div class="transition-suite">
+        <div class="ts-eyebrow">${isFinal ? 'Parcours terminé' : 'Suite'}</div>
+        <div class="ts-label">${nextLabel}</div>
+        <button class="btn-primary" onclick="setStep('${nextStep}')">${cta}</button>
+      </div>
+    </main>
+  `;
+}
+
+function signalToneClass(t) {
+  if (t === 'alerte_forte' || t === 'alerte') return 'alerte';
+  if (t === 'positif') return 'positif';
+  if (t === 'recadrage' || t === 'opportunite') return 'recadrage';
+  return '';
+}
+function impactLabel(i) { return ({ immediat: 'Impact immédiat', court_terme: 'Impact court terme', moyen_terme: 'Impact moyen terme' })[i] || i; }
+function effortPipsHtml(e) { return `<span class="effort-pips">${[1,2,3].map(n => `<span class="pip ${n <= e ? 'on' : ''}"></span>`).join('')}</span>`; }
+function tagLabel(t) { return ({ quick: 'Action rapide — < 1 semaine', medium: 'Projet court — 1 à 4 semaines', invest: 'Investissement — 1 à 3 mois' })[t] || t; }
+function effortLabel(e) { return ['Effort léger', 'Effort modéré', 'Effort significatif'][e - 1] || `Effort ${e}/3`; }
+
+function openModule(id) { state.moduleId = id; setStep('module_detail'); }
+
+function renderResultats() {
+  const scores = computeAllScores();
+  const signal = evaluateSignal(scores);
+  const rules = applyRules(scores);
+  const opportunities = computeOpportunities(scores);
+  const top4 = opportunities.slice(0, 4);
+  const SVG = 340, CX = 170, CY = 170, R = 120;
+  const colors = { A: '#2e7d4f', B: '#a85d2b', C: '#1a56a0' };
+  const angles = { A: 0, C: 120, B: 240 };
+  const labelsRadar = { A: 'Parcours patient', C: 'Outils & dossiers', B: 'Équipe & secrétariat' };
+  const radarSvg = `
+    <svg viewBox="0 0 ${SVG} ${SVG}" width="100%" style="max-width: ${SVG}px;">
+      ${[0.25, 0.5, 0.75, 1].map((l, i) => `<path d="${ringPath(l, R, CX, CY)}" fill="none" stroke="${i === 3 ? '#d4cfbf' : '#e8e3d3'}" stroke-width="${i === 3 ? 1.5 : 1}"/>`).join('')}
+      ${['A','C','B'].map(a => { const p = polar(angles[a], R, CX, CY); return `<line x1="${CX}" y1="${CY}" x2="${p.x}" y2="${p.y}" stroke="#d4cfbf" stroke-width="1"/>`; }).join('')}
+      <path d="${polyPath(scores, R, CX, CY)}" fill="rgba(26,86,160,.10)" stroke="#1a56a0" stroke-width="2"/>
+      ${['A','C','B'].map(a => {
+        const pct = scores[a] ? scores[a].pct / 100 : 0.04;
+        const p = polar(angles[a], R * pct, CX, CY);
+        return `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="6" fill="${colors[a]}" stroke="#faf9f5" stroke-width="2"/>`;
+      }).join('')}
+      ${['A','C','B'].map(a => {
+        const labelP = polar(angles[a], R + 32, CX, CY);
+        const anchor = a === 'A' ? 'start' : 'end';
+        return `<text x="${labelP.x.toFixed(2)}" y="${labelP.y.toFixed(2)}" text-anchor="${anchor}" dominant-baseline="middle" font-size="12" font-weight="500" fill="${colors[a]}">${labelsRadar[a]}</text>`;
+      }).join('')}
+    </svg>
+  `;
+  const facetCards = ['A','B','C'].map(a => {
+    const b = scores[a]; if (!b) return '';
+    const showBadge = b.level === 'a_surveiller' || b.level === 'a_risque';
+    const badgeClass = b.level === 'a_risque' ? 'risque' : 'surveiller';
+    return `
+      <div class="facet-card">
+        <div class="facet-card-row">
+          <span class="axis-dot ${a.toLowerCase()}" style="margin-top: 10px;"></span>
+          <div style="flex: 1;">
+            <div class="facet-meta">
+              <span class="facet-axe">${b.axe_label}</span>
+              ${showBadge ? `<span class="facet-badge ${badgeClass}">${b.label}</span>` : ''}
+            </div>
+            <h3 class="serif facet-title">${escapeHtml(b.title)}</h3>
+            ${showBadge ? '' : `<div class="facet-level-soft">${b.label}</div>`}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  const benchCombiCards = rules.benchmarks.length > 0 ? rules.benchmarks.map(b => `
+    <div class="bench-combi-box">
+      <p style="margin: 0; font-size: 14px; line-height: 1.55; color: var(--bench-text);">${escapeHtml(b.message)}</p>
+    </div>
+  `).join('') : '';
+  const opportunityCards = top4.map((m, idx) => `
+    <a class="chantier-card ${idx === 0 ? 'reco' : ''}" onclick="openModule('${m.id}')">
+      <div class="chantier-row">
+        <span class="serif chantier-num">${String(idx + 1).padStart(2, '0')}</span>
+        <div style="flex: 1;">
+          ${idx === 0 ? `<div class="chantier-reco-tag">Recommandé pour vous</div>` : ''}
+          <h3 class="serif chantier-title">${m.icone} ${escapeHtml(m.label)}</h3>
+          <div class="chantier-meta">
+            ${effortPipsHtml(m.effort)}
+            <span>·</span><span>${impactLabel(m.impact)}</span>
+            <span>·</span><span>${m.etapes.length} étapes</span>
+          </div>
+          <div class="chantier-cta">Voir le détail →</div>
+        </div>
+      </div>
+    </a>
+  `).join('');
+  const allModulesGrid = MODULES_DATA.modules.map(m => `
+    <a class="module-tile" onclick="openModule('${m.id}')">
+      <div class="module-tile-title">${m.icone} ${escapeHtml(m.label)}</div>
+      <div class="module-tile-meta">${effortPipsHtml(m.effort)}<span>· ${m.etapes.length} étapes</span></div>
+    </a>
+  `).join('');
+  let secCounter = 1;
+  return `
+    <main class="resultats">
+      <div class="res-eyebrow">Résultats — diagnostic V2</div>
+      <h1 class="serif res-h1">Votre cabinet, vu du diagnostic</h1>
+      <p class="serif res-intro">« ${escapeHtml(rules.tonality.motivation_intro)} »</p>
+      <div class="radar-result">${radarSvg}</div>
+      ${signal ? `
+        <div class="signal-banner ${signalToneClass(signal.tonalite)}">
+          <div class="signal-eyebrow">Signal croisé</div>
+          <h3 class="serif signal-title">${escapeHtml(signal.titre)}</h3>
+          <p class="signal-msg">${escapeHtml(signal.message)}</p>
+        </div>
+      ` : ''}
+      ${rules.tonality.status_msg ? `<p class="tonalite-aside">${escapeHtml(rules.tonality.status_msg)}</p>` : ''}
+      <section>
+        <div class="section-title"><span class="serif section-number">I</span><h2 class="serif">Les trois axes</h2></div>
+        <div style="margin-top: 24px;">${facetCards}</div>
+      </section>
+      ${rules.benchmarks.length > 0 ? `
+        <section>
+          <div class="section-title"><span class="serif section-number">II</span><h2 class="serif">Repères terrain personnalisés</h2></div>
+          <div style="margin-top: 24px;">${benchCombiCards}</div>
+        </section>
+      ` : ''}
+      <section>
+        <div class="section-title"><span class="serif section-number">${rules.benchmarks.length > 0 ? 'III' : 'II'}</span><h2 class="serif">Opportunités d'action</h2></div>
+        <p class="section-intro">Sélection ordonnée selon votre profil et votre niveau d'énergie. La première carte est la plus alignée avec ce que vous avez déclaré.</p>
+        <div style="margin-top: 24px;">${opportunityCards}</div>
+      </section>
+      <section>
+        <div class="section-title"><span class="serif section-number">${rules.benchmarks.length > 0 ? 'IV' : 'III'}</span><h2 class="serif">Tous les chantiers</h2></div>
+        <div class="modules-grid" style="margin-top: 24px;">${allModulesGrid}</div>
+      </section>
+    </main>
+  `;
+}
+
+function renderModuleDetail() {
+  const m = MODULES_DATA.modules.find(x => x.id === state.moduleId);
+  if (!m) return `<main class="module-detail"><p>Module introuvable.</p></main>`;
+  const etapes = m.etapes.map(e => `
+    <article class="module-etape">
+      <span class="serif module-etape-num">${e.num}</span>
+      <div style="flex: 1;">
+        <h2 class="serif module-etape-title">${escapeHtml(e.titre)}</h2>
+        <span class="tag-temp ${e.tag}">${tagLabel(e.tag)}</span>
+        <p class="module-etape-body">${escapeHtml(e.body)}</p>
+      </div>
+    </article>
+  `).join('');
+  return `
+    <main class="module-detail">
+      <button class="module-back" onclick="setStep('resultats')">← Retour aux résultats</button>
+      <div class="module-eyebrow">Module d'approfondissement</div>
+      <h1 class="serif module-h1">${m.icone} ${escapeHtml(m.label)}</h1>
+      <div class="module-meta">
+        <span>${effortPipsHtml(m.effort)} ${effortLabel(m.effort)}</span>
+        <span style="color: var(--border);">·</span>
+        <span>${impactLabel(m.impact)}</span>
+        <span style="color: var(--border);">·</span>
+        <span>${m.etapes.length} étapes</span>
+      </div>
+      <section class="module-etapes">${etapes}</section>
+      <div style="background: var(--bench-bg); border-left: 3px solid var(--bench-border); border-radius: 4px; padding: 20px 24px;">
+        <div class="b-eyebrow">Repère terrain</div>
+        <p class="b-text" style="margin: 0; font-size: 14px; line-height: 1.6;">${escapeHtml(m.benchmark_conclusion.texte)}</p>
+        ${m.benchmark_conclusion.source_status === 'to_confirm' ? `<div class="b-source" style="margin-top: 12px;">[À confirmer${m.benchmark_conclusion.source_hint ? ' — source : ' + escapeHtml(m.benchmark_conclusion.source_hint) : ''}]</div>` : ''}
+      </div>
+      <p class="module-share">Vous pouvez partager ce module avec un membre de votre équipe ou l'un de vos associés — l'adresse <code>/modules/${m.id}</code> est publique et ne nécessite pas de connexion.</p>
+    </main>
+  `;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  let html = '';
+  switch (state.step) {
+    case 'intro': html = renderIntro(); break;
+    case 'profil_step1': html = renderProfilStep1(); break;
+    case 'profil_step2': html = renderProfilStep2(); break;
+    case 'energy': html = renderEnergy(); break;
+    case 'bloc_A': html = renderBloc('A'); break;
+    case 'bloc_B': html = renderBloc('B'); break;
+    case 'bloc_C': html = renderBloc('C'); break;
+    case 'transition_A': html = renderTransition('A'); break;
+    case 'transition_B': html = renderTransition('B'); break;
+    case 'transition_C': html = renderTransition('C'); break;
+    case 'resultats': html = renderResultats(); break;
+    case 'module_detail': html = renderModuleDetail(); break;
+    default: html = renderIntro();
+  }
+  app.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>

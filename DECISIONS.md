@@ -6,6 +6,50 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-046 — Pipeline HTML/CSS + WeasyPrint comme standard PDF Lugia (2026-05-28)
+
+La génération des documents PDF Lugia (études, business plans, rapports investisseurs, notes exécutives) passe par un **pipeline HTML/CSS + WeasyPrint**, en remplacement de pandoc → docx → soffice utilisé jusqu'ici.
+
+**Pourquoi** :
+- **Conformité à la charte PDF Lugia v1** (`resources/charte_documents_pdf.html`) : couverture A4 navy full-bleed, openers de section avec ghost numbers, palette ivory / navy / argent / ambre exacte, polices Lora / Onest / IBM Plex Mono, gabarits couverture-sommaire-section-texte-tableau distincts. Pandoc/Word ne permettait pas cette finesse de mise en page sans un travail de template Word lourd et fragile.
+- **Tableaux à colonnes multiples** : pandoc 2.9 perdait silencieusement les colonnes 2 et 3 des tableaux à 3 colonnes (bug rencontré sur le BP v1.0 — allocation pré-seed, allocation seed, équipe cible). WeasyPrint rend tous les chiffres correctement.
+- **Reproductibilité** : un fichier HTML + CSS embarqué = source de vérité versionnable, régénération PDF idempotente.
+- **Itération rapide** : modifier une couleur, un padding, un espacement → 1 ligne CSS + 1 commande WeasyPrint = nouveau PDF. Pas de Word, pas de boîte noire.
+
+**Caveats à connaître** :
+- Les polices Onest et IBM Plex Mono ne sont pas installées localement dans l'environnement de génération ; fallbacks DejaVu Sans / DejaVu Sans Mono actuellement. Pour 100 % de conformité charte, il faudra installer les `.woff2` d'Onest et IBM Plex Mono via @font-face dans le HTML (ou en local système).
+- WeasyPrint ne permet pas les marges nulles sur des @page nommées de façon fiable. Solution adoptée : `@page { margin: 0 }` global, et les pages corps reçoivent leurs marges via une `@page body-page` nommée appliquée par `section { page: body-page }` + override `page: auto` sur `.cover` et `.opener`.
+- Les couvertures et openers utilisent un élément 210×297mm avec `background: navy` pour le full-bleed. Le ghost number des openers déborde volontairement à droite (charte).
+
+**Alternatives écartées** :
+- Continuer pandoc + reference.docx : possible mais fragile sur les tableaux et la conformité visuelle, et inverse l'effort de design.
+- React/Next + react-pdf : surdimensionné pour un document statique.
+- LaTeX : excellente typo mais complexité de la mise en page Lugia (full-bleed, ghost numbers, gabarits multiples) trop coûteuse vs ROI.
+
+**Conséquences** :
+- Le BP v1.1 est livré dans ce pipeline (`etudes/Lugia_Business_Plan_2026-05.html` + `.pdf`).
+- Les prochaines études et rapports Lugia suivent ce même pipeline. Un template réutilisable sera extrait progressivement (couverture + sommaire + opener + corps + tableaux + annexes).
+- Les anciens PDFs générés via pandoc restent disponibles à titre d'archive ; ils ne seront pas régénérés sauf si modification de fond.
+
+---
+
+## D-045 — Trajectoire de financement : pré-seed comme recommandation interne, scénarios bootstrap et seed conservés en option (2026-05-28)
+
+Le business plan v1 (mai 2026, `etudes/Lugia_Business_Plan_2026-05.pdf`) construit trois scénarios financiers et **recommande en interne le scénario pré-seed (200-300 k€)**. Cette décision n'est pas un engagement de levée mais un cadre de pilotage.
+
+**Pourquoi le pré-seed** :
+- La traction reste à prouver (pilotes en cours, pas de revenu récurrent significatif à ce jour). Lever en seed maintenant exposerait à une valorisation faible et à une pression de croissance prématurée.
+- Le pré-seed 200-300 k€ (Business Angels, French Tech Émergence Bpifrance, love money) couvre 12-18 mois de runway et permet de livrer Lugia Work System V1 (chantiers WS.1 à WS.4) + d'initier les canaux assureurs RCP. C'est exactement ce dont la trajectoire a besoin avant un éventuel Series A.
+- L'allocation cible (52 % dev produit, 16 % conformité, 12 % commercial/marketing, 10 % médecin advisor, 4 % infra, 6 % réserve) reste cohérente avec une équipe 3-4 ETP.
+
+**Bootstrap conservé en option** : si l'écosystème français de financement reste prudent ou si les premiers pilotes basculent rapidement en revenu (services Lugia & Co), l'autofinancement reste viable — atteinte du point mort en an 3-4, dilution zéro. Risque assumé : pendant qu'on construit, les concurrents AI-first financés peuvent prendre de l'avance sur la visibilité et certains canaux institutionnels.
+
+**Seed conservé en option, pas en cible initiale** : à activer une fois que (1) les pilotes ont confirmé la conversion freemium → payant, (2) la première extension juridique ou chiffre a montré que le moteur générique tient ses promesses, (3) un canal B2B2B (RCP ou URPS) est en cours de signature. À ce moment, la valorisation se construit sur du concret et on peut viser 800 k€-1,2 M€ sans subir la pression de croissance.
+
+**Conséquence sur le pilotage** : les hypothèses clés du BP (ARPU 900 €/an, conversion freemium → payant 12-20 % phase 1, churn 2-3 %, CAC < 300 €) doivent être instrumentées dès les pilotes — pas attendre une éventuelle levée pour les mesurer. Cf KPIs section 11 du BP.
+
+---
+
 ## D-044 — Démo gratuite : discussion limitée à 10 échanges (2026-05-27)
 
 La discussion d'exploration d'un chantier en **version démo gratuite** est plafonnée à **10 messages** (`MAX_USER_MESSAGES = 10`), avec synthèse automatique au 10e tour (`SYNTHESE_TOUR = 10`). Met à jour la valeur « 20 messages max » mentionnée dans D-043.

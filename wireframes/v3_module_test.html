@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V3-brand · T-V3-8 · Page module — Rituel de communication d'équipe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --serif:"Lora", serif; --sans:"Onest", -apple-system, sans-serif; --mono:"IBM Plex Mono", Menlo, monospace; }
+  body.night {
+    --bg:#192030; --navy:#f4efe5; --navy400:#6e7a95; --navy600:#a8b2c8;
+    --ivory:#1e2738; --ivory2:#222d3e; --argent:#8E8E91;
+    --line:rgba(251,250,246,0.08); --line-strong:rgba(251,250,246,0.18);
+    --paper:#192030;
+    --axis-a:#4aab84; --axis-b:#5b82d4; --axis-c:#e07040;
+    --warn:#c4a055; --warng:rgba(196,160,85,0.10); --warnb:rgba(196,160,85,0.32);
+  }
+  body.day {
+    --bg:#fbfaf6; --navy:#1a2333; --navy400:#6e7795; --navy600:#3a4360;
+    --ivory:#f4efe5; --ivory2:#f8f4eb; --argent:#B5B5B8;
+    --line:rgba(26,35,51,0.10); --line-strong:rgba(26,35,51,0.20);
+    --paper:#fbfaf6;
+    --axis-a:#2d7a5e; --axis-b:#2a4fa0; --axis-c:#b5420a;
+    --warn:#7a6030; --warng:rgba(122,96,48,0.07); --warnb:rgba(122,96,48,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  em, i, cite, address { font-style: normal; }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--navy);
+    -webkit-font-smoothing: antialiased;
+    transition: background 350ms ease-out, color 350ms ease-out;
+  }
+
+  /* Toggle thème pill */
+  #theme-toggle {
+    position: fixed; top: 11px; right: 20px; z-index: 300;
+    display: inline-flex; align-items: stretch; gap: 0;
+    background: var(--ivory); border: 1px solid var(--line-strong);
+    cursor: pointer;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    user-select: none; overflow: hidden;
+    transition: border-color 200ms ease-out, background 350ms ease-out;
+    padding: 0; width: 152px; height: 28px;
+  }
+  .tg-pill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 76px;
+    background: var(--ivory2); border-right: 1px solid var(--line-strong);
+    transition: transform 250ms cubic-bezier(.4, 0, .2, 1);
+  }
+  body.day .tg-pill { transform: translateX(0); }
+  body.night .tg-pill { transform: translateX(76px); border-right: none; border-left: 1px solid var(--line-strong); }
+  .tg-opt {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    width: 76px;
+    background: transparent; border: none; padding: 0; margin: 0;
+    color: var(--navy400); opacity: 0.45;
+    font-family: inherit; font-size: inherit;
+    letter-spacing: inherit; text-transform: inherit;
+    transition: color 250ms ease-out, opacity 250ms ease-out, font-weight 250ms ease-out;
+    cursor: pointer;
+  }
+  body.day .tg-opt.day, body.night .tg-opt.night {
+    color: var(--navy); opacity: 1; font-weight: 600; cursor: default;
+  }
+
+  /* Topbar */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: rgba(25,32,48,0.93);
+    -webkit-backdrop-filter: saturate(140%) blur(12px); backdrop-filter: saturate(140%) blur(12px);
+    padding: 12px 0;
+  }
+  body.day .topbar { background: rgba(251,250,246,0.92); }
+  .tb-inner { max-width: 720px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
+  .tb-brand { display: flex; align-items: center; gap: 9px; flex-shrink: 0; color: var(--navy); }
+  .tb-name { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--navy); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+  .tb-label { font-family: var(--mono); font-size: 10px; color: var(--navy400); letter-spacing: 0.08em; text-transform: uppercase; }
+  .tb-sep { width: 1px; height: 14px; background: var(--line-strong); flex-shrink: 0; }
+  .tb-track { flex: 1; height: 1px; background: var(--line-strong); overflow: hidden; }
+  .tb-fill { height: 100%; background: var(--navy); width: 100%; }
+  .tb-pct { font-family: var(--mono); font-size: 10px; color: var(--navy400); min-width: 32px; text-align: right; }
+
+  /* Shell */
+  .shell { max-width: 680px; margin: 0 auto; padding: 88px 24px 96px; }
+
+  /* Bouton retour discret */
+  .btn-back {
+    background: transparent; border: none; padding: 0; cursor: pointer;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--navy400); letter-spacing: 0.08em;
+    text-transform: uppercase; transition: color 180ms ease-out;
+    margin-bottom: 32px; display: inline-block;
+  }
+  .btn-back:hover { color: var(--navy); }
+
+  /* Eyebrow Plan d'action */
+  .eyebrow {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--navy400); margin: 0 0 18px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .eyebrow::after { content: ""; flex: 1; height: 1px; background: var(--navy400); opacity: 0.4; }
+
+  /* Titre du module */
+  .mod-title {
+    font-family: var(--serif); font-size: clamp(28px, 3.2vw, 36px);
+    font-weight: 400; line-height: 1.15; letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .mod-title.axis-b { color: var(--axis-b); }
+  .mod-title-icon { font-size: 32px; line-height: 1; flex-shrink: 0; }
+
+  /* Filet sous le titre */
+  .mod-rule { width: 60px; height: 1px; opacity: 0.4; margin-bottom: 40px; }
+  .mod-rule.axis-b { background: var(--axis-b); }
+
+  /* Étapes */
+  .mod-steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 48px; }
+  .mod-step {
+    background: var(--ivory); border: 1px solid var(--line);
+    padding: 20px 24px;
+    display: flex; gap: 20px; align-items: flex-start;
+  }
+  .mod-step-num {
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    color: var(--navy400); letter-spacing: 0.04em;
+    flex-shrink: 0; padding-top: 2px; min-width: 22px;
+  }
+  .mod-step-content { flex: 1; min-width: 0; }
+  .mod-step-title {
+    font-family: var(--serif); font-size: 17px;
+    font-weight: 400; line-height: 1.3; letter-spacing: -0.01em;
+    margin: 0 0 8px; color: var(--navy);
+  }
+  .mod-step-body {
+    font-family: var(--sans); font-size: 13px;
+    line-height: 1.65; color: var(--navy600);
+    margin: 0 0 12px;
+  }
+  /* Tag temporel */
+  .mod-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 9px;
+    font-family: var(--mono); font-size: 9px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    border: 1px solid;
+  }
+  .mod-tag::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
+  }
+  .mod-tag.quick { color: var(--axis-a); border-color: color-mix(in srgb, var(--axis-a) 40%, transparent); background: color-mix(in srgb, var(--axis-a) 8%, transparent); }
+  .mod-tag.medium { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); background: color-mix(in srgb, var(--warn) 8%, transparent); }
+  .mod-tag.invest { color: var(--argent); border-color: color-mix(in srgb, var(--argent) 40%, transparent); background: color-mix(in srgb, var(--argent) 8%, transparent); }
+
+  /* Données terrain */
+  .mod-bench {
+    padding: 22px 26px;
+    background: var(--warng);
+    border: 1px solid var(--warnb);
+    border-left: 2px solid var(--warn);
+    margin-bottom: 48px;
+  }
+  .mod-bench-kicker {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--warn); margin: 0 0 10px;
+  }
+  .mod-bench-text {
+    font-family: var(--serif); font-size: clamp(15px, 1.6vw, 17px);
+    font-weight: 400; line-height: 1.7;
+    color: var(--navy); margin: 0; max-width: 580px;
+  }
+  .mod-bench-source {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.08em; color: var(--warn);
+    margin: 12px 0 0; opacity: 0.8;
+  }
+  .mod-bench-source .confirm { opacity: 0.7; margin-left: 6px; }
+
+  /* CTA bas de page */
+  .mod-actions {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    padding-top: 24px; border-top: 1px solid var(--line);
+  }
+  .mod-actions-left { display: flex; gap: 16px; align-items: center; }
+  .btn-print {
+    background: transparent; color: var(--navy);
+    border: 1px solid var(--line-strong);
+    padding: 8px 16px; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    cursor: pointer; transition: border-color 180ms ease-out;
+  }
+  .btn-print:hover { border-color: var(--navy); }
+  .btn-lugia {
+    background: var(--navy); color: var(--paper);
+    border: none; padding: 12px 22px;
+    font-family: var(--sans); font-size: 14px;
+    font-weight: 600; letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: box-shadow 250ms ease-out, transform 180ms ease-out;
+  }
+  .btn-lugia:hover {
+    box-shadow: 0 0 0 1px var(--argent), 0 8px 24px -8px var(--argent);
+    transform: translateY(-1px);
+  }
+</style>
+</head>
+<body class="night">
+
+  <!-- Toggle thème -->
+  <div id="theme-toggle" role="group" aria-label="Thème">
+    <span class="tg-pill"></span>
+    <button class="tg-opt day" onclick="setTheme('day')" type="button">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="2.4" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="6" y1="0.5" x2="6" y2="2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="6" y1="9.5" x2="6" y2="11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="0.5" y1="6" x2="2.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="9.5" y1="6" x2="11.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="2.1" y1="2.1" x2="3.5" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="8.5" y1="8.5" x2="9.9" y2="9.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="9.9" y1="2.1" x2="8.5" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="3.5" y1="8.5" x2="2.1" y2="9.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg> Jour
+    </button>
+    <button class="tg-opt night" onclick="setTheme('night')" type="button">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <path d="M12.5 10.5A6.5 6.5 0 1 1 5 2a5.5 5.5 0 0 0 7.5 8.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg> Nuit
+    </button>
+  </div>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="tb-inner">
+      <div class="tb-brand">
+        <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+        <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+      </div>
+      <span class="tb-sep"></span>
+      <span class="tb-label">Chantier</span>
+      <div class="tb-track"><div class="tb-fill"></div></div>
+      <span class="tb-pct">100 %</span>
+    </div>
+  </div>
+
+  <!-- Page module — exemple : Rituel de communication d'équipe (axe B) -->
+  <div class="shell">
+
+    <button class="btn-back">← Retour au diagnostic</button>
+
+    <p class="eyebrow"><span>Plan d'action</span></p>
+
+    <h1 class="mod-title axis-b">
+      <span class="mod-title-icon">💬</span>
+      Rituel de communication d'équipe
+    </h1>
+    <div class="mod-rule axis-b" aria-hidden="true"></div>
+
+    <div class="mod-steps">
+
+      <article class="mod-step">
+        <span class="mod-step-num">01</span>
+        <div class="mod-step-content">
+          <h3 class="mod-step-title">Choisir un format court (10 minutes max)</h3>
+          <p class="mod-step-body">Pas une réunion de plus dans un agenda déjà saturé. Un point debout, en début de matinée, avec trois questions seulement : qu'est-ce qui se présente aujourd'hui, qu'est-ce qui coince, qu'est-ce qui demande une décision ? Le format court est ce qui le fait tenir dans la durée.</p>
+          <span class="mod-tag quick">Action rapide — &lt; 1 semaine</span>
+        </div>
+      </article>
+
+      <article class="mod-step">
+        <span class="mod-step-num">02</span>
+        <div class="mod-step-content">
+          <h3 class="mod-step-title">Lancer avec une équipe restreinte</h3>
+          <p class="mod-step-body">Vous, le secrétariat, et un paramédical si présent. Ne tentez pas d'embarquer tout le monde au lancement — démarrez avec ceux qui veulent essayer. Les autres rejoignent quand ils voient que ça marche, ce qui réduit la résistance au changement.</p>
+          <span class="mod-tag quick">Action rapide — &lt; 1 semaine</span>
+        </div>
+      </article>
+
+      <article class="mod-step">
+        <span class="mod-step-num">03</span>
+        <div class="mod-step-content">
+          <h3 class="mod-step-title">Tenir le rythme pendant 3 semaines</h3>
+          <p class="mod-step-body">La première semaine fonctionne par nouveauté. La deuxième par discipline. La troisième par habitude. Trois semaines est le minimum pour évaluer si le rituel s'installe — en dessous, c'est trop tôt pour juger. Tenez bon même les jours où vous pensez que ça ne sert à rien.</p>
+          <span class="mod-tag medium">Projet court — 1 à 4 semaines</span>
+        </div>
+      </article>
+
+      <article class="mod-step">
+        <span class="mod-step-num">04</span>
+        <div class="mod-step-content">
+          <h3 class="mod-step-title">Ajuster selon les retours</h3>
+          <p class="mod-step-body">Au bout de 3 semaines : posez les bonnes questions à l'équipe. Le format convient-il ? L'horaire est-il bon ? Y a-t-il un sujet récurrent qui mériterait son temps dédié ? Le rituel doit évoluer pour rester utile — sinon il devient une formalité que personne n'attend plus.</p>
+          <span class="mod-tag medium">Projet court — 1 à 4 semaines</span>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Données terrain -->
+    <section class="mod-bench">
+      <p class="mod-bench-kicker">Données terrain</p>
+      <p class="mod-bench-text">Les cabinets qui mettent en place un rituel de communication quotidien réduisent de 40 à 50 % les angles morts pendant les absences et libèrent en moyenne 30 minutes de temps médical par jour — du temps qui partait dans des allers-retours d'information.</p>
+      <p class="mod-bench-source">Source&nbsp;: Retours d'expérience CPTS sur les protocoles d'équipe<span class="confirm">· à confirmer</span></p>
+    </section>
+
+    <!-- CTA bas -->
+    <div class="mod-actions">
+      <div class="mod-actions-left">
+        <button class="btn-back" style="margin-bottom:0">← Retour</button>
+        <button class="btn-print" onclick="window.print()">Imprimer</button>
+      </div>
+      <button class="btn-lugia">En parler avec Lugia →</button>
+    </div>
+
+  </div>
+
+<script>
+  function setTheme(t) {
+    if (t === 'day' && document.body.classList.contains('night')) {
+      document.body.classList.remove('night'); document.body.classList.add('day');
+    } else if (t === 'night' && document.body.classList.contains('day')) {
+      document.body.classList.remove('day'); document.body.classList.add('night');
+    }
+  }
+</script>
+</body>
+</html>

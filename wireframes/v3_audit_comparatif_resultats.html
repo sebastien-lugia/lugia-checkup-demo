@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Audit comparatif page résultats — V1.1.9 / V2.0 / V3-brand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --serif: "Lora", serif;
+    --sans: "Onest", -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", Menlo, monospace;
+  }
+  em, i, cite, address { font-style: normal; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: #ece6d8;
+    color: #1a2333;
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 0 80px;
+  }
+  .wrap { max-width: 1640px; margin: 0 auto; padding: 0 32px; }
+  .head { margin-bottom: 40px; max-width: 900px; }
+  .head .eyebrow {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(26,35,51,0.55); margin: 0 0 14px;
+  }
+  .head h1 {
+    font-family: var(--serif); font-size: 44px; font-weight: 400;
+    line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 14px;
+  }
+  .head .lead {
+    font-family: var(--serif); font-size: 18px; line-height: 1.5;
+    color: rgba(26,35,51,0.7); margin: 0; max-width: 720px;
+  }
+
+  /* Grille 3 colonnes */
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 1100px) {
+    .cols { grid-template-columns: 1fr; }
+  }
+
+  .col {
+    background: #f5efe1;
+    border: 1px solid rgba(26,35,51,0.12);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .col-tag {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: #888780;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(26,35,51,0.12);
+    background: #ede5d2;
+  }
+  .col-tag strong { color: #1a2333; font-weight: 600; margin-right: 8px; }
+
+  /* Mini wireframe interne par version */
+  .frame {
+    padding: 20px;
+    font-size: 13px;
+    line-height: 1.55;
+    flex: 1;
+  }
+  .frame h2 {
+    font-family: var(--serif);
+    font-size: 22px; font-weight: 400;
+    line-height: 1.2; letter-spacing: -0.01em;
+    margin: 0 0 8px;
+  }
+  .frame .meta {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: #888780; margin: 0 0 16px;
+  }
+  .frame .lead {
+    font-size: 13px; color: #444; margin: 0 0 18px;
+    line-height: 1.55;
+  }
+
+  /* Bloc générique pour wireframe (placeholder visuel) */
+  .block {
+    border: 1px solid rgba(26,35,51,0.12);
+    background: #fbf6e9;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+  .block.section-num {
+    background: transparent; border: none;
+    padding: 0; margin: 22px 0 10px;
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: #888780;
+  }
+  .block.section-num strong {
+    font-family: var(--serif); font-size: 18px;
+    color: #c7c2b1; font-weight: 500;
+    letter-spacing: 0;
+  }
+  .block.section-num span.line {
+    flex: 1; height: 1px; background: rgba(26,35,51,0.18);
+  }
+  .block.radar {
+    aspect-ratio: 4/3;
+    display: flex; align-items: center; justify-content: center;
+    color: #888780; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    background: #f0eada;
+    border-style: dashed;
+  }
+  .block.signal {
+    background: rgba(122,96,48,0.10);
+    border-color: rgba(122,96,48,0.32);
+    border-left: 2px solid #7a6030;
+    color: #5a3d10;
+  }
+  .block.signal .signal-eyebrow {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: #7a6030; margin: 0 0 5px;
+    font-weight: 500;
+  }
+  .block.signal h3 {
+    font-family: var(--serif); font-size: 15px;
+    font-weight: 400; color: #1a2333; margin: 0 0 4px;
+  }
+  .block.aparte {
+    background: #f7f1de;
+    border: none;
+    border-left: 3px solid #d4cfbf;
+    padding-left: 14px;
+    font-family: var(--serif); font-size: 11.5px;
+    color: #666;
+    font-style: normal;
+  }
+  .block.axis {
+    border-left: 2px solid var(--axis-color, #888);
+  }
+  .block.axis.a { --axis-color: #2d7a5e; }
+  .block.axis.b { --axis-color: #2a4fa0; }
+  .block.axis.c { --axis-color: #b5420a; }
+  .block.axis .axis-title {
+    font-family: var(--serif); font-weight: 400;
+    font-size: 14px; margin: 0 0 4px;
+  }
+  .block.axis.a .axis-title { color: #2d7a5e; }
+  .block.axis.b .axis-title { color: #2a4fa0; }
+  .block.axis.c .axis-title { color: #b5420a; }
+  .block.axis .axis-level {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    float: right; margin-top: 2px;
+  }
+  .block.axis.a .axis-level { color: #2d7a5e; }
+  .block.axis.b .axis-level { color: #2a4fa0; }
+  .block.axis.c .axis-level { color: #b5420a; }
+  .block.axis .axis-body {
+    clear: both; font-size: 11px; color: #595959; line-height: 1.5;
+    padding-top: 4px;
+  }
+  .block.bench {
+    background: #fbf3e3;
+    border-left: 3px solid #c48a2a;
+    border-color: rgba(196,138,42,0.3);
+    color: #5a3d10; font-size: 11.5px;
+  }
+  .block.opp {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .block.opp .icon { font-size: 16px; line-height: 1; }
+  .block.opp .opp-content { flex: 1; }
+  .block.opp .opp-title { font-family: var(--serif); font-size: 13px; margin: 0 0 4px; }
+  .block.opp .opp-desc { font-size: 11px; color: #595959; line-height: 1.45; margin: 0 0 6px; }
+  .block.opp .opp-meta {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: #888780; display: flex; gap: 12px;
+  }
+  .block.opp .opp-meta .pips { display: inline-flex; gap: 2px; margin-right: 4px; vertical-align: middle; }
+  .block.opp .opp-meta .pip { display: inline-block; width: 10px; height: 2px; background: rgba(26,35,51,0.18); }
+  .block.opp .opp-meta .pip.on { background: #1a2333; }
+  .block.opp .opp-meta .badge-recommended {
+    background: #1a2333; color: #fbfaf6;
+    padding: 2px 6px; font-size: 8px;
+    margin-right: 4px;
+  }
+  .block.cta {
+    background: #f7f5ee;
+    text-align: center; padding: 16px 14px;
+  }
+  .block.cta h3 {
+    font-family: var(--serif); font-size: 14px;
+    font-weight: 400; margin: 0 0 4px;
+  }
+  .block.cta .cta-btns {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    justify-content: center; margin-top: 8px;
+  }
+  .block.cta .cta-btn {
+    border: 1px solid rgba(26,35,51,0.22);
+    padding: 3px 7px; font-size: 9px;
+    font-family: var(--sans);
+  }
+  .block.pause {
+    background: #f7f5ee;
+    border-radius: 6px;
+    border: none;
+    text-align: center;
+    padding: 18px 14px;
+    font-family: var(--serif); font-style: normal;
+    color: #444; font-size: 12px;
+  }
+  .next-step {
+    border: 1px solid rgba(26,35,51,0.18);
+    padding: 12px 14px; margin-bottom: 8px;
+  }
+  .next-step .badge {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: #1a56a0; margin: 0 0 4px;
+  }
+  .next-step.recommanded .badge { color: #2d7a5e; }
+  .next-step .title {
+    font-family: var(--serif); font-size: 13px;
+    font-weight: 500; margin: 0 0 4px;
+  }
+  .next-step .desc {
+    font-size: 11px; color: #595959; line-height: 1.45;
+    margin: 0;
+  }
+
+  /* Légende en bas */
+  .legend {
+    margin-top: 48px;
+    padding: 24px;
+    background: rgba(26,35,51,0.04);
+    border: 1px solid rgba(26,35,51,0.10);
+    max-width: 1640px;
+  }
+  .legend h2 {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: #1a2333; margin: 0 0 14px;
+  }
+  .legend p { margin: 0 0 10px; font-size: 13px; line-height: 1.55; max-width: 1100px; }
+  .legend ul { margin: 0 0 8px; padding-left: 18px; }
+  .legend li { font-size: 13px; line-height: 1.55; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="head">
+    <p class="eyebrow">Audit · 2026-05-20</p>
+    <h1>Page résultats — trois versions, trois directions.</h1>
+    <p class="lead">Comparatif visuel des choix architecturaux et éditoriaux de la page résultats du check-up Lugia entre V1.1.9 (prod actuelle), V2.0 (refonte structurelle en cohabitation) et V3-brand-0 (en cours, alignée brand kit).</p>
+  </header>
+
+  <div class="cols">
+
+    <!-- ═══════ COLONNE V1.1.9 ═══════ -->
+    <div class="col">
+      <div class="col-tag"><strong>V1.1.9</strong> Production actuelle</div>
+      <div class="frame">
+        <p class="meta">Résultats du check-up · Réalisé le 18 mai 2026</p>
+        <h2>Votre cabinet, vu du diagnostic — Dr Chateau.</h2>
+        <p class="lead">Pas de phrase de motivation. Pas de radar visuel.</p>
+
+        <div class="block section-num"><strong>I.</strong> Ce qui ressort <span class="line"></span></div>
+        <div class="block">Synthèse globale en paragraphes — extrait des forces et risques agrégés sur les 3 axes.</div>
+
+        <div class="block section-num"><strong>II.</strong> Trois angles de votre cabinet <span class="line"></span></div>
+        <div class="block axis a">
+          <span class="axis-level">Solide</span>
+          <p class="axis-title">Parcours patient</p>
+          <p class="axis-body">FacetCard en grille 3 cols. Forces / Risques détaillés.</p>
+        </div>
+        <div class="block axis b">
+          <span class="axis-level">Fragile</span>
+          <p class="axis-title">Participants</p>
+          <p class="axis-body">FacetCard — non dépliante en V1.1.9.</p>
+        </div>
+        <div class="block axis c">
+          <span class="axis-level">En transition</span>
+          <p class="axis-title">Information</p>
+          <p class="axis-body">FacetCard avec descriptions textuelles.</p>
+        </div>
+
+        <div class="block pause">Une pause narrative — bg crème arrondi.<br>« Vous avez une lecture claire de là où agir en premier. »</div>
+
+        <div class="block section-num"><strong>III.</strong> Trois opportunités d'action <span class="line"></span></div>
+        <div class="block opp">
+          <span class="icon">📋</span>
+          <div class="opp-content">
+            <p class="opp-title">Suivi des chroniques</p>
+            <p class="opp-desc">Texte court d'opportunité.</p>
+          </div>
+        </div>
+        <div class="block opp">
+          <span class="icon">🤝</span>
+          <div class="opp-content">
+            <p class="opp-title">Déléguer les tâches</p>
+            <p class="opp-desc">Texte court d'opportunité.</p>
+          </div>
+        </div>
+        <div class="block opp">
+          <span class="icon">💻</span>
+          <div class="opp-content">
+            <p class="opp-title">Logiciel médical</p>
+            <p class="opp-desc">Texte court d'opportunité.</p>
+          </div>
+        </div>
+
+        <div class="block section-num"><strong>IV.</strong> Prochaine étape ? <span class="line"></span></div>
+        <div class="next-step">
+          <p class="badge">Pour explorer</p>
+          <p class="title">Approfondir en autonomie</p>
+          <p class="desc">Un questionnaire ciblé sur l'opportunité de votre choix.</p>
+        </div>
+        <div class="next-step recommanded">
+          <p class="badge">Recommandé</p>
+          <p class="title">Avancer avec Lugia</p>
+          <p class="desc">On la traite ensemble dans votre cabinet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ COLONNE V2.0 ═══════ -->
+    <div class="col">
+      <div class="col-tag"><strong>V2.0</strong> Cohabitation actuelle</div>
+      <div class="frame">
+        <p class="meta">Résultats — diagnostic V2 · Dr Chateau</p>
+        <h2>Votre cabinet, vu du diagnostic.</h2>
+        <p class="lead" style="font-family:var(--serif);font-style:normal;color:#444">« Vous avez démarré ce check-up pour réduire votre charge actuelle. »</p>
+
+        <div class="block radar">[ Radar grand format SVG ]</div>
+
+        <div class="block signal">
+          <p class="signal-eyebrow">Signal croisé</p>
+          <h3>Paradoxe : bon parcours, équipe fragile.</h3>
+          <p>SignalBanner — apparaît seulement si un signal matche, pas systématique.</p>
+        </div>
+
+        <div class="block aparte">
+          Aparté tonalité : « En tant que praticien installé depuis plus de 15 ans, vous avez une vue d'ensemble qui mérite d'être outillée. »
+        </div>
+
+        <div class="block section-num"><strong>I.</strong> Les trois axes <span class="line"></span></div>
+        <div class="block axis a">
+          <span class="axis-level">Solide</span>
+          <p class="axis-title">Parcours patient</p>
+          <p class="axis-body">FacetCard DÉPLIANTE [+] — détail vide en V2 (placeholder).</p>
+        </div>
+        <div class="block axis b">
+          <span class="axis-level">Fragile</span>
+          <p class="axis-title">Équipe & secrétariat</p>
+          <p class="axis-body">FacetCard — toggle [+/−] expand.</p>
+        </div>
+        <div class="block axis c">
+          <span class="axis-level">En transition</span>
+          <p class="axis-title">Outils & dossiers</p>
+          <p class="axis-body">FacetCard — placeholder détail.</p>
+        </div>
+
+        <div class="block section-num"><strong>II.</strong> Repères terrain personnalisés <span class="line"></span></div>
+        <div class="block bench">
+          BenchmarkBox — « 40 % des rappels entrants seraient évitables avec une organisation simple. » (source_status: confirmed)
+        </div>
+        <div class="block bench">
+          Autre benchmark déclenché par votre profil (volume + cabinet solo).
+        </div>
+
+        <div class="block section-num"><strong>III.</strong> Opportunités d'action <span class="line"></span></div>
+        <div class="block opp">
+          <span class="opp-content">
+            <p class="opp-title"><span class="opp-meta"><span class="badge-recommended">1ère reco</span></span> Suivi des chroniques</p>
+            <p class="opp-desc">Card avec ranking 1er recommandé.</p>
+          </span>
+        </div>
+        <div class="block opp">
+          <span class="opp-content">
+            <p class="opp-title">2 · Déléguer les tâches</p>
+          </span>
+        </div>
+        <div class="block opp">
+          <span class="opp-content">
+            <p class="opp-title">3 · Rituel communication</p>
+          </span>
+        </div>
+        <div class="block opp">
+          <span class="opp-content">
+            <p class="opp-title">4 · Logiciel médical</p>
+          </span>
+        </div>
+
+        <div class="block section-num"><strong>IV.</strong> Tous les chantiers <span class="line"></span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div class="block" style="margin:0;padding:8px 10px">Urgences</div>
+          <div class="block" style="margin:0;padding:8px 10px">Chroniques</div>
+          <div class="block" style="margin:0;padding:8px 10px">Délégation</div>
+          <div class="block" style="margin:0;padding:8px 10px">Communication</div>
+          <div class="block" style="margin:0;padding:8px 10px">Logiciel</div>
+          <div class="block" style="margin:0;padding:8px 10px">Admin</div>
+          <div class="block" style="margin:0;padding:8px 10px">Pilotage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ COLONNE V3-brand ═══════ -->
+    <div class="col">
+      <div class="col-tag"><strong>V3-brand-0</strong> En cours · brand kit Lugia</div>
+      <div class="frame">
+        <p class="meta">Diagnostic complet ─────────────</p>
+        <h2 style="font-size:26px">Votre cabinet en trois dimensions</h2>
+        <p class="meta">Dr Chateau · Réalisé le 20 mai 2026 · Durée 18 min</p>
+        <p class="lead" style="font-family:var(--serif);color:#444">Vous avez démarré ce check-up pour réduire votre charge actuelle.</p>
+
+        <div class="block radar">[ Radar 380×340 incliné<br>(sommet à gauche, glow filter) ]</div>
+
+        <div class="block signal" style="padding:12px 14px">
+          <h3 style="color:#7a6030;font-size:16px;margin:0 0 6px">Analyse croisée</h3>
+          <p style="font-size:11px;color:#595959;line-height:1.55;margin:0">Toujours affichée avec fallback. Un seul titre h2 ambre — pas de doublon eyebrow.</p>
+        </div>
+
+        <p style="font-family:var(--mono);font-size:9px;letter-spacing:0.10em;text-transform:uppercase;color:#888780;margin:14px 0 8px">↓ Cliquez sur un axe pour voir les pistes d'action</p>
+
+        <div class="block axis a">
+          <span class="axis-level">Solide</span>
+          <p class="axis-title">Parcours patient</p>
+          <p class="axis-body">Phrase contextuelle navy600. <em style="color:#888;font-family:var(--mono);font-size:9px">↓ Cliquer pour les pistes d'action</em></p>
+        </div>
+        <div class="block axis b">
+          <span class="axis-level">En transition</span>
+          <p class="axis-title">Équipe & secrétariat</p>
+          <p class="axis-body">DÉPLIANTE [+] → Forces (puces axe) + Marges (puces argent).</p>
+        </div>
+        <div class="block axis c">
+          <span class="axis-level">En transition</span>
+          <p class="axis-title">Outils & dossiers</p>
+          <p class="axis-body">12 paires forces/marges éditorialisées par niveau.</p>
+        </div>
+
+        <p style="font-family:var(--serif);font-size:18px;margin:18px 0 10px">Chantiers prioritaires</p>
+
+        <div class="block opp">
+          <span class="icon">📋</span>
+          <div class="opp-content">
+            <p class="opp-title">Suivi des chroniques</p>
+            <p class="opp-desc">File active tracée et rappels de suivi automatiques.</p>
+            <div class="opp-meta">
+              <span><span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip"></span></span>Effort moyen</span>
+              <span>Gain &lt; 1 semaine</span>
+            </div>
+          </div>
+        </div>
+        <div class="block opp">
+          <span class="icon">🤝</span>
+          <div class="opp-content">
+            <p class="opp-title">Déléguer les tâches</p>
+            <p class="opp-desc">Périmètre clair de l'équipe — gain typique 45 min/jour.</p>
+            <div class="opp-meta">
+              <span><span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span></span>Effort soutenu</span>
+              <span>Gain 2 à 4 semaines</span>
+            </div>
+          </div>
+        </div>
+        <div class="block opp">
+          <span class="icon">💬</span>
+          <div class="opp-content">
+            <p class="opp-title">Rituel de communication</p>
+            <p class="opp-desc">15 min/jour pour fluidifier l'info entre l'équipe.</p>
+          </div>
+        </div>
+        <div class="block opp">
+          <span class="icon">💻</span>
+          <div class="opp-content">
+            <p class="opp-title">Optimiser le logiciel</p>
+            <p class="opp-desc">3 fonctions sous-exploitées qui changent le quotidien.</p>
+          </div>
+        </div>
+
+        <div class="block cta">
+          <h3>Creuser un chantier</h3>
+          <p style="font-size:11px;color:#595959;line-height:1.5;margin:0">Choisissez un chantier — plan d'action en 4 étapes.</p>
+          <div class="cta-btns">
+            <span class="cta-btn">📋 Chroniques</span>
+            <span class="cta-btn">🤝 Déléguer</span>
+            <span class="cta-btn">💬 Communication</span>
+            <span class="cta-btn">💻 Logiciel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LÉGENDE / SYNTHÈSE -->
+  <aside class="legend">
+    <h2>Lecture rapide</h2>
+    <p><strong>V1.1.9</strong> est une page-document : 4 sections numérotées en chiffres romains, structure éditoriale linéaire, pas de radar visuel, opportunités en bas, deux CTA « autonomie / Lugia ». Pas de signal croisé. Bonne hiérarchie textuelle mais peu de signal visuel pour saisir l'état d'ensemble en 5 secondes.</p>
+    <p><strong>V2.0</strong> introduit le radar grand format + un signal croisé conditionnel + des FacetCards dépliantes (placeholder). Elle ajoute une section II « Repères terrain » et une section IV « Tous les chantiers » qui n'existaient pas en V1. Elle conserve les 4 sections numérotées. Premier vrai diagnostic visuel.</p>
+    <p><strong>V3-brand-0</strong> assume le brand kit Lugia : mode nuit par défaut, navy + ivoire + argent + signal-warn ambre, Lora + Onest + IBM Plex Mono, rectangulaire pur (no border-radius), jamais d'italique. Elle ajoute la <em>méta date + durée</em> (suivi intelligent du temps), une <em>analyse croisée toujours affichée</em> (avec fallback systématique), des <em>axis cards dépliantes avec Forces + Marges éditorialisées</em> (12 paires), et un <em>toggle Jour/Nuit</em>. Elle perd les sections numérotées, l'aparté status, les benchmarks combinatoires et l'accès « Tous les chantiers » — décisions à arbitrer pour réintégration.</p>
+    <p><strong>Décisions à prendre :</strong></p>
+    <ul>
+      <li>Réintégrer ou non l'aparté <em>status junior/senior</em> ?</li>
+      <li>Réintégrer ou non la section II <em>« Repères terrain personnalisés »</em> (benchmarks combinatoires) ?</li>
+      <li>Ajouter le <em>ranking 1er/2e/3e</em> + badge « première recommandation » sur les chantiers ?</li>
+      <li>Réintégrer un accès <em>« Voir les autres chantiers »</em> (les 3 non prioritaires) ?</li>
+      <li>Garder l'absence des sections numérotées I/II/III/IV en V3 ?</li>
+    </ul>
+  </aside>
+</div>
+
+</body>
+</html>

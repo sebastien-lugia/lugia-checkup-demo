@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V3-brand · T-V3-1 · Test lisibilité ambre (signal-warn)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Palette de marque — figée par D-031 */
+    --navy:#1a2333;
+    --ivory:#f4efe5;
+    --paper:#fbfaf6;
+    --argent:#B5B5B8;
+    --line: rgba(26,35,51,0.12);
+    --line-night: rgba(251,250,246,0.10);
+
+    /* Surfaces mode nuit */
+    --night-surface:#192030;
+    --night-text:#fbfaf6;
+    --night-text-soft:rgba(251,250,246,0.7);
+
+    /* Trois variantes candidates de --signal-warn */
+    --w-terreux-jour:#7a6030;
+    --w-terreux-nuit:#c4a055;
+    --w-brule-jour:#b5780a;
+    --w-brule-nuit:#d68f1a;
+    --w-sature-jour:#c8851a;
+    --w-sature-nuit:#e8a035;
+
+    --serif:"Lora", "Times New Roman", serif;
+    --sans:"Onest", -apple-system, sans-serif;
+    --mono:"IBM Plex Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  em, i { font-style: normal; }
+  html, body { margin:0; padding:0; }
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--navy);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 64px 48px 96px; }
+  .head {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 40px;
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(26,35,51,0.55);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 56px;
+    line-height: 1.05;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+  }
+  .lead {
+    font-family: var(--serif);
+    font-size: 21px;
+    line-height: 1.5;
+    color: rgba(26,35,51,0.75);
+    max-width: 800px;
+    margin: 0;
+  }
+  .lead em { color: var(--argent); }
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+  .panel {
+    padding: 36px 32px 32px;
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .panel.day { background: var(--paper); }
+  .panel.night {
+    background: var(--night-surface);
+    color: var(--night-text);
+    border-color: var(--line-night);
+  }
+  .panel-label {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+  .variant {
+    margin-bottom: 32px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid currentColor;
+    border-bottom-color: rgba(127,127,127,0.18);
+  }
+  .variant:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .variant-title {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin: 0 0 18px;
+  }
+  .variant-title .name {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+  }
+  .variant-title .hex {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    opacity: 0.7;
+  }
+  .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    transform: translateY(1px);
+  }
+  /* — Composants à tester en signal-warn — */
+
+  /* (1) Benchmark critique en ligne */
+  .bench {
+    margin-top: 14px;
+    padding: 14px 18px;
+    border-left: 2px solid var(--warn);
+    background: var(--warn-surface);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .bench .num {
+    font-family: var(--mono);
+    font-weight: 500;
+    color: var(--warn);
+  }
+  /* (2) Chip signal (mini badge inline) */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--warn-border);
+    background: var(--warn-surface);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warn);
+    margin: 16px 0 0;
+  }
+  .chip::before {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--warn);
+  }
+  /* (3) Titre de module à fort enjeu */
+  .module-title {
+    font-family: var(--serif);
+    font-size: 24px;
+    line-height: 1.25;
+    margin: 18px 0 6px;
+  }
+  .module-title em {
+    color: var(--warn);
+  }
+  .module-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warn);
+    opacity: 0.85;
+  }
+  /* (4) Mini bloc de texte sur surface diluée (recommandation) */
+  .reco {
+    margin-top: 16px;
+    padding: 16px 18px;
+    background: var(--warn-surface);
+    border: 1px solid var(--warn-border);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .reco strong { color: var(--warn); font-weight: 600; }
+
+  /* Variante terreux (modèle cible) */
+  .panel.day .v-terreux { --warn: var(--w-terreux-jour); --warn-surface: rgba(122,96,48,0.10); --warn-border: rgba(122,96,48,0.32); }
+  .panel.night .v-terreux { --warn: var(--w-terreux-nuit); --warn-surface: rgba(196,160,85,0.10); --warn-border: rgba(196,160,85,0.32); }
+
+  /* Variante brûlé */
+  .panel.day .v-brule { --warn: var(--w-brule-jour); --warn-surface: rgba(181,120,10,0.10); --warn-border: rgba(181,120,10,0.32); }
+  .panel.night .v-brule { --warn: var(--w-brule-nuit); --warn-surface: rgba(214,143,26,0.10); --warn-border: rgba(214,143,26,0.32); }
+
+  /* Variante saturé */
+  .panel.day .v-sature { --warn: var(--w-sature-jour); --warn-surface: rgba(200,133,26,0.10); --warn-border: rgba(200,133,26,0.32); }
+  .panel.night .v-sature { --warn: var(--w-sature-nuit); --warn-surface: rgba(232,160,53,0.10); --warn-border: rgba(232,160,53,0.32); }
+
+  /* Cartouche méthodo en bas */
+  .footnote {
+    margin-top: 64px;
+    padding: 32px;
+    border: 1px solid var(--line);
+    background: var(--ivory);
+  }
+  .footnote h2 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 18px;
+    color: rgba(26,35,51,0.55);
+  }
+  .footnote p {
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(26,35,51,0.75);
+    max-width: 880px;
+  }
+  .footnote ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .footnote li {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--navy);
+    padding-left: 18px;
+    position: relative;
+  }
+  .footnote li::before {
+    content: "·";
+    position: absolute;
+    left: 4px;
+    font-size: 18px;
+    color: var(--argent);
+    top: -4px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="head">
+      <p class="eyebrow">V3-brand · T-V3-1 · Test de lisibilité</p>
+      <h1>Quelle valeur hex pour <em>--signal-warn</em> ?</h1>
+      <p class="lead">Trois variantes de l'ambre fonctionnel testées côte à côte sur les deux surfaces canoniques de V3. Objectif&nbsp;: choisir une valeur qui se voit sans crier, et qui tienne aussi bien à <em>la table</em> qu'à <em>l'écran</em>.</p>
+    </header>
+
+    <!-- Variante 1 : terreux (modèle cible) -->
+    <div class="pair">
+      <div class="panel day">
+        <span class="panel-label">Mode jour · #fbfaf6</span>
+        <div class="variant v-terreux">
+          <h2 class="variant-title">
+            <span class="name">Terreux</span>
+            <span class="hex">jour <span class="swatch" style="background:#7a6030"></span> #7a6030 · nuit #c4a055</span>
+          </h2>
+          <p class="module-meta">Benchmark · indicateur</p>
+          <div class="bench"><span class="num">40 %</span> des rappels entrants seraient évitables avec une organisation simple.</div>
+          <span class="chip">Point d'attention</span>
+          <h3 class="module-title">Module 3 · <em>Réduire les rappels évitables</em></h3>
+          <p class="module-meta">Effort moyen · Gain &lt; 1 semaine</p>
+          <div class="reco"><strong>Pourquoi en priorité&nbsp;:</strong> ces 40 % de rappels pèsent sur le secrétariat sans valeur pour le patient. Trois indicateurs simples permettent de mesurer dès la semaine suivante.</div>
+        </div>
+      </div>
+      <div class="panel night">
+        <span class="panel-label">Mode nuit · #192030</span>
+        <div class="variant v-terreux">
+          <h2 class="variant-title">
+            <span class="name">Terreux</span>
+            <span class="hex">jour #7a6030 · nuit <span class="swatch" style="background:#c4a055"></span> #c4a055</span>
+          </h2>
+          <p class="module-meta">Benchmark · indicateur</p>
+          <div class="bench"><span class="num">40 %</span> des rappels entrants seraient évitables avec une organisation simple.</div>
+          <span class="chip">Point d'attention</span>
+          <h3 class="module-title">Module 3 · <em>Réduire les rappels évitables</em></h3>
+          <p class="module-meta">Effort moyen · Gain &lt; 1 semaine</p>
+          <div class="reco"><strong>Pourquoi en priorité&nbsp;:</strong> ces 40 % de rappels pèsent sur le secrétariat sans valeur pour le patient. Trois indicateurs simples permettent de mesurer dès la semaine suivante.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variante 2 : brûlé -->
+    <div class="pair">
+      <div class="panel day">
+        <span class="panel-label">Mode jour · #fbfaf6</span>
+        <div class="variant v-brule">
+          <h2 class="variant-title">
+            <span class="name">Brûlé</span>
+            <span class="hex">jour <span class="swatch" style="background:#b5780a"></span> #b5780a · nuit #d68f1a</span>
+          </h2>
+          <p class="module-meta">Benchmark · indicateur</p>
+          <div class="bench"><span class="num">40 %</span> des rappels entrants seraient évitables avec une organisation simple.</div>
+          <span class="chip">Point d'attention</span>
+          <h3 class="module-title">Module 3 · <em>Réduire les rappels évitables</em></h3>
+          <p class="module-meta">Effort moyen · Gain &lt; 1 semaine</p>
+          <div class="reco"><strong>Pourquoi en priorité&nbsp;:</strong> ces 40 % de rappels pèsent sur le secrétariat sans valeur pour le patient. Trois indicateurs simples permettent de mesurer dès la semaine suivante.</div>
+        </div>
+      </div>
+      <div class="panel night">
+        <span class="panel-label">Mode nuit · #192030</span>
+        <div class="variant v-brule">
+          <h2 class="variant-title">
+            <span class="name">Brûlé</span>
+            <span class="hex">jour #b5780a · nuit <span class="swatch" style="background:#d68f1a"></span> #d68f1a</span>
+          </h2>
+          <p class="module-meta">Benchmark · indicateur</p>
+          <div class="bench"><span class="num">40 %</span> des rappels entrants seraient évitables avec une organisation simple.</div>
+          <span class="chip">Point d'attention</span>
+          <h3 class="module-title">Module 3 · <em>Réduire les rappels évitables</em></h3>
+          <p class="module-meta">Effort moyen · Gain &lt; 1 semaine</p>
+          <div class="reco"><strong>Pourquoi en priorité&nbsp;:</strong> ces 40 % de rappels pèsent sur le secrétariat sans valeur pour le patient. Trois indicateurs simples permettent de mesurer dès la semaine suivante.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variante 3 : saturé -->
+    <div class="pair">
+      <div class="panel day">
+        <span class="panel-label">Mode jour · #fbfaf6</span>
+        <div class="variant v-sature">
+          <h2 class="variant-title">
+            <span class="name">Saturé</span>
+            <span class="hex">jour <span class="swatch" style="background:#c8851a"></span> #c8851a · nuit #e8a035</span>
+          </h2>
+          <p class="module-meta">Benchmark · indicateur</p>
+          <div class="bench"><span class="num">40 %</span> des rappels entrants seraient évitables avec une organisation simple.</div>
+          <span class="chip">Point d'attention</span>
+          <h3 class="module-title">Module 3 · <em>Réduire les rappels évitables</em></h3>
+          <p class="module-meta">Effort moyen · Gain &lt; 1 semaine</p>
+          <div class="reco"><strong>Pourquoi en priorité&nbsp;:</strong> ces 40 % de rappels pèsent sur le secrétariat sans valeur pour le patient. Trois indicateurs simples permettent de mesurer dès la semaine suivante.</div>
+        </div>
+      </div>
+      <div class="panel night">
+        <span class="panel-label">Mode nuit · #192030</span>
+        <div class="variant v-sature">
+          <h2 class="variant-title">
+            <span class="name">Saturé</span>
+            <span class="hex">jour #c8851a · nuit <span class="swatch" style="background:#e8a035"></span> #e8a035</span>
+          </h2>
+          <p class="module-meta">Benchmark · indicateur</p>
+          <div class="bench"><span class="num">40 %</span> des rappels entrants seraient évitables avec une organisation simple.</div>
+          <span class="chip">Point d'attention</span>
+          <h3 class="module-title">Module 3 · <em>Réduire les rappels évitables</em></h3>
+          <p class="module-meta">Effort moyen · Gain &lt; 1 semaine</p>
+          <div class="reco"><strong>Pourquoi en priorité&nbsp;:</strong> ces 40 % de rappels pèsent sur le secrétariat sans valeur pour le patient. Trois indicateurs simples permettent de mesurer dès la semaine suivante.</div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="footnote">
+      <h2>Pour choisir</h2>
+      <p>Les trois variantes appliquent les mêmes règles : bordure à 32 %, surface à 10 %, jamais en aplat. Seule la teinte change. Lis-les côte à côte et arrête-toi sur celle qui te semble la plus alignée avec le ton du brand-master : ferme, sans crier.</p>
+      <p>Critères proposés pour arbitrer :</p>
+      <ul>
+        <li>Le benchmark « 40 % des rappels » se lit-il <em>sans hésitation</em> sur les deux surfaces&nbsp;?</li>
+        <li>Le chip « point d'attention » garde-t-il une dignité mono-typo, sans virer alarme&nbsp;?</li>
+        <li>L'italique du module a-t-il la même présence en jour et en nuit&nbsp;?</li>
+        <li>La recommandation reste-t-elle lisible <em>même</em> sur la surface diluée à 10 %&nbsp;?</li>
+      </ul>
+      <p style="margin-top:18px">Valeur de départ retenue dans <code style="font-family:var(--mono);font-size:13px">web/lib/v3/tokens.ts</code> : <strong>Terreux</strong> — alignée modèle cible. À substituer par <em>Brûlé</em> ou <em>Saturé</em> dans `daySignalWarn.default` et `nightSignalWarn.default` si tu préfères une autre option.</p>
+    </aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lugia — Charte Documents PDF v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Lora:wght@400;500;600&family=Onest:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ivory:    #F4EFE5;
+      --ivory-2:  #F8F4EB;
+      --paper:    #FBFAF6;
+      --paper-2:  #ECE6D8;
+      --navy:     #1A2333;
+      --navy-2:   #232B41;
+      --ink:      #1A2333;
+      --ink-600:  #3A4360;
+      --ink-400:  #6E7795;
+      --ink-300:  #95A0B3;
+      --ink-200:  #BFC4CC;
+      --argent:   #B5B5B8;
+      --argent-d: #8E8E91;
+      --argent-l: #D4D4D6;
+      --line:     rgba(26,35,51,0.10);
+      --line-mid: rgba(26,35,51,0.18);
+      --serif:    "Lora", "Iowan Old Style", "Times New Roman", serif;
+      --sans:     "Onest", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      --mono:     "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    em, i, cite { font-style: normal; }
+    html, body {
+      background: var(--ivory);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      letter-spacing: -0.005em;
+    }
+
+    /* ── NAV ────────────────────────────────── */
+    .topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(244,239,229,0.90);
+      backdrop-filter: saturate(140%) blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+    .tn-inner {
+      max-width: 1280px; margin: 0 auto; padding: 13px 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.13em; text-transform: uppercase;
+    }
+    .tn-brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; }
+    .tn-brand svg { height: 17px; width: auto; }
+    .tn-links { display: flex; gap: 28px; list-style: none; }
+    .tn-links a { color: var(--ink-400); text-decoration: none; transition: color .15s; }
+    .tn-links a:hover { color: var(--ink); }
+
+    /* ── LAYOUT ────────────────────────────── */
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 0 56px; }
+    .chapter { padding: 96px 0; border-bottom: 1px solid var(--line); }
+    .chapter:last-of-type { border-bottom: none; }
+    .ch-head {
+      display: grid; grid-template-columns: 160px 1fr; gap: 40px;
+      align-items: baseline; margin-bottom: 56px;
+    }
+    .eyebrow {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-400);
+    }
+    .ch-title {
+      font-family: var(--sans); font-weight: 500; font-size: 44px;
+      line-height: 1.0; letter-spacing: -0.03em; color: var(--ink);
+    }
+    .ch-lead {
+      margin-top: 16px; font-size: 16px; line-height: 1.6;
+      color: var(--ink-600); max-width: 660px;
+    }
+
+    /* ── HERO ──────────────────────────────── */
+    .hero { padding: 96px 0 80px; border-bottom: 1px solid var(--line); }
+    .hero-kicker {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 44px;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-400);
+    }
+    .hero-kicker svg { height: 14px; width: auto; }
+    .hero-h {
+      font-family: var(--sans); font-weight: 500; font-size: 68px;
+      line-height: 0.95; letter-spacing: -0.04em; color: var(--ink); margin-bottom: 22px;
+    }
+    .hero-h em { font-family: var(--serif); font-weight: 400; color: var(--ink-400); }
+    .hero-sub {
+      font-size: 18px; line-height: 1.55; color: var(--ink-600);
+      max-width: 600px; margin-bottom: 48px;
+    }
+    .hero-meta {
+      display: flex; gap: 48px; flex-wrap: wrap;
+      padding-top: 28px; border-top: 1px solid var(--line);
+      font-family: var(--mono); font-size: 9.5px;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400);
+    }
+    .hero-meta dt {
+      font-family: var(--sans); font-weight: 500; font-size: 13px; color: var(--ink);
+      letter-spacing: -0.01em; text-transform: none; margin-bottom: 3px;
+    }
+
+    /* ── GRID DIAGRAM ──────────────────────── */
+    .fmt-split { display: grid; grid-template-columns: 240px 1fr; gap: 72px; align-items: start; }
+    .spec-list { }
+    .spec-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 12px 0; border-bottom: 1px solid var(--line); gap: 16px;
+    }
+    .spec-row:first-child { border-top: 1px solid var(--line); }
+    .spec-k { color: var(--ink-400); font-size: 13px; flex-shrink: 0; }
+    .spec-v { font-family: var(--mono); font-size: 12px; color: var(--ink); letter-spacing: 0.04em; text-align: right; }
+
+    /* ── SWATCHES ──────────────────────────── */
+    .sw-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 3px; }
+    .sw-color { height: 68px; border-radius: 2px 2px 0 0; }
+    .sw-info { padding: 10px 0 16px; }
+    .sw-name { font-weight: 500; font-size: 12px; margin-bottom: 2px; }
+    .sw-hex { font-family: var(--mono); font-size: 10px; color: var(--ink-400); letter-spacing: 0.06em; }
+    .sw-use { font-size: 11px; color: var(--ink-300); margin-top: 4px; line-height: 1.4; }
+
+    /* ── TYPE TABLE ────────────────────────── */
+    .type-table { width: 100%; border-collapse: collapse; }
+    .type-table th {
+      font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-400); font-weight: 400;
+      padding: 0 20px 12px 0; border-bottom: 1px solid var(--line-mid); text-align: left;
+    }
+    .type-table td { padding: 18px 20px 18px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .type-table tr:last-child td { border-bottom: none; }
+    .tt-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-400); white-space: nowrap; }
+    .tt-spec  { font-family: var(--mono); font-size: 10.5px; color: var(--ink-300); line-height: 1.6; }
+    .tt-usage { font-size: 12px; color: var(--ink-300); line-height: 1.5; }
+
+    /* ── PAGE PREVIEWS ─────────────────────── */
+    .pages-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 48px 40px;
+    }
+    .pg-full {
+      grid-column: 1 / -1; justify-self: center; width: 100%; max-width: 500px;
+    }
+    .pg-label {
+      font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-400); margin-bottom: 10px;
+    }
+    .pg-frame {
+      width: 100%; aspect-ratio: 210 / 297; position: relative;
+      background: var(--paper);
+      box-shadow: 0 4px 28px rgba(26,35,51,0.14), 0 1px 5px rgba(26,35,51,0.07);
+      border-radius: 1px; overflow: hidden;
+      container-type: inline-size;
+    }
+    .pg-note { margin-top: 10px; font-size: 12px; color: var(--ink-400); line-height: 1.55; }
+
+    /* Inside frames — cqi = % of frame width */
+    .pf { height: 100%; display: flex; flex-direction: column; position: relative; }
+    .pf-hdr { padding: 5% 7% 0; display: flex; justify-content: space-between; align-items: center; }
+    .pf-hline { margin: 2.5% 7% 0; height: 0.5px; background: rgba(26,35,51,0.13); }
+    .pf-body { flex: 1; padding: 3.5% 7%; overflow: hidden; }
+    .pf-fline { margin: 0 7%; height: 0.5px; background: rgba(26,35,51,0.13); }
+    .pf-ftr { padding: 1.5% 7% 4%; display: flex; justify-content: space-between; align-items: center; }
+    .p-logo { height: 1.7cqi; width: auto; flex-shrink: 0; }
+    .p-pg   { font-family: monospace; font-size: 1.15cqi; color: #6E7795; letter-spacing: 0.1em; }
+    .p-ftxt { font-family: monospace; font-size: 1cqi; color: #95A0B3; letter-spacing: 0.08em; }
+    .p-eyebrow { font-family: monospace; font-size: 1.05cqi; letter-spacing: 0.16em; text-transform: uppercase; color: #6E7795; margin-bottom: 1.5%; }
+    .p-h1 { font-family: "Lora", serif; font-weight: 500; font-size: 5cqi; color: #1A2333; letter-spacing: -0.02em; line-height: 1.08; margin-bottom: 2.5%; }
+    .p-h2 { font-family: "Onest", sans-serif; font-weight: 500; font-size: 2.7cqi; color: #1A2333; letter-spacing: -0.015em; line-height: 1.15; margin-bottom: 1.5%; }
+    .p-line { height: 0.55cqi; background: rgba(26,35,51,0.11); border-radius: 0.5px; margin-bottom: 0.75cqi; }
+    .p-line.med   { width: 75%; }
+    .p-line.short { width: 55%; }
+    .p-line.xs    { width: 38%; }
+    .p-line.dim   { background: rgba(26,35,51,0.07); }
+
+    /* ── CLASSIFICATION ────────────────────── */
+    .class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .class-card { padding: 28px 28px 32px; border: 1px solid var(--line-mid); border-radius: 2px; }
+    .class-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 4px 10px 4px 8px; border-radius: 2px; border: 1px solid; margin-bottom: 20px;
+    }
+    .class-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .cls-conf .class-badge { color: #7A3320; border-color: rgba(122,51,32,0.40); background: rgba(122,51,32,0.06); }
+    .cls-conf .class-dot   { background: #7A3320; }
+    .cls-int  .class-badge { color: #6B6630; border-color: rgba(107,102,48,0.36); background: rgba(107,102,48,0.07); }
+    .cls-int  .class-dot   { background: #6B6630; }
+    .cls-pub  .class-badge { color: var(--navy); border-color: rgba(26,35,51,0.30); background: rgba(26,35,51,0.04); }
+    .cls-pub  .class-dot   { background: var(--navy); }
+    .class-cname { font-weight: 500; font-size: 16px; margin-bottom: 8px; }
+    .class-cdesc { font-size: 13px; color: var(--ink-400); line-height: 1.6; }
+    .class-rules { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .class-rule { font-size: 12px; color: var(--ink-400); display: flex; gap: 8px; line-height: 1.5; }
+    .class-rule::before { content: "—"; color: var(--argent); flex-shrink: 0; }
+
+    /* ── HEADER/FOOTER TEMPLATES ───────────── */
+    .hf-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; }
+    .hf-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); margin-bottom: 10px; }
+    .hf-preview {
+      background: var(--paper); border: 1px solid var(--line-mid);
+      box-shadow: 0 2px 12px rgba(26,35,51,0.08); border-radius: 2px; overflow: hidden;
+    }
+    .hf-band { padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .hf-band.hdr { border-bottom: 1px solid var(--line); }
+    .hf-band.ftr { border-top: 1px solid var(--line); }
+    .hf-content { padding: 18px 24px; display: flex; flex-direction: column; gap: 8px; }
+    .hf-lorem { height: 8px; background: var(--line); border-radius: 2px; }
+    .hf-logo svg { height: 14px; width: auto; }
+    .hf-pnum { font-family: var(--mono); font-size: 10px; color: var(--ink-400); letter-spacing: 0.12em; }
+    .hf-doc  { font-family: var(--mono); font-size: 10px; color: var(--ink-300); letter-spacing: 0.10em; text-transform: uppercase; }
+    .hf-rules { margin-top: 20px; display: flex; flex-direction: column; gap: 9px; }
+    .hf-rule { font-size: 13px; color: var(--ink-400); display: flex; gap: 10px; line-height: 1.5; }
+    .hf-rule::before { content: "–"; color: var(--argent); flex-shrink: 0; }
+
+    /* ── SITE FOOTER ───────────────────────── */
+    .site-footer { background: var(--navy); padding: 44px 0; }
+    .sf-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase;
+      color: rgba(244,239,229,0.35);
+    }
+    .sf-inner svg { height: 15px; opacity: 0.55; }
+
+    @media print {
+      .topnav { display: none; }
+      .chapter { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="tn-inner">
+    <a class="tn-brand" href="#top">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1198 1036"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="currentColor"/></svg>
+      Lugia
+    </a>
+    <ul class="tn-links">
+      <li><a href="#format">Format</a></li>
+      <li><a href="#typo">Typographie</a></li>
+      <li><a href="#palette">Palette</a></li>
+      <li><a href="#pages">Pages types</a></li>
+      <li><a href="#classification">Classification</a></li>
+      <li><a href="#entetes">En-têtes</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div id="top" class="hero">
+  <div class="wrap">
+    <div class="hero-kicker">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1198 1036"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="currentColor"/></svg>
+      Lugia · Charte Documents
+    </div>
+    <h1 class="hero-h">Charte <em>Documents PDF</em></h1>
+    <p class="hero-sub">Normes graphiques et gabarits pour la production des documents PDF Lugia — études de marché, business plans, rapports investisseurs, notes exécutives et propositions commerciales.</p>
+    <dl class="hero-meta">
+      <div><dt>Format</dt><dd>A4 Portrait · 210 × 297 mm</dd></div>
+      <div><dt>Polices</dt><dd>Lora · Onest · IBM Plex Mono</dd></div>
+      <div><dt>Version</dt><dd>v1.0 · Mai 2026</dd></div>
+      <div><dt>Usage</dt><dd>Tous documents Lugia</dd></div>
+      <div><dt>Langue</dt><dd>Français</dd></div>
+    </dl>
+  </div>
+</div>
+
+<!-- 01 FORMAT & GRILLE -->
+<section id="format" class="chapter">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="eyebrow">01 — Format</p>
+      <div>
+        <h2 class="ch-title">Format & Grille</h2>
+        <p class="ch-lead">Tous les documents Lugia adoptent le format A4 portrait. La grille de base est à deux colonnes avec une gouttière de 6 mm. Une variante à trois colonnes est disponible pour les pages à données denses.</p>
+      </div>
+    </div>
+    <div class="fmt-split">
+      <!-- SVG Diagram -->
+      <div>
+        <svg viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#FBFAF6;border:1px solid rgba(26,35,51,0.13);">
+          <!-- Fond page -->
+          <rect x="0" y="0" width="210" height="297" fill="#FBFAF6"/>
+          <!-- Zone texte tintée -->
+          <rect x="20" y="20" width="170" height="257" fill="rgba(26,35,51,0.03)"/>
+          <!-- En-tête zone -->
+          <rect x="20" y="20" width="170" height="14" fill="rgba(26,35,51,0.055)"/>
+          <!-- Pied de page zone -->
+          <rect x="20" y="263" width="170" height="14" fill="rgba(26,35,51,0.055)"/>
+          <!-- Colonnes -->
+          <rect x="20" y="34" width="81" height="229" fill="rgba(26,35,51,0.03)"/>
+          <rect x="109" y="34" width="81" height="229" fill="rgba(26,35,51,0.03)"/>
+          <!-- Contour zone texte -->
+          <rect x="20" y="20" width="170" height="257" fill="none" stroke="rgba(122,96,48,0.35)" stroke-width="0.4" stroke-dasharray="2.5,2"/>
+          <!-- Filets marges -->
+          <line x1="0" y1="20" x2="210" y2="20" stroke="rgba(122,96,48,0.55)" stroke-width="0.4"/>
+          <line x1="0" y1="277" x2="210" y2="277" stroke="rgba(122,96,48,0.55)" stroke-width="0.4"/>
+          <line x1="20" y1="0" x2="20" y2="297" stroke="rgba(122,96,48,0.55)" stroke-width="0.4"/>
+          <line x1="190" y1="0" x2="190" y2="297" stroke="rgba(122,96,48,0.55)" stroke-width="0.4"/>
+          <!-- Gouttière -->
+          <line x1="104" y1="34" x2="104" y2="263" stroke="rgba(26,35,51,0.22)" stroke-width="0.4" stroke-dasharray="1.5,2.5"/>
+          <!-- Labels marges -->
+          <text x="105" y="13.5" text-anchor="middle" font-family="monospace" font-size="5.5" fill="rgba(122,96,48,0.9)" font-weight="500">20 mm</text>
+          <text x="105" y="291" text-anchor="middle" font-family="monospace" font-size="5.5" fill="rgba(122,96,48,0.9)" font-weight="500">20 mm</text>
+          <text x="10" y="158.5" text-anchor="middle" font-family="monospace" font-size="5.5" fill="rgba(122,96,48,0.9)" font-weight="500" transform="rotate(-90,10,158.5)">22 mm</text>
+          <text x="200" y="158.5" text-anchor="middle" font-family="monospace" font-size="5.5" fill="rgba(122,96,48,0.9)" font-weight="500" transform="rotate(90,200,158.5)">18 mm</text>
+          <!-- Labels zones -->
+          <text x="60.5" y="150" text-anchor="middle" font-family="monospace" font-size="5" fill="rgba(26,35,51,0.32)">Col. 1 · 81 mm</text>
+          <text x="149.5" y="150" text-anchor="middle" font-family="monospace" font-size="5" fill="rgba(26,35,51,0.32)">Col. 2 · 81 mm</text>
+          <text x="104.5" y="149" text-anchor="middle" font-family="monospace" font-size="4.5" fill="rgba(26,35,51,0.28)" transform="rotate(90,104.5,149)">6 mm</text>
+          <text x="105" y="29" text-anchor="middle" font-family="monospace" font-size="4.5" fill="rgba(26,35,51,0.45)">EN-TÊTE · 14 mm</text>
+          <text x="105" y="273" text-anchor="middle" font-family="monospace" font-size="4.5" fill="rgba(26,35,51,0.45)">PIED · 14 mm</text>
+        </svg>
+      </div>
+      <!-- Spécifications -->
+      <div class="spec-list">
+        <div class="spec-row"><span class="spec-k">Format</span><span class="spec-v">A4 · 210 × 297 mm</span></div>
+        <div class="spec-row"><span class="spec-k">Marge haute</span><span class="spec-v">20 mm</span></div>
+        <div class="spec-row"><span class="spec-k">Marge basse</span><span class="spec-v">20 mm</span></div>
+        <div class="spec-row"><span class="spec-k">Marge intérieure</span><span class="spec-v">22 mm</span></div>
+        <div class="spec-row"><span class="spec-k">Marge extérieure</span><span class="spec-v">18 mm</span></div>
+        <div class="spec-row"><span class="spec-k">Zone de texte</span><span class="spec-v">170 × 257 mm</span></div>
+        <div class="spec-row"><span class="spec-k">Colonnes (standard)</span><span class="spec-v">2 × 81 mm</span></div>
+        <div class="spec-row"><span class="spec-k">Gouttière</span><span class="spec-v">6 mm</span></div>
+        <div class="spec-row"><span class="spec-k">En-tête</span><span class="spec-v">14 mm depuis le haut</span></div>
+        <div class="spec-row"><span class="spec-k">Pied de page</span><span class="spec-v">14 mm depuis le bas</span></div>
+        <div class="spec-row"><span class="spec-k">Résolution export</span><span class="spec-v">300 dpi</span></div>
+        <div class="spec-row"><span class="spec-k">Espace colorimétrique</span><span class="spec-v">RGB sRGB · CMJN sur demande</span></div>
+        <div class="spec-row"><span class="spec-k">Format de fichier</span><span class="spec-v">PDF/A · PDF interactif</span></div>
+      </div>
+    </div>
+
+    <!-- VARIANTE 3 COLONNES -->
+    <div style="margin-top:64px;padding-top:48px;border-top:1px solid var(--line);">
+      <p class="eyebrow" style="margin-bottom:14px">Variante — Grille 3 colonnes</p>
+      <p style="font-size:14px;color:var(--ink-600);line-height:1.6;max-width:680px;margin-bottom:32px">
+        Pour les pages denses en données (tableaux comparatifs, méthodologie, annexes), une grille à 3 colonnes est autorisée. Marges identiques, gouttière réduite à 5 mm. Cette grille ne s'utilise jamais en pages éditoriales.
+      </p>
+      <div style="display:grid;grid-template-columns:240px 1fr;gap:72px;align-items:start">
+        <svg viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#FBFAF6;border:1px solid rgba(26,35,51,0.13);">
+          <rect x="0" y="0" width="210" height="297" fill="#FBFAF6"/>
+          <rect x="20" y="20" width="170" height="257" fill="rgba(26,35,51,0.03)"/>
+          <rect x="20" y="20" width="170" height="14" fill="rgba(26,35,51,0.055)"/>
+          <rect x="20" y="263" width="170" height="14" fill="rgba(26,35,51,0.055)"/>
+          <rect x="20" y="34" width="53.3" height="229" fill="rgba(26,35,51,0.04)"/>
+          <rect x="78.4" y="34" width="53.3" height="229" fill="rgba(26,35,51,0.04)"/>
+          <rect x="136.7" y="34" width="53.3" height="229" fill="rgba(26,35,51,0.04)"/>
+          <rect x="20" y="20" width="170" height="257" fill="none" stroke="rgba(122,96,48,0.35)" stroke-width="0.4" stroke-dasharray="2.5,2"/>
+          <line x1="76" y1="34" x2="76" y2="263" stroke="rgba(26,35,51,0.22)" stroke-width="0.4" stroke-dasharray="1.5,2.5"/>
+          <line x1="134" y1="34" x2="134" y2="263" stroke="rgba(26,35,51,0.22)" stroke-width="0.4" stroke-dasharray="1.5,2.5"/>
+          <text x="47" y="150" text-anchor="middle" font-family="monospace" font-size="4.5" fill="rgba(26,35,51,0.32)">53 mm</text>
+          <text x="105" y="150" text-anchor="middle" font-family="monospace" font-size="4.5" fill="rgba(26,35,51,0.32)">53 mm</text>
+          <text x="163" y="150" text-anchor="middle" font-family="monospace" font-size="4.5" fill="rgba(26,35,51,0.32)">53 mm</text>
+          <text x="105" y="29" text-anchor="middle" font-family="monospace" font-size="4.5" fill="rgba(26,35,51,0.45)">EN-TÊTE · 14 mm</text>
+          <text x="105" y="273" text-anchor="middle" font-family="monospace" font-size="4.5" fill="rgba(26,35,51,0.45)">PIED · 14 mm</text>
+        </svg>
+        <div class="spec-list">
+          <div class="spec-row"><span class="spec-k">Colonnes</span><span class="spec-v">3 × 53 mm</span></div>
+          <div class="spec-row"><span class="spec-k">Gouttière</span><span class="spec-v">5 mm (réduite)</span></div>
+          <div class="spec-row"><span class="spec-k">Zone de texte</span><span class="spec-v">170 × 257 mm (identique)</span></div>
+          <div class="spec-row"><span class="spec-k">Marges</span><span class="spec-v">Identiques à la grille standard</span></div>
+          <div class="spec-row"><span class="spec-k">Usage</span><span class="spec-v">Annexes · Sources · Tableaux denses</span></div>
+          <div class="spec-row"><span class="spec-k">Restriction</span><span class="spec-v">Jamais en pages éditoriales</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 TYPOGRAPHIE -->
+<section id="typo" class="chapter">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="eyebrow">02 — Typographie</p>
+      <div>
+        <h2 class="ch-title">Échelle typographique</h2>
+        <p class="ch-lead">Trois familles couvrent tous les besoins : Lora pour les titres de couverture et les intertitres éditoriaux, Onest pour la hiérarchie courante, IBM Plex Mono pour les données, sources et labels. <strong>L'italique est interdit</strong> dans tous les documents Lugia.</p>
+      </div>
+    </div>
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th style="width:130px">Niveau</th>
+          <th style="width:260px">Spécimen</th>
+          <th style="width:170px">Police · Corps · Graisse</th>
+          <th style="width:120px">Interligne</th>
+          <th>Usage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tt-label">T0 · Couverture</td>
+          <td><span style="font-family:var(--serif);font-size:30px;font-weight:500;color:var(--navy);letter-spacing:-0.025em;line-height:1">Titre principal</span></td>
+          <td class="tt-spec">Lora · 40 pt · 500</td>
+          <td class="tt-spec">44 pt · 1,10</td>
+          <td class="tt-usage">Titre de couverture uniquement</td>
+        </tr>
+        <tr>
+          <td class="tt-label">T1 · Section</td>
+          <td><span style="font-family:var(--sans);font-size:24px;font-weight:500;color:var(--navy);letter-spacing:-0.025em;line-height:1">Titre de section</span></td>
+          <td class="tt-spec">Onest · 28 pt · 500</td>
+          <td class="tt-spec">32 pt · 1,14</td>
+          <td class="tt-usage">Ouverture de chapitre (fond navy)</td>
+        </tr>
+        <tr>
+          <td class="tt-label">T2 · Chapitre</td>
+          <td><span style="font-family:var(--sans);font-size:19px;font-weight:500;color:var(--navy);letter-spacing:-0.02em">Titre de chapitre</span></td>
+          <td class="tt-spec">Onest · 22 pt · 500</td>
+          <td class="tt-spec">28 pt · 1,27</td>
+          <td class="tt-usage">H2 · Titre de sous-section</td>
+        </tr>
+        <tr>
+          <td class="tt-label">T3 · Intertitre</td>
+          <td><span style="font-family:var(--serif);font-size:15px;font-weight:500;color:var(--ink)">Intertitre éditorial</span></td>
+          <td class="tt-spec">Lora · 14 pt · 500</td>
+          <td class="tt-spec">20 pt · 1,43</td>
+          <td class="tt-usage">H3 · Citation encadrée · Note de marge</td>
+        </tr>
+        <tr>
+          <td class="tt-label">Corps</td>
+          <td><span style="font-family:var(--serif);font-size:13px;font-weight:400;color:var(--ink-600);line-height:1.65">Texte courant — analyse, description et narration des données présentées dans le document.</span></td>
+          <td class="tt-spec">Lora · 10 pt · 400</td>
+          <td class="tt-spec">16 pt · 1,60</td>
+          <td class="tt-usage">Tout le corps de texte principal</td>
+        </tr>
+        <tr>
+          <td class="tt-label">Légende</td>
+          <td><span style="font-family:var(--sans);font-size:11px;font-weight:400;color:var(--ink-400)">Fig. 1 — Description du visuel ou du graphique présenté.</span></td>
+          <td class="tt-spec">Onest · 8,5 pt · 400</td>
+          <td class="tt-spec">13 pt · 1,53</td>
+          <td class="tt-usage">Légendes · Notes de bas de page</td>
+        </tr>
+        <tr>
+          <td class="tt-label">Label · Mono</td>
+          <td><span style="font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-400);letter-spacing:0.08em">SOURCE · RÉFÉRENCE · N° DOC</span></td>
+          <td class="tt-spec">IBM Plex Mono · 7,5 pt · 400</td>
+          <td class="tt-spec">12 pt · 1,60</td>
+          <td class="tt-usage">Sources · Codes · Données tabulaires</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 03 PALETTE -->
+<section id="palette" class="chapter">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="eyebrow">03 — Palette</p>
+      <div>
+        <h2 class="ch-title">Palette documentaire</h2>
+        <p class="ch-lead">La palette documentaire est un sous-ensemble strict de la marque. Aucune couleur extérieure à ce référentiel n'est autorisée. Les visuels de données (graphiques, infographies) utilisent uniquement Navy, Argent et leurs déclinaisons tonales.</p>
+      </div>
+    </div>
+    <div class="sw-row">
+      <div>
+        <div class="sw-color" style="background:#1A2333;"></div>
+        <div class="sw-info"><p class="sw-name">Navy</p><p class="sw-hex">#1A2333</p><p class="sw-use">Fonds couverture · Titres · Icônes</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#232B41;"></div>
+        <div class="sw-info"><p class="sw-name">Navy 2</p><p class="sw-hex">#232B41</p><p class="sw-use">Variante fond sombre · Sections</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#F4EFE5;border:1px solid rgba(26,35,51,0.10);"></div>
+        <div class="sw-info"><p class="sw-name">Ivory</p><p class="sw-hex">#F4EFE5</p><p class="sw-use">Fond principal des documents</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#FBFAF6;border:1px solid rgba(26,35,51,0.10);"></div>
+        <div class="sw-info"><p class="sw-name">Paper</p><p class="sw-hex">#FBFAF6</p><p class="sw-use">Fond pages intérieures</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#B5B5B8;"></div>
+        <div class="sw-info"><p class="sw-name">Argent</p><p class="sw-hex">#B5B5B8</p><p class="sw-use">Filets · Séparateurs · Graphiques</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#3A4360;"></div>
+        <div class="sw-info"><p class="sw-name">Ink 600</p><p class="sw-hex">#3A4360</p><p class="sw-use">Titres secondaires · Corps dense</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#6E7795;"></div>
+        <div class="sw-info"><p class="sw-name">Ink 400</p><p class="sw-hex">#6E7795</p><p class="sw-use">Sous-titres · Labels · Notes</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#95A0B3;"></div>
+        <div class="sw-info"><p class="sw-name">Ink 300</p><p class="sw-hex">#95A0B3</p><p class="sw-use">Texte secondaire · Sources</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#BFC4CC;border:1px solid rgba(26,35,51,0.10);"></div>
+        <div class="sw-info"><p class="sw-name">Ink 200</p><p class="sw-hex">#BFC4CC</p><p class="sw-use">Filets légers · Fonds tableau</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#D4D4D6;border:1px solid rgba(26,35,51,0.10);"></div>
+        <div class="sw-info"><p class="sw-name">Argent L</p><p class="sw-hex">#D4D4D6</p><p class="sw-use">Zébrures tableau · Fond alternatif</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#7A6030;"></div>
+        <div class="sw-info"><p class="sw-name">Ambre</p><p class="sw-hex">#7A6030</p><p class="sw-use">Encadrés · Mises en garde · Signaux</p></div>
+      </div>
+      <div>
+        <div class="sw-color" style="background:#C4A055;"></div>
+        <div class="sw-info"><p class="sw-name">Ambre Nuit</p><p class="sw-hex">#C4A055</p><p class="sw-use">Encadrés et signaux sur fond navy</p></div>
+      </div>
+    </div>
+
+    <!-- ENCADRÉS — démonstration -->
+    <div style="margin-top:72px;">
+      <p class="eyebrow" style="margin-bottom:8px;">Encadrés · Signal Ambre</p>
+      <p style="font-size:15px;line-height:1.6;color:var(--ink-600);max-width:660px;margin-bottom:32px;">Les encadrés portent les seuils, alertes et mises en garde du document. Ils utilisent la couleur Ambre — jamais le rouge, jamais le vert. La déclinaison nuit (Ambre Nuit) s'applique automatiquement sur fond Navy.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <!-- Mode jour -->
+        <div style="background:var(--ivory-2);padding:32px;border-radius:2px;">
+          <p style="font-family:var(--mono);font-size:10px;color:var(--ink-400);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:24px;">↓ Mode jour · Sur fond ivory</p>
+          <div style="background:rgba(122,96,48,0.10);border-left:3px solid rgba(122,96,48,0.45);padding:20px 24px;border-radius:0 2px 2px 0;">
+            <p style="font-family:var(--mono);font-size:10px;color:#7A6030;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;">↳ Seuil dépassé</p>
+            <p style="font-family:var(--serif);font-size:15px;line-height:1.55;color:var(--ink);">40 % des rappels entrants seraient évitables avec une organisation simple des fiches techniques.</p>
+          </div>
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--ink-400);letter-spacing:0.06em;"><span>Texte signal</span><span>#7A6030</span></div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--ink-400);letter-spacing:0.06em;"><span>Surface diluée</span><span>10 %</span></div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--ink-400);letter-spacing:0.06em;"><span>Bordure</span><span>45 % · 0,5 pt</span></div>
+          </div>
+        </div>
+        <!-- Mode nuit -->
+        <div style="background:var(--navy);padding:32px;border-radius:2px;">
+          <p style="font-family:var(--mono);font-size:10px;color:rgba(244,239,229,0.45);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:24px;">↓ Mode nuit · Sur fond navy</p>
+          <div style="background:rgba(196,160,85,0.10);border-left:3px solid rgba(196,160,85,0.45);padding:20px 24px;border-radius:0 2px 2px 0;">
+            <p style="font-family:var(--mono);font-size:10px;color:#C4A055;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;">↳ Seuil dépassé</p>
+            <p style="font-family:var(--serif);font-size:15px;line-height:1.55;color:var(--ivory);">40 % des rappels entrants seraient évitables avec une organisation simple des fiches techniques.</p>
+          </div>
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:rgba(244,239,229,0.50);letter-spacing:0.06em;"><span>Texte signal</span><span>#C4A055</span></div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:rgba(244,239,229,0.50);letter-spacing:0.06em;"><span>Surface diluée</span><span>10 %</span></div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:rgba(244,239,229,0.50);letter-spacing:0.06em;"><span>Bordure</span><span>45 % · 0,5 pt</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 PAGES TYPES -->
+<section id="pages" class="chapter">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="eyebrow">04 — Gabarits</p>
+      <div>
+        <h2 class="ch-title">Pages types</h2>
+        <p class="ch-lead">Sept gabarits couvrent l'ensemble des besoins éditoriaux Lugia. Chaque gabarit est défini pour un rôle précis ; leur usage ne doit pas être détourné.</p>
+      </div>
+    </div>
+    <div class="pages-grid">
+
+      <!-- 01 COUVERTURE -->
+      <div class="pg-full">
+        <p class="pg-label">01 — Couverture</p>
+        <div class="pg-frame" style="background:#1A2333;overflow:hidden;">
+          <div style="height:100%;display:flex;flex-direction:column;padding:8% 9% 9%;box-sizing:border-box;position:relative;">
+            <!-- Top : logo + classification -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;">
+              <div style="display:flex;align-items:center;gap:2cqi;">
+                <svg style="height:2.4cqi;width:auto" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#F4EFE5"/></svg>
+                <span style="font-family:monospace;font-size:1.1cqi;letter-spacing:0.22em;text-transform:uppercase;color:rgba(244,239,229,0.60)">Lugia</span>
+              </div>
+              <span style="font-family:monospace;font-size:0.9cqi;letter-spacing:0.13em;text-transform:uppercase;color:#C46850;border:0.5px solid rgba(196,104,80,0.45);background:rgba(196,104,80,0.08);padding:0.5cqi 1cqi;border-radius:1px;">● Confidentiel</span>
+            </div>
+            <!-- Spacer -->
+            <div style="flex:1;"></div>
+            <!-- Bloc titre en bas -->
+            <div style="position:relative;">
+              <div style="height:0.5px;background:rgba(244,239,229,0.20);margin-bottom:3.5cqi;width:18%;"></div>
+              <p style="font-family:monospace;font-size:1.05cqi;letter-spacing:0.18em;text-transform:uppercase;color:rgba(244,239,229,0.50);margin-bottom:3cqi;">Étude de Marché</p>
+              <p style="font-family:'Lora',serif;font-size:6.5cqi;font-weight:500;color:#F4EFE5;letter-spacing:-0.025em;line-height:1.0;margin-bottom:2.5cqi;">Intelligence<br>Artificielle<br>Industrielle</p>
+              <p style="font-family:'Onest',sans-serif;font-size:1.7cqi;font-weight:400;color:rgba(244,239,229,0.55);letter-spacing:-0.01em;margin-bottom:4cqi;">Panorama & Opportunités 2026</p>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:2.5cqi;border-top:0.5px solid rgba(244,239,229,0.12);">
+                <div style="display:flex;gap:3.5cqi">
+                  <span style="font-family:monospace;font-size:0.95cqi;color:rgba(244,239,229,0.40);letter-spacing:0.10em;">Mai 2026</span>
+                  <span style="font-family:monospace;font-size:0.95cqi;color:rgba(244,239,229,0.40);letter-spacing:0.10em;">v1.0</span>
+                </div>
+                <span style="font-family:monospace;font-size:0.85cqi;color:rgba(244,239,229,0.30);letter-spacing:0.10em;text-transform:uppercase;">Doc. n° 2026-EM-001</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Fond navy plein · Logo + marque « Lugia » en haut à gauche · Classification en haut à droite · Titre en Lora ivory ancré en bas · Métadonnées sous filet. Aucun en-tête ni pied de page.</p>
+      </div>
+
+      <!-- 01b VARIANTES PAR TYPE DE DOCUMENT -->
+      <div class="pg-full" style="max-width:none">
+        <p class="pg-label" style="margin-bottom:14px">01b — Variantes par type de document</p>
+        <p style="font-size:13px;color:var(--ink-400);line-height:1.6;max-width:680px;margin-bottom:28px">Le gabarit de couverture est identique pour tous les documents. Seul l'eyebrow (nature du document) change — et son accent typographique permet de distinguer le type au premier coup d'œil.</p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+          <div>
+            <div style="aspect-ratio:210/297;background:#1A2333;padding:12% 11% 11%;display:flex;flex-direction:column;justify-content:space-between;border-radius:1px;box-shadow:0 3px 16px rgba(26,35,51,0.13),0 1px 4px rgba(26,35,51,0.07);position:relative;overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <svg style="height:11px;width:auto" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#F4EFE5"/></svg>
+                <span style="font-family:var(--mono);font-size:6.5px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(244,239,229,0.55)">Lugia</span>
+              </div>
+              <div>
+                <div style="height:0.5px;background:rgba(244,239,229,0.22);width:30%;margin-bottom:14px;"></div>
+                <p style="font-family:var(--mono);font-size:6.5px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(244,239,229,0.55);margin-bottom:10px;">Étude de Marché</p>
+                <p style="font-family:var(--serif);font-size:18px;font-weight:500;color:#F4EFE5;letter-spacing:-0.025em;line-height:1.0;">IA<br>Industrielle</p>
+              </div>
+            </div>
+            <p style="font-family:var(--mono);font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--ink-400);margin-top:10px;">Étude de marché</p>
+            <p style="font-family:var(--mono);font-size:9px;color:var(--ink-300);margin-top:3px;">Eyebrow ivory · standard</p>
+          </div>
+          <div>
+            <div style="aspect-ratio:210/297;background:#1A2333;padding:12% 11% 11%;display:flex;flex-direction:column;justify-content:space-between;border-radius:1px;box-shadow:0 3px 16px rgba(26,35,51,0.13),0 1px 4px rgba(26,35,51,0.07);position:relative;overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <svg style="height:11px;width:auto" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#F4EFE5"/></svg>
+                <span style="font-family:var(--mono);font-size:6.5px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(244,239,229,0.55)">Lugia</span>
+              </div>
+              <div>
+                <div style="height:0.5px;background:rgba(196,160,85,0.50);width:30%;margin-bottom:14px;"></div>
+                <p style="font-family:var(--mono);font-size:6.5px;letter-spacing:0.18em;text-transform:uppercase;color:#C4A055;margin-bottom:10px;">Business Plan · 2026</p>
+                <p style="font-family:var(--serif);font-size:18px;font-weight:500;color:#F4EFE5;letter-spacing:-0.025em;line-height:1.0;">Lugia<br>v2.0</p>
+              </div>
+            </div>
+            <p style="font-family:var(--mono);font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--ink-400);margin-top:10px;">Business plan</p>
+            <p style="font-family:var(--mono);font-size:9px;color:var(--ink-300);margin-top:3px;">Eyebrow Ambre Nuit</p>
+          </div>
+          <div>
+            <div style="aspect-ratio:210/297;background:#1A2333;padding:12% 11% 11%;display:flex;flex-direction:column;justify-content:space-between;border-radius:1px;box-shadow:0 3px 16px rgba(26,35,51,0.13),0 1px 4px rgba(26,35,51,0.07);position:relative;overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <svg style="height:11px;width:auto" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#F4EFE5"/></svg>
+                <span style="font-family:var(--mono);font-size:6.5px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(244,239,229,0.55)">Lugia</span>
+              </div>
+              <div>
+                <div style="height:0.5px;background:rgba(181,181,184,0.55);width:30%;margin-bottom:14px;"></div>
+                <p style="font-family:var(--mono);font-size:6.5px;letter-spacing:0.18em;text-transform:uppercase;color:#B5B5B8;margin-bottom:10px;">Rapport Investisseur</p>
+                <p style="font-family:var(--serif);font-size:18px;font-weight:500;color:#F4EFE5;letter-spacing:-0.025em;line-height:1.0;">Bilan<br>Q2 2026</p>
+              </div>
+            </div>
+            <p style="font-family:var(--mono);font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--ink-400);margin-top:10px;">Rapport investisseur</p>
+            <p style="font-family:var(--mono);font-size:9px;color:var(--ink-300);margin-top:3px;">Eyebrow Argent</p>
+          </div>
+          <div>
+            <div style="aspect-ratio:210/297;background:#1A2333;padding:12% 11% 11%;display:flex;flex-direction:column;justify-content:space-between;border-radius:1px;box-shadow:0 3px 16px rgba(26,35,51,0.13),0 1px 4px rgba(26,35,51,0.07);position:relative;overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <svg style="height:11px;width:auto" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#F4EFE5"/></svg>
+                <span style="font-family:var(--mono);font-size:6.5px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(244,239,229,0.55)">Lugia</span>
+              </div>
+              <div>
+                <div style="height:0.5px;background:rgba(244,239,229,0.22);width:30%;margin-bottom:14px;"></div>
+                <p style="font-family:var(--mono);font-size:6.5px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(244,239,229,0.55);margin-bottom:10px;">Note Exécutive</p>
+                <p style="font-family:var(--serif);font-size:18px;font-weight:500;color:#F4EFE5;letter-spacing:-0.025em;line-height:1.0;">Synthèse<br>Mai 2026</p>
+              </div>
+            </div>
+            <p style="font-family:var(--mono);font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--ink-400);margin-top:10px;">Note exécutive</p>
+            <p style="font-family:var(--mono);font-size:9px;color:var(--ink-300);margin-top:3px;">Eyebrow ivory · sobre</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 SOMMAIRE -->
+      <div>
+        <p class="pg-label">02 — Sommaire</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">02</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body">
+              <p class="p-eyebrow" style="margin-bottom:2%">Table des matières</p>
+              <p style="font-family:'Onest',sans-serif;font-size:4.5cqi;font-weight:500;color:#1A2333;letter-spacing:-0.025em;margin-bottom:5%">Sommaire</p>
+              <div style="display:flex;flex-direction:column;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding:1.8% 0;border-bottom:0.5px solid rgba(26,35,51,0.09);gap:1cqi">
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#6E7795;flex-shrink:0">01</span>
+                  <span style="font-family:'Onest',sans-serif;font-size:1.65cqi;color:#1A2333;flex:1;letter-spacing:-0.01em;padding:0 1.5cqi">Contexte & Objectifs</span>
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#95A0B3;flex-shrink:0">04</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding:1.8% 0;border-bottom:0.5px solid rgba(26,35,51,0.09);gap:1cqi">
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#6E7795;flex-shrink:0">02</span>
+                  <span style="font-family:'Onest',sans-serif;font-size:1.65cqi;color:#1A2333;flex:1;letter-spacing:-0.01em;padding:0 1.5cqi">Analyse du marché</span>
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#95A0B3;flex-shrink:0">09</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding:1.8% 0;border-bottom:0.5px solid rgba(26,35,51,0.09);gap:1cqi">
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#6E7795;flex-shrink:0">03</span>
+                  <span style="font-family:'Onest',sans-serif;font-size:1.65cqi;color:#1A2333;flex:1;letter-spacing:-0.01em;padding:0 1.5cqi">Paysage concurrentiel</span>
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#95A0B3;flex-shrink:0">17</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding:1.8% 0;border-bottom:0.5px solid rgba(26,35,51,0.09);gap:1cqi">
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#6E7795;flex-shrink:0">04</span>
+                  <span style="font-family:'Onest',sans-serif;font-size:1.65cqi;color:#1A2333;flex:1;letter-spacing:-0.01em;padding:0 1.5cqi">Opportunités & Menaces</span>
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#95A0B3;flex-shrink:0">24</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding:1.8% 0;border-bottom:0.5px solid rgba(26,35,51,0.09);gap:1cqi">
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#6E7795;flex-shrink:0">05</span>
+                  <span style="font-family:'Onest',sans-serif;font-size:1.65cqi;color:#1A2333;flex:1;letter-spacing:-0.01em;padding:0 1.5cqi">Recommandations</span>
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#95A0B3;flex-shrink:0">31</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding:1.8% 0;gap:1cqi">
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#6E7795;flex-shrink:0">06</span>
+                  <span style="font-family:'Onest',sans-serif;font-size:1.65cqi;color:#1A2333;flex:1;letter-spacing:-0.01em;padding:0 1.5cqi">Annexes</span>
+                  <span style="font-family:monospace;font-size:1.1cqi;color:#95A0B3;flex-shrink:0">38</span>
+                </div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Étude de Marché 2026</span>
+              <span class="p-ftxt">Confidentiel</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Numéro en Mono · Titre en Onest · Numéro de page droit. Filet argent entre chaque entrée.</p>
+      </div>
+
+      <!-- 03 OUVERTURE DE SECTION -->
+      <div>
+        <p class="pg-label">03 — Ouverture de section</p>
+        <div class="pg-frame" style="background:#1A2333;">
+          <div class="pf" style="justify-content:flex-end;overflow:hidden;">
+            <!-- Numéro fantôme -->
+            <div style="position:absolute;top:-2%;right:-3%;font-family:'Onest',sans-serif;font-size:48cqi;font-weight:700;color:rgba(244,239,229,0.04);letter-spacing:-0.06em;line-height:1;pointer-events:none;user-select:none;">02</div>
+            <!-- Contenu ancré en bas -->
+            <div style="padding:8% 8%;z-index:1;">
+              <div style="height:0.5px;background:rgba(244,239,229,0.18);margin-bottom:4%;"></div>
+              <p style="font-family:monospace;font-size:1.05cqi;letter-spacing:0.18em;text-transform:uppercase;color:rgba(244,239,229,0.35);margin-bottom:2.5%;">Section 02</p>
+              <p style="font-family:'Lora',serif;font-size:6cqi;font-weight:500;color:#F4EFE5;letter-spacing:-0.025em;line-height:1.05;margin-bottom:3%;">Analyse du<br>marché</p>
+              <div style="display:flex;flex-direction:column;gap:0.8cqi;max-width:78%">
+                <div style="height:0.6cqi;background:rgba(244,239,229,0.18);border-radius:1px;"></div>
+                <div style="height:0.6cqi;background:rgba(244,239,229,0.12);border-radius:1px;width:75%"></div>
+                <div style="height:0.6cqi;background:rgba(244,239,229,0.09);border-radius:1px;width:58%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Fond navy plein · Numéro fantôme en arrière-plan (Onest 700, opacity 4%) · Titre en Lora ivory · Aucun en-tête.</p>
+      </div>
+
+      <!-- 04 TEXTE COURANT -->
+      <div>
+        <p class="pg-label">04 — Texte courant</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">12</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body" style="padding-top:3.5%">
+              <p class="p-h2">2.3 — Segmentation des acteurs</p>
+              <div style="height:1.5px;width:15%;background:#1A2333;opacity:0.25;margin-bottom:3%;"></div>
+              <!-- 2 colonnes -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4%">
+                <div>
+                  <div style="display:flex;flex-direction:column;gap:0.75cqi">
+                    <div class="p-line"></div><div class="p-line"></div>
+                    <div class="p-line med"></div><div class="p-line"></div>
+                    <div class="p-line short"></div><div class="p-line"></div>
+                    <div class="p-line med"></div><div class="p-line"></div>
+                    <div class="p-line short"></div>
+                  </div>
+                  <div style="height:2cqi;"></div>
+                  <div style="height:0.5px;background:rgba(26,35,51,0.15);margin-bottom:1.5cqi;"></div>
+                  <div style="display:flex;flex-direction:column;gap:0.7cqi">
+                    <div class="p-line dim"></div>
+                    <div class="p-line med dim"></div>
+                    <div class="p-line short dim"></div>
+                  </div>
+                </div>
+                <div>
+                  <!-- Encadré Ambre -->
+                  <div style="background:rgba(122,96,48,0.08);border-left:2px solid rgba(122,96,48,0.45);padding:3% 4%;margin-bottom:3%;border-radius:0 1px 1px 0;">
+                    <p style="font-family:monospace;font-size:0.85cqi;color:#7A6030;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:1.2cqi;">↳ Seuil dépassé</p>
+                    <div style="display:flex;flex-direction:column;gap:0.65cqi">
+                      <div style="height:0.65cqi;background:rgba(26,35,51,0.22);border-radius:1px;"></div>
+                      <div style="height:0.65cqi;background:rgba(26,35,51,0.18);border-radius:1px;width:88%"></div>
+                      <div style="height:0.65cqi;background:rgba(26,35,51,0.15);border-radius:1px;width:65%"></div>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:0.75cqi">
+                    <div class="p-line"></div><div class="p-line med"></div>
+                    <div class="p-line"></div><div class="p-line short"></div>
+                    <div class="p-line"></div><div class="p-line"></div>
+                    <div class="p-line med"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Étude de Marché 2026</span>
+              <span class="p-ftxt">12 / 40</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Grille 2 colonnes · Encadré Ambre (signal de seuil ou mise en garde) avec filet et fond dilué · Corps en Lora 10 pt · Pagination en Mono.</p>
+      </div>
+
+      <!-- 05 MÉTHODOLOGIE & SOURCES -->
+      <div>
+        <p class="pg-label">05 — Méthodologie & Sources</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">35</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body" style="padding-top:3.5%">
+              <p class="p-h2">Méthodologie & Sources</p>
+              <div style="height:1.5px;width:15%;background:#1A2333;opacity:0.25;margin-bottom:3.5%"></div>
+              <!-- Grille 3 colonnes : méthode -->
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3%;margin-bottom:4%">
+                <div>
+                  <p style="font-family:monospace;font-size:0.88cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;margin-bottom:1.8%;font-weight:500">A · Méthode</p>
+                  <div style="display:flex;flex-direction:column;gap:0.6cqi">
+                    <div class="p-line"></div><div class="p-line"></div>
+                    <div class="p-line med"></div><div class="p-line"></div>
+                    <div class="p-line short"></div><div class="p-line"></div>
+                    <div class="p-line"></div><div class="p-line short"></div>
+                  </div>
+                </div>
+                <div>
+                  <p style="font-family:monospace;font-size:0.88cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;margin-bottom:1.8%;font-weight:500">B · Données</p>
+                  <div style="display:flex;flex-direction:column;gap:0.6cqi">
+                    <div class="p-line"></div><div class="p-line med"></div>
+                    <div class="p-line"></div><div class="p-line"></div>
+                    <div class="p-line short"></div><div class="p-line"></div>
+                    <div class="p-line med"></div>
+                  </div>
+                </div>
+                <div>
+                  <p style="font-family:monospace;font-size:0.88cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;margin-bottom:1.8%;font-weight:500">C · Limites</p>
+                  <div style="display:flex;flex-direction:column;gap:0.6cqi">
+                    <div class="p-line"></div><div class="p-line"></div>
+                    <div class="p-line med"></div><div class="p-line short"></div>
+                    <div class="p-line"></div><div class="p-line"></div>
+                  </div>
+                </div>
+              </div>
+              <!-- Sources -->
+              <div style="border-top:0.5px solid rgba(26,35,51,0.20);padding-top:3%">
+                <p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;margin-bottom:2%;font-weight:500">Sources & Références</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 4%">
+                  <div style="display:flex;gap:1.2cqi;padding:0.7% 0;border-bottom:0.5px solid rgba(26,35,51,0.08);"><span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;flex-shrink:0">[01]</span><div style="flex:1;display:flex;flex-direction:column;gap:0.4cqi"><div class="p-line" style="margin-bottom:0"></div><div class="p-line short" style="margin-bottom:0"></div></div></div>
+                  <div style="display:flex;gap:1.2cqi;padding:0.7% 0;border-bottom:0.5px solid rgba(26,35,51,0.08);"><span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;flex-shrink:0">[02]</span><div style="flex:1;display:flex;flex-direction:column;gap:0.4cqi"><div class="p-line" style="margin-bottom:0"></div><div class="p-line med" style="margin-bottom:0"></div></div></div>
+                  <div style="display:flex;gap:1.2cqi;padding:0.7% 0;border-bottom:0.5px solid rgba(26,35,51,0.08);"><span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;flex-shrink:0">[03]</span><div style="flex:1;display:flex;flex-direction:column;gap:0.4cqi"><div class="p-line" style="margin-bottom:0"></div><div class="p-line short" style="margin-bottom:0"></div></div></div>
+                  <div style="display:flex;gap:1.2cqi;padding:0.7% 0;border-bottom:0.5px solid rgba(26,35,51,0.08);"><span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;flex-shrink:0">[04]</span><div style="flex:1;display:flex;flex-direction:column;gap:0.4cqi"><div class="p-line" style="margin-bottom:0"></div><div class="p-line med" style="margin-bottom:0"></div></div></div>
+                  <div style="display:flex;gap:1.2cqi;padding:0.7% 0;border-bottom:0.5px solid rgba(26,35,51,0.08);"><span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;flex-shrink:0">[05]</span><div style="flex:1;display:flex;flex-direction:column;gap:0.4cqi"><div class="p-line" style="margin-bottom:0"></div><div class="p-line short" style="margin-bottom:0"></div></div></div>
+                  <div style="display:flex;gap:1.2cqi;padding:0.7% 0;border-bottom:0.5px solid rgba(26,35,51,0.08);"><span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;flex-shrink:0">[06]</span><div style="flex:1;display:flex;flex-direction:column;gap:0.4cqi"><div class="p-line" style="margin-bottom:0"></div><div class="p-line" style="margin-bottom:0"></div></div></div>
+                  <div style="display:flex;gap:1.2cqi;padding:0.7% 0;"><span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;flex-shrink:0">[07]</span><div style="flex:1;display:flex;flex-direction:column;gap:0.4cqi"><div class="p-line" style="margin-bottom:0"></div><div class="p-line med" style="margin-bottom:0"></div></div></div>
+                  <div style="display:flex;gap:1.2cqi;padding:0.7% 0;"><span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;flex-shrink:0">[08]</span><div style="flex:1;display:flex;flex-direction:column;gap:0.4cqi"><div class="p-line" style="margin-bottom:0"></div><div class="p-line short" style="margin-bottom:0"></div></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Étude de Marché 2026</span>
+              <span class="p-ftxt">35 / 40</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Grille 3 colonnes pour la méthode (A·B·C) · Sources numérotées en Mono en grille 2 colonnes · Références appelées par [NN] dans le corps.</p>
+      </div>
+
+      <!-- 06 DONNÉES & TABLEAUX -->
+      <div>
+        <p class="pg-label">06 — Données & Tableaux</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">19</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body" style="padding-top:3%">
+              <p class="p-h2" style="margin-bottom:0.5%">3.1 — Parts de marché</p>
+              <p style="font-family:monospace;font-size:1cqi;color:#95A0B3;margin-bottom:3%;">Europe · 2024–2026 · Valeurs en M€</p>
+              <!-- Graphique en barres -->
+              <svg viewBox="0 0 170 75" style="width:100%;margin-bottom:2.5%">
+                <line x1="0" y1="70" x2="170" y2="70" stroke="rgba(26,35,51,0.14)" stroke-width="0.5"/>
+                <line x1="0" y1="52" x2="170" y2="52" stroke="rgba(26,35,51,0.06)" stroke-width="0.4" stroke-dasharray="1.5,2"/>
+                <line x1="0" y1="35" x2="170" y2="35" stroke="rgba(26,35,51,0.06)" stroke-width="0.4" stroke-dasharray="1.5,2"/>
+                <line x1="0" y1="17" x2="170" y2="17" stroke="rgba(26,35,51,0.06)" stroke-width="0.4" stroke-dasharray="1.5,2"/>
+                <!-- Groupe A -->
+                <rect x="6"  y="47" width="9" height="23" fill="#1A2333" opacity="0.9"/>
+                <rect x="16" y="32" width="9" height="38" fill="#B5B5B8"/>
+                <rect x="26" y="42" width="9" height="28" fill="#D4D4D6"/>
+                <!-- Groupe B -->
+                <rect x="44" y="40" width="9" height="30" fill="#1A2333" opacity="0.9"/>
+                <rect x="54" y="22" width="9" height="48" fill="#B5B5B8"/>
+                <rect x="64" y="36" width="9" height="34" fill="#D4D4D6"/>
+                <!-- Groupe C -->
+                <rect x="82" y="25" width="9" height="45" fill="#1A2333" opacity="0.9"/>
+                <rect x="92" y="14" width="9" height="56" fill="#B5B5B8"/>
+                <rect x="102" y="30" width="9" height="40" fill="#D4D4D6"/>
+                <!-- Groupe D -->
+                <rect x="120" y="52" width="9" height="18" fill="#1A2333" opacity="0.9"/>
+                <rect x="130" y="44" width="9" height="26" fill="#B5B5B8"/>
+                <rect x="140" y="48" width="9" height="22" fill="#D4D4D6"/>
+                <!-- Labels x -->
+                <text x="20"  y="74" text-anchor="middle" font-family="monospace" font-size="3.8" fill="#95A0B3">A</text>
+                <text x="58"  y="74" text-anchor="middle" font-family="monospace" font-size="3.8" fill="#95A0B3">B</text>
+                <text x="96"  y="74" text-anchor="middle" font-family="monospace" font-size="3.8" fill="#95A0B3">C</text>
+                <text x="134" y="74" text-anchor="middle" font-family="monospace" font-size="3.8" fill="#95A0B3">D</text>
+                <!-- Légende -->
+                <rect x="0" y="0" width="4" height="4" fill="#1A2333" opacity="0.9"/>
+                <text x="5.5" y="3.8" font-family="monospace" font-size="3.5" fill="#6E7795">2024</text>
+                <rect x="18" y="0" width="4" height="4" fill="#B5B5B8"/>
+                <text x="23.5" y="3.8" font-family="monospace" font-size="3.5" fill="#6E7795">2025</text>
+                <rect x="36" y="0" width="4" height="4" fill="#D4D4D6"/>
+                <text x="41.5" y="3.8" font-family="monospace" font-size="3.5" fill="#6E7795">2026 p.</text>
+              </svg>
+              <!-- Tableau -->
+              <div style="border-top:0.5px solid rgba(26,35,51,0.20);">
+                <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 0.8fr;padding:1.2% 0;border-bottom:0.5px solid rgba(26,35,51,0.14);background:rgba(26,35,51,0.025)">
+                  <span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;letter-spacing:0.08em;text-transform:uppercase">Acteur</span>
+                  <span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;text-align:right;letter-spacing:0.07em;text-transform:uppercase">2024</span>
+                  <span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;text-align:right;letter-spacing:0.07em;text-transform:uppercase">2025</span>
+                  <span style="font-family:monospace;font-size:0.9cqi;color:#6E7795;text-align:right;letter-spacing:0.07em;text-transform:uppercase">Var.</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 0.8fr;padding:1% 0;border-bottom:0.5px solid rgba(26,35,51,0.07)">
+                  <span style="font-family:'Lora',serif;font-size:1.1cqi;color:#1A2333">Acteur A</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">240</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">310</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">+29 %</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 0.8fr;padding:1% 0;border-bottom:0.5px solid rgba(26,35,51,0.07);background:rgba(26,35,51,0.02)">
+                  <span style="font-family:'Lora',serif;font-size:1.1cqi;color:#1A2333">Acteur B</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">185</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">222</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">+20 %</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 0.8fr;padding:1% 0;">
+                  <span style="font-family:'Lora',serif;font-size:1.1cqi;color:#1A2333">Acteur C</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">98</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">141</span>
+                  <span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">+44 %</span>
+                </div>
+              </div>
+              <div style="height:0.5px;background:rgba(26,35,51,0.20);margin-bottom:1.5cqi;"></div>
+              <p style="font-family:monospace;font-size:0.85cqi;color:#95A0B3;letter-spacing:0.06em">SOURCE · Rapport sectoriel Lugia · Données estimées 2026 p.</p>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Étude de Marché 2026</span>
+              <span class="p-ftxt">19 / 40</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Graphiques en Navy / Argent uniquement · Tableau zébré · Source en Mono · Aucune couleur ajoutée.</p>
+      </div>
+
+      <!-- 07 TABLEAU FINANCIER -->
+      <div>
+        <p class="pg-label">07 — Tableau financier</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">22</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body" style="padding-top:3%">
+              <p class="p-h2" style="margin-bottom:0.5%">Compte de résultat prévisionnel</p>
+              <p style="font-family:monospace;font-size:1cqi;color:#95A0B3;margin-bottom:3%;">2026–2028 · Valeurs en k€</p>
+              <div style="border-top:0.5px solid rgba(26,35,51,0.30);">
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:1.2% 0;border-bottom:0.5px solid rgba(26,35,51,0.18);"><span style="font-family:monospace;font-size:0.85cqi;color:#6E7795;letter-spacing:0.08em;text-transform:uppercase">Poste</span><span style="font-family:monospace;font-size:0.85cqi;color:#6E7795;text-align:right;letter-spacing:0.07em;text-transform:uppercase">2026</span><span style="font-family:monospace;font-size:0.85cqi;color:#6E7795;text-align:right;letter-spacing:0.07em;text-transform:uppercase">2027 p.</span><span style="font-family:monospace;font-size:0.85cqi;color:#6E7795;text-align:right;letter-spacing:0.07em;text-transform:uppercase">2028 p.</span></div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:1% 0;border-bottom:0.5px solid rgba(26,35,51,0.07);"><span style="font-family:'Lora',serif;font-size:1.1cqi;color:#1A2333;font-weight:500">Chiffre d'affaires</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">320</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">680</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">1 240</span></div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:0.9% 0 0.9% 3%;border-bottom:0.5px solid rgba(26,35,51,0.05);background:rgba(26,35,51,0.02);"><span style="font-family:'Lora',serif;font-size:1cqi;color:#6E7795">— Licences SaaS</span><span style="font-family:monospace;font-size:0.95cqi;color:#6E7795;text-align:right">240</span><span style="font-family:monospace;font-size:0.95cqi;color:#6E7795;text-align:right">580</span><span style="font-family:monospace;font-size:0.95cqi;color:#6E7795;text-align:right">1 100</span></div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:0.9% 0 0.9% 3%;border-bottom:0.5px solid rgba(26,35,51,0.05);background:rgba(26,35,51,0.02);"><span style="font-family:'Lora',serif;font-size:1cqi;color:#6E7795">— Services</span><span style="font-family:monospace;font-size:0.95cqi;color:#6E7795;text-align:right">80</span><span style="font-family:monospace;font-size:0.95cqi;color:#6E7795;text-align:right">100</span><span style="font-family:monospace;font-size:0.95cqi;color:#6E7795;text-align:right">140</span></div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:1% 0;border-bottom:0.5px solid rgba(26,35,51,0.07);"><span style="font-family:'Lora',serif;font-size:1.1cqi;color:#1A2333">Coûts directs</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">(95)</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">(180)</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">(310)</span></div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:1.2% 0;border-bottom:0.5px solid rgba(26,35,51,0.18);background:rgba(26,35,51,0.04);"><span style="font-family:'Onest',sans-serif;font-size:1.1cqi;color:#1A2333;font-weight:500">Marge brute</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right;font-weight:500">225</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right;font-weight:500">500</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right;font-weight:500">930</span></div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:1% 0;border-bottom:0.5px solid rgba(26,35,51,0.07);"><span style="font-family:'Lora',serif;font-size:1.1cqi;color:#1A2333">Charges d'exploitation</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">(420)</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">(580)</span><span style="font-family:monospace;font-size:1cqi;color:#1A2333;text-align:right">(740)</span></div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:1.4% 0;border-bottom:0.5px solid rgba(26,35,51,0.30);background:#1A2333;"><span style="font-family:'Onest',sans-serif;font-size:1.1cqi;color:#F4EFE5;font-weight:500;padding-left:2.5%">EBE</span><span style="font-family:monospace;font-size:1cqi;color:#F4EFE5;text-align:right;padding-right:2.5%">(195)</span><span style="font-family:monospace;font-size:1cqi;color:#F4EFE5;text-align:right;padding-right:2.5%">(80)</span><span style="font-family:monospace;font-size:1cqi;color:#C4A055;text-align:right;padding-right:2.5%;font-weight:500">+190</span></div>
+              </div>
+              <div style="margin-top:4%;background:rgba(122,96,48,0.08);border-left:2px solid rgba(122,96,48,0.45);padding:2.2% 3%;border-radius:0 1px 1px 0;">
+                <p style="font-family:monospace;font-size:0.85cqi;color:#7A6030;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:1cqi;">↳ Point d'équilibre attendu Q3 2027</p>
+                <div class="p-line short" style="background:rgba(26,35,51,0.20)"></div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Business Plan 2026</span>
+              <span class="p-ftxt">22 / 48</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Tableau hiérarchique · Sous-postes en retrait plié et plus pâles · Marge brute en bande grise · EBE en bande navy avec Ambre Nuit pour le retournement.</p>
+      </div>
+
+      <!-- 08 KPI DASHBOARD -->
+      <div>
+        <p class="pg-label">08 — KPI Dashboard / Synthèse</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">03</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body" style="padding-top:3%">
+              <p class="p-eyebrow">Executive Summary</p>
+              <p style="font-family:'Onest',sans-serif;font-size:3.5cqi;font-weight:500;color:#1A2333;letter-spacing:-0.025em;line-height:1.1;margin-bottom:1.5%">Indicateurs clés</p>
+              <div style="height:1.5px;width:15%;background:#1A2333;opacity:0.25;margin-bottom:4%"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:3% 4%;margin-bottom:4%">
+                <div style="border-top:1.5px solid #1A2333;padding-top:1.8cqi"><p style="font-family:monospace;font-size:0.85cqi;letter-spacing:0.14em;text-transform:uppercase;color:#6E7795;margin-bottom:1.2cqi">Marché total Europe</p><p style="font-family:'Onest',sans-serif;font-size:5cqi;font-weight:500;color:#1A2333;letter-spacing:-0.025em;line-height:1;margin-bottom:1.2cqi">2,4<span style="font-size:2.4cqi;color:#6E7795;margin-left:0.6cqi">Md€</span></p><p style="font-family:monospace;font-size:0.9cqi;color:#7A6030;letter-spacing:0.10em">↗ +12 % vs. 2024</p></div>
+                <div style="border-top:1.5px solid #1A2333;padding-top:1.8cqi"><p style="font-family:monospace;font-size:0.85cqi;letter-spacing:0.14em;text-transform:uppercase;color:#6E7795;margin-bottom:1.2cqi">Croissance attendue</p><p style="font-family:'Onest',sans-serif;font-size:5cqi;font-weight:500;color:#1A2333;letter-spacing:-0.025em;line-height:1;margin-bottom:1.2cqi">+18<span style="font-size:2.4cqi;color:#6E7795;margin-left:0.6cqi">% / an</span></p><p style="font-family:monospace;font-size:0.9cqi;color:#6E7795;letter-spacing:0.10em">2026–2030 · TCAC</p></div>
+                <div style="border-top:1.5px solid #1A2333;padding-top:1.8cqi"><p style="font-family:monospace;font-size:0.85cqi;letter-spacing:0.14em;text-transform:uppercase;color:#6E7795;margin-bottom:1.2cqi">Acteurs référencés</p><p style="font-family:'Onest',sans-serif;font-size:5cqi;font-weight:500;color:#1A2333;letter-spacing:-0.025em;line-height:1;margin-bottom:1.2cqi">14</p><p style="font-family:monospace;font-size:0.9cqi;color:#6E7795;letter-spacing:0.10em">dont 3 leaders — 60 % PDM</p></div>
+                <div style="border-top:1.5px solid #1A2333;padding-top:1.8cqi"><p style="font-family:monospace;font-size:0.85cqi;letter-spacing:0.14em;text-transform:uppercase;color:#6E7795;margin-bottom:1.2cqi">Segments cibles</p><p style="font-family:'Onest',sans-serif;font-size:5cqi;font-weight:500;color:#1A2333;letter-spacing:-0.025em;line-height:1;margin-bottom:1.2cqi">3</p><p style="font-family:monospace;font-size:0.9cqi;color:#6E7795;letter-spacing:0.10em">PME · ETI · Grand Compte</p></div>
+              </div>
+              <div style="background:rgba(26,35,51,0.04);padding:2.8% 3.2%;border-radius:1px;">
+                <p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;margin-bottom:1.5cqi;font-weight:500">Lecture</p>
+                <div style="display:flex;flex-direction:column;gap:0.7cqi">
+                  <div style="height:0.6cqi;background:rgba(26,35,51,0.25);border-radius:0.5px"></div>
+                  <div style="height:0.6cqi;background:rgba(26,35,51,0.22);border-radius:0.5px;width:88%"></div>
+                  <div style="height:0.6cqi;background:rgba(26,35,51,0.20);border-radius:0.5px;width:62%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Étude de Marché 2026</span>
+              <span class="p-ftxt">03 / 40</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">4 indicateurs en grille 2×2 · Filet navy sur chaque tile · Chiffre principal en Onest 500 · Variation en Mono Ambre · Bandeau « Lecture » en bas pour la synthèse narrative.</p>
+      </div>
+
+      <!-- 09 MATRICE SWOT -->
+      <div>
+        <p class="pg-label">09 — Matrice SWOT</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">29</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body" style="padding-top:3%">
+              <p class="p-h2" style="margin-bottom:0.5%">Analyse SWOT</p>
+              <p style="font-family:monospace;font-size:1cqi;color:#95A0B3;margin-bottom:3%;">Forces · Faiblesses · Opportunités · Menaces</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:1.8%;height:70%">
+                <div style="background:rgba(26,35,51,0.035);padding:3% 3.5%;border-top:2px solid #1A2333;display:flex;flex-direction:column"><p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;margin-bottom:1.8cqi;font-weight:500">+ Forces</p><div style="display:flex;flex-direction:column;gap:0.7cqi;flex:1"><div style="display:flex;gap:0.8cqi"><span style="color:#1A2333;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#1A2333;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line med" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#1A2333;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line short" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#1A2333;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line" style="margin-bottom:0;flex:1"></div></div></div></div>
+                <div style="background:rgba(181,181,184,0.10);padding:3% 3.5%;border-top:2px solid #8E8E91;display:flex;flex-direction:column"><p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;margin-bottom:1.8cqi;font-weight:500">− Faiblesses</p><div style="display:flex;flex-direction:column;gap:0.7cqi;flex:1"><div style="display:flex;gap:0.8cqi"><span style="color:#6E7795;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line dim" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#6E7795;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line dim med" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#6E7795;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line dim short" style="margin-bottom:0;flex:1"></div></div></div></div>
+                <div style="background:rgba(122,96,48,0.07);padding:3% 3.5%;border-top:2px solid #7A6030;display:flex;flex-direction:column"><p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#7A6030;margin-bottom:1.8cqi;font-weight:500">↗ Opportunités</p><div style="display:flex;flex-direction:column;gap:0.7cqi;flex:1"><div style="display:flex;gap:0.8cqi"><span style="color:#7A6030;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#7A6030;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line med" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#7A6030;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line short" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#7A6030;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line med" style="margin-bottom:0;flex:1"></div></div></div></div>
+                <div style="background:rgba(122,51,32,0.06);padding:3% 3.5%;border-top:2px solid #7A3320;display:flex;flex-direction:column"><p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#7A3320;margin-bottom:1.8cqi;font-weight:500">↘ Menaces</p><div style="display:flex;flex-direction:column;gap:0.7cqi;flex:1"><div style="display:flex;gap:0.8cqi"><span style="color:#7A3320;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#7A3320;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line med" style="margin-bottom:0;flex:1"></div></div><div style="display:flex;gap:0.8cqi"><span style="color:#7A3320;font-family:monospace;font-size:0.9cqi;flex-shrink:0">·</span><div class="p-line short" style="margin-bottom:0;flex:1"></div></div></div></div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Étude de Marché 2026</span>
+              <span class="p-ftxt">29 / 40</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">2×2 strict · Forces (Navy) · Faiblesses (Argent) · Opportunités (Ambre) · Menaces (Terre brûlée) · Filet coloré supérieur · Fond dilué.</p>
+      </div>
+
+      <!-- 10 TIMELINE / ROADMAP -->
+      <div>
+        <p class="pg-label">10 — Timeline / Roadmap</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">31</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body" style="padding-top:3%">
+              <p class="p-h2" style="margin-bottom:0.5%">Feuille de route 2026–2028</p>
+              <p style="font-family:monospace;font-size:1cqi;color:#95A0B3;margin-bottom:4%;">3 phases · 7 jalons clés</p>
+              <div style="display:grid;grid-template-columns:14% 1fr;gap:3%;margin-bottom:3.5%">
+                <div style="padding-top:1cqi">
+                  <p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;font-weight:500">Phase 1</p>
+                  <p style="font-family:monospace;font-size:0.85cqi;color:#6E7795;letter-spacing:0.08em;margin-top:0.5cqi">2026</p>
+                </div>
+                <div style="padding-left:3%;border-left:2px solid #1A2333">
+                  <p style="font-family:'Onest',sans-serif;font-size:1.7cqi;font-weight:500;color:#1A2333;letter-spacing:-0.015em;margin-bottom:1.2cqi">Amorçage produit</p>
+                  <div style="display:flex;flex-direction:column;gap:0.8cqi">
+                    <div style="display:flex;gap:1.2cqi;align-items:baseline"><span style="font-family:monospace;font-size:0.8cqi;color:#7A6030;width:3cqi;flex-shrink:0;letter-spacing:0.06em">Q1</span><div class="p-line med" style="margin-bottom:0;flex:1"></div></div>
+                    <div style="display:flex;gap:1.2cqi;align-items:baseline"><span style="font-family:monospace;font-size:0.8cqi;color:#7A6030;width:3cqi;flex-shrink:0;letter-spacing:0.06em">Q3</span><div class="p-line" style="margin-bottom:0;flex:1"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:14% 1fr;gap:3%;margin-bottom:3.5%">
+                <div style="padding-top:1cqi">
+                  <p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;font-weight:500">Phase 2</p>
+                  <p style="font-family:monospace;font-size:0.85cqi;color:#6E7795;letter-spacing:0.08em;margin-top:0.5cqi">2027</p>
+                </div>
+                <div style="padding-left:3%;border-left:2px solid #B5B5B8">
+                  <p style="font-family:'Onest',sans-serif;font-size:1.7cqi;font-weight:500;color:#1A2333;letter-spacing:-0.015em;margin-bottom:1.2cqi">Industrialisation</p>
+                  <div style="display:flex;flex-direction:column;gap:0.8cqi">
+                    <div style="display:flex;gap:1.2cqi;align-items:baseline"><span style="font-family:monospace;font-size:0.8cqi;color:#7A6030;width:3cqi;flex-shrink:0;letter-spacing:0.06em">Q1</span><div class="p-line short" style="margin-bottom:0;flex:1"></div></div>
+                    <div style="display:flex;gap:1.2cqi;align-items:baseline"><span style="font-family:monospace;font-size:0.8cqi;color:#7A6030;width:3cqi;flex-shrink:0;letter-spacing:0.06em">Q2</span><div class="p-line" style="margin-bottom:0;flex:1"></div></div>
+                    <div style="display:flex;gap:1.2cqi;align-items:baseline"><span style="font-family:monospace;font-size:0.8cqi;color:#7A6030;width:3cqi;flex-shrink:0;letter-spacing:0.06em">Q4</span><div class="p-line med" style="margin-bottom:0;flex:1"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:14% 1fr;gap:3%">
+                <div style="padding-top:1cqi">
+                  <p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;font-weight:500">Phase 3</p>
+                  <p style="font-family:monospace;font-size:0.85cqi;color:#6E7795;letter-spacing:0.08em;margin-top:0.5cqi">2028</p>
+                </div>
+                <div style="padding-left:3%;border-left:2px solid #D4D4D6">
+                  <p style="font-family:'Onest',sans-serif;font-size:1.7cqi;font-weight:500;color:#1A2333;letter-spacing:-0.015em;margin-bottom:1.2cqi">Expansion européenne</p>
+                  <div style="display:flex;flex-direction:column;gap:0.8cqi">
+                    <div style="display:flex;gap:1.2cqi;align-items:baseline"><span style="font-family:monospace;font-size:0.8cqi;color:#7A6030;width:3cqi;flex-shrink:0;letter-spacing:0.06em">Q2</span><div class="p-line med" style="margin-bottom:0;flex:1"></div></div>
+                    <div style="display:flex;gap:1.2cqi;align-items:baseline"><span style="font-family:monospace;font-size:0.8cqi;color:#7A6030;width:3cqi;flex-shrink:0;letter-spacing:0.06em">Q4</span><div class="p-line" style="margin-bottom:0;flex:1"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Business Plan 2026</span>
+              <span class="p-ftxt">31 / 48</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Phases empilées · Filet vertical coloré gradué (Navy → Argent → Argent L) · Jalons trimestriels en Mono Ambre · Titre de phase en Onest 500.</p>
+      </div>
+
+      <!-- 11 ÉQUIPE / GOUVERNANCE -->
+      <div>
+        <p class="pg-label">11 — Équipe / Gouvernance</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <div class="pf-hdr">
+              <svg class="p-logo" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+              <span class="p-pg">14</span>
+            </div>
+            <div class="pf-hline"></div>
+            <div class="pf-body" style="padding-top:3%">
+              <p class="p-h2" style="margin-bottom:0.5%">Équipe fondatrice</p>
+              <p style="font-family:monospace;font-size:1cqi;color:#95A0B3;margin-bottom:4%;">3 fondateurs · 2 advisors</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4%;margin-bottom:4%">
+                <div>
+                  <div style="aspect-ratio:1;background:#ECE6D8;border-radius:50%;margin-bottom:1.5cqi;position:relative;overflow:hidden">
+                    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 50 50" preserveAspectRatio="xMidYMid slice"><defs><pattern id="diag-eq1" x="0" y="0" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="5" fill="rgba(26,35,51,0.08)"/></pattern></defs><rect width="50" height="50" fill="url(#diag-eq1)"/></svg>
+                  </div>
+                  <p style="font-family:'Lora',serif;font-size:1.5cqi;color:#1A2333;font-weight:500;letter-spacing:-0.01em;margin-bottom:0.4cqi">Prénom Nom</p>
+                  <p style="font-family:monospace;font-size:0.85cqi;letter-spacing:0.10em;text-transform:uppercase;color:#7A6030;margin-bottom:1.2cqi">CEO · Co-fondateur</p>
+                  <div style="display:flex;flex-direction:column;gap:0.55cqi"><div class="p-line"></div><div class="p-line med"></div><div class="p-line short"></div></div>
+                </div>
+                <div>
+                  <div style="aspect-ratio:1;background:#ECE6D8;border-radius:50%;margin-bottom:1.5cqi;position:relative;overflow:hidden">
+                    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 50 50" preserveAspectRatio="xMidYMid slice"><defs><pattern id="diag-eq2" x="0" y="0" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="5" fill="rgba(26,35,51,0.08)"/></pattern></defs><rect width="50" height="50" fill="url(#diag-eq2)"/></svg>
+                  </div>
+                  <p style="font-family:'Lora',serif;font-size:1.5cqi;color:#1A2333;font-weight:500;letter-spacing:-0.01em;margin-bottom:0.4cqi">Prénom Nom</p>
+                  <p style="font-family:monospace;font-size:0.85cqi;letter-spacing:0.10em;text-transform:uppercase;color:#7A6030;margin-bottom:1.2cqi">CTO · Co-fondateur</p>
+                  <div style="display:flex;flex-direction:column;gap:0.55cqi"><div class="p-line"></div><div class="p-line short"></div><div class="p-line med"></div></div>
+                </div>
+                <div>
+                  <div style="aspect-ratio:1;background:#ECE6D8;border-radius:50%;margin-bottom:1.5cqi;position:relative;overflow:hidden">
+                    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 50 50" preserveAspectRatio="xMidYMid slice"><defs><pattern id="diag-eq3" x="0" y="0" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="5" fill="rgba(26,35,51,0.08)"/></pattern></defs><rect width="50" height="50" fill="url(#diag-eq3)"/></svg>
+                  </div>
+                  <p style="font-family:'Lora',serif;font-size:1.5cqi;color:#1A2333;font-weight:500;letter-spacing:-0.01em;margin-bottom:0.4cqi">Prénom Nom</p>
+                  <p style="font-family:monospace;font-size:0.85cqi;letter-spacing:0.10em;text-transform:uppercase;color:#7A6030;margin-bottom:1.2cqi">COO · Co-fondatrice</p>
+                  <div style="display:flex;flex-direction:column;gap:0.55cqi"><div class="p-line med"></div><div class="p-line"></div><div class="p-line short"></div></div>
+                </div>
+              </div>
+              <div style="border-top:0.5px solid rgba(26,35,51,0.20);padding-top:2.5%">
+                <p style="font-family:monospace;font-size:0.95cqi;letter-spacing:0.14em;text-transform:uppercase;color:#1A2333;margin-bottom:2%;font-weight:500">Conseil & Advisors</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 4%">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.9% 0;border-bottom:0.5px solid rgba(26,35,51,0.08)">
+                    <span style="font-family:'Lora',serif;font-size:1.2cqi;color:#1A2333">Prénom Nom</span>
+                    <span style="font-family:monospace;font-size:0.85cqi;color:#6E7795;letter-spacing:0.06em">Stratégie</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.9% 0;border-bottom:0.5px solid rgba(26,35,51,0.08)">
+                    <span style="font-family:'Lora',serif;font-size:1.2cqi;color:#1A2333">Prénom Nom</span>
+                    <span style="font-family:monospace;font-size:0.85cqi;color:#6E7795;letter-spacing:0.06em">Industriel</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Business Plan 2026</span>
+              <span class="p-ftxt">14 / 48</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Portraits circulaires sur placeholder hachuré · Nom en Lora 500 · Rôle en Mono Ambre · Bio courte en Lora · Advisors en bandeau secondaire.</p>
+      </div>
+
+      <!-- 12 VISUEL PLEINE LARGEUR -->
+      <div>
+        <p class="pg-label">12 — Visuel pleine largeur</p>
+        <div class="pg-frame">
+          <div class="pf">
+            <!-- Image pleine largeur -->
+            <div style="flex:0 0 56%;position:relative;overflow:hidden;">
+              <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 100 56" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <pattern id="hatch" x="0" y="0" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                    <rect width="3.5" height="7" fill="rgba(26,35,51,0.055)"/>
+                  </pattern>
+                </defs>
+                <rect width="100" height="100" fill="#ECE6D8"/>
+                <rect width="100" height="100" fill="url(#hatch)"/>
+                <text x="50" y="27" text-anchor="middle" font-family="monospace" font-size="3.5" fill="rgba(26,35,51,0.28)" letter-spacing="0.10">VISUEL · PHOTOGRAPHIE</text>
+                <text x="50" y="33" text-anchor="middle" font-family="monospace" font-size="2.8" fill="rgba(26,35,51,0.18)" letter-spacing="0.06">Min. 2400 × 1600 px · 300 dpi</text>
+              </svg>
+            </div>
+            <!-- Zone titre -->
+            <div style="flex:1;padding:3.5% 7%;display:flex;flex-direction:column;justify-content:center;gap:1.5%;">
+              <p class="p-eyebrow">Section 04 · Cartographie</p>
+              <p style="font-family:'Lora',serif;font-size:3.5cqi;font-weight:500;color:#1A2333;letter-spacing:-0.02em;line-height:1.1;">Implantation géographique<br>des acteurs clés</p>
+              <div style="display:flex;flex-direction:column;gap:0.7cqi">
+                <div class="p-line" style="width:85%"></div>
+                <div class="p-line short"></div>
+              </div>
+            </div>
+            <div class="pf-fline"></div>
+            <div class="pf-ftr">
+              <span class="p-ftxt">Lugia · Étude de Marché 2026</span>
+              <span class="p-ftxt">27 / 40</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Image pleine largeur sans marges (top 56%) · Zone de titre en bas · Légende en Onest 8,5 pt.</p>
+      </div>
+
+      <!-- 07 QUATRIÈME DE COUVERTURE -->
+      <div class="pg-full">
+        <p class="pg-label">13 — Quatrième de couverture</p>
+        <div class="pg-frame" style="background:#1A2333;">
+          <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10% 14%;box-sizing:border-box;text-align:center;">
+            <!-- Logo centré -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:1.5cqi;">
+              <svg style="height:5cqi;width:auto;opacity:0.85" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#F4EFE5"/></svg>
+              <span style="font-family:monospace;font-size:1.3cqi;letter-spacing:0.22em;color:rgba(244,239,229,0.55);text-transform:uppercase">Lugia</span>
+            </div>
+            <!-- Tagline centrale -->
+            <div>
+              <div style="height:0.5px;background:rgba(244,239,229,0.16);width:40%;margin:0 auto 5%;"></div>
+              <p style="font-family:'Lora',serif;font-size:3.2cqi;font-weight:400;color:#F4EFE5;letter-spacing:-0.01em;line-height:1.45;margin-bottom:5%;">Le jumeau numérique<br>de votre entreprise</p>
+              <div style="height:0.5px;background:rgba(244,239,229,0.16);width:40%;margin:0 auto 4%;"></div>
+              <p style="font-family:monospace;font-size:1.1cqi;color:rgba(244,239,229,0.40);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:1.5cqi">lugia.fr</p>
+              <p style="font-family:monospace;font-size:1cqi;color:rgba(244,239,229,0.28);letter-spacing:0.10em;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3655595842575542765a43515f57185044">[email&#160;protected]</a></p>
+            </div>
+            <!-- Classification bas -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:1.5cqi;">
+              <span style="font-family:monospace;font-size:0.88cqi;letter-spacing:0.13em;text-transform:uppercase;color:#C46850;border:0.5px solid rgba(196,104,80,0.45);background:rgba(196,104,80,0.08);padding:0.5cqi 1cqi;border-radius:1px;">● Confidentiel</span>
+              <span style="font-family:monospace;font-size:0.82cqi;color:rgba(244,239,229,0.22);letter-spacing:0.10em">© 2026 Lugia · Tous droits réservés</span>
+            </div>
+          </div>
+        </div>
+        <p class="pg-note">Fond navy plein · Logo ivory centré · Tagline en Lora ivory · Contact en Mono · Classification et copyright en bas.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 05 CLASSIFICATION -->
+<section id="classification" class="chapter">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="eyebrow">05 — Classification</p>
+      <div>
+        <h2 class="ch-title">Niveaux de confidentialité</h2>
+        <p class="ch-lead">Tout document Lugia doit porter une mention de classification visible. Le niveau est attribué par l'auteur lors de la création et ne peut être abaissé sans validation de la direction.</p>
+      </div>
+    </div>
+    <div class="class-grid">
+      <div class="class-card cls-conf">
+        <div class="class-badge"><span class="class-dot"></span>Confidentiel</div>
+        <h3 class="class-cname">Confidentiel</h3>
+        <p class="class-cdesc">Réservé aux destinataires nommément désignés. Toute diffusion externe est interdite sans accord écrit de la direction Lugia.</p>
+        <div class="class-rules">
+          <p class="class-rule">Badge visible sur le panneau ivory de la couverture</p>
+          <p class="class-rule">Mention dans l'en-tête ou le pied de chaque page intérieure</p>
+          <p class="class-rule">Badge sur la quatrième de couverture, fond navy</p>
+          <p class="class-rule">Filigrane optionnel sur chaque page (0,5 pt, Ink 200)</p>
+        </div>
+      </div>
+      <div class="class-card cls-int">
+        <div class="class-badge"><span class="class-dot"></span>Usage interne</div>
+        <h3 class="class-cname">Usage interne</h3>
+        <p class="class-cdesc">Circulation limitée aux collaborateurs Lugia. Peut être partagé avec des prestataires sous accord de confidentialité (NDA).</p>
+        <div class="class-rules">
+          <p class="class-rule">Badge visible sur le panneau ivory de la couverture</p>
+          <p class="class-rule">Mention discrète dans le pied de page (Mono, Ink 300)</p>
+          <p class="class-rule">Aucun filigrane requis</p>
+          <p class="class-rule">Partage externe : NDA préalable obligatoire</p>
+        </div>
+      </div>
+      <div class="class-card cls-pub">
+        <div class="class-badge"><span class="class-dot"></span>Public</div>
+        <h3 class="class-cname">Public</h3>
+        <p class="class-cdesc">Document à diffusion libre. Aucune donnée sensible, prévisionnelle ou concurrentielle ne doit figurer dans ce type de document.</p>
+        <div class="class-rules">
+          <p class="class-rule">Badge minimal ou absent sur la couverture</p>
+          <p class="class-rule">Aucune mention requise en pages intérieures</p>
+          <p class="class-rule">Vérification du contenu avant publication</p>
+          <p class="class-rule">Validation de la direction marketing obligatoire</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILIGRANE CONFIDENTIEL — démonstration -->
+    <div style="margin-top:72px;padding-top:48px;border-top:1px solid var(--line)">
+      <p class="eyebrow" style="margin-bottom:14px">Filigrane Confidentiel</p>
+      <p style="font-size:14px;color:var(--ink-600);line-height:1.6;max-width:680px;margin-bottom:32px">
+        Optionnel sur les documents Confidentiels, le filigrane diagonal reprend la mention en lettres Ink à 6 % d'opacité. Il doit rester lisible sans gêner la lecture du contenu de la page.
+      </p>
+      <div style="display:grid;grid-template-columns:260px 1fr;gap:56px;align-items:start">
+        <div style="aspect-ratio:210/297;background:#FBFAF6;box-shadow:0 4px 24px rgba(26,35,51,0.13), 0 1px 4px rgba(26,35,51,0.07);position:relative;overflow:hidden;border-radius:1px;container-type:inline-size;">
+          <div style="padding:5% 7% 0;display:flex;justify-content:space-between;align-items:center;">
+            <svg style="height:1.7cqi;width:auto" viewBox="0 0 1198 1036" xmlns="http://www.w3.org/2000/svg"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="#1A2333"/></svg>
+            <span style="font-family:monospace;font-size:1.15cqi;color:#6E7795;letter-spacing:0.1em">17</span>
+          </div>
+          <div style="margin:2.5% 7% 0;height:0.5px;background:rgba(26,35,51,0.13);"></div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+            <span style="font-family:monospace;font-size:10cqi;letter-spacing:0.35em;font-weight:500;color:rgba(26,35,51,0.06);transform:rotate(-30deg);text-transform:uppercase;white-space:nowrap;">Confidentiel</span>
+          </div>
+          <div style="padding:3.5% 7%">
+            <div style="font-family:'Onest',sans-serif;font-size:2.7cqi;font-weight:500;color:#1A2333;margin-bottom:3%;letter-spacing:-0.015em">2.3 — Segmentation</div>
+            <div style="display:flex;flex-direction:column;gap:0.75cqi">
+              <div style="height:0.55cqi;background:rgba(26,35,51,0.11);border-radius:0.5px"></div>
+              <div style="height:0.55cqi;background:rgba(26,35,51,0.11);border-radius:0.5px"></div>
+              <div style="height:0.55cqi;background:rgba(26,35,51,0.11);border-radius:0.5px;width:75%"></div>
+              <div style="height:0.55cqi;background:rgba(26,35,51,0.11);border-radius:0.5px"></div>
+              <div style="height:0.55cqi;background:rgba(26,35,51,0.11);border-radius:0.5px;width:55%"></div>
+              <div style="height:0.55cqi;background:rgba(26,35,51,0.11);border-radius:0.5px"></div>
+              <div style="height:0.55cqi;background:rgba(26,35,51,0.11);border-radius:0.5px;width:68%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="spec-list">
+          <div class="spec-row"><span class="spec-k">Texte</span><span class="spec-v">CONFIDENTIEL · IBM Plex Mono 500</span></div>
+          <div class="spec-row"><span class="spec-k">Rotation</span><span class="spec-v">–30°</span></div>
+          <div class="spec-row"><span class="spec-k">Opacité</span><span class="spec-v">6 % (Ink #1A2333)</span></div>
+          <div class="spec-row"><span class="spec-k">Position</span><span class="spec-v">Centre de la zone texte</span></div>
+          <div class="spec-row"><span class="spec-k">Taille</span><span class="spec-v">Adaptée — visible, non gênée</span></div>
+          <div class="spec-row"><span class="spec-k">Couches</span><span class="spec-v">Sous le texte, sur le fond</span></div>
+          <div class="spec-row"><span class="spec-k">Restriction</span><span class="spec-v">Documents Confidentiels uniquement</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 EN-TÊTES & PIEDS -->
+<section id="entetes" class="chapter">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="eyebrow">06 — En-têtes</p>
+      <div>
+        <h2 class="ch-title">En-têtes & pieds de page</h2>
+        <p class="ch-lead">L'en-tête est présent sur toutes les pages intérieures. Il est absent sur la couverture, la quatrième et les ouvertures de section. Le pied de page porte le titre court du document et la pagination.</p>
+      </div>
+    </div>
+    <div class="hf-cards">
+      <div>
+        <p class="hf-label">En-tête standard</p>
+        <div class="hf-preview">
+          <div class="hf-band hdr">
+            <div class="hf-logo">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1198 1036"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="currentColor"/></svg>
+            </div>
+            <span class="hf-pnum">12</span>
+          </div>
+          <div class="hf-content">
+            <div class="hf-lorem" style="width:95%"></div>
+            <div class="hf-lorem"></div>
+            <div class="hf-lorem" style="width:78%"></div>
+          </div>
+        </div>
+        <div class="hf-rules">
+          <p class="hf-rule">Logo marque (mark pyramide seul) · hauteur 4 mm · aligné à gauche</p>
+          <p class="hf-rule">Numéro de page en IBM Plex Mono · aligné à droite · Ink 400</p>
+          <p class="hf-rule">Filet inférieur 0,25 pt · couleur Argent (#B5B5B8)</p>
+          <p class="hf-rule">Absent sur couverture, ouvertures de section et 4e de couverture</p>
+        </div>
+      </div>
+      <div>
+        <p class="hf-label">Pied de page standard</p>
+        <div class="hf-preview">
+          <div class="hf-content">
+            <div class="hf-lorem"></div>
+            <div class="hf-lorem" style="width:88%"></div>
+            <div class="hf-lorem" style="width:65%"></div>
+          </div>
+          <div class="hf-band ftr">
+            <span class="hf-doc">Lugia · Étude de Marché 2026</span>
+            <span class="hf-pnum">12 / 40</span>
+          </div>
+        </div>
+        <div class="hf-rules">
+          <p class="hf-rule">Titre court du document · IBM Plex Mono · Ink 300 · aligné à gauche</p>
+          <p class="hf-rule">Pagination "N / Total" · IBM Plex Mono · Ink 300 · aligné à droite</p>
+          <p class="hf-rule">Filet supérieur 0,25 pt · couleur Argent (#B5B5B8)</p>
+          <p class="hf-rule">Mention de classification optionnelle centrée entre les deux éléments</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="sf-inner">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1198 1036"><path d="M599,79 L572,185 L551,250 L533,297 L500,373 L473,428 L414,535 L351,633 L280,730 L201,824 L80,955 L1118,956 L81,955 L177,883 L269,807 L400,688 L574,513 L591,501 L603,500 L624,513 L788,679 L881,766 L980,851 L1118,956 L1009,839 L927,742 L846,632 L772,516 L705,390 L663,294 L622,175 L605,111 L599,79 Z" fill="rgba(244,239,229,1)"/></svg>
+    <span>Lugia · Charte Documents PDF · v1.0 · Mai 2026</span>
+    <span>© Lugia 2026 · Usage interne</span>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V3-brand · T-V3-5-fix-2 · Intro + Profil + Energy (7 corrections)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --serif:"Lora", serif;
+    --sans:"Onest", -apple-system, sans-serif;
+    --mono:"IBM Plex Mono", Menlo, monospace;
+  }
+  body.night {
+    --bg:#192030;
+    --navy:#f4efe5;
+    --navy400:#6e7a95;
+    --navy600:#a8b2c8;
+    --ivory:#1e2738;
+    --ivory2:#222d3e;
+    --argent:#8E8E91;
+    --line:rgba(251,250,246,0.10);
+    --line-strong:rgba(251,250,246,0.20);
+    --paper:#192030;
+    --topbar-bg:rgba(25,32,48,0.93);
+    --axis-a:#4aab84; --axis-ag:rgba(74,171,132,0.12);
+    --axis-b:#5b82d4; --axis-bg:rgba(91,130,212,0.12);
+    --axis-c:#e07040; --axis-cg:rgba(224,112,64,0.12);
+  }
+  body.day {
+    --bg:#fbfaf6;
+    --navy:#1a2333;
+    --navy400:#6e7795;
+    --navy600:#3a4360;
+    --ivory:#f4efe5;
+    --ivory2:#f8f4eb;
+    --argent:#B5B5B8;
+    --line:rgba(26,35,51,0.12);
+    --line-strong:rgba(26,35,51,0.22);
+    --paper:#fbfaf6;
+    --topbar-bg:rgba(251,250,246,0.92);
+    --axis-a:#2d7a5e; --axis-ag:rgba(45,122,94,0.10);
+    --axis-b:#2a4fa0; --axis-bg:rgba(42,79,160,0.10);
+    --axis-c:#b5420a; --axis-cg:rgba(181,66,10,0.09);
+  }
+  * { box-sizing: border-box; }
+  em, i, cite, address { font-style: normal; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--navy);
+    -webkit-font-smoothing: antialiased;
+    transition: background 350ms ease-out, color 350ms ease-out;
+  }
+  .screen-sep { height: 1px; background: var(--line-strong); opacity: 0.5; max-width: 680px; margin: 0 auto; }
+  .screen-tag { text-align: center; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--navy400); padding: 16px 0 6px; }
+
+  /* ─── Toggle thème avec pill qui glisse ─── */
+  #theme-toggle {
+    position: fixed; top: 11px; right: 20px; z-index: 300;
+    display: inline-flex; align-items: stretch; gap: 0;
+    background: var(--ivory); border: 1px solid var(--line-strong);
+    cursor: pointer;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    user-select: none; overflow: hidden;
+    transition: border-color 200ms ease-out, background 350ms ease-out;
+    padding: 0; width: 152px; height: 28px;
+  }
+  #theme-toggle:hover { border-color: var(--navy400); }
+  .tg-pill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 76px;
+    background: var(--ivory2);
+    border-right: 1px solid var(--line-strong);
+    transition: transform 250ms cubic-bezier(.4, 0, .2, 1);
+  }
+  body.day .tg-pill { transform: translateX(0); }
+  body.night .tg-pill { transform: translateX(76px); border-right: none; border-left: 1px solid var(--line-strong); }
+  .tg-opt {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    gap: 5px; width: 76px;
+    color: var(--navy400);
+    transition: color 250ms ease-out;
+  }
+  body.day .tg-opt.day { color: var(--navy); }
+  body.night .tg-opt.night { color: var(--navy); }
+
+  /* ─── Topbar ─── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: var(--topbar-bg);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    backdrop-filter: saturate(140%) blur(12px);
+    padding: 12px 0;
+  }
+  .tb-inner { max-width: 720px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
+  .tb-brand { display: flex; align-items: center; gap: 9px; flex-shrink: 0; color: var(--navy); }
+  .tb-name { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--navy); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+  .tb-label { font-family: var(--mono); font-size: 10px; color: var(--navy400); white-space: nowrap; letter-spacing: 0.08em; text-transform: uppercase; }
+  .tb-sep { width: 1px; height: 14px; background: var(--line-strong); flex-shrink: 0; }
+  .tb-track { flex: 1; height: 1px; background: var(--line-strong); overflow: hidden; }
+  .tb-fill { height: 100%; background: var(--navy); transition: width 500ms ease-out; }
+  .tb-pct { font-family: var(--mono); font-size: 10px; color: var(--navy400); min-width: 32px; text-align: right; }
+
+  /* ─── Shell ─── */
+  .shell { max-width: 680px; margin: 0 auto; padding: 88px 24px 64px; }
+
+  /* ─── Eyebrow ─── */
+  .eyebrow {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--navy400); margin: 0 0 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::before { content: ""; display: inline-block; width: 20px; height: 1px; background: var(--navy400); }
+
+  h1.title-intro { font-family: var(--serif); font-size: clamp(2.1rem, 5.5vw, 3.4rem); font-weight: 400; line-height: 1.06; letter-spacing: -0.025em; margin: 0 0 20px; }
+  h1.title-md { font-family: var(--serif); font-size: clamp(26px, 4vw, 36px); font-weight: 400; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 16px; }
+  .em-argent { color: var(--argent); }
+
+  .body { font-family: var(--sans); font-size: 15px; line-height: 1.75; color: var(--navy600); max-width: 540px; margin: 0 0 40px; }
+
+  /* ─── Profil-sub (mono small sous les titres profil/energy) ─── */
+  .profil-sub {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--navy400); margin: 0 0 32px;
+    letter-spacing: 0.04em; line-height: 1.55;
+    max-width: 540px;
+  }
+
+  /* ─── Axes-chips ─── */
+  .axes-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 48px; }
+  .ac { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .ac::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+  .ac.a { border: 1px solid color-mix(in srgb, var(--axis-a) 40%, transparent); color: var(--axis-a); background: var(--axis-ag); }
+  .ac.a::before { background: var(--axis-a); }
+  .ac.b { border: 1px solid color-mix(in srgb, var(--axis-b) 40%, transparent); color: var(--axis-b); background: var(--axis-bg); }
+  .ac.b::before { background: var(--axis-b); }
+  .ac.c { border: 1px solid color-mix(in srgb, var(--axis-c) 40%, transparent); color: var(--axis-c); background: var(--axis-cg); }
+  .ac.c::before { background: var(--axis-c); }
+
+  /* ─── Promises ─── */
+  .promises { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 32px; }
+  .promise { padding: 16px; background: var(--ivory); border: 1px solid var(--line); font-size: 13px; color: var(--navy600); line-height: 1.5; display: flex; flex-direction: column; gap: 6px; }
+  .promise-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .promise-head strong { font-size: 10px; font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; color: var(--navy); }
+  .promise-icon { flex-shrink: 0; color: var(--navy400); }
+
+  /* ─── Confidentialité (juste avant CTA d'intro) ─── */
+  .confid {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--navy400); margin-bottom: 18px;
+  }
+  .confid svg { flex-shrink: 0; }
+  .confid span {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.06em; line-height: 1.5;
+  }
+
+  /* ─── Calib-progress ─── */
+  .calib-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+  .calib-track { flex: 1; height: 2px; background: var(--line-strong); overflow: hidden; }
+  .calib-fill { height: 100%; background: var(--navy); transition: width 350ms ease-out; }
+  .calib-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--navy400); min-width: 42px; text-align: right; }
+
+
+  /* ─── Hint mono small SOUS chaque question (label .field h3) ─── */
+  .field h3 { margin: 0 0 6px; }
+  .field h3.no-hint { margin: 0 0 16px; }
+  .field-hint {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--navy400); margin: 0 0 16px;
+    letter-spacing: 0.04em; line-height: 1.55;
+  }
+
+  /* ─── Chips de questions (sélection en argent semi-transparent) ─── */
+  .field { margin-bottom: 36px; }
+  .field h3 { font-family: var(--serif); font-size: 22px; font-weight: 400; line-height: 1.3; letter-spacing: -0.01em; margin: 0 0 16px; color: var(--navy); }
+  .chips-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-family: var(--sans); font-size: 14px; line-height: 1.4;
+    padding: 9px 16px;
+    background: transparent; color: var(--navy);
+    border: 1px solid var(--line-strong);
+    cursor: pointer;
+    transition: background 180ms ease-out, color 180ms ease-out, border-color 180ms ease-out;
+  }
+  .chip:hover { border-color: var(--navy400); }
+  .chip.selected {
+    background: color-mix(in srgb, var(--argent) 18%, transparent);
+    border-color: color-mix(in srgb, var(--argent) 60%, transparent);
+    color: var(--navy);
+    font-weight: 500;
+  }
+
+
+  /* ─── Chip « + Ajouter » et chips libres (free-add) ─── */
+  .chip-add {
+    border-style: dashed !important;
+    color: var(--navy400) !important;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip-add .plus { font-size: 16px; line-height: 1; }
+  .chip.free-add {
+    display: inline-flex; align-items: center; gap: 8px;
+    /* hérite des styles .chip.selected via la classe */
+  }
+  .free-add-x {
+    all: unset; cursor: pointer;
+    color: var(--navy400);
+    font-family: var(--mono); font-size: 12px; line-height: 1;
+    padding: 0 2px;
+  }
+
+  /* ─── Energy cards ─── */
+  .energy-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px; }
+  .energy-card {
+    text-align: left; font-family: var(--serif); font-size: 17px; line-height: 1.45;
+    padding: 16px 20px;
+    background: transparent; color: var(--navy);
+    border: 1px solid var(--line-strong); cursor: pointer;
+  }
+  .energy-card:hover { border-color: var(--navy400); }
+  .energy-card.selected {
+    background: color-mix(in srgb, var(--argent) 14%, transparent);
+    border-color: color-mix(in srgb, var(--argent) 60%, transparent);
+  }
+
+  /* ─── CTA ─── */
+  .cta { background: var(--navy); color: var(--paper); border: none; padding: 13px 28px; font-family: var(--sans); font-size: 14px; font-weight: 500; letter-spacing: 0.02em; cursor: pointer; }
+  .cta:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  @media (max-width: 640px) { .promises { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body class="night">
+
+  <!-- Toggle pill qui glisse -->
+  <button id="theme-toggle" onclick="toggleTheme()" aria-label="Changer le thème">
+    <span class="tg-pill"></span>
+    <span class="tg-opt day">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="2.4" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="6" y1="0.5" x2="6" y2="2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="6" y1="9.5" x2="6" y2="11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="0.5" y1="6" x2="2.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="9.5" y1="6" x2="11.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="2.1" y1="2.1" x2="3.5" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="8.5" y1="8.5" x2="9.9" y2="9.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="9.9" y1="2.1" x2="8.5" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="3.5" y1="8.5" x2="2.1" y2="9.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Jour
+    </span>
+    <span class="tg-opt night">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <path d="M12.5 10.5A6.5 6.5 0 1 1 5 2a5.5 5.5 0 0 0 7.5 8.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      Nuit
+    </span>
+  </button>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="tb-inner">
+      <div class="tb-brand">
+        <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+        <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+      </div>
+      <span class="tb-sep"></span>
+      <span class="tb-label">Présentation</span>
+      <div class="tb-track"><div class="tb-fill" style="width:0%"></div></div>
+      <span class="tb-pct">0 %</span>
+    </div>
+  </div>
+
+  <!-- ─── Écran 1 : Intro ─── -->
+  <div class="screen-tag">Écran 1 / 4 · Intro</div>
+  <div class="shell">
+    <p class="eyebrow">Diagnostic organisationnel</p>
+    <h1 class="title-intro">Où en est<br><em class="em-argent">votre cabinet</em><br>aujourd'hui&nbsp;?</h1>
+    <p class="body">25 minutes. 18 questions adaptées à votre profil. Une analyse qui se construit en temps réel — pour vous donner une lecture claire de là où agir en premier.</p>
+
+    <div class="axes-row">
+      <span class="ac a">Parcours patient</span>
+      <span class="ac b">Équipe &amp; secrétariat</span>
+      <span class="ac c">Outils &amp; dossiers</span>
+    </div>
+
+    <div class="promises">
+      <div class="promise">
+        <div class="promise-head">
+          <strong>Adaptatif</strong>
+          <svg class="promise-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="5" cy="5" r="2" stroke="currentColor" stroke-width="1.2" fill="transparent"/>
+            <line x1="1" y1="11" x2="15" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="11" cy="11" r="2" stroke="currentColor" stroke-width="1.2" fill="transparent"/>
+          </svg>
+        </div>
+        Questions calibrées selon votre type de cabinet
+      </div>
+      <div class="promise">
+        <div class="promise-head">
+          <strong>Métier</strong>
+          <svg class="promise-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <rect x="6" y="1" width="4" height="14" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <rect x="1" y="6" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+        </div>
+        Reformulations en langage praticien, pas consultant
+      </div>
+      <div class="promise">
+        <div class="promise-head">
+          <strong>Croisé</strong>
+          <svg class="promise-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="2.5" r="1.8" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="2.5" cy="13" r="1.8" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="13.5" cy="13" r="1.8" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="8" y1="4.3" x2="2.5" y2="11.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="8" y1="4.3" x2="13.5" y2="11.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="4.3" y1="13" x2="11.7" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        Détection de signaux entre les 3 axes
+      </div>
+      <div class="promise">
+        <div class="promise-head">
+          <strong>Opérationnel</strong>
+          <svg class="promise-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <line x1="6" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="6" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="6" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M2 3.5l1.2 1.2L5 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 7.5l1.2 1.2L5 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="3" cy="12" r=".8" fill="currentColor"/>
+          </svg>
+        </div>
+        Plan d'action en 4 étapes pour le chantier choisi
+      </div>
+    </div>
+
+    <!-- Confidentialité avant CTA -->
+    <div class="confid">
+      <svg width="13" height="15" viewBox="0 0 14 16" fill="none">
+        <path d="M7 1 L1 3 V8 c0 3.5 2.5 6.5 6 7 c3.5 -0.5 6 -3.5 6 -7 V3 L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/>
+        <path d="M4.5 8 L6.3 9.8 L9.5 6.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span>Vos réponses sont traitées confidentiellement et ne sont jamais revendues.</span>
+    </div>
+
+    <div><button class="cta">Commencer le diagnostic →</button></div>
+  </div>
+  <div class="screen-sep"></div>
+
+  <!-- ─── Écran 2 : Profil step 1 ─── -->
+  <div class="screen-tag">Écran 2 / 4 · Profil — étape 1 sur 2</div>
+  <div class="shell">
+    <p class="eyebrow">Profil · étape 1 sur 2</p>
+    <h1 class="title-md">Quelques repères sur <em class="em-argent">votre cabinet</em>.</h1>
+    <p class="body">Cinq éléments factuels. Aucune réponse n'est jugée — on cherche juste à cadrer le terrain pour la suite.</p>
+
+    <div class="calib-progress">
+      <div class="calib-track"><div class="calib-fill" style="width:60%"></div></div>
+      <span class="calib-label">3 / 5</span>
+    </div>
+
+    <div class="field">
+      <h3>Type de cabinet</h3>
+      <p class="field-hint">Configuration actuelle du cabinet</p>
+      <div class="chips-row">
+        <button class="chip">Solo</button>
+        <button class="chip selected">Groupe 2-3 médecins</button>
+        <button class="chip">Groupe 4-5 médecins</button>
+        <button class="chip">MSP</button>
+      </div>
+    </div>
+    <div class="field">
+      <h3>Volume hebdomadaire d'actes</h3>
+      <p class="field-hint">Consultations par semaine en moyenne</p>
+      <div class="chips-row">
+        <button class="chip">Moins de 80 actes</button>
+        <button class="chip selected">80 à 120 actes</button>
+        <button class="chip">Plus de 120 actes</button>
+      </div>
+    </div>
+    <div class="field">
+      <h3>Équipe paramédicale sur place</h3>
+      <p class="field-hint">Professionnels qui partagent les locaux</p>
+      <div class="chips-row">
+        <button class="chip">Non</button>
+        <button class="chip selected">Infirmière(s)</button>
+        <button class="chip">Plusieurs paramédicaux</button>
+        <button class="chip">MSP complète</button>
+      </div>
+    </div>
+    <div class="field">
+      <h3>Logiciels que vous utilisez</h3>
+      <p class="field-hint">Sélectionnez tous ceux que vous utilisez vraiment — ajoutez les autres au besoin</p>
+      <div class="chips-row">
+        <button class="chip selected">Médidoc</button>
+        <button class="chip">Crossway</button>
+        <button class="chip">Cegedim</button>
+        <button class="chip selected">Doctolib Pro</button>
+        <button class="chip">Maiia</button>
+        <button class="chip">MédiStory</button>
+        <button class="chip">HelloDoc</button>
+        <span class="chip selected free-add"><span>Ordoclic</span><button class="free-add-x" aria-label="Retirer Ordoclic">×</button></span>
+        <button class="chip chip-add" aria-label="Ajouter un autre outil"><span class="plus">+</span> Ajouter</button>
+      </div>
+    </div>
+    <div class="field">
+      <h3>Comment vos patients prennent-ils RDV ?</h3>
+      <p class="field-hint">Tous les canaux par lesquels passent les patients</p>
+      <div class="chips-row">
+        <button class="chip selected">Doctolib</button>
+        <button class="chip">Maiia</button>
+        <button class="chip">Plateforme du cabinet</button>
+        <button class="chip selected">Téléphone via secrétariat</button>
+        <button class="chip">Téléphone direct</button>
+        <button class="chip">Mixte</button>
+      </div>
+    </div>
+
+    <div style="margin-top:8px"><button class="cta" disabled>Étape suivante →</button></div>
+  </div>
+  <div class="screen-sep"></div>
+
+  <!-- ─── Écran 3 : Profil step 2 ─── -->
+  <div class="screen-tag">Écran 3 / 4 · Profil — étape 2 sur 2</div>
+  <div class="shell">
+    <p class="eyebrow">Profil · étape 2 sur 2</p>
+    <h1 class="title-md">Et <em class="em-argent">vous</em>, dans tout ça ?</h1>
+    <p class="body">Quatre questions qui éclairent la suite — où vous en êtes, où vous regardez, ce qui vous a fait commencer ce check-up.</p>
+
+    <div class="calib-progress">
+      <div class="calib-track"><div class="calib-fill" style="width:50%"></div></div>
+      <span class="calib-label">2 / 4</span>
+    </div>
+
+    <div class="field">
+      <h3>Depuis combien de temps exercez-vous ici ?</h3>
+      <p class="field-hint">À ce poste précisément, pas la durée totale d'exercice</p>
+      <div class="chips-row">
+        <button class="chip">Récent (moins de 3 ans)</button>
+        <button class="chip selected">Installé (3 à 15 ans)</button>
+        <button class="chip">Senior (plus de 15 ans)</button>
+      </div>
+    </div>
+    <div class="field">
+      <h3>Comment décririez-vous votre territoire ?</h3>
+      <p class="field-hint">Densité médicale autour du cabinet</p>
+      <div class="chips-row">
+        <button class="chip">Urbain dense</button>
+        <button class="chip selected">Périurbain</button>
+        <button class="chip">Rural / semi-rural</button>
+        <button class="chip">Zone sous-dotée</button>
+      </div>
+    </div>
+    <div class="field">
+      <h3>Horizon 3 ans</h3>
+      <p class="field-hint">Plusieurs réponses possibles si vous avez plusieurs objectifs</p>
+      <div class="chips-row">
+        <button class="chip">Reconduire à l'identique</button>
+        <button class="chip selected">Renforcer l'équipe</button>
+        <button class="chip">Déménager / agrandir</button>
+        <button class="chip selected">Préparer la transmission</button>
+        <button class="chip">Encore incertain</button>
+      </div>
+    </div>
+    <div class="field">
+      <h3>Pourquoi ce check-up ?</h3>
+      <p class="field-hint">Toutes les raisons qui comptent pour vous</p>
+      <div class="chips-row">
+        <button class="chip selected">Réduire ma charge actuelle</button>
+        <button class="chip selected">Anticiper un événement à venir</button>
+        <button class="chip">Sécuriser un risque identifié</button>
+        <button class="chip">Curiosité</button>
+      </div>
+    </div>
+
+    <div style="margin-top:8px"><button class="cta" disabled>Continuer →</button></div>
+  </div>
+  <div class="screen-sep"></div>
+
+  <!-- ─── Écran 4 : Energy ─── -->
+  <div class="screen-tag">Écran 4 / 4 · Ancrage (énergie)</div>
+  <div class="shell">
+    <p class="eyebrow">Un dernier repère avant les blocs</p>
+    <h1 class="title-md">On part de <em class="em-argent">là où vous en êtes</em>.</h1>
+    <p class="body">Cette question n'entre pas dans le score. Elle nous aide juste à formuler les retours de manière utile — un cabinet sous tension n'attend pas la même chose qu'un cabinet posé.</p>
+
+    <div class="energy-list">
+      <button class="energy-card">Bien — je tiens le rythme, c'est soutenable.</button>
+      <button class="energy-card selected">Tendu, mais ça passe — quelques semaines sont plus dures.</button>
+      <button class="energy-card">Souvent vidé — je récupère sur le week-end.</button>
+      <button class="energy-card">Au bord — je ne sais pas combien de temps je peux tenir.</button>
+    </div>
+
+    <button class="cta">Commencer les questions →</button>
+  </div>
+
+<script>
+  function toggleTheme() {
+    const b = document.body;
+    if (b.classList.contains('night')) { b.classList.remove('night'); b.classList.add('day'); }
+    else { b.classList.remove('day'); b.classList.add('night'); }
+  }
+</script>
+</body>
+</html>

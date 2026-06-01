@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V3-brand · T-V3-4 · Topbar — 5 états de progression</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --serif:"Lora", serif;
+    --sans:"Onest", -apple-system, sans-serif;
+    --mono:"IBM Plex Mono", Menlo, monospace;
+  }
+  .day {
+    --bg:#fbfaf6;
+    --navy:#1a2333;
+    --navy400:#6e7795;
+    --line-strong:rgba(26,35,51,0.22);
+    --topbar-bg:rgba(251,250,246,0.92);
+  }
+  .night {
+    --bg:#192030;
+    --navy:#f4efe5;
+    --navy400:#6e7a95;
+    --line-strong:rgba(251,250,246,0.20);
+    --topbar-bg:rgba(25,32,48,0.93);
+  }
+
+  * { box-sizing: border-box; }
+  em, i, cite, address { font-style: normal; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: #ece6d8;
+    color: #1a2333;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 0 96px;
+  }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 0 48px; }
+  .doc-head { margin-bottom: 56px; }
+  .doc-head .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: rgba(26,35,51,0.55); margin: 0 0 18px;
+  }
+  .doc-head h1 {
+    font-family: var(--serif); font-size: 52px; font-weight: 400;
+    line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 14px;
+  }
+  .doc-head .lead {
+    font-family: var(--serif); font-size: 20px; line-height: 1.5;
+    color: rgba(26,35,51,0.75); max-width: 780px; margin: 0;
+  }
+
+  /* Une "scène" = page entière simulée avec topbar fixe à l'intérieur. */
+  .scene {
+    position: relative;
+    background: var(--bg);
+    color: var(--navy);
+    height: 220px;
+    margin-bottom: 28px;
+    border: 1px solid rgba(26,35,51,0.10);
+    overflow: hidden;
+  }
+  .scene-label {
+    position: absolute;
+    bottom: 16px;
+    left: 28px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--navy400);
+  }
+  .scene-label .step {
+    font-family: var(--mono);
+    color: var(--navy);
+    margin-left: 6px;
+  }
+  .scene-content {
+    padding: 92px 32px 0;
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.4;
+    max-width: 540px;
+  }
+  .scene-content em { color: rgba(127,127,127,0.85); }
+
+  /* Topbar à l'intérieur d'une scène — donc position: absolute (pas fixed) */
+  .topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 5;
+    background: var(--topbar-bg);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    backdrop-filter: saturate(140%) blur(12px);
+    padding: 12px 0;
+  }
+  .tb-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .tb-brand { display: flex; align-items: center; gap: 9px; flex-shrink: 0; color: var(--navy); }
+  .tb-name {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    color: var(--navy); letter-spacing: 0.1em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tb-sep { width: 1px; height: 14px; background: var(--line-strong); flex-shrink: 0; }
+  .tb-label {
+    font-family: var(--mono); font-size: 10px; color: var(--navy400);
+    white-space: nowrap; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .tb-track {
+    flex: 1; height: 1px; background: var(--line-strong); overflow: hidden;
+  }
+  .tb-fill {
+    height: 100%; background: var(--navy);
+    transition: width 500ms ease-out;
+  }
+  .tb-pct {
+    font-family: var(--mono); font-size: 10px; color: var(--navy400);
+    min-width: 32px; text-align: right;
+  }
+  .tb-theme {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--navy400);
+    padding: 5px 7px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  /* Masque la zone progression quand on est en intro */
+  .hide-progress .tb-sep,
+  .hide-progress .tb-label,
+  .hide-progress .tb-track,
+  .hide-progress .tb-pct {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pair-thumbs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    margin-bottom: 12px;
+  }
+  .pair-thumbs .scene { margin-bottom: 0; }
+
+  .group-h {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(26,35,51,0.55);
+    margin: 40px 0 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(26,35,51,0.10);
+  }
+
+  .footnote {
+    margin-top: 56px; padding: 28px;
+    background: rgba(26,35,51,0.04);
+    border: 1px solid rgba(26,35,51,0.10);
+    font-size: 14px; line-height: 1.6; color: rgba(26,35,51,0.75);
+  }
+  .footnote h2 {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    margin: 0 0 14px;
+  }
+  .footnote code {
+    font-family: var(--mono); font-size: 12.5px;
+    background: rgba(26,35,51,0.07); padding: 1px 6px;
+  }
+  .footnote p { max-width: 920px; margin: 0 0 10px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="doc-head">
+      <p class="eyebrow">V3-brand · T-V3-4 · Topbar — 5 états de progression</p>
+      <h1>La barre se construit pendant qu'on répond.</h1>
+      <p class="lead">Cinq instants du parcours, mode jour et mode nuit côte à côte. Sur l'écran d'intro la zone de progression est masquée — elle fade-in dès qu'on entre dans le parcours.</p>
+    </header>
+
+    <p class="group-h">État 1 · Intro (zone progression masquée)</p>
+    <div class="pair-thumbs">
+      <div class="scene day">
+        <div class="topbar hide-progress">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">Présentation</span>
+            <div class="tb-track"><div class="tb-fill" style="width:0%"></div></div>
+            <span class="tb-pct">0 %</span>
+            <button class="tb-theme" aria-label="Passer en mode nuit"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="8" x2="14.5" y2="8" stroke="currentColor" stroke-width="1.2"/><line x1="1.5" y1="8" x2="3" y2="8" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="1.5" x2="8" y2="3" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="13" x2="8" y2="14.5" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Lugia&nbsp;&amp;&nbsp;Co — Check-up préventif <em>du fonctionnement</em>.</div>
+        <p class="scene-label">step <span class="step">intro</span> · 0 / 28</p>
+      </div>
+      <div class="scene night">
+        <div class="topbar hide-progress">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">Présentation</span>
+            <div class="tb-track"><div class="tb-fill" style="width:0%"></div></div>
+            <span class="tb-pct">0 %</span>
+            <button class="tb-theme" aria-label="Passer en mode jour"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10.5 1.5a6.5 6.5 0 1 0 4 12 5.5 5.5 0 0 1-4-12z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Lugia&nbsp;&amp;&nbsp;Co — Check-up préventif <em>du fonctionnement</em>.</div>
+        <p class="scene-label">step <span class="step">intro</span> · 0 / 28</p>
+      </div>
+    </div>
+
+    <p class="group-h">État 2 · Profil étape 1, 3 chips renseignés (3 / 28)</p>
+    <div class="pair-thumbs">
+      <div class="scene day">
+        <div class="topbar">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">1 / 5 · Profil</span>
+            <div class="tb-track"><div class="tb-fill" style="width:10.7%"></div></div>
+            <span class="tb-pct">11 %</span>
+            <button class="tb-theme"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="8" x2="14.5" y2="8" stroke="currentColor" stroke-width="1.2"/><line x1="1.5" y1="8" x2="3" y2="8" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Volume hebdomadaire&nbsp;? Logiciel métier&nbsp;? Canal de rendez-vous&nbsp;?</div>
+        <p class="scene-label">step <span class="step">profil_step1</span> · 3 / 28</p>
+      </div>
+      <div class="scene night">
+        <div class="topbar">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">1 / 5 · Profil</span>
+            <div class="tb-track"><div class="tb-fill" style="width:10.7%"></div></div>
+            <span class="tb-pct">11 %</span>
+            <button class="tb-theme"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10.5 1.5a6.5 6.5 0 1 0 4 12 5.5 5.5 0 0 1-4-12z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Volume hebdomadaire&nbsp;? Logiciel métier&nbsp;? Canal de rendez-vous&nbsp;?</div>
+        <p class="scene-label">step <span class="step">profil_step1</span> · 3 / 28</p>
+      </div>
+    </div>
+
+    <p class="group-h">État 3 · Bloc B, 4 questions répondues sur 6 (18 / 28)</p>
+    <div class="pair-thumbs">
+      <div class="scene day">
+        <div class="topbar">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">4 / 5 · Équipe &amp; secrétariat</span>
+            <div class="tb-track"><div class="tb-fill" style="width:64.3%"></div></div>
+            <span class="tb-pct">64 %</span>
+            <button class="tb-theme"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="8" x2="14.5" y2="8" stroke="currentColor" stroke-width="1.2"/><line x1="1.5" y1="8" x2="3" y2="8" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Question B5 — Comment se prennent les décisions <em>quand l'équipe est complète</em>&nbsp;?</div>
+        <p class="scene-label">step <span class="step">bloc_B</span> · 18 / 28</p>
+      </div>
+      <div class="scene night">
+        <div class="topbar">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">4 / 5 · Équipe &amp; secrétariat</span>
+            <div class="tb-track"><div class="tb-fill" style="width:64.3%"></div></div>
+            <span class="tb-pct">64 %</span>
+            <button class="tb-theme"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10.5 1.5a6.5 6.5 0 1 0 4 12 5.5 5.5 0 0 1-4-12z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Question B5 — Comment se prennent les décisions <em>quand l'équipe est complète</em>&nbsp;?</div>
+        <p class="scene-label">step <span class="step">bloc_B</span> · 18 / 28</p>
+      </div>
+    </div>
+
+    <p class="group-h">État 4 · Transition entre bloc C et résultats (28 / 28)</p>
+    <div class="pair-thumbs">
+      <div class="scene day">
+        <div class="topbar">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">5 / 5 · Outils &amp; dossiers</span>
+            <div class="tb-track"><div class="tb-fill" style="width:100%"></div></div>
+            <span class="tb-pct">100 %</span>
+            <button class="tb-theme"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="8" x2="14.5" y2="8" stroke="currentColor" stroke-width="1.2"/><line x1="1.5" y1="8" x2="3" y2="8" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Vous avez fait le tour. <em>Le profil se dessine.</em></div>
+        <p class="scene-label">step <span class="step">transition_C</span> · 28 / 28</p>
+      </div>
+      <div class="scene night">
+        <div class="topbar">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">5 / 5 · Outils &amp; dossiers</span>
+            <div class="tb-track"><div class="tb-fill" style="width:100%"></div></div>
+            <span class="tb-pct">100 %</span>
+            <button class="tb-theme"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10.5 1.5a6.5 6.5 0 1 0 4 12 5.5 5.5 0 0 1-4-12z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Vous avez fait le tour. <em>Le profil se dessine.</em></div>
+        <p class="scene-label">step <span class="step">transition_C</span> · 28 / 28</p>
+      </div>
+    </div>
+
+    <p class="group-h">État 5 · Page de résultats (étiquette Résultats)</p>
+    <div class="pair-thumbs">
+      <div class="scene day">
+        <div class="topbar">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">Résultats</span>
+            <div class="tb-track"><div class="tb-fill" style="width:100%"></div></div>
+            <span class="tb-pct">100 %</span>
+            <button class="tb-theme"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2"/><line x1="13" y1="8" x2="14.5" y2="8" stroke="currentColor" stroke-width="1.2"/><line x1="1.5" y1="8" x2="3" y2="8" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Votre profil. <em>Trois axes, trois marges.</em></div>
+        <p class="scene-label">step <span class="step">resultats</span> · 28 / 28</p>
+      </div>
+      <div class="scene night">
+        <div class="topbar">
+          <div class="tb-inner">
+            <div class="tb-brand">
+              <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+              <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+            </div>
+            <span class="tb-sep"></span>
+            <span class="tb-label">Résultats</span>
+            <div class="tb-track"><div class="tb-fill" style="width:100%"></div></div>
+            <span class="tb-pct">100 %</span>
+            <button class="tb-theme"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10.5 1.5a6.5 6.5 0 1 0 4 12 5.5 5.5 0 0 1-4-12z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <div class="scene-content">Votre profil. <em>Trois axes, trois marges.</em></div>
+        <p class="scene-label">step <span class="step">resultats</span> · 28 / 28</p>
+      </div>
+    </div>
+
+    <aside class="footnote">
+      <h2>Lecture</h2>
+      <p>La <code>Topbar</code> dans <code>web/components/v3/Topbar.tsx</code> consomme <code>progressIndex()</code>, <code>progressRatio()</code> et <code>stepChapter()</code> de la state machine. La barre fade-in à 350 ms quand on quitte l'écran intro, la largeur s'anime à 500 ms sur chaque progression.</p>
+      <p>Étiquette du chapitre : format « <code>X / 5 · Label</code> » sur les 5 chapitres du parcours, « Présentation » sur l'intro, « Résultats » sur la sortie. Le toggle thème est rendu si <code>onToggleTheme</code> est fourni — sinon la topbar reste « lecture seule ».</p>
+      <p>Aucun italique. Les <em>fragments mis en valeur</em> dans les scènes ci-dessus passent par couleur (gris doux ici, argent en V3 réel via le composant <code>Em</code> de la couche atomes).</p>
+    </aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résultats — Lugia & Co</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Lora:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --serif:"Lora", serif;
+  --sans:"Onest", -apple-system, sans-serif;
+  --mono:"IBM Plex Mono", Menlo, monospace;
+}
+body.night {
+  --bg:#192030; --navy:#fbfaf6; --navy400:#6e7a95; --navy600:#a8b2c8;
+  --ivory:#1e2738; --ivory2:#222d3e; --argent:#8E8E91;
+  --line:rgba(251,250,246,0.08); --line-strong:rgba(251,250,246,0.18);
+  --paper:#192030;
+  --axis-a:#4aab84; --axis-ag:rgba(74,171,132,0.12);
+  --axis-b:#5b82d4; --axis-bg:rgba(91,130,212,0.12);
+  --axis-c:#e07040; --axis-cg:rgba(224,112,64,0.12);
+  --warn:#c4a055; --warng:rgba(196,160,85,0.10);
+  --risk-crit-bg:rgba(224,112,64,0.12); --risk-crit-border:rgba(224,112,64,0.35); --risk-crit-txt:#e07040;
+  --risk-warn-bg:rgba(196,160,85,0.10); --risk-warn-border:rgba(196,160,85,0.30); --risk-warn-txt:#c4a055;
+  --risk-opt-bg:rgba(142,142,145,0.10); --risk-opt-border:rgba(142,142,145,0.28); --risk-opt-txt:#8E8E91;
+}
+body.day {
+  --bg:#fbfaf6; --navy:#1a2333; --navy400:#6e7795; --navy600:#3a4360;
+  --ivory:#f4efe5; --ivory2:#f8f4eb; --argent:#B5B5B8;
+  --line:rgba(26,35,51,0.10); --line-strong:rgba(26,35,51,0.20);
+  --paper:#fbfaf6;
+  --axis-a:#2d7a5e; --axis-ag:rgba(45,122,94,0.10);
+  --axis-b:#2a4fa0; --axis-bg:rgba(42,79,160,0.10);
+  --axis-c:#b5420a; --axis-cg:rgba(181,66,10,0.09);
+  --warn:#7a6030; --warng:rgba(122,96,48,0.07);
+  --risk-crit-bg:rgba(181,66,10,0.08); --risk-crit-border:rgba(181,66,10,0.30); --risk-crit-txt:#b5420a;
+  --risk-warn-bg:rgba(122,96,48,0.07); --risk-warn-border:rgba(122,96,48,0.25); --risk-warn-txt:#7a6030;
+  --risk-opt-bg:rgba(181,181,184,0.08); --risk-opt-border:rgba(181,181,184,0.25); --risk-opt-txt:#8E8E91;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+em,i,cite,address { font-style:normal; }
+body {
+  font-family:var(--sans); background:var(--bg); color:var(--navy);
+  -webkit-font-smoothing:antialiased;
+  transition:background 350ms ease-out, color 350ms ease-out;
+}
+
+/* ── TOGGLE ── */
+#theme-toggle {
+  position:fixed; top:11px; right:20px; z-index:300;
+  display:inline-flex; align-items:stretch;
+  background:var(--ivory); border:1px solid var(--line-strong);
+  font-family:var(--mono); font-size:10px;
+  letter-spacing:0.08em; text-transform:uppercase;
+  user-select:none; overflow:hidden;
+  transition:border-color 200ms ease-out, background 350ms ease-out;
+  width:152px; height:28px; cursor:pointer;
+}
+.tg-pill {
+  position:absolute; left:0; top:0; bottom:0; width:76px;
+  background:var(--ivory2); border-right:1px solid var(--line-strong);
+  transition:transform 250ms cubic-bezier(.4,0,.2,1);
+}
+body.day .tg-pill { transform:translateX(0); }
+body.night .tg-pill { transform:translateX(76px); border-right:none; border-left:1px solid var(--line-strong); }
+.tg-opt {
+  position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  width:76px; background:transparent; border:none; padding:0; margin:0;
+  color:var(--navy400); opacity:0.45;
+  font-family:inherit; font-size:inherit; letter-spacing:inherit; text-transform:inherit;
+  transition:color 250ms, opacity 250ms, font-weight 250ms;
+  cursor:pointer;
+}
+body.day .tg-opt.day, body.night .tg-opt.night { color:var(--navy); opacity:1; font-weight:600; cursor:default; }
+
+/* ── TOPBAR ── */
+.topbar {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  background:rgba(25,32,48,0.93);
+  backdrop-filter:saturate(140%) blur(12px);
+  -webkit-backdrop-filter:saturate(140%) blur(12px);
+  padding:12px 0;
+  transition:background 350ms;
+}
+body.day .topbar { background:rgba(251,250,246,0.92); }
+.tb-inner { max-width:720px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:16px; }
+.tb-brand { display:flex; align-items:center; gap:9px; flex-shrink:0; color:var(--navy); }
+.tb-name { font-family:var(--mono); font-size:10px; font-weight:500; color:var(--navy); letter-spacing:0.1em; text-transform:uppercase; white-space:nowrap; }
+.tb-sep { width:1px; height:14px; background:var(--line-strong); flex-shrink:0; }
+.tb-label { font-family:var(--mono); font-size:10px; color:var(--navy400); white-space:nowrap; letter-spacing:0.08em; text-transform:uppercase; }
+.tb-track { flex:1; height:1px; background:var(--line-strong); overflow:hidden; }
+.tb-fill { height:100%; background:var(--navy); width:100%; }
+.tb-pct { font-family:var(--mono); font-size:10px; color:var(--navy400); min-width:32px; text-align:right; }
+
+/* ── SHELL ── */
+.shell { max-width:680px; margin:0 auto; padding:88px 24px 96px; }
+
+/* ── EYEBROW ── */
+.eyebrow {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--navy400); margin:0 0 24px;
+  display:flex; align-items:center; gap:16px;
+}
+.eyebrow::after { content:""; flex:1; height:1px; background:var(--navy400); opacity:0.4; }
+
+/* ── HEADER ── */
+.res-title {
+  font-family:var(--serif); font-size:clamp(32px, 3.5vw, 40px);
+  font-weight:400; line-height:1.1; letter-spacing:-0.02em;
+  margin:0 0 20px; color:var(--navy);
+}
+.res-meta {
+  display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px;
+  margin:0 0 20px;
+  font-family:var(--mono); font-size:11px; letter-spacing:0.10em; text-transform:uppercase;
+  color:var(--navy600);
+}
+.res-meta-sep { opacity:0.4; }
+.res-phrase {
+  font-family:'Lora','Iowan Old Style',Georgia,serif; font-size:16px; font-weight:400;
+  line-height:1.65; color:var(--navy); opacity:0.72;
+  margin:0 0 52px; max-width:580px;
+}
+
+/* ── 1. PHRASE CHOC ── */
+.phrase-choc {
+  margin:0 0 48px;
+}
+
+.phrase-choc-kicker {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--navy400); margin:0 0 20px;
+  display:flex; align-items:center; gap:16px;
+}
+.phrase-choc-kicker::after { content:""; flex:1; height:1px; background:var(--navy400); opacity:0.4; }
+.phrase-choc-text {
+  font-family:var(--serif); font-size:clamp(15px,1.6vw,17px);
+  font-weight:400; line-height:1.7; letter-spacing:-0.005em;
+  color:var(--navy); margin:0; max-width:580px;
+}
+.phrase-choc-text strong { color:var(--warn); font-weight:400; }
+
+
+/* ── DIVIDER ── */
+.section-divider { height:1px; background:var(--line); margin:0 0 48px; }
+
+/* ── 2. BILAN GLOBAL ── */
+.bilan-global { margin:0 0 48px; }
+.bilan-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:520px){ .bilan-cols { grid-template-columns:1fr; } }
+
+.bilan-col { background:var(--ivory); border:1px solid var(--line); padding:20px 22px; }
+.bilan-col-eyebrow {
+  font-family:var(--mono); font-size:9px; letter-spacing:0.16em; text-transform:uppercase;
+  margin:0 0 14px; display:flex; align-items:center; gap:8px;
+}
+.bilan-col-eyebrow.forces { color:var(--axis-a); }
+.bilan-col-eyebrow.forces::before { content:""; width:14px; height:1px; background:var(--axis-a); }
+.bilan-col-eyebrow.risques { color:var(--risk-crit-txt); display:flex; align-items:center; gap:8px; }
+.bilan-col-eyebrow.risques::before { content:""; width:14px; height:1px; background:var(--risk-crit-txt); flex-shrink:0; }
+
+.bilan-item { display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; }
+.bilan-item:last-child { margin-bottom:0; }
+.bilan-item-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; margin-top:6px; }
+.bilan-item-dot.a { background:var(--axis-a); }
+.bilan-item-dot.b { background:var(--axis-b); }
+.bilan-item-dot.c { background:var(--axis-c); }
+.bilan-item-dot.warn { background:var(--warn); }
+.bilan-item-text { font-size:13px; line-height:1.65; color:var(--navy600); flex:1; }
+.bilan-item-text strong { font-weight:500; color:var(--navy); display:block; margin-bottom:1px; }
+
+/* Badge de niveau de risque */
+.risk-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:2px 8px;
+  font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  font-weight:600; border:1px solid; flex-shrink:0; margin-top:5px;
+}
+.risk-badge.crit { background:var(--risk-crit-bg); border-color:var(--risk-crit-border); color:var(--risk-crit-txt); }
+.risk-badge.warn { background:var(--risk-warn-bg); border-color:var(--risk-warn-border); color:var(--risk-warn-txt); }
+.risk-badge.opt  { background:var(--risk-opt-bg);  border-color:var(--risk-opt-border);  color:var(--risk-opt-txt); }
+.risk-badge::before { content:""; width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+/* ── RADAR ── */
+.radar-section { margin:0 0 48px; }
+
+/* Layout 3 colonnes : ann-gauche | radar SVG | ann-droite */
+.radar-canvas {
+  display:grid;
+  grid-template-columns:180px 1fr 200px;
+  grid-template-rows:1fr 1fr;
+  gap:0;
+  width:100%; max-width:760px; margin:0 auto;
+  align-items:center;
+  /* Hauteur fixe pour que le SVG puisse être 100% */
+  min-height:360px;
+}
+.radar-svg-cell {
+  grid-column:2; grid-row:1/3;
+  position:relative; height:360px;
+}
+.radar-svg-cell svg {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+}
+/* Colonne gauche */
+.radar-ann-left {
+  grid-column:1; grid-row:1/3;
+  display:flex; flex-direction:column; justify-content:center;
+  padding-right:16px;
+}
+/* Colonne droite — 2 cellules */
+.radar-ann-right-top {
+  grid-column:3; grid-row:1;
+  padding-left:16px;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding-bottom:20px;
+}
+.radar-ann-right-bot {
+  grid-column:3; grid-row:2;
+  padding-left:16px;
+  display:flex; flex-direction:column; justify-content:flex-start;
+  padding-top:20px;
+}
+.radar-ann-title {
+  font-size:13px; font-weight:500; color:var(--navy);
+  margin-bottom:4px; line-height:1.4;
+}
+.radar-ann-sub {
+  font-size:12px; color:var(--navy600); margin-bottom:8px; line-height:1.5;
+}
+@media(max-width:600px){
+  .radar-canvas {
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto auto auto;
+    min-height:auto;
+  }
+  .radar-svg-cell { grid-column:1; grid-row:2; height:280px; }
+  .radar-ann-left { grid-column:1; grid-row:1; padding:0 0 12px; }
+  .radar-ann-right-top { grid-column:1; grid-row:3; padding:12px 0 0; }
+  .radar-ann-right-bot { grid-column:1; grid-row:4; padding:8px 0 0; }
+}
+.radar-section-title {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--navy400); margin:0 0 16px;
+  display:flex; align-items:center; gap:16px;
+}
+.radar-section-title::after { content:""; flex:1; height:1px; background:var(--navy400); opacity:0.4; }
+
+/* Légende radar */
+.radar-legend { display:flex; flex-direction:column; gap:8px; margin-top:20px; margin-bottom:24px; }
+.radar-legend-item { display:flex; align-items:center; gap:8px; }
+.radar-legend-dot {
+  width:8px; height:8px; border-radius:50%; flex-shrink:0;
+}
+.radar-legend-dot.a { background:var(--axis-a); box-shadow:0 0 6px var(--axis-a); }
+.radar-legend-dot.b { background:var(--axis-b); box-shadow:0 0 6px var(--axis-b); }
+.radar-legend-dot.c { background:var(--axis-c); box-shadow:0 0 6px var(--axis-c); }
+.radar-legend-name { font-family:var(--mono); font-size:10px; color:var(--navy600); letter-spacing:0.04em; }
+.radar-legend-level { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:0.06em; }
+.radar-legend-level.a { color:var(--axis-a); }
+.radar-legend-level.b { color:var(--axis-b); }
+.radar-legend-level.c { color:var(--axis-c); }
+
+/* Failles sous le radar */
+.radar-failles { display:flex; flex-direction:column; gap:10px; margin-top:24px; }
+.radar-faille { padding:12px 16px; background:var(--ivory); border:1px solid var(--line); }
+.radar-faille-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.radar-faille-dot {
+  width:7px; height:7px; border-radius:50%; flex-shrink:0;
+}
+.radar-faille-dot.a { background:var(--axis-a); }
+.radar-faille-dot.b { background:var(--axis-b); }
+.radar-faille-dot.c { background:var(--axis-c); }
+/* Point creux pour interdépendance B+C */
+.radar-faille-dot.bc {
+  width:8px; height:8px; border-radius:50%;
+  background:transparent;
+  border:1.5px solid var(--risk-crit-txt);
+  flex-shrink:0;
+}
+.radar-faille-title {
+  font-size:13px; color:var(--navy); flex:1; line-height:1.5;
+}
+
+/* ── 3. ANALYSE CROISÉE ── */
+.signal-block {
+  padding:22px 26px;
+  background:var(--warng);
+  border:1px solid rgba(122,96,48,0.22);
+  border-left:3px solid var(--warn);
+  margin:0 0 48px;
+}
+body.night .signal-block { border-color:rgba(196,160,85,0.22); }
+.signal-kicker {
+  font-family:var(--mono); font-size:9px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--warn); margin:0 0 10px;
+}
+.signal-headline {
+  font-family:var(--serif); font-size:clamp(16px,1.8vw,19px);
+  font-weight:400; line-height:1.4; letter-spacing:-0.01em;
+  color:var(--navy); margin:0 0 10px;
+}
+.signal-body {
+  font-family:var(--sans); font-size:13px; line-height:1.75;
+  color:var(--navy600); margin:0 0 18px;
+}
+/* Points croisés dans le signal */
+.signal-cross-items { display:flex; flex-direction:column; gap:8px; }
+.signal-cross-item {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 14px;
+  background:rgba(0,0,0,0.12);
+  border-left:2px solid;
+}
+body.day .signal-cross-item { background:rgba(122,96,48,0.05); }
+.signal-cross-item.pos { border-color:var(--axis-a); }
+.signal-cross-item.neg { border-color:var(--risk-hi-txt); }
+.signal-cross-item.warn { border-color:var(--warn); }
+.sci-icon { font-size:11px; flex-shrink:0; margin-top:1px; font-family:var(--mono); }
+.sci-text { font-size:12px; line-height:1.6; color:var(--navy600); }
+
+/* ── 4. AXES DÉTAILLÉS ── */
+.axes-section-title {
+  font-family:var(--serif); font-size:clamp(22px,2.5vw,26px);
+  font-weight:400; line-height:1.2; letter-spacing:-0.015em;
+  margin:0 0 20px; color:var(--navy);
+}
+.axis-cards { display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:48px; }
+.axis-card {
+  background:var(--ivory); border:1px solid var(--line);
+  border-left:2px solid; overflow:hidden;
+  transition:border-color 180ms, transform 180ms, box-shadow 250ms;
+}
+.axis-card:hover { transform:translateY(-1px); box-shadow:0 4px 16px -6px rgba(0,0,0,0.15); }
+.axis-card.a { border-left-color:var(--axis-a); }
+.axis-card.b { border-left-color:var(--axis-b); }
+.axis-card.c { border-left-color:var(--axis-c); }
+
+.axis-card-summary { display:block; cursor:pointer; padding:20px 24px; list-style:none; }
+.axis-card-summary::-webkit-details-marker { display:none; }
+.axis-card[open] .axis-card-toggle { transform:rotate(45deg); }
+.axis-card[open] .axis-card-hint { display:none; }
+
+.axis-card-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px; }
+.axis-card-head-right { display:inline-flex; align-items:baseline; gap:12px; flex-shrink:0; }
+.axis-card-toggle {
+  font-family:var(--mono); font-size:14px; color:var(--navy400);
+  display:inline-block; transition:transform 200ms ease-out;
+}
+.axis-card-title {
+  font-family:var(--serif); font-size:20px;
+  font-weight:400; line-height:1.2; letter-spacing:-0.01em; margin:0;
+}
+.axis-card.a .axis-card-title { color:var(--axis-a); }
+.axis-card.b .axis-card-title { color:var(--axis-b); }
+.axis-card.c .axis-card-title { color:var(--axis-c); }
+.axis-card-level {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+  font-weight:500; flex-shrink:0;
+}
+.axis-card.a .axis-card-level { color:var(--axis-a); }
+.axis-card.b .axis-card-level { color:var(--axis-b); }
+.axis-card.c .axis-card-level { color:var(--axis-c); }
+.axis-card-body { font-family:var(--sans); font-size:13px; line-height:1.7; color:var(--navy600); margin:0; }
+.axis-card-hint { font-family:var(--mono); font-size:10px; letter-spacing:0.08em; color:var(--navy400); margin:10px 0 0; }
+
+.axis-card-detail { padding:16px 24px 22px; border-top:1px solid var(--line); }
+.axis-card-detail-eyebrow {
+  font-family:var(--mono); font-size:9px; letter-spacing:0.16em; text-transform:uppercase;
+  color:var(--navy400); margin:0 0 10px;
+}
+.axis-card-list { margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px; }
+.axis-card-list li {
+  font-size:13px; line-height:1.6; color:var(--navy600);
+  padding-left:16px; position:relative;
+}
+.axis-card-list .dot { position:absolute; left:0; top:0; }
+.axis-card-list .dot.a { color:var(--axis-a); }
+.axis-card-list .dot.b { color:var(--axis-b); }
+.axis-card-list .dot.c { color:var(--axis-c); }
+.axis-card-list .dot.dim { color:var(--argent); }
+
+/* ── 5. CHANTIERS ── */
+.opps-title {
+  font-family:var(--serif); font-size:clamp(22px,2.5vw,26px);
+  font-weight:400; line-height:1.2; letter-spacing:-0.015em;
+  margin:0 0 8px; color:var(--navy);
+}
+.opps-subtitle { font-size:13px; color:var(--navy600); margin:0 0 20px; line-height:1.6; }
+.opp-cards { display:grid; grid-template-columns:1fr; gap:8px; margin-bottom:16px; }
+
+.opp-card {
+  display:flex; align-items:flex-start; gap:16px;
+  padding:18px 22px;
+  background:var(--ivory); border:1px solid var(--line);
+  cursor:pointer; text-align:left; width:100%;
+  transition:border-color 180ms, transform 180ms, box-shadow 250ms;
+  font-family:var(--sans);
+}
+.opp-card:hover {
+  border-color:var(--navy400);
+  transform:translateX(2px);
+  box-shadow:0 2px 12px -4px rgba(0,0,0,0.12);
+}
+.opp-card.recommended { border-left-width:3px; }
+.opp-card.recommended.axis-a { border-left-color:var(--axis-a); }
+.opp-card.recommended.axis-b { border-left-color:var(--axis-b); }
+.opp-card.recommended.axis-c { border-left-color:var(--axis-c); }
+
+.opp-card-icon { font-size:20px; line-height:1; flex-shrink:0; padding-top:2px; }
+.opp-card-content { flex:1; min-width:0; }
+.opp-card-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:2px 9px;
+  background:rgba(181,66,10,0.08);
+  border:1px solid rgba(181,66,10,0.25);
+  color:var(--axis-c);
+  font-family:var(--mono); font-size:9px; font-weight:600;
+  letter-spacing:0.14em; text-transform:uppercase;
+  margin:0 0 10px;
+}
+body.night .opp-card-badge {
+  background:rgba(224,112,64,0.12);
+  border-color:rgba(224,112,64,0.3);
+}
+.opp-card-title {
+  font-family:var(--serif); font-size:17px;
+  font-weight:400; line-height:1.3; letter-spacing:-0.01em;
+  margin:0 0 5px; color:var(--navy);
+}
+.opp-card-desc { font-size:13px; line-height:1.55; color:var(--navy600); margin:0 0 12px; }
+
+/* Pourquoi accessible */
+
+.opp-card-meta {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  font-family:var(--mono); font-size:10px; letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--navy400);
+}
+.meta-left,.meta-right,.meta-delai,.meta-gain { display:inline-flex; align-items:center; gap:6px; }
+.meta-sep { display:inline-block; width:1px; height:12px; background:var(--line-strong); flex-shrink:0; }
+.meta-val { color:var(--navy); font-weight:500; }
+.meta-asterisk { font-size:8px; color:var(--navy400); vertical-align:super; line-height:0; }
+
+.effort-pips { display:inline-flex; gap:3px; align-items:center; }
+.effort-pip { display:inline-block; width:13px; height:2px; background:var(--line-strong); }
+/* Tous les traits allumés = même couleur */
+.effort-pip.on { background:var(--navy); }
+body.night .effort-pip.on { background:#fbfaf6; }
+
+.gain-pill {
+  display:inline-block; padding:3px 9px;
+  border:1px solid var(--navy); background:transparent;
+  color:var(--navy);
+  font-family:var(--mono); font-size:10px; font-weight:500;
+  letter-spacing:0.06em;
+  transition:background 180ms, transform 180ms;
+  line-height:1;
+}
+.gain-pill.medium { border-color:var(--navy400); color:var(--navy400); }
+.gain-pill.invest { border-color:var(--argent); color:var(--argent); }
+.opp-card:hover .gain-pill { background:var(--ivory2); transform:translateY(-1px); }
+
+.all-chantiers-row { margin:8px 0 56px; }
+.all-chantiers-btn {
+  background:transparent; color:var(--navy); border:1px solid var(--line-strong);
+  padding:10px 22px; font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+  cursor:pointer; transition:border-color 180ms, background 180ms;
+}
+.all-chantiers-btn:hover { border-color:var(--navy); background:var(--ivory); }
+
+/* ── CTA FINAL ── */
+.next-cards { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(max-width:560px){ .next-cards { grid-template-columns:1fr; } }
+.next-card {
+  background:var(--ivory); border:1px solid var(--line);
+  padding:20px 22px; text-align:left;
+  display:flex; flex-direction:column;
+  transition:border-color 180ms, transform 180ms, box-shadow 250ms;
+}
+.next-card:hover { border-color:var(--navy400); transform:translateY(-1px); box-shadow:0 4px 16px -6px rgba(0,0,0,0.12); }
+.next-card.lugia { border-left:2px solid var(--navy); }
+.next-eyebrow-row { display:flex; align-items:center; justify-content:space-between; margin:0 0 10px; }
+.next-eyebrow { font-family:var(--mono); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:var(--navy400); }
+.next-card.lugia .next-eyebrow { color:var(--navy); font-weight:600; }
+.next-eyebrow.strong { color:var(--navy); font-weight:600; }
+.next-pill-free {
+  font-family:var(--mono); font-size:8px; letter-spacing:0.12em; text-transform:uppercase;
+  padding:2px 8px; border:1px solid var(--argent); color:var(--argent);
+  background:transparent; font-weight:600;
+}
+.next-card-title { font-family:var(--serif); font-size:17px; font-weight:400; line-height:1.3; letter-spacing:-0.01em; margin:0 0 6px; color:var(--navy); }
+.next-card-desc { font-size:13px; line-height:1.6; color:var(--navy600); margin:0 0 18px; }
+.next-cta {
+  margin-top:auto; padding:10px 18px; font-family:var(--sans); font-size:13px;
+  letter-spacing:0.02em; cursor:pointer; text-align:center;
+  transition:border-color 180ms, background 180ms, transform 180ms, box-shadow 250ms;
+  font-weight:500;
+}
+.next-cta-outline { background:transparent; color:var(--navy); border:1px solid var(--line-strong); }
+.next-cta-outline:hover { border-color:var(--navy); }
+.next-cta-filled {
+  background:var(--navy); color:var(--paper); border:none;
+  font-weight:600; padding:12px 20px; font-size:14px;
+}
+.next-cta-filled:hover { box-shadow:0 0 0 1px var(--argent), 0 8px 24px -8px var(--argent); transform:translateY(-1px); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.shell > * { animation:fadeUp .4s ease both; }
+.shell > *:nth-child(2) { animation-delay:.05s; }
+.shell > *:nth-child(3) { animation-delay:.1s; }
+.shell > *:nth-child(4) { animation-delay:.15s; }
+.shell > *:nth-child(5) { animation-delay:.2s; }
+</style>
+</head>
+<body class="night">
+
+<!-- Toggle -->
+<div id="theme-toggle" role="group" aria-label="Thème">
+  <span class="tg-pill"></span>
+  <button class="tg-opt day" onclick="setTheme('day')" type="button">
+    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+      <circle cx="6" cy="6" r="2.4" stroke="currentColor" stroke-width="1.2"/>
+      <line x1="6" y1="0.5" x2="6" y2="2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="6" y1="9.5" x2="6" y2="11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="0.5" y1="6" x2="2.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="9.5" y1="6" x2="11.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg> Jour
+  </button>
+  <button class="tg-opt night" onclick="setTheme('night')" type="button">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+      <path d="M12.5 10.5A6.5 6.5 0 1 1 5 2a5.5 5.5 0 0 0 7.5 8.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg> Nuit
+  </button>
+</div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="tb-inner">
+    <div class="tb-brand">
+      <svg width="22" height="19" viewBox="0 0 261 220" fill="none"><path d="M4.892 214.075C19.143 199.271 37.020 179.220 46.472 167.440C52.377 160.080 53.928 158.048 60.205 149.445C83.878 117.005 103.023 82.073 116.337 47.025C120.033 37.296 125.447 19.483 127.971 8.751L130.028 0L130.837 4.089C133.480 17.449 140.016 38.487 146.670 55.053C163.069 95.880 187.169 135.548 219.704 175.261C225.982 182.924 246.366 205.454 255.269 214.570C258.398 217.775 260.639 220.212 260.248 219.985C255.879 217.457 223.652 192.442 216.188 185.785C215.774 185.416 212.671 182.712 209.291 179.777C205.912 176.841 201.537 172.997 199.570 171.235C197.603 169.472 194.441 166.644 192.543 164.950C186.414 159.478 169.288 142.646 157.141 130.155C137.343 109.796 135.386 107.893 132.853 106.533C128.294 104.086 127.792 104.460 107.082 125.742C90.662 142.615 78.136 154.929 69.663 162.527C66.169 165.660 62.420 169.040 61.334 170.037C45.477 184.585 27.094 199.743 8.449 213.643C-2.016 221.445 -2.227 221.471 4.892 214.075Z" fill="currentColor"/></svg>
+      <span class="tb-name">Lugia&nbsp;&amp;&nbsp;Co</span>
+    </div>
+    <span class="tb-sep"></span>
+    <span class="tb-label">Résultats</span>
+    <div class="tb-track"><div class="tb-fill"></div></div>
+    <span class="tb-pct">100 %</span>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- Header -->
+  <p class="eyebrow"><span>Diagnostic complet</span></p>
+  <h1 class="res-title">Votre cabinet<br>en trois dimensions</h1>
+  <div class="res-meta">
+    <span>Dr Chateau</span>
+    <span class="res-meta-sep">·</span>
+    <span>20 mai 2026</span>
+    <span class="res-meta-sep">·</span>
+    <span>18 min</span>
+  </div>
+  <p class="res-phrase">Vous avez démarré ce check-up pour réduire votre charge actuelle, à un moment où le cabinet a son rythme — c'est le bon moment pour le clarifier.</p>
+
+  <!-- ── 1. PHRASE CHOC + ANALYSE CROISÉE ── -->
+  <div class="phrase-choc">
+    <p class="phrase-choc-kicker"><span>Ce que révèle votre diagnostic</span></p>
+    <p class="phrase-choc-text">
+      Paradoxe : bon parcours patient, organisation fragile. Vous portez seul ce que l'équipe et les outils devraient porter — <strong>c'est ce déséquilibre qui explique la charge que vous ressentez en fin de semaine.</strong>
+    </p>
+  </div>
+
+  <!-- ── 2. BILAN GLOBAL ── -->
+  <p class="eyebrow"><span>Points forts &amp; risques globaux</span></p>
+  <div class="bilan-global">
+    <div class="bilan-cols">
+      <!-- Forces -->
+      <div class="bilan-col">
+        <p class="bilan-col-eyebrow forces">Ce qui tient</p>
+        <div class="bilan-item">
+          <div class="bilan-item-text">
+            <strong>Parcours patient structuré</strong>
+            Tri des urgences en place, suivi des chroniques actif. Le patient est pris en charge.
+          </div>
+        </div>
+        <div class="bilan-item">
+          <div class="bilan-item-text">
+            <strong>Équipe présente</strong>
+            Les personnes sont là — ce qui manque, c'est le cadre pour les rendre autonomes.
+          </div>
+        </div>
+        <div class="bilan-item">
+          <div class="bilan-item-text">
+            <strong>Logiciel connu</strong>
+            Quelques fonctions maîtrisées — la base est là pour aller plus loin.
+          </div>
+        </div>
+      </div>
+      <!-- Risques -->
+      <div class="bilan-col">
+        <p class="bilan-col-eyebrow risques" style="color:var(--risk-crit-txt)">Ce qui fragilise</p>
+        <div class="bilan-item">
+          <div style="flex:1">
+            <div class="bilan-item-text">
+              <strong>Dépendance à votre présence</strong>
+              Toute absence déstabilise. L'organisation n'existe pas sans vous.
+            </div>
+            <span class="risk-badge crit">Critique</span>
+          </div>
+        </div>
+        <div class="bilan-item">
+          <div style="flex:1">
+            <div class="bilan-item-text">
+              <strong>Outils sous-exploités</strong>
+              Le logiciel porte moins de 30 % de son potentiel. Chaque consultation coûte du temps inutilement.
+            </div>
+            <span class="risk-badge warn">À surveiller</span>
+          </div>
+        </div>
+        <div class="bilan-item">
+          <div style="flex:1">
+            <div class="bilan-item-text">
+              <strong>Patients silencieux</strong>
+              Pas de système pour repérer les chroniques qui n'appellent plus.
+            </div>
+            <span class="risk-badge warn">À surveiller</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RADAR ── -->
+  <div class="radar-section">
+    <p class="radar-section-title">Cartographie organisationnelle</p>
+    <div id="radar-svg" style="margin-top:20px"></div>
+  </div>
+
+
+
+  <!-- ── 4. PAR AXE ── -->
+  <p class="eyebrow"><span>Par axe</span></p>
+  <div class="axis-cards">
+
+    <details class="axis-card a">
+      <summary class="axis-card-summary">
+        <div class="axis-card-head">
+          <h3 class="axis-card-title">Parcours patient</h3>
+          <span class="axis-card-head-right">
+            <span class="axis-card-level">Maîtrisé</span>
+            <span class="axis-card-toggle">+</span>
+          </span>
+        </div>
+        <p class="axis-card-body">Un parcours structuré sur les situations courantes — les marges concernent les silences (patients perdus de vue, alertes résultats).</p>
+        <p class="axis-card-hint">↓ Forces &amp; pistes d'action</p>
+      </summary>
+      <div class="axis-card-detail">
+        <p class="axis-card-detail-eyebrow">Forces</p>
+        <ul class="axis-card-list">
+          <li><span class="dot a">·</span>Tri des urgences du jour formalisé.</li>
+          <li><span class="dot a">·</span>Suivi des chroniques actif avec rappels.</li>
+        </ul>
+        <p class="axis-card-detail-eyebrow" style="margin-top:16px">Marges de progression</p>
+        <ul class="axis-card-list">
+          <li><span class="dot dim">·</span>Extraction logiciel pour repérer les chroniques silencieux. <span class="risk-badge warn">À surveiller</span></li>
+          <li><span class="dot dim">·</span>Alerte automatique sur résultats hors normes. <span class="risk-badge warn">À surveiller</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="axis-card b">
+      <summary class="axis-card-summary">
+        <div class="axis-card-head">
+          <h3 class="axis-card-title">Équipe &amp; secrétariat</h3>
+          <span class="axis-card-head-right">
+            <span class="axis-card-level">En transition</span>
+            <span class="axis-card-toggle">+</span>
+          </span>
+        </div>
+        <p class="axis-card-body">Les rôles existent mais sans cadre formel. Les angles morts apparaissent dès qu'une absence se présente.</p>
+        <p class="axis-card-hint">↓ Forces &amp; pistes d'action</p>
+      </summary>
+      <div class="axis-card-detail">
+        <p class="axis-card-detail-eyebrow">Forces</p>
+        <ul class="axis-card-list">
+          <li><span class="dot b">·</span>L'équipe est présente et engagée — le levier existe.</li>
+        </ul>
+        <p class="axis-card-detail-eyebrow" style="margin-top:16px">Marges de progression</p>
+        <ul class="axis-card-list">
+          <li><span class="dot dim">·</span>Formaliser les rôles pour préparer les absences. <span class="risk-badge crit">Critique</span></li>
+          <li><span class="dot dim">·</span>Instaurer un rituel de transmission quotidien (10 min). <span class="risk-badge warn">À surveiller</span></li>
+          <li><span class="dot dim">·</span>Outiller la circulation d'information. <span class="risk-badge warn">À surveiller</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="axis-card c">
+      <summary class="axis-card-summary">
+        <div class="axis-card-head">
+          <h3 class="axis-card-title">Outils &amp; dossiers</h3>
+          <span class="axis-card-head-right">
+            <span class="axis-card-level">En transition</span>
+            <span class="axis-card-toggle">+</span>
+          </span>
+        </div>
+        <p class="axis-card-body">Quelques fonctions maîtrisées, le reste en sommeil. Le logiciel pourrait porter bien plus qu'aujourd'hui.</p>
+        <p class="axis-card-hint">↓ Forces &amp; pistes d'action</p>
+      </summary>
+      <div class="axis-card-detail">
+        <p class="axis-card-detail-eyebrow">Forces</p>
+        <ul class="axis-card-list">
+          <li><span class="dot c">·</span>Base logiciel présente — formation courte suffit.</li>
+        </ul>
+        <p class="axis-card-detail-eyebrow" style="margin-top:16px">Marges de progression</p>
+        <ul class="axis-card-list">
+          <li><span class="dot dim">·</span>Étendre l'usage du logiciel (modèles, raccourcis). <span class="risk-badge warn">À surveiller</span></li>
+          <li><span class="dot dim">·</span>Mettre en place un pilotage simple (3 indicateurs). <span class="risk-badge warn">À surveiller</span></li>
+        </ul>
+      </div>
+    </details>
+
+  </div>
+
+  <!-- ── 5. CHANTIERS ── -->
+  <p class="eyebrow"><span>Chantiers prioritaires</span></p>
+  <h2 class="opps-title">Par où commencer</h2>
+  <p class="opps-subtitle">Ces chantiers ont été sélectionnés pour leur effet de levier sur votre profil spécifique — accessibles à court terme, sans ressource supplémentaire.</p>
+
+  <div class="opp-cards">
+
+    <button class="opp-card recommended axis-b">
+      <span class="opp-card-icon">💬</span>
+      <div class="opp-card-content">
+        <p class="opp-card-badge">★ Recommandé pour commencer</p>
+        <h4 class="opp-card-title">Rituel de communication d'équipe</h4>
+        <p class="opp-card-desc">Un point de 10 min chaque matin. 3 questions, pas plus.</p>
+        <div class="opp-card-meta">
+          <span class="meta-left">Effort
+            <span class="effort-pips">
+              <span class="effort-pip on"></span>
+              <span class="effort-pip"></span>
+              <span class="effort-pip"></span>
+            </span></span>
+          <span class="meta-sep"></span>
+          <span class="meta-delai">Délai <span class="meta-val">&lt; 1 semaine</span></span>
+          <span class="meta-sep"></span>
+          <span class="meta-gain">Gain <span class="meta-val">−20 min/j</span> · <span class="meta-val">+10 k€/an<span class="meta-asterisk">*</span></span></span>
+        </div>
+      </div>
+    </button>
+
+    <button class="opp-card axis-b">
+      <span class="opp-card-icon">🤝</span>
+      <div class="opp-card-content">
+        <h4 class="opp-card-title">Déléguer les tâches non médicales</h4>
+        <p class="opp-card-desc">Périmètre clair de l'équipe — gain typique 45 min/jour.</p>
+        <div class="opp-card-meta">
+          <span class="meta-left">Effort
+            <span class="effort-pips">
+              <span class="effort-pip on"></span>
+              <span class="effort-pip on"></span>
+              <span class="effort-pip on"></span>
+            </span></span>
+          <span class="meta-sep"></span>
+          <span class="meta-delai">Délai <span class="meta-val">2–4 semaines</span></span>
+          <span class="meta-sep"></span>
+          <span class="meta-gain">Gain <span class="meta-val">−45 min/j</span> · <span class="meta-val">+22 k€/an<span class="meta-asterisk">*</span></span></span>
+        </div>
+      </div>
+    </button>
+
+    <button class="opp-card axis-c">
+      <span class="opp-card-icon">💻</span>
+      <div class="opp-card-content">
+        <h4 class="opp-card-title">Optimiser le logiciel médical</h4>
+        <p class="opp-card-desc">3 modèles de documents et une demi-journée de formation ciblée.</p>
+        <div class="opp-card-meta">
+          <span class="meta-left">Effort
+            <span class="effort-pips">
+              <span class="effort-pip on"></span>
+              <span class="effort-pip on"></span>
+              <span class="effort-pip"></span>
+            </span></span>
+          <span class="meta-sep"></span>
+          <span class="meta-delai">Délai <span class="meta-val">&lt; 1 semaine</span></span>
+          <span class="meta-sep"></span>
+          <span class="meta-gain">Gain <span class="meta-val">−15 min/consult</span> · <span class="meta-val">+12 k€/an<span class="meta-asterisk">*</span></span></span>
+        </div>
+      </div>
+    </button>
+
+    <button class="opp-card axis-a">
+      <span class="opp-card-icon">📋</span>
+      <div class="opp-card-content">
+        <h4 class="opp-card-title">Structurer le suivi des chroniques</h4>
+        <p class="opp-card-desc">File active tracée et rappels de suivi dans le logiciel.</p>
+        <div class="opp-card-meta">
+          <span class="meta-left">Effort
+            <span class="effort-pips">
+              <span class="effort-pip on"></span>
+              <span class="effort-pip on"></span>
+              <span class="effort-pip"></span>
+            </span></span>
+          <span class="meta-sep"></span>
+          <span class="meta-delai">Délai <span class="meta-val">&lt; 1 semaine</span></span>
+          <span class="meta-sep"></span>
+          <span class="meta-gain">Gain <span class="meta-val">−2h/sem</span> · <span class="meta-val">+8 k€/an<span class="meta-asterisk">*</span></span></span>
+        </div>
+      </div>
+    </button>
+
+  </div>
+
+  <p style="font-family:var(--mono);font-size:9px;color:var(--navy400);letter-spacing:0.06em;margin:0 0 8px;opacity:0.7;">* Estimations calculées sur la base de votre profil cabinet (220 jours, taux horaire médecin).</p>
+  <div class="all-chantiers-row">
+    <button class="all-chantiers-btn">Voir tous les chantiers →</button>
+  </div>
+
+  <!-- CTA final -->
+  <p class="eyebrow"><span>Prochaine étape</span></p>
+  <div class="next-cards">
+    <div class="next-card">
+      <div class="next-eyebrow-row">
+        <span class="next-eyebrow">Autonomie</span>
+        <span class="next-pill-free">1er chantier gratuit</span>
+      </div>
+      <h3 class="next-card-title" style="white-space:nowrap;font-size:clamp(14px,1.8vw,17px)">Choisir un chantier de votre choix</h3>
+      <p class="next-card-desc">Une discussion ciblée avec l'assistant Lugia, à votre rythme. Premier chantier offert ; les suivants sur abonnement.</p>
+      <button class="next-cta next-cta-outline">Explorer un chantier</button>
+    </div>
+    <div class="next-card lugia">
+      <div class="next-eyebrow-row">
+        <span class="next-eyebrow strong">Lugia &amp; Co</span>
+      </div>
+      <h3 class="next-card-title">Débriefing avec un consultant</h3>
+      <p class="next-card-desc">45 min pour lire ensemble ce diagnostic, prioriser et définir un premier chantier concret.</p>
+      <button class="next-cta next-cta-filled">Prendre rendez-vous →</button>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+function setTheme(t){
+  document.body.className = t;
+  drawRadar();
+}
+
+function getCSSVar(name){
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
+}
+
+function drawRadar(){
+  const isNight = document.body.classList.contains('night');
+
+  // ── Thème ──
+  const T = isNight ? {
+    bg:'#192030', navy:'#fbfaf6', mid:'#a8b2c8', dim:'#6e7a95',
+    lw:'rgba(251,250,246,0.07)', ls:'rgba(251,250,246,0.18)',
+    gf:'rgba(251,250,246,0.05)', go:'rgba(232,236,242,0.18)',
+    sf:'rgba(251,250,246,0.07)', ss:'rgba(251,250,246,0.5)',
+    argent:'#8E8E91',
+    a:'#4aab84', b:'#5b82d4', c:'#e07040',
+    crit:'#e07040', warn:'#c4a055'
+  } : {
+    bg:'#fbfaf6', navy:'#1a2333', mid:'#3a4360', dim:'#6e7795',
+    lw:'rgba(26,35,51,0.09)', ls:'rgba(26,35,51,0.22)',
+    gf:'rgba(26,35,51,0.03)', go:'rgba(26,35,51,0.16)',
+    sf:'rgba(26,35,51,0.06)', ss:'rgba(26,35,51,0.38)',
+    argent:'#8E8E91',
+    a:'#2d7a5e', b:'#2a4fa0', c:'#b5420a',
+    crit:'#b5420a', warn:'#7a6030'
+  };
+
+  // ── Géométrie ──
+  const W=860, H=480, CX=400, CY=240, R=155;
+  const AXES=[
+    {id:'a', angle:-90, score:0.68, level:'Maîtrisé'},
+    {id:'b', angle:30,  score:0.42, level:'En transition'},
+    {id:'c', angle:150, score:0.55, level:'En transition'}
+  ];
+  const colMap={a:T.a, b:T.b, c:T.c};
+
+  function rad(d){return (d-90)*Math.PI/180;}
+  function pt(angle,r){return [CX+r*Math.cos(rad(angle)), CY+r*Math.sin(rad(angle))];}
+
+  // ── SVG namespace helpers ──
+  const NS='http://www.w3.org/2000/svg';
+  function el(tag,attrs){
+    const e=document.createElementNS(NS,tag);
+    for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+    return e;
+  }
+  function tx(content,attrs){
+    const e=document.createElementNS(NS,'text');
+    for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+    e.textContent=content;
+    return e;
+  }
+
+  // ── Construire le SVG ──
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,xmlns:NS,style:'width:100%;height:auto;display:block;overflow:visible'});
+
+  // Defs glow
+  const defs=el('defs',{});
+  AXES.forEach((ax,i)=>{
+    const f=el('filter',{id:`rg${i}`,x:'-100%',y:'-100%',width:'300%',height:'300%'});
+    const fb=el('feGaussianBlur',{stdDeviation:'5',result:'blur'});
+    const ff=el('feFlood',{'flood-color':colMap[ax.id],'flood-opacity':'0.75',result:'c'});
+    const fc=el('feComposite',{in:'c',in2:'blur',operator:'in',result:'glow'});
+    const fm=el('feMerge',{});
+    fm.appendChild(el('feMergeNode',{in:'glow'}));
+    fm.appendChild(el('feMergeNode',{in:'SourceGraphic'}));
+    [fb,ff,fc,fm].forEach(n=>f.appendChild(n));
+    defs.appendChild(f);
+  });
+  svg.appendChild(defs);
+
+  // Grilles
+  [1,2,3,4].forEach(i=>{
+    const pts=AXES.map(ax=>pt(ax.angle,R*i/4).join(',')).join(' ');
+    svg.appendChild(el('polygon',{
+      points:pts,
+      fill:i===4?T.gf:'none',
+      stroke:i===4?T.go:T.lw,
+      'stroke-width':i===4?'1.5':'0.6'
+    }));
+  });
+
+  // Labels % axe A
+  [25,50,75,100].forEach(p=>{
+    const[lx,ly]=pt(-90,R*p/100);
+    svg.appendChild(tx(p+'%',{
+      x:lx+5,y:ly-4,'font-size':'10',fill:T.ls,
+      'font-family':'"IBM Plex Mono",monospace'
+    }));
+  });
+
+  // Axes
+  AXES.forEach(ax=>{
+    const[x,y]=pt(ax.angle,R);
+    svg.appendChild(el('line',{x1:CX,y1:CY,x2:x,y2:y,stroke:T.lw,'stroke-width':'1'}));
+  });
+
+  // Data points
+  const dp=AXES.map(ax=>pt(ax.angle,R*Math.max(ax.score,0.05)));
+  const pathD=dp.map((p,i)=>(i?'L':'M')+p.join(',')).join(' ')+'Z';
+  svg.appendChild(el('path',{d:pathD,fill:T.sf,stroke:T.ss,'stroke-width':'2','stroke-linejoin':'round'}));
+
+  // MidBC
+  const midBC=[(dp[1][0]+dp[2][0])/2,(dp[1][1]+dp[2][1])/2];
+
+  // ── Annotations (spec) ──
+  const RIGHT_END=W-2, LEFT_END=2;
+  const annotations=[
+    {axis:'b',side:'right',anchor:dp[1],lineEndX:RIGHT_END,
+     title:'Rôles sans cadre formel.',sub:'Absences déstabilisantes.',badge:'Critique',type:'crit'},
+    {axis:'c',side:'right',anchor:dp[2],lineEndX:RIGHT_END,
+     title:'Logiciel sous-exploité.',sub:'Pilotage absent.',badge:'À surveiller',type:'warn'},
+    {axis:'bc',side:'left',anchor:midBC,lineEndX:LEFT_END,
+     title:'Manque de cadre.',sub:'Charge ressentie amplifiée.',badge:'Critique',type:'crit'}
+  ];
+
+  annotations.forEach(ann=>{
+    const lineY=ann.anchor[1];
+    const badgeBase=ann.type==='crit'?T.crit:T.warn;
+    const isRight=ann.side==='right';
+    const MARGIN=18;
+    const textX=isRight?ann.lineEndX+MARGIN:ann.lineEndX-MARGIN;
+    const anchor=isRight?'start':'end';
+
+    // Trait pointillé
+    svg.appendChild(el('line',{
+      x1:ann.anchor[0],y1:lineY,x2:ann.lineEndX,y2:lineY,
+      stroke:T.argent,'stroke-width':'0.9','stroke-dasharray':'3.5 3.5',opacity:'0.9'
+    }));
+
+    // Titre
+    svg.appendChild(tx(ann.title,{
+      x:textX,y:lineY,'font-size':'17','font-weight':'600',
+      fill:T.navy,'font-family':'Lora,Georgia,serif',
+      'text-anchor':anchor,'dominant-baseline':'middle'
+    }));
+
+    // Sous-titre
+    svg.appendChild(tx(ann.sub,{
+      x:textX,y:lineY+24,'font-size':'14',
+      fill:T.mid,'font-family':'Onest,system-ui,sans-serif',
+      'text-anchor':anchor,'dominant-baseline':'middle'
+    }));
+
+    // Badge
+    const badgeY=lineY+54;
+    const badgeW=ann.badge.length*8+28;
+    const badgeX=isRight?textX:textX-badgeW;
+    svg.appendChild(el('rect',{
+      x:badgeX,y:badgeY-10,width:badgeW,height:20,rx:'2',
+      fill:badgeBase+'28',stroke:badgeBase,'stroke-width':'1'
+    }));
+    svg.appendChild(el('circle',{cx:badgeX+12,cy:badgeY,r:'3.5',fill:badgeBase}));
+    svg.appendChild(tx(ann.badge.toUpperCase(),{
+      x:badgeX+22,y:badgeY,'font-size':'10','font-weight':'700',
+      fill:badgeBase,'font-family':'"IBM Plex Mono",monospace',
+      'letter-spacing':'0.12em','dominant-baseline':'middle'
+    }));
+  });
+
+  // Dots (par-dessus les traits)
+  dp.forEach((p,i)=>{
+    svg.appendChild(el('circle',{cx:p[0],cy:p[1],r:'8',fill:colMap[AXES[i].id],filter:`url(#rg${i})`}));
+    svg.appendChild(el('circle',{cx:p[0],cy:p[1],r:'3.5',fill:T.bg}));
+  });
+
+  // MidBC cercle creux
+  svg.appendChild(el('circle',{cx:midBC[0],cy:midBC[1],r:'6',fill:'none',stroke:T.argent,'stroke-width':'1.5',opacity:'0.85'}));
+  svg.appendChild(el('circle',{cx:midBC[0],cy:midBC[1],r:'2.5',fill:T.argent,opacity:'0.7'}));
+
+  // ── Légende sous le SVG (HTML) ──
+  const legendData=[
+    {id:'a',name:'Parcours patient',level:'Maîtrisé'},
+    {id:'b',name:'Équipe & secrétariat',level:'En transition'},
+    {id:'c',name:'Outils & dossiers',level:'En transition'}
+  ];
+  const legendHtml=legendData.map(l=>`
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="width:8px;height:8px;border-radius:50%;background:${colMap[l.id]};box-shadow:0 0 6px ${colMap[l.id]};flex-shrink:0;display:inline-block"></span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:${T.mid};letter-spacing:0.04em">${l.name}</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:${colMap[l.id]};letter-spacing:0.06em">${l.level}</span>
+    </div>`).join('');
+
+  document.getElementById('radar-svg').innerHTML='';
+  document.getElementById('radar-svg').appendChild(svg);
+  // Légende
+  let leg=document.getElementById('radar-legend');
+  if(!leg){
+    leg=document.createElement('div');
+    leg.id='radar-legend';
+    leg.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:20px';
+    document.getElementById('radar-svg').after(leg);
+  }
+  leg.innerHTML=legendHtml;
+}
+
+drawRadar();
+</script>
+</body>
+</html>
