@@ -683,7 +683,7 @@
     <div class="cover-meta">
       <div class="cover-meta-left">
         <span>Mai 2026</span>
-        <span>v1.1</span>
+        <span>v1.2</span>
       </div>
       <span>Doc. n° 2026-BP-001</span>
     </div>
@@ -930,48 +930,58 @@
 
   <h2 class="h2">3.2 — Paliers tarifaires</h2>
 
-  <p>Trois paliers SaaS plus un palier services, calibrés sur la willingness-to-pay observée et l'ancrage métier (un médecin facture 26,50 € la consultation, donc 49 €/mois est rentabilisé par deux consultations) :</p>
+  <p>Quatre paliers SaaS plus une soupape pour les structures les plus grandes, calibrés sur la willingness-to-pay observée et l'ancrage métier (un médecin facture 26,50 € la consultation, donc 49 €/mois est rentabilisé par deux consultations) :</p>
 
   <table>
     <thead>
       <tr>
-        <th style="width:18%">Palier</th>
-        <th style="width:24%">Cible</th>
-        <th style="width:18%">Tarif</th>
+        <th style="width:14%">Palier</th>
+        <th style="width:26%">Cible</th>
+        <th style="width:22%">Tarif</th>
         <th>Inclus</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td class="label">Diagnostic</td>
-        <td>Tout professionnel</td>
+        <td>Tout professionnel libéral</td>
         <td class="num">Gratuit</td>
-        <td>Carte vivante + chantiers recommandés (15-20 min)</td>
+        <td>Carte vivante + chantier prioritaire + plan d'action (15-20 min)</td>
       </tr>
       <tr class="zebra">
         <td class="label">Socle</td>
         <td>Libéral solo</td>
-        <td class="num">~49 €/mois</td>
-        <td>2 chantiers/mois, registre RGPD, notice IA, logs de base</td>
+        <td class="num">49 €/mois</td>
+        <td>2 chantiers/mois, registre RGPD, notice patient conforme, support standard</td>
       </tr>
       <tr>
         <td class="label">Pro</td>
-        <td>Libéral installé, TPE</td>
-        <td class="num">~149 €/mois</td>
-        <td>Chantiers illimités, vault, proxy IA, support sous 2 minutes</td>
+        <td>Libéral installé, cabinet 2-5 utilisateurs</td>
+        <td class="num">149 €/mois<br>+ 49 €/utilisateur additionnel</td>
+        <td>Chantiers illimités, mise à jour conformité automatique, traçabilité auditable, vue partagée collaborateurs, support &lt; 2 min</td>
       </tr>
       <tr class="zebra">
-        <td class="label">Institution</td>
-        <td>MSP, cabinet de groupe, PME-ETI</td>
-        <td class="num">300 à 2 000 €+/mois</td>
-        <td>Multi-praticiens, connecteurs DPI, certification HDS, faire-ensemble Lugia &amp; Co</td>
+        <td class="label">Max</td>
+        <td>Structure 6-15 utilisateurs (MSP, cabinet groupe, PME)</td>
+        <td class="num">499 €/mois</td>
+        <td>Tout Pro pour tous · matrice d'accès collective · 4 h/an opérateur Lugia &amp; Co · accompagnement contrôle · reporting institutionnel (ARS, ordre) · connecteur DPI</td>
+      </tr>
+      <tr>
+        <td class="label">Au-delà</td>
+        <td>ETI, PME 16+ utilisateurs, multi-sites</td>
+        <td class="num">Sur devis</td>
+        <td>Max + sur-mesure + HDS dédié + success management + clauses assurantielles via courtier partenaire (2027)</td>
       </tr>
     </tbody>
   </table>
 
-  <p>ARPU mix modélisé à <strong>900 €/an</strong> <strong>[HYP — à valider pilotes]</strong>. La fourchette assume une majorité de Socle, une part significative de Pro, une minorité d'Institution. À titre de comparaison, les acteurs d'AI governance et GRC enterprise (OneTrust, IBM, Credo AI) facturent souvent à six chiffres ; le mid-market se vend en dizaines de milliers d'euros annuels. L'espace de prix sous Lugia est large et permet une remontée de tarifs en phase 2-3.</p>
+  <p><strong>Disponibilité par palier.</strong> Socle et Pro mono-utilisateur sont disponibles immédiatement. Pro multi-utilisateurs (gestion des sièges et tarif progressif) est attendu en T4 2026 (chantier WS.2 — auth payante avec quotas). Max requiert le multi-utilisateurs complet plus la matrice d'accès collective (chantier WS.4) — liste d'attente ouverte à partir de T4 2026, lancement public S1 2027. Ce phasage permet de tester les paliers en pilotes sans s'engager sur des promesses techniques non tenables.</p>
 
-  <p><strong>Modules optionnels (add-on à 30-50 €/mois)</strong> prévus pour le Work System en V2 : Ordonnances enrichies, Synthèse de dossier, Reporting, Transmission de cabinet. Ils élèvent l'ARPU effectif sans bouger les paliers de base.</p>
+  <p>ARPU mix modélisé à <strong>900 €/an</strong> en An 1 (Socle dominant), montant à <strong>1 100 €/an en An 2</strong> et <strong>1 350 €/an en An 3</strong> avec maturation du mix (descente de la part Socle au profit de Pro multi-utilisateurs et Max) <strong>[HYP — à valider pilotes]</strong>. À titre de comparaison, les acteurs d'AI governance et GRC enterprise (OneTrust, IBM, Credo AI) facturent souvent à six chiffres ; le mid-market se vend en dizaines de milliers d'euros annuels. L'espace de prix sous Lugia est large et permet une remontée de tarifs en phase 2-3.</p>
+
+  <p><strong>Engagement de conformité — différenciation par palier.</strong> Socle produit les livrables réglementaires (registre RGPD, notice patient) à la souscription, mises à jour à la demande. Pro ajoute la mise à jour automatique aux nouvelles obligations et la traçabilité auditable. Max ajoute l'accompagnement opérateur en cas de contrôle (4 h sous 48 h) et le reporting institutionnel. Lugia n'est pas assureur — l'engagement est contractuel (engagement de moyens et de mise à jour), pas assurantiel. Un produit d'assurance dédié, via courtier partenaire, est en préparation pour la phase 2 (2027).</p>
+
+  <p><strong>Modules optionnels (add-on à 30-50 €/mois)</strong> prévus pour le Work System en V2 : Ordonnances enrichies, Synthèse de dossier, Reporting, Transmission de cabinet, Work models de crise (chantier WS.8). Ils élèvent l'ARPU effectif sans bouger les paliers de base.</p>
 
   <h2 class="h2">3.3 — Cross-sell services — Lugia &amp; Co</h2>
 
@@ -1249,7 +1259,7 @@
 <section>
   <h2 class="h2">6.1 — ARPU, marge brute, CAC cible</h2>
 
-  <p>ARPU mix modélisé : <strong>900 €/an</strong> <strong>[HYP]</strong> — base : majorité de Socle 49 €/mois, part significative de Pro 149 €/mois, minorité d'Institution sur devis.</p>
+  <p>ARPU mix modélisé évoluant sur 3 ans avec la maturation du mix : <strong>900 €/an en An 1</strong> (Socle 75 %, Pro 25 %, pas de Max ni Institution), <strong>~1 100 €/an en An 2</strong> (Socle 65 %, Pro 30 %, premiers Max 5 %), <strong>~1 350 €/an en An 3</strong> (Socle 55 %, Pro 35 %, Max 10 %) <strong>[HYP — à valider pilotes]</strong>. La maturation suppose un effort commercial actif sur l'upsell Socle → Pro à 6 mois et l'arrivée du Max au lancement S1 2027.</p>
 
   <p><strong>Marge brute estimée 80-85 %</strong> : SaaS hébergé, coûts marginaux LLM faibles (toggle SLM local, sélection chantier-modèle), coût d'hébergement par utilisateur très bas. La pression sur la marge viendra essentiellement de la conformité (HDS, audits) répartie sur la base abonnée — à mesure que la base grossit, l'effet est dilutif.</p>
 
@@ -1298,6 +1308,37 @@
   </ul>
 
   <p>Les projections financières (section 7) sont construites sur l'hypothèse base avec mention explicite des écarts au prudent.</p>
+
+  <h2 class="h2">6.4 — Sensibilité au mix Socle / Pro / Max</h2>
+
+  <p>La rentabilité SaaS pur dépend du mix entre paliers. Le levier le plus puissant est <strong>l'upsell Socle → Pro à 6 mois</strong> et, à terme, le passage des structures de groupe vers Max au lancement S1 2027.</p>
+
+  <table>
+    <caption>Point mort SaaS pur an 2 (OPEX 495 k€, marge brute 90 %) selon le mix Socle / Pro — Max et Institution ignorés pour isoler la sensibilité</caption>
+    <thead>
+      <tr>
+        <th style="width:30%">Mix Socle / Pro</th>
+        <th style="width:24%">ARPU annuel</th>
+        <th style="width:24%">Marge contributive/client</th>
+        <th>Point mort (clients)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="label">100 % / 0 %</td><td class="num">588 €</td><td class="num">529 €/an</td><td class="num">935</td></tr>
+      <tr class="zebra"><td class="label">80 % / 20 %</td><td class="num">828 €</td><td class="num">745 €/an</td><td class="num">664</td></tr>
+      <tr><td class="label">70 % / 30 %</td><td class="num">948 €</td><td class="num">853 €/an</td><td class="num">580</td></tr>
+      <tr class="zebra"><td class="label"><strong>60 % / 40 % (cible)</strong></td><td class="num">1 068 €</td><td class="num">961 €/an</td><td class="num"><strong>515</strong></td></tr>
+      <tr><td class="label">50 % / 50 %</td><td class="num">1 188 €</td><td class="num">1 069 €/an</td><td class="num">463</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Sweet spot interne : 60 % Socle / 40 % Pro dès fin An 2.</strong> Cela descend le point mort SaaS pur à ~515 clients (au lieu de 611 avec un mix 70/30), ce qui est atteignable sur la trajectoire pré-seed projetée. L'effort commercial doit donc pousser activement la conversion Socle → Pro après 6 mois d'usage — un chantier WS dédié (rappel automatique + démo Pro intégrée + essai 1 mois) est prévu en V2.</p>
+
+  <h2 class="h2">6.5 — Test de robustesse — scénario pessimiste cumulé</h2>
+
+  <p>Stress test cumulant cinq dégradations : conversion freemium → payant à 12 % (vs 20 %), churn 3 %/mois (vs 2 %), CAC 400 € (vs 250 €), mix figé 75/25 (pas de maturation), adoption divisée par 2 (50 / 250 / 700 clients moyens). Sous ces hypothèses, l'EBITDA reste négatif sur les 3 ans (~−210 k€/an stable), le runway pré-seed de 250 k€ ne tient que l'An 1, et un bridge devient nécessaire mi-An 2.</p>
+
+  <p><strong>Verdict tarifs.</strong> Les unit economics restent saines même en pessimiste : marge brute 88 %, LTV ~2 150 €, ratio LTV/CAC 5,4×, payback 6 mois. Le problème en scénario pessimiste n'est <strong>pas le tarif</strong> (les 49/149/499 € sont robustes face à l'élasticité-prix), c'est le <strong>volume d'acquisition et le mix figé</strong>. Recommandation : ne pas baisser les tarifs en réaction (signal de désespoir), pousser au contraire l'upsell vers Pro et préparer le seed plus tôt si la traction ne décolle pas en An 1.</p>
 </section>
 
 <!-- ════════════════════ SECTION 07 — OUVERTURE ════════════════════ -->
@@ -2207,7 +2248,7 @@
     </tbody>
   </table>
 
-  <p class="source-line">Lugia · Business Plan · Mai 2026 — v1.1 — Document interne &amp; investisseurs.</p>
+  <p class="source-line">Lugia · Business Plan · Mai 2026 — v1.2 — Document interne &amp; investisseurs.</p>
 </section>
 
 </body>

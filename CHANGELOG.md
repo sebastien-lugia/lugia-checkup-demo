@@ -4,6 +4,41 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-05-28 (suite 10) — Grille tarifaire révisée Socle / Pro progressif / Max + engagement réglementaire
+
+Mise à jour structurante de la grille tarifaire Lugia, en quatre livrables coordonnés. Ouvre le marché des petits MSP (Pro progressif accessible) tout en préparant le lancement Max (S1 2027) qui captera les structures établies.
+
+**Nouvelle grille — quatre paliers + soupape ETI** :
+- Socle **49 €/mois** — libéral solo (1 utilisateur). Disponible dès lancement V1.
+- Pro **149 €/mois + 49 €/utilisateur additionnel** — libéral installé ou cabinet 2-5 utilisateurs. Disponible mono-utilisateur immédiatement, multi-utilisateurs T4 2026 (chantier WS.2).
+- Max **499 €/mois forfaitaire** — structure 6-15 utilisateurs (MSP, cabinet groupe, PME). Liste d'attente T4 2026, lancement S1 2027.
+- Au-delà — sur devis pour ETI, PME 16+ utilisateurs, multi-sites.
+
+**Différenciation par engagement réglementaire** (axe de positionnement vs concurrents AI-first) :
+- Socle : livrables réglementaires produits, mise à jour à la demande.
+- Pro : ajoute la mise à jour automatique aux nouvelles obligations + traçabilité auditable.
+- Max : ajoute l'accompagnement opérateur en cas de contrôle (4 h sous 48 h) + reporting institutionnel + clauses contractuelles renforcées.
+- Au-delà : Max + clauses assurantielles via courtier partenaire (phase 2, 2027).
+
+**Précaution juridique** : le mot « assurance » est volontairement évité de la communication publique. L'engagement est contractuel (engagement de moyens et de mise à jour), pas assurantiel au sens du Code des assurances. Protège Lugia d'une qualification de pratique commerciale trompeuse.
+
+**Livrables mis à jour** :
+1. **Site web** — nouvelle page `web/app/tarifs/page.tsx` (Next.js, charte V3, theme jour/nuit, responsive). Trois cards tarifaires + tableau d'engagement réglementaire + soupape ETI + CTA diagnostic. Accessible sur `/tarifs`.
+2. **Plaquette médecin** — mention « +49 €/utilisateur pour les cabinets de groupe » ajoutée à l'étape 03 du verso (volet 02 « Comment ça marche »). PDF régénéré, 2 pages A4 paysage.
+3. **Business Plan v1.2** — section 3.2 mise à jour (4 paliers + soupape), section 6.1 (ARPU mix évolutif 900 → 1 100 → 1 350 €/an avec maturation), nouvelle section 6.4 (sensibilité au mix Socle/Pro — sweet spot 60/40), nouvelle section 6.5 (test de robustesse scénario pessimiste cumulé — verdict tarifs robustes, problème est le volume). PDF régénéré, 47 pages.
+4. **Document maître v1.1** — section 5.3 mise à jour (paliers révisés + disponibilité phasée + tableau d'engagement réglementaire + précaution juridique), section 5.7 enrichie (5 principes au lieu de 4, justification de chaque palier détaillée). PDF interne 137 pages / client 123 pages.
+
+**Conséquence économique modélisée** : la maturation du mix vers 60/40 Socle/Pro fin An 2 descend le point mort SaaS pur de ~611 à ~515 clients, ce qui est atteignable sur la trajectoire pré-seed. Le lancement Max S1 2027 capture la part haute du marché (MSP, PME 6-15) sans repousser le calendrier pré-seed.
+
+**Décisions à formaliser** :
+- **D-047** : grille tarifaire Socle 49 / Pro 149 + 49/utilisateur / Max 499 / au-delà sur devis — à acter dans `DECISIONS.md`.
+- **D-048** : engagement réglementaire en 3 niveaux comme axe de différenciation, vocabulaire « contractuel » et non « assurantiel » — à acter.
+- **D-049** : phasage technique pour livrer Pro multi-utilisateurs en T4 2026 (chantier WS.2) puis Max en S1 2027 (chantiers WS.2 + WS.4) — à acter.
+
+Fichiers : `web/app/tarifs/page.tsx`, `etudes/Lugia_Plaquette_Medecin.html` + `.pdf`, `etudes/Lugia_Business_Plan_2026-05.html` + `.pdf`, `etudes/Lugia_Document_Maitre.html` + `_INTERNE.pdf` + `_CLIENT.pdf`.
+
+---
+
 ## 2026-05-28 (suite 9) — Document maître v1.0.1 · Correction section 7.3 (bibliothèque des lentilles)
 
 Correction d'une erreur d'écriture dans la section 7.3 du Document maître. La version initiale listait des sous-dimensions inventées par famille (« Santé : Soin, Pratique, Patient » ; « Conformité : RGPD, AI Act, Déontologie, HDS »…) au lieu de citer les vraies lentilles documentées dans `resources/vision/lugia_bibliotheque_lentilles.md`.

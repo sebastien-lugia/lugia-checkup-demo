@@ -232,7 +232,7 @@
     <div class="cover-meta">
       <div class="cover-meta-left">
         <span>Mai 2026</span>
-        <span>v1.0 — complet</span>
+        <span>v1.1 — paliers révisés</span>
       </div>
       <span>Doc. n° 2026-DM-001</span>
     </div>
@@ -1179,46 +1179,91 @@
 
   <h2 class="h2">5.3 — Paliers tarifaires</h2>
 
-  <p>Quatre paliers, calibrés sur la willingness-to-pay observée et l'ancrage métier (un médecin facture 26,50 € la consultation : 49 €/mois est rentabilisé par deux consultations).</p>
+  <p>Quatre paliers SaaS plus une soupape pour les structures les plus grandes, calibrés sur la willingness-to-pay observée et l'ancrage métier (un médecin facture 26,50 € la consultation : 49 €/mois est rentabilisé par deux consultations).</p>
 
   <table>
     <thead>
       <tr>
-        <th style="width:14%">Palier</th>
-        <th style="width:22%">Cible</th>
-        <th>Tarif</th>
+        <th style="width:12%">Palier</th>
+        <th style="width:28%">Cible</th>
+        <th style="width:22%">Tarif</th>
         <th>Inclus</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td class="label">Diagnostic</td>
-        <td>Tout professionnel</td>
+        <td>Tout professionnel libéral</td>
         <td class="num">Gratuit</td>
         <td>Carte vivante 3 axes WSF, 1 chantier prioritaire, plan 4 étapes, PDF exportable (15-20 min)</td>
       </tr>
       <tr class="zebra">
         <td class="label">Socle</td>
-        <td>Libéral solo</td>
-        <td class="num">~49 €/mois</td>
-        <td>9 axes WSF, 2 chantiers/mois, registre RGPD, notice AI Act, logs de base, support standard</td>
+        <td>Libéral solo (1 utilisateur)</td>
+        <td class="num">49 €/mois</td>
+        <td>9 axes WSF, 2 chantiers/mois, registre RGPD, notice patient conforme 2026, support standard sous 24 h</td>
       </tr>
       <tr>
         <td class="label">Pro</td>
-        <td>Libéral installé, TPE</td>
-        <td class="num">~149 €/mois</td>
-        <td>Chantiers illimités, vault tokenisation, proxy IA, support &lt; 2 min, schémas Mermaid détaillés</td>
+        <td>Libéral installé, cabinet 2-5 utilisateurs</td>
+        <td class="num">149 €/mois<br>+ 49 €/utilisateur additionnel</td>
+        <td>Tout Socle + chantiers illimités + mise à jour conformité automatique + traçabilité auditable + vue partagée collaborateurs + support &lt; 2 min</td>
       </tr>
       <tr class="zebra">
-        <td class="label">Institution</td>
-        <td>MSP, cabinet groupe, PME-ETI</td>
-        <td class="num">300 à 2 000 €+/mois</td>
-        <td>Multi-praticiens, connecteurs DPI, certification HDS, faire-ensemble Lugia &amp; Co, success management léger</td>
+        <td class="label">Max</td>
+        <td>Structure 6-15 utilisateurs (MSP, cabinet groupe, PME)</td>
+        <td class="num">499 €/mois forfaitaire</td>
+        <td>Tout Pro pour tous · matrice d'accès collective · 4 h/an opérateur Lugia &amp; Co · accompagnement contrôle · reporting institutionnel · connecteur DPI principal</td>
+      </tr>
+      <tr>
+        <td class="label">Au-delà</td>
+        <td>ETI, PME 16+ utilisateurs, multi-sites</td>
+        <td class="num">Sur devis</td>
+        <td>Max + sur-mesure + HDS dédié + success management + clauses assurantielles via courtier partenaire (phase 2)</td>
       </tr>
     </tbody>
   </table>
 
-  <div class="renvoi">Voir Business Plan, section 3.2 pour la justification tarifaire détaillée et section 6 pour l'unit economics (ARPU mix 900 €/an, marge brute 80-85 %, LTV 3 075 €).</div>
+  <h3 class="h3">Disponibilité phasée par palier</h3>
+
+  <p>Tous les paliers ne sont pas immédiatement vendables — la séquence respecte les chantiers Work System (cf section 9, jalons).</p>
+
+  <ul class="dash">
+    <li><strong>Socle et Pro mono-utilisateur</strong> : disponibles dès le lancement V1 (S2 2026, sur les pilotes santé).</li>
+    <li><strong>Pro multi-utilisateurs</strong> (gestion des sièges, tarif progressif +49 €/user) : <strong>T4 2026</strong>, dépend du chantier WS.2 (auth payante avec quotas).</li>
+    <li><strong>Max</strong> (matrice d'accès collective, opérateur inclus, reporting institutionnel) : <strong>S1 2027</strong>, dépend des chantiers WS.2 + WS.4 livrés. Liste d'attente ouverte à partir de T4 2026 pour mesurer la demande et calibrer le prix final.</li>
+    <li><strong>Au-delà / ETI</strong> : sur devis dès qu'un prospect qualifié se présente, mais activation commerciale ciblée à partir de S2 2027 quand Max est stabilisé.</li>
+  </ul>
+
+  <h3 class="h3">Trois niveaux d'engagement réglementaire — différenciation forte</h3>
+
+  <p>Au-delà du prix, les paliers se distinguent par le <strong>niveau de couverture réglementaire</strong> proposé. C'est l'axe de différenciation le plus puissant face aux concurrents AI-first qui promettent l'IA mais pas la conformité tenue dans le temps.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:34%">Engagement</th>
+        <th style="width:22%">Socle</th>
+        <th style="width:22%">Pro</th>
+        <th>Max</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="label">Livrables réglementaires produits (registre RGPD, notice patient)</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+      <tr class="zebra"><td class="label">Mise à jour automatique aux nouvelles obligations</td><td>À la demande</td><td><strong>Automatique</strong></td><td><strong>Automatique</strong></td></tr>
+      <tr><td class="label">Traçabilité auditable (logs, versions, signatures)</td><td>—</td><td>Oui</td><td>Oui</td></tr>
+      <tr class="zebra"><td class="label">Accompagnement opérateur en cas de contrôle</td><td>—</td><td>—</td><td><strong>4 h sous 48 h</strong></td></tr>
+      <tr><td class="label">Clauses contractuelles renforcées</td><td>Standard</td><td>Standard</td><td>Renforcées</td></tr>
+      <tr class="zebra"><td class="label">Reporting institutionnel (ARS, ordre, CPTS)</td><td>—</td><td>—</td><td>Inclus</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p class="callout-eyebrow">Précaution juridique</p>
+    <p>Lugia n'est pas assureur. Les engagements ci-dessus sont <strong>contractuels</strong> (engagement de moyens et de mise à jour), pas assurantiels au sens du Code des assurances. Le mot « assurance » est volontairement évité de la communication pour ne pas exposer Lugia à une qualification de pratique commerciale trompeuse. Un produit d'assurance dédié, via courtier partenaire, est en préparation pour la phase 2 (2027) pour les structures ETI qui souhaitent une vraie couverture financière en cas de contrôle.</p>
+  </div>
+
+  <div class="renvoi">Voir Business Plan, section 3.2 pour la justification tarifaire détaillée, section 6.4 pour la sensibilité au mix Socle/Pro, et section 6.5 pour le test de robustesse en scénario pessimiste.</div>
 
   <h2 class="h2">5.4 — Modules optionnels et add-ons</h2>
 
@@ -1404,18 +1449,25 @@
 
   <h2 class="h2">5.7 — Logique de prix</h2>
 
-  <p>Quatre principes structurent la politique de prix Lugia.</p>
+  <p>Cinq principes structurent la politique de prix Lugia.</p>
 
   <ol class="steps">
-    <li><strong>Ancrage métier explicite.</strong> Le palier Socle 49 €/mois s'ancre sur deux consultations médicales (26,50 € × 2). Le Pro 149 €/mois s'ancre sur la valeur d'un audit conformité externalisé annuel (typiquement 1 500-2 000 €) divisée en mensualités. L'Institution sur devis s'ancre sur la valeur d'une mission de conseil traditionnelle (5 000-20 000 € selon la taille), absorbée dans l'abonnement.</li>
-    <li><strong>Convertir, pas ajouter.</strong> Le prix ne se compare jamais à « un abonnement de plus » mais à « un consultant en moins » ou « un audit CNIL en moins ». Argument commercial structurant (cf section 6.5).</li>
-    <li><strong>Lien intensité-prix linéaire.</strong> Un cabinet à 1 praticien : Socle 49 €. Un cabinet groupe à 3-8 praticiens : Institution 300-800 €/mois. Une PME à 50 personnes : Institution 1 500-2 000 €/mois. Le ratio prix / personne reste cohérent (~30-50 €/personne/mois selon la taille et la complexité réglementaire).</li>
+    <li><strong>Ancrage métier explicite.</strong> Le palier Socle 49 €/mois s'ancre sur deux consultations médicales (26,50 € × 2). Le Pro 149 €/mois s'ancre sur la valeur d'un audit conformité externalisé annuel (typiquement 1 500-2 000 €) divisée en mensualités. Le Max 499 €/mois s'ancre sur la valeur d'un audit collectif annuel pour une MSP (3-6 k€) plus la mobilisation d'un opérateur ponctuel (1,5-2,5 k€). Le sur-devis s'ancre sur la valeur d'une mission de conseil traditionnelle (5 000-20 000 € selon la taille), absorbée dans l'abonnement.</li>
+    <li><strong>Convertir, pas ajouter.</strong> Le prix ne se compare jamais à « un abonnement de plus » mais à « un consultant en moins » ou « un audit en moins ». Argument commercial structurant.</li>
+    <li><strong>Lien intensité-prix linéaire jusqu'à 5 utilisateurs, palier au-delà.</strong> Un cabinet à 1 praticien : Socle 49 € ou Pro 149 €. Un cabinet à 3 praticiens : Pro 149 + 2×49 = 247 €. Un cabinet à 5 praticiens : Pro 149 + 4×49 = 345 €. À 6 praticiens, passage économique à Max 499 € (les utilisateurs additionnels à 49 € auraient coûté 6×49 = 294 € plus le Pro de base 149 = 443 €, mais surtout Max apporte le collectif riche). Au-delà de 15 utilisateurs : sur devis. Le ratio prix/personne baisse avec la taille — Socle 49 €/personne, Pro 1 praticien 149 €, Pro 5 praticiens 69 €/personne, Max 6 praticiens 83 €/personne, Max 15 praticiens 33 €/personne. Cohérent avec un modèle SaaS volume.</li>
+    <li><strong>Différenciation par engagement réglementaire, pas seulement par features.</strong> Socle produit les livrables ; Pro maintient à jour automatiquement ; Max accompagne en cas de contrôle. Cette progression du niveau de garantie est ce qui justifie commercialement chaque saut de palier — plus que les features techniques additionnelles.</li>
     <li><strong>Pas de remise systématique en V1.</strong> Le tarif affiché est le tarif pratiqué. Pas de négociation, pas de « première année à 50 % ». Exception : les pilotes pré-lancement (3 à 5 cabinets) ont des conditions préférentielles documentées contractuellement, en échange d'engagement de témoignage et de retour terrain.</li>
   </ol>
 
   <h3 class="h3">Justification des écarts entre paliers</h3>
 
-  <p>Pourquoi le Pro coûte 3 fois le Socle ? Trois raisons : le vault de tokenisation (infra additionnelle), le support &lt; 2 min (charge humaine), les chantiers illimités (charge LLM). Pourquoi l'Institution sur devis ? Parce que les besoins sont par construction multi-praticiens et qu'un palier figé ne tiendrait pas la diversité des structures (MSP de 6 généralistes vs PME B2B de 50 personnes vs ETI de 200).</p>
+  <p><strong>Pourquoi Pro coûte 3 fois le Socle ?</strong> Trois raisons : le support &lt; 2 min (charge humaine), les chantiers illimités (charge LLM), l'engagement de mise à jour automatique de la conformité (charge méthodologique). La quatrième raison silencieuse est l'effet d'ancrage : à 149 €, le Pro est positionné comme la solution professionnelle évidente, là où le Socle est l'entrée prudente.</p>
+
+  <p><strong>Pourquoi +49 €/utilisateur additionnel sur Pro ?</strong> Tarification par siège qui couvre le coût marginal réel (LLM, infra, gestion auth) tout en restant accessible aux petites structures. Un cabinet de 3 praticiens entre dans le marché à 247 €/mois — soit ~82 €/personne, déjà significativement moins cher que 3 Pro individuels (3 × 149 = 447 €) tout en offrant la vue partagée des collaborateurs. C'est le palier qui ouvre les MSP à budget contraint, qui n'achèteraient ni Pro individuel (pas de collectif) ni Max (trop cher).</p>
+
+  <p><strong>Pourquoi Max forfaitaire à 499 € au lieu de continuer la progression par siège ?</strong> Parce que Max n'est pas Pro+. C'est un changement de nature : matrice d'accès collective, opérateur Lugia &amp; Co inclus 4 h/an, reporting institutionnel, connecteur DPI. Ces apports ne sont pas mesurables au siège — ils sont structurels, ils s'appliquent au cabinet dans son ensemble. Le forfait est plus simple commercialement (un seul prix à expliquer) et plus avantageux pour les structures de 8-15 utilisateurs (où la progression par siège deviendrait pénalisante).</p>
+
+  <p><strong>Pourquoi sur devis au-delà de 15 utilisateurs ?</strong> Parce que la diversité des structures ETI / PME 16+ utilisateurs / multi-sites empêche un palier figé. Une PME de 50 personnes avec un seul site et une ETI de 200 personnes multi-sites n'ont pas les mêmes besoins ni le même niveau de complexité opérationnelle. Le sur-devis est aussi le canal naturel pour intégrer, à terme, la clause d'assurance contrôle souscrite via courtier partenaire (phase 2, 2027).</p>
 
   <h3 class="h3">Politique de remise</h3>
 
