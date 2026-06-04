@@ -46,9 +46,13 @@ export const V3_BLOCS: V3Bloc[] = [
     id: "A",
     label: "Parcours patient",
     subtitle: "De la prise de rendez-vous à la transmission vers les spécialistes",
+    // WSF : Axe 02 — Parcours client / bénéficiaire
+    // Facettes couvertes : ③ Actes (a1 a2 a3 a4) · ④ Acteurs (a2 a3) · ⑥ Outils (a5 a6)
     questions: [
       {
         id: "a1",
+        // WSF : ③ Actes — Processus de gestion des urgences du jour
+        // Objet WSF produit : `Protocole de tri des urgences` | facette: actes | axe: parcours_client
         label: "Quand un patient appelle pour un motif urgent, que se passe-t-il ?",
         context: "Pensez à la semaine dernière.",
         options: [
@@ -85,6 +89,9 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "a2",
+        // WSF : ③ Actes + ④ Acteurs — Canal et acteur des demandes non programmées
+        // Objet WSF produit : `Canal demandes non programmées` | facette: actes | axe: parcours_client
+        //                     `Acteur filtrage demandes`      | facette: acteurs | axe: parcours_client
         label: "Comment gérez-vous les demandes non programmées hors urgences — ordonnance à renouveler, résultat à commenter, question simple ?",
         context: null,
         options: [
@@ -122,6 +129,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "a3",
+        // WSF : ③ Actes — Suivi inter-consultation et consigne de sortie
+        // Objet WSF produit : `Suivi inter-consultation` | facette: actes | axe: parcours_client
         label: "Comment le patient sait-il ce qu'il doit faire entre deux consultations ?",
         context: "Résultats d'analyses, ordonnances, surveillance de symptômes.",
         options: [
@@ -157,6 +166,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "a4",
+        // WSF : ③ Actes — Processus de suivi des patients chroniques
+        // Objet WSF produit : `Suivi patients chroniques` | facette: actes | axe: parcours_client
         label: "Comment gérez-vous le suivi de vos patients chroniques connus ?",
         context: "Diabète, HTA, insuffisance cardiaque, BPCO…",
         options: [
@@ -192,6 +203,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "a5",
+        // WSF : ⑥ Outils — Outil de détection et relance patients silencieux
+        // Objet WSF produit : `Outil de relance patients perdus de vue` | facette: outils | axe: parcours_client
         label: "Comment identifiez-vous les patients chroniques qui devraient revenir mais ne viennent plus ?",
         context: null,
         options: [
@@ -227,6 +240,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "a6",
+        // WSF : ⑥ Outils — Outil d'alerte résultats critiques
+        // Objet WSF produit : `Outil d'alerte résultats` | facette: outils | axe: parcours_client
         label: "Comment êtes-vous alerté quand un résultat d'examen important arrive pour un patient ?",
         context: null,
         options: [
@@ -267,9 +282,35 @@ export const V3_BLOCS: V3Bloc[] = [
     id: "B",
     label: "Équipe & secrétariat",
     subtitle: "Organisation humaine, rôles et charge de travail partagée",
+    // WSF : ③ Actes — Répartition et formalisation des rôles
+    // Objet WSF produit : `Répartition des rôles non médicaux` | facette: actes | axe: equipe_rh
+    // WSF : ④ Acteurs — Charge et capacité du secrétariat
+    // Objet WSF produit : `Charge de travail secrétariat` | facette: acteurs | axe: equipe_rh
+    // WSF : ④ Acteurs — Canal de communication interne
+    // Objet WSF produit : `Canal de communication interne` | facette: acteurs | axe: equipe_rh
+    // routing: null — universelle, tous profils
+    // WSF : ③ Actes — Processus de continuité d'activité en cas d'absence
+    // Objet WSF produit : `Processus de continuité d'activité` | facette: actes | axe: equipe_rh
+    // WSF : ③ Actes — Capacité d'implémentation du changement organisationnel
+    // Objet WSF produit : `Agilité organisationnelle` | facette: actes | axe: equipe_rh
+    // WSF : ⑥ Outils — Outil ou rituel de pilotage et d'amélioration continue
+    // Objet WSF produit : `Rituel de pilotage organisationnel` | facette: outils | axe: equipe_rh
+    // WSF : ④ Acteurs — Réseau pairs et soutien clinique (solo)
+    // Objet WSF produit : `Réseau de pairs cliniques` | facette: acteurs | axe: equipe_rh
+    // WSF : ③ Actes — Gestion des tâches administratives non médicales (solo)
+    // Objet WSF produit : `Organisation tâches admin non médicales` | facette: actes | axe: equipe_rh
+    // WSF : ④ Acteurs — Gestion des appels et interruptions (solo)
+    // Objet WSF produit : `Gestion des appels et interruptions` | facette: acteurs | axe: equipe_rh
+    // ══════════════════════════════════════════════════════
+    // BLOC C — OUTILS & DOSSIERS (Axe 05)
+    //
+    // WSF : Axe 05 — Outils, Données & Infrastructure
+    // Facettes couvertes : ③ Actes (c1 c2 c3) · ④ Acteurs (c3 c4) · ⑥ Outils (c4 c5 c6)
     questions: [
       {
         id: "b1",
+        // WSF : ③ Actes — Répartition et formalisation des rôles
+        // Objet WSF produit : `Répartition des rôles non médicaux` | facette: actes | axe: equipe_rh
         label: "Comment sont répartis les rôles dans votre cabinet ?",
         context: null,
         routing: "has_team==true",
@@ -306,6 +347,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "b3",
+        // WSF : ④ Acteurs — Charge et capacité du secrétariat
+        // Objet WSF produit : `Charge de travail secrétariat` | facette: acteurs | axe: equipe_rh
         label: "Comment décririez-vous la charge de travail du secrétariat ?",
         context: null,
         routing: "secretariat!=seul",
@@ -342,6 +385,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "b4",
+        // WSF : ④ Acteurs — Canal de communication interne
+        // Objet WSF produit : `Canal de communication interne` | facette: acteurs | axe: equipe_rh
         label: "Comment les informations circulent-elles entre les membres de l'équipe ?",
         context: "Messages patients, urgences du jour, tâches en attente.",
         routing: "has_team==true",
@@ -378,6 +423,9 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "b5",
+        // routing: null — universelle, tous profils
+        // WSF : ③ Actes — Processus de continuité d'activité en cas d'absence
+        // Objet WSF produit : `Processus de continuité d'activité` | facette: actes | axe: equipe_rh
         label: "Imaginez que vous deviez vous absenter plusieurs jours. Comment le cabinet se débrouille-t-il ?",
         context: null,
         options: [
@@ -413,6 +461,9 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "b6",
+        // routing: null — universelle, tous profils
+        // WSF : ③ Actes — Capacité d'implémentation du changement organisationnel
+        // Objet WSF produit : `Agilité organisationnelle` | facette: actes | axe: equipe_rh
         label: "La dernière fois que vous avez changé quelque chose dans l'organisation, comment ça s'est passé ?",
         context: "Un protocole, une habitude, une règle de tri.",
         options: [
@@ -448,6 +499,9 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "b7",
+        // routing: null — universelle, tous profils
+        // WSF : ⑥ Outils — Outil ou rituel de pilotage et d'amélioration continue
+        // Objet WSF produit : `Rituel de pilotage organisationnel` | facette: outils | axe: equipe_rh
         label: "À quelle fréquence prenez-vous du recul sur l'organisation du cabinet ?",
         context: "Bilan court, point d'équipe, revue informelle.",
         options: [
@@ -483,6 +537,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "b8",
+        // WSF : ④ Acteurs — Réseau pairs et soutien clinique (solo)
+        // Objet WSF produit : `Réseau de pairs cliniques` | facette: acteurs | axe: equipe_rh
         label: "Quand vous devez discuter d'un cas clinique difficile, comment faites-vous ?",
         context: null,
         routing: "has_team==false",
@@ -519,6 +575,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "b9",
+        // WSF : ③ Actes — Gestion des tâches administratives non médicales (solo)
+        // Objet WSF produit : `Organisation tâches admin non médicales` | facette: actes | axe: equipe_rh
         label: "Comment gérez-vous les tâches administratives non médicales ?",
         context: "Comptabilité, courriers, archivage, démarches CPAM.",
         routing: "has_team==false",
@@ -555,6 +613,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "b10",
+        // WSF : ④ Acteurs — Gestion des appels et interruptions (solo)
+        // Objet WSF produit : `Gestion des appels et interruptions` | facette: acteurs | axe: equipe_rh
         label: "Comment gérez-vous les appels téléphoniques et les urgences pendant vos consultations ?",
         context: null,
         routing: "has_team==false",
@@ -598,6 +658,8 @@ export const V3_BLOCS: V3Bloc[] = [
     questions: [
       {
         id: "c1",
+        // WSF : ③ Actes — Niveau d'usage et de maîtrise du logiciel médical
+        // Objet WSF produit : `Niveau d'usage du LGC` | facette: actes | axe: outils_data_infra
         label: "Comment qualifieriez-vous votre maîtrise de votre logiciel médical ?",
         context: null,
         options: [
@@ -633,6 +695,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "c2",
+        // WSF : ③ Actes — Tenue et structuration des dossiers patients
+        // Objet WSF produit : `Organisation du dossier patient` | facette: actes | axe: outils_data_infra
         label: "Comment sont tenus les dossiers patients dans votre cabinet ?",
         context: null,
         options: [
@@ -668,6 +732,9 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "c3",
+        // WSF : ③ Actes + ④ Acteurs — Organisation et délégation du flux administratif quotidien
+        // Objet WSF produit : `Organisation du flux administratif` | facette: actes   | axe: outils_data_infra
+        //                     `Acteur flux administratif`          | facette: acteurs | axe: outils_data_infra
         label: "Comment gérez-vous le flux administratif quotidien ?",
         context: "Courriers, résultats, ordonnances, feuilles de soins.",
         options: [
@@ -703,6 +770,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "c4",
+        // WSF : ⑥ Outils — Outils numériques de santé utilisés au quotidien
+        // Objet WSF produit : `Outils numériques santé (DMP, MSSanté, téléconsultation…)` | facette: outils | axe: outils_data_infra
         label: "Quels outils numériques de santé utilisez-vous au quotidien ?",
         context: "Mon Espace Santé, MSSanté, téléconsultation, dossier régional.",
         options: [
@@ -738,6 +807,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "c5",
+        // WSF : ⑥ Outils — Positionnement et usage de l'IA générative
+        // Objet WSF produit : `Usage IA générative` | facette: outils | axe: outils_data_infra
         label: "Comment positionnez-vous l'IA générative dans votre activité ?",
         context: "Rédaction de courriers, synthèses, recherches cliniques, aide à la décision.",
         options: [
@@ -773,6 +844,8 @@ export const V3_BLOCS: V3Bloc[] = [
       },
       {
         id: "c6",
+        // WSF : ⑥ Outils — Niveau de couverture et de suivi des obligations de conformité
+        // Objet WSF produit : `Niveau de conformité numérique` | facette: outils | axe: outils_data_infra
         label: "À quel point les enjeux de conformité de votre cabinet sont-ils suivis activement ?",
         context: "RGPD, HDS, DMP, CCAM, MSSanté…",
         options: [
