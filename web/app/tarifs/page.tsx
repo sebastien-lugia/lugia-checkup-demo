@@ -79,7 +79,7 @@ export default function TarifsPage() {
     fontFamily: fonts.serif,
     fontSize: 15,
     lineHeight: 1.65,
-    color: palette.navy600 ?? palette.navy,
+    color: palette.navy600,
   };
 
   return (
@@ -156,7 +156,7 @@ export default function TarifsPage() {
                 border: `1pt solid ${palette.navy200 ?? "rgba(26,35,51,0.18)"}`,
                 borderRadius: 4,
                 padding: "28px 22px 26px",
-                background: palette.ivoryLight ?? palette.paper,
+                background: palette.ivoryLight,
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -218,7 +218,7 @@ export default function TarifsPage() {
                 border: `1.5pt solid ${palette.navy}`,
                 borderRadius: 4,
                 padding: "28px 22px 26px",
-                background: palette.ivoryLight ?? palette.paper,
+                background: palette.ivoryLight,
                 display: "flex",
                 flexDirection: "column",
                 position: "relative",
@@ -303,7 +303,7 @@ export default function TarifsPage() {
                 border: `1pt solid ${palette.navy200 ?? "rgba(26,35,51,0.18)"}`,
                 borderRadius: 4,
                 padding: "28px 22px 26px",
-                background: palette.ivoryLight ?? palette.paper,
+                background: palette.ivoryLight,
                 display: "flex",
                 flexDirection: "column",
               }}
