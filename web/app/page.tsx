@@ -217,17 +217,12 @@ export default function AccueilV3Page() {
           {activeV3 && (
             <button
               type="button"
-              onClick={async () => {
+              onClick={() => {
                 if (isStarting) return;
-                setIsStarting(true);
-                setError(null);
-                try {
-                  const { interview_id: id } = await createInterviewV3();
-                  router.push(`/checkup/v3-charte?interview=${id}&fresh=1`);
-                } catch {
-                  setError("Impossible de démarrer un nouveau check-up. Réessayez dans un instant.");
-                  setIsStarting(false);
-                }
+                // On repasse systématiquement par le choix de profession,
+                // même pour un "nouveau check-up" (la création de l'interview
+                // se fait après ce choix, cf /profession).
+                router.push("/profession");
               }}
               style={{
                 background: "transparent",

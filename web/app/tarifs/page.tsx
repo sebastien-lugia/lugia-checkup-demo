@@ -1,22 +1,25 @@
 "use client";
 
 /**
- * /tarifs — page tarifaire publique Lugia.
+ * /tarifs — page tarifaire publique Lugia (v2 — Pro progressif + Option Max).
  *
- * Trois paliers visibles : Socle, Pro (avec tarification progressive par
- * utilisateur additionnel), Max (forfaitaire). Soupape ETI sur devis.
- * Section dédiée aux trois niveaux d'engagement réglementaire — argument
- * clé de différenciation vs concurrents AI-first qui promettent l'IA
- * mais pas la conformité.
+ * Structure tarifaire :
+ *  - Socle 49 €/mois (libéral solo, 1 utilisateur)
+ *  - Pro 149 €/mois + 49 €/utilisateur additionnel (jusqu'à 15 utilisateurs)
+ *  - Option Max +200 €/mois (ajoutable à Pro, transformation profonde)
+ *  - Au-delà sur devis (16+ utilisateurs, ETI, multi-sites)
  *
  * Le mot « assurance » est volontairement évité (réservé aux produits
  * assurantiels avec courtier partenaire — phase 2). On parle d'engagement
  * de conformité, défendable juridiquement.
  *
  * Disponibilité :
- *  - Socle, Pro mono-utilisateur : disponible
+ *  - Socle, Pro mono-utilisateur : disponibles
  *  - Pro multi-utilisateurs (+49 €/user) : T4 2026
- *  - Max : S1 2027 (liste d'attente sur le formulaire de contact)
+ *  - Option Max : S1 2027 (liste d'attente)
+ *
+ * L'engagement opérateur dans Option Max est de 8 h fixes par an, les heures
+ * additionnelles sont facturées au tarif normal (~75 €/h) — décision D-051.
  */
 
 import { useEffect } from "react";
@@ -82,6 +85,21 @@ export default function TarifsPage() {
     color: palette.navy600,
   };
 
+  const inclusItem = (item: string) => (
+    <li
+      key={item}
+      style={{
+        ...bodyStyle,
+        fontSize: 13.5,
+        paddingLeft: 14,
+        textIndent: -14,
+        marginBottom: 6,
+      }}
+    >
+      — {item}
+    </li>
+  );
+
   return (
     <main
       style={{
@@ -95,7 +113,7 @@ export default function TarifsPage() {
     >
       <ThemeToggleV3 theme={theme} onToggle={() => setTheme((t) => (t === "night" ? "day" : "night"))} />
 
-      <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 24px" }}>
+      <div style={{ maxWidth: 920, margin: "0 auto", padding: "0 24px" }}>
         {/* Header marque */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
           <LugiaMark color={palette.navy} size={28} />
@@ -132,28 +150,32 @@ export default function TarifsPage() {
               marginBottom: 18,
             }}
           >
-            Trois paliers,<br />
-            une promesse tenue.
+            Une structure simple,<br />
+            qui grandit avec vous.
           </h1>
-          <p style={{ ...bodyStyle, fontSize: 17, maxWidth: 640 }}>
-            Du libéral solo à la structure établie, Lugia s'ajuste à votre cabinet — et vous couvre sur la conformité, à mesure que vous montez en gamme.
+          <p style={{ ...bodyStyle, fontSize: 17, maxWidth: 660 }}>
+            Trois paliers calibrés pour le libéral seul, le cabinet de groupe, la structure établie. Une option Max ajoutable à tout moment pour aller plus loin — peu importe votre taille.
           </p>
         </section>
 
-        {/* ========== TROIS PALIERS ========== */}
-        <section style={{ marginBottom: 64 }}>
+        {/* ========== TROIS PALIERS DE BASE ========== */}
+        <section style={{ marginBottom: 32 }}>
+          <p style={{ ...eyebrowStyle, marginBottom: 4 }}>Paliers de base</p>
+          <p style={{ ...bodyStyle, fontSize: 14, color: palette.navy400, marginBottom: 24 }}>
+            Le palier qui correspond à votre cabinet aujourd&apos;hui. Vous pouvez ajouter l&apos;Option Max à n&apos;importe quel moment.
+          </p>
+
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
               gap: 20,
-              marginTop: 8,
             }}
           >
             {/* ─── SOCLE ─── */}
             <article
               style={{
-                border: `1pt solid ${palette.navy200 ?? "rgba(26,35,51,0.18)"}`,
+                border: `1pt solid ${palette.navy200}`,
                 borderRadius: 4,
                 padding: "28px 22px 26px",
                 background: palette.ivoryLight,
@@ -176,11 +198,11 @@ export default function TarifsPage() {
                 49&nbsp;€<span style={{ fontSize: 14, fontWeight: 400, color: palette.navy400 }}>/mois</span>
               </p>
               <p style={{ fontFamily: fonts.sans, fontSize: 13, color: palette.navy400, marginBottom: 20 }}>
-                Médecin libéral solo
+                Libéral solo (1 utilisateur)
               </p>
 
               <p style={{ ...bodyStyle, fontSize: 14, marginBottom: 16, color: palette.navy }}>
-                Tout ce qu'il faut pour rendre votre cabinet lisible et tenir vos obligations réglementaires de base.
+                Pour rendre votre cabinet lisible et tenir vos obligations réglementaires de base.
               </p>
 
               <ul style={{ listStyle: "none", padding: 0, margin: "0 0 18px", flex: 1 }}>
@@ -191,20 +213,7 @@ export default function TarifsPage() {
                   "Notice patient conforme 2026",
                   "Schéma vivant de votre cabinet",
                   "Support standard sous 24 h",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    style={{
-                      ...bodyStyle,
-                      fontSize: 13.5,
-                      paddingLeft: 14,
-                      textIndent: -14,
-                      marginBottom: 6,
-                    }}
-                  >
-                    — {item}
-                  </li>
-                ))}
+                ].map(inclusItem)}
               </ul>
 
               <p style={{ fontFamily: fonts.mono, fontSize: 10, color: palette.navy400, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -256,11 +265,11 @@ export default function TarifsPage() {
               >
                 149&nbsp;€<span style={{ fontSize: 14, fontWeight: 400, color: palette.navy400 }}>/mois</span>
               </p>
-              <p style={{ fontFamily: fonts.sans, fontSize: 13, color: palette.navy400, marginBottom: 6 }}>
-                Libéral installé · cabinet de groupe jusqu'à 5 utilisateurs
+              <p style={{ fontFamily: fonts.sans, fontSize: 13, color: palette.navy400, marginBottom: 4 }}>
+                Libéral installé · cabinet de groupe
               </p>
-              <p style={{ fontFamily: fonts.mono, fontSize: 11, color: palette.navy400, marginBottom: 20, letterSpacing: "0.02em" }}>
-                + 49 €/mois par utilisateur additionnel
+              <p style={{ fontFamily: fonts.mono, fontSize: 11, color: palette.navy, marginBottom: 20, letterSpacing: "0.02em", fontWeight: 500, lineHeight: 1.5 }}>
+                + 49 €/siège Acteur additionnel<br />+ 19 €/siège Lecture (secrétaire, assistant)
               </p>
 
               <p style={{ ...bodyStyle, fontSize: 14, marginBottom: 16, color: palette.navy }}>
@@ -275,21 +284,9 @@ export default function TarifsPage() {
                   "Traçabilité auditable activée",
                   "Aide à la rédaction des courriers",
                   "Support prioritaire sous 2 minutes",
-                  "Vue partagée pour vos collaborateurs",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    style={{
-                      ...bodyStyle,
-                      fontSize: 13.5,
-                      paddingLeft: 14,
-                      textIndent: -14,
-                      marginBottom: 6,
-                    }}
-                  >
-                    — {item}
-                  </li>
-                ))}
+                  "Vue partagée pour tous vos utilisateurs",
+                  "Matrice d'accès collective (à partir de 2 utilisateurs)",
+                ].map(inclusItem)}
               </ul>
 
               <p style={{ fontFamily: fonts.mono, fontSize: 10, color: palette.navy400, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -297,18 +294,37 @@ export default function TarifsPage() {
               </p>
             </article>
 
-            {/* ─── MAX ─── */}
+            {/* ─── OPTION MAX ─── */}
             <article
               style={{
-                border: `1pt solid ${palette.navy200 ?? "rgba(26,35,51,0.18)"}`,
+                border: `1pt solid rgba(122,96,48,0.45)`,
                 borderRadius: 4,
                 padding: "28px 22px 26px",
-                background: palette.ivoryLight,
+                background: "rgba(122,96,48,0.05)",
                 display: "flex",
                 flexDirection: "column",
+                position: "relative",
               }}
             >
-              <p style={eyebrowStyle}>Max</p>
+              <div
+                style={{
+                  position: "absolute",
+                  top: -12,
+                  left: 22,
+                  background: "#7A6030",
+                  color: "#FBFAF6",
+                  fontFamily: fonts.mono,
+                  fontSize: 9.5,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  padding: "4px 10px",
+                  borderRadius: 2,
+                }}
+              >
+                Option · à ajouter à Pro
+              </div>
+
+              <p style={{ ...eyebrowStyle, color: "#7A6030" }}>Max — la transformation</p>
               <p
                 style={{
                   fontFamily: fonts.serif,
@@ -320,59 +336,53 @@ export default function TarifsPage() {
                   lineHeight: 1,
                 }}
               >
-                499&nbsp;€<span style={{ fontSize: 14, fontWeight: 400, color: palette.navy400 }}>/mois</span>
+                + 200&nbsp;€<span style={{ fontSize: 14, fontWeight: 400, color: palette.navy400 }}>/mois</span>
               </p>
               <p style={{ fontFamily: fonts.sans, fontSize: 13, color: palette.navy400, marginBottom: 20 }}>
-                Structure 6 à 15 utilisateurs · MSP, cabinet groupe, PME
+                Pour aller plus loin, quelle que soit votre taille
               </p>
 
               <p style={{ ...bodyStyle, fontSize: 14, marginBottom: 16, color: palette.navy }}>
-                Le collectif riche. Un opérateur Lugia mobilisable quand vos chantiers en valent la peine.
+                Un opérateur Lugia mobilisable toute l&apos;année. Un audit terrain annuel. Une vraie démarche de transformation.
               </p>
 
               <ul style={{ listStyle: "none", padding: 0, margin: "0 0 18px", flex: 1 }}>
                 {[
-                  "Tout le Pro pour tous vos utilisateurs",
-                  "Matrice d'accès collective",
-                  "Reporting structuré pour vos institutions (ARS, ordre)",
-                  "Connecteur DPI principal (Weda · HelloDoc · Crossway)",
-                  "4 h par an d'opérateur Lugia & Co sur le terrain",
-                  "Accompagnement en cas de contrôle",
-                  "Point trimestriel avec un référent dédié",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    style={{
-                      ...bodyStyle,
-                      fontSize: 13.5,
-                      paddingLeft: 14,
-                      textIndent: -14,
-                      marginBottom: 6,
-                    }}
-                  >
-                    — {item}
-                  </li>
-                ))}
+                  "Audit terrain annuel sur site (1 journée d'opérateur)",
+                  "8 h d'opérateur Lugia & Co mobilisables dans l'année",
+                  "Audit RGPD externe annuel par DPO partenaire",
+                  "Tous les modules add-on inclus (Ordonnances, Synthèse, Reporting, Transmission)",
+                  "Success manager dédié + hotline conformité sous 4 h",
+                  "Accompagnement opérateur en cas de contrôle (sous 48 h)",
+                  "Accès au Cercle Lugia (événements + communauté pairs)",
+                  "Préparation à la transmission de cabinet",
+                  "Label « Cabinet Lugia certifié »",
+                ].map(inclusItem)}
               </ul>
 
               <p style={{ fontFamily: fonts.mono, fontSize: 10, color: "#7A6030", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                Liste d'attente · Lancement S1 2027
+                Liste d&apos;attente · Lancement S1 2027
               </p>
             </article>
           </div>
+
+          {/* Note sur les heures opérateur */}
+          <p style={{ ...bodyStyle, fontSize: 12.5, color: palette.navy400, marginTop: 20, maxWidth: 720 }}>
+            Note sur l&apos;Option Max — les 8 h d&apos;opérateur incluses sont mobilisables de façon flexible dans l&apos;année (1 h ici, 4 h là). Au-delà des 8 h consommées, les heures supplémentaires sont facturées au tarif standard Lugia &amp; Co (75 €/h hors site, 600 €/jour sur site). Vous restez maître de votre rythme.
+          </p>
         </section>
 
-        {/* ========== ENGAGEMENT RÉGLEMENTAIRE ========== */}
-        <section style={{ marginBottom: 64 }}>
-          <p style={{ ...eyebrowStyle, marginBottom: 10 }}>Engagement de conformité</p>
-          <h2 style={sectionTitleStyle}>Trois niveaux de couverture réglementaire</h2>
-          <p style={{ ...bodyStyle, maxWidth: 640, marginBottom: 28 }}>
-            Lugia ne se contente pas de produire vos livrables réglementaires. Sur le Pro et le Max, nous nous engageons à les maintenir à jour, automatiquement, à chaque évolution. Vous n'avez plus à y revenir.
+        {/* ========== COMPOSER VOTRE OFFRE — EXEMPLES ========== */}
+        <section style={{ marginBottom: 64, marginTop: 56 }}>
+          <p style={{ ...eyebrowStyle, marginBottom: 10 }}>Composer votre offre</p>
+          <h2 style={sectionTitleStyle}>Quelques exemples concrets</h2>
+          <p style={{ ...bodyStyle, maxWidth: 660, marginBottom: 28 }}>
+            La logique est simple : vous prenez le palier de base qui correspond à votre cabinet, et vous ajoutez l&apos;Option Max à n&apos;importe quel moment si vous voulez la démarche de transformation.
           </p>
 
           <div
             style={{
-              border: `0.5pt solid ${palette.navy200 ?? "rgba(26,35,51,0.18)"}`,
+              border: `0.5pt solid ${palette.navy200}`,
               borderRadius: 2,
               overflow: "hidden",
             }}
@@ -381,19 +391,90 @@ export default function TarifsPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1.6fr 1fr 1fr 1fr",
+                gridTemplateColumns: "2.2fr 1fr 1fr 1fr",
                 background: "rgba(26,35,51,0.04)",
                 padding: "12px 16px",
-                borderBottom: `0.5pt solid ${palette.navy200 ?? "rgba(26,35,51,0.18)"}`,
+                borderBottom: `0.5pt solid ${palette.navy200}`,
+              }}
+            >
+              <span style={{ ...eyebrowStyle, fontSize: 10 }}>Votre situation</span>
+              <span style={{ ...eyebrowStyle, fontSize: 10, textAlign: "right" }}>Palier</span>
+              <span style={{ ...eyebrowStyle, fontSize: 10, textAlign: "right" }}>+ Option Max</span>
+              <span style={{ ...eyebrowStyle, fontSize: 10, textAlign: "right" }}>Total / mois</span>
+            </div>
+
+            {[
+              { who: "Médecin libéral solo, démarrage", pro: "Socle", proPrice: "49 €", max: "—", total: "49 €", emphasize: false },
+              { who: "Médecin libéral installé seul", pro: "Pro", proPrice: "149 €", max: "—", total: "149 €", emphasize: false },
+              { who: "Médecin installé + secrétaire (1 acteur + 1 lecture)", pro: "Pro + Lecture", proPrice: "168 €", max: "—", total: "168 €", emphasize: false },
+              { who: "Médecin seul ambitieux + secrétaire", pro: "Pro + Lecture + Max", proPrice: "168 €", max: "+ 200 €", total: "368 €", emphasize: true },
+              { who: "Cabinet de groupe (3 praticiens + 1 secrétaire)", pro: "Pro × 3 + Lecture", proPrice: "266 €", max: "—", total: "266 €", emphasize: false },
+              { who: "Cabinet de groupe (5 praticiens + 1 secrétaire)", pro: "Pro × 5 + Lecture", proPrice: "364 €", max: "—", total: "364 €", emphasize: false },
+              { who: "MSP 8 utilisateurs (6 médecins + 2 secrétaires)", pro: "6 Acteur + 2 Lecture + Max", proPrice: "432 €", max: "+ 200 €", total: "632 €", emphasize: true },
+              { who: "PME services B2B 12 utilisateurs (8 acteurs + 4 lecture)", pro: "8 Acteur + 4 Lecture + Max", proPrice: "568 €", max: "+ 200 €", total: "768 €", emphasize: true },
+              { who: "Cabinet expert-comptable 15 utilisateurs (12 acteurs + 3 lecture)", pro: "12 Acteur + 3 Lecture", proPrice: "745 €", max: "—", total: "745 €", emphasize: false },
+            ].map((row, i, arr) => (
+              <div
+                key={row.who}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "2.2fr 1fr 1fr 1fr",
+                  padding: "12px 16px",
+                  borderBottom: i < arr.length - 1 ? `0.5pt solid ${palette.navy200}` : "none",
+                  alignItems: "center",
+                  background: row.emphasize ? "rgba(122,96,48,0.03)" : "transparent",
+                }}
+              >
+                <span style={{ ...bodyStyle, fontSize: 13.5, lineHeight: 1.45 }}>{row.who}</span>
+                <span style={{ fontFamily: fonts.serif, fontSize: 13, color: palette.navy, textAlign: "right" }}>
+                  {row.proPrice}
+                </span>
+                <span style={{ fontFamily: fonts.serif, fontSize: 13, color: row.max === "—" ? palette.navy400 : "#7A6030", textAlign: "right", fontWeight: row.max === "—" ? 400 : 600 }}>
+                  {row.max}
+                </span>
+                <span style={{ fontFamily: fonts.serif, fontSize: 14, color: palette.navy, textAlign: "right", fontWeight: 600 }}>
+                  {row.total}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <p style={{ ...bodyStyle, fontSize: 12.5, color: palette.navy400, marginTop: 16, maxWidth: 660 }}>
+            <strong style={{ color: palette.navy }}>Deux types de sièges sur Pro.</strong> Le siège <strong style={{ color: palette.navy }}>Acteur</strong> (49 €/mois) est pour les personnes qui créent, valident, signent — médecin, juriste associé, expert-comptable. Le siège <strong style={{ color: palette.navy }}>Lecture</strong> (19 €/mois) est pour celles qui consultent et agissent sur du contenu validé — secrétaire, assistant, interne. Les places Lecture ne peuvent pas excéder le nombre de places Acteur ; Acteurs et Lectures comptent dans la limite de 15 utilisateurs. Au-delà de 15, c&apos;est l&apos;offre <strong style={{ color: palette.navy }}>Au-delà</strong> sur devis.
+          </p>
+        </section>
+
+        {/* ========== ENGAGEMENT RÉGLEMENTAIRE ========== */}
+        <section style={{ marginBottom: 64 }}>
+          <p style={{ ...eyebrowStyle, marginBottom: 10 }}>Engagement de conformité</p>
+          <h2 style={sectionTitleStyle}>Trois niveaux de couverture réglementaire</h2>
+          <p style={{ ...bodyStyle, maxWidth: 660, marginBottom: 28 }}>
+            Lugia ne se contente pas de produire vos livrables réglementaires. À partir de Pro, nous nous engageons à les maintenir à jour automatiquement, à chaque évolution. Vous n&apos;avez plus à y revenir.
+          </p>
+
+          <div
+            style={{
+              border: `0.5pt solid ${palette.navy200}`,
+              borderRadius: 2,
+              overflow: "hidden",
+            }}
+          >
+            {/* En-tête */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.8fr 1fr 1fr 1fr",
+                background: "rgba(26,35,51,0.04)",
+                padding: "12px 16px",
+                borderBottom: `0.5pt solid ${palette.navy200}`,
               }}
             >
               <span style={{ ...eyebrowStyle, fontSize: 10 }}>Engagement</span>
               <span style={{ ...eyebrowStyle, fontSize: 10, textAlign: "center" }}>Socle</span>
               <span style={{ ...eyebrowStyle, fontSize: 10, textAlign: "center" }}>Pro</span>
-              <span style={{ ...eyebrowStyle, fontSize: 10, textAlign: "center" }}>Max</span>
+              <span style={{ ...eyebrowStyle, fontSize: 10, textAlign: "center" }}>Pro + Max</span>
             </div>
 
-            {/* Lignes */}
             {[
               {
                 label: "Livrables réglementaires produits (registre RGPD, notice patient)",
@@ -414,16 +495,16 @@ export default function TarifsPage() {
                 max: "Oui",
               },
               {
+                label: "Audit conformité externe annuel par DPO partenaire",
+                socle: "—",
+                pro: "—",
+                max: "Inclus",
+              },
+              {
                 label: "Accompagnement opérateur en cas de contrôle",
                 socle: "—",
                 pro: "—",
                 max: "4 h sous 48 h",
-              },
-              {
-                label: "Clauses contractuelles renforcées",
-                socle: "Standard",
-                pro: "Standard",
-                max: "Renforcées",
               },
               {
                 label: "Reporting institutionnel (ARS, ordre, CPTS)",
@@ -431,14 +512,14 @@ export default function TarifsPage() {
                 pro: "—",
                 max: "Inclus",
               },
-            ].map((row, i) => (
+            ].map((row, i, arr) => (
               <div
                 key={row.label}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1.6fr 1fr 1fr 1fr",
+                  gridTemplateColumns: "1.8fr 1fr 1fr 1fr",
                   padding: "12px 16px",
-                  borderBottom: i < 5 ? `0.5pt solid ${palette.navy200 ?? "rgba(26,35,51,0.10)"}` : "none",
+                  borderBottom: i < arr.length - 1 ? `0.5pt solid ${palette.navy200}` : "none",
                   alignItems: "center",
                 }}
               >
@@ -449,7 +530,7 @@ export default function TarifsPage() {
                 <span style={{ fontFamily: fonts.serif, fontSize: 13, color: row.pro === "—" ? palette.navy400 : palette.navy, textAlign: "center", fontWeight: row.pro !== "—" && row.pro !== "Standard" ? 600 : 400 }}>
                   {row.pro}
                 </span>
-                <span style={{ fontFamily: fonts.serif, fontSize: 13, color: row.max === "—" ? palette.navy400 : palette.navy, textAlign: "center", fontWeight: row.max !== "—" && row.max !== "Standard" ? 600 : 400 }}>
+                <span style={{ fontFamily: fonts.serif, fontSize: 13, color: row.max === "—" ? palette.navy400 : "#7A6030", textAlign: "center", fontWeight: row.max !== "—" && row.max !== "Standard" ? 600 : 400 }}>
                   {row.max}
                 </span>
               </div>
@@ -457,7 +538,7 @@ export default function TarifsPage() {
           </div>
 
           <p style={{ ...bodyStyle, fontSize: 12.5, color: palette.navy400, marginTop: 16, maxWidth: 720 }}>
-            Lugia n'est pas un assureur. Les engagements ci-dessus sont contractuels (engagement de mise à jour et d'accompagnement), pas assurantiels au sens du Code des assurances. Pour les structures qui souhaitent une vraie couverture assurance contrôle, un produit dédié est en préparation avec un courtier partenaire (disponibilité prévue 2027).
+            Lugia n&apos;est pas un assureur. Les engagements ci-dessus sont contractuels (engagement de mise à jour et d&apos;accompagnement), pas assurantiels au sens du Code des assurances. Pour les structures qui souhaitent une vraie couverture assurance contrôle, un produit dédié est en préparation avec un courtier partenaire (disponibilité prévue 2027).
           </p>
         </section>
 
@@ -465,8 +546,8 @@ export default function TarifsPage() {
         <section style={{ marginBottom: 64 }}>
           <p style={{ ...eyebrowStyle, marginBottom: 10 }}>Au-delà</p>
           <h2 style={sectionTitleStyle}>Structures plus grandes — sur devis</h2>
-          <p style={{ ...bodyStyle, maxWidth: 640, marginBottom: 16 }}>
-            Pour les structures de plus de 15 utilisateurs, les multi-sites, les PME et ETI, Lugia propose un accompagnement sur mesure — packagé sur la base de Max, augmenté de l'interopérabilité spécifique, du success management dédié et, à terme, d'une couverture assurance contrôle via courtier partenaire.
+          <p style={{ ...bodyStyle, maxWidth: 660, marginBottom: 16 }}>
+            Pour les structures de plus de 15 utilisateurs, les multi-sites, les PME et ETI, Lugia propose un accompagnement sur mesure — packagé sur la base de Pro + Option Max, augmenté de l&apos;interopérabilité spécifique, du success management dédié et, à terme, d&apos;une couverture assurance contrôle via courtier partenaire.
           </p>
           <p style={{ ...bodyStyle, fontSize: 14, color: palette.navy400 }}>
             <Link href="mailto:[email protected]" style={{ color: palette.navy, textDecoration: "underline", textUnderlineOffset: 4 }}>
@@ -479,7 +560,7 @@ export default function TarifsPage() {
         {/* ========== CTA FINAL ========== */}
         <section
           style={{
-            borderTop: `0.5pt solid ${palette.navy200 ?? "rgba(26,35,51,0.18)"}`,
+            borderTop: `0.5pt solid ${palette.navy200}`,
             paddingTop: 40,
             marginTop: 24,
           }}
