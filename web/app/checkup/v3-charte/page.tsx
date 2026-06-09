@@ -28,7 +28,6 @@ import { type V3Step, nextStep, prevStep, resumeStep } from "@/lib/v3/state";
 import { getBloc, filterQuestionsByRouting } from "@/lib/v3/protocol_data";
 import type { Answer, UserProfile, V2Scores } from "@/lib/api";
 import {
-  createInterviewV3,
   getMyProfile,
   patchMyProfileV2,
   listAnswers,
@@ -255,19 +254,20 @@ function CheckupV3BrandPageContent() {
     let cancelled = false;
     async function bootstrap() {
       try {
-        // 1. Récupère l'interview id depuis la query string, ou en crée une.
+        // 1. Récupère l'interview id depuis la query string.
+        //
+        // Si l'utilisateur arrive ici SANS ?interview=... (lien direct, signet,
+        // back/forward navigateur, redirection legacy), on ne crée plus
+        // d'interview en silence : on renvoie vers /profession pour que le
+        // choix du métier soit explicite, conformément au flux home → /profession
+        // → /checkup/v3-charte?interview=<id>.
         const idStr = searchParams?.get("interview");
-        let id = idStr ? parseInt(idStr, 10) : NaN;
+        const id = idStr ? parseInt(idStr, 10) : NaN;
         if (!id || isNaN(id)) {
-          const created = await createInterviewV3();
-          id = created.interview_id;
-          // Update URL pour les refresh suivants — pas de history push,
-          // un simple replace pour conserver le ?interview=<id>
           if (typeof window !== "undefined") {
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set("interview", String(id));
-            window.history.replaceState({}, "", newUrl.toString());
+            router.replace("/profession");
           }
+          return;
         }
         if (cancelled) return;
         setInterviewId(id);

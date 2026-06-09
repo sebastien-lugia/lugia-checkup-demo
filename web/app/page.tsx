@@ -19,7 +19,6 @@ import { paletteFor, fonts, type V3Theme } from "@/lib/v3/tokens";
 import { useTheme } from "@/lib/v3/useTheme";
 import { ThemeToggleV3 } from "@/components/v3/ThemeToggleV3";
 import {
-  createInterviewV3,
   getActiveInterviewsByVersion,
   type ActiveInterviewsByVersion,
 } from "@/lib/api";
