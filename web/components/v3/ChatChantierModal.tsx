@@ -37,7 +37,7 @@ import {
   type WebLLMEngineLike,
   type WebLLMProgress,
 } from "@/lib/webllm";
-import { MermaidDiagram } from "@/components/v3/MermaidDiagram";
+import { CarteVivanteV3 } from "@/components/v3/CarteVivanteV3";
 import type { GrapheWSF } from "@/lib/wsf/types";
 
 const CHAT_PROVIDER_LS_KEY = "lugia-chat-provider";
@@ -676,7 +676,7 @@ export function ChatChantierModal({
                 <MessageBubble message={m} theme={theme} />
                 {m.plan && m.plan.length > 0 && <PlanCard plan={m.plan} theme={theme} />}
                 {m.mermaid_graph && (
-                  <MermaidDiagram
+                  <CarteVivanteV3
                     graph={m.mermaid_graph as unknown as GrapheWSF}
                     theme={theme}
                   />

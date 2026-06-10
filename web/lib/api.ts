@@ -279,6 +279,29 @@ export async function getReportV3(interviewId: number): Promise<V3BrandReport> {
   return request<V3BrandReport>(`/interviews/${interviewId}/report`);
 }
 
+// ── Substrat : capability map + carte vivante dérivés des chantiers explorés ──
+export type FootprintAxe = {
+  objets: Array<{ id: string; label: string; type: string; etat: string; composante: string; "référencé_dans": string[] }>;
+  references_in: Array<{ label: string; depuis: string }>;
+  etat: string;
+  sante: number | null;
+};
+export type SubstratChantier = {
+  module_id: string;
+  graphe: { titre?: string; nodes?: unknown[]; edges?: unknown[]; objets?: unknown[]; liaisons?: unknown[] } | null;
+  derive: { footprint: Record<string, FootprintAxe>; chaine_de_valeur: Array<{ id: string; label: string; type: string; etat: string }>; signaux: Array<{ regle: string; type: string; "sévérité": string; label: string; objets: string[] }> } | null;
+  generated_at: string;
+};
+export type Substrat = {
+  interview_id: number;
+  chantiers: SubstratChantier[];
+  footprint_global: Record<string, FootprintAxe>;
+};
+
+export async function getSubstrat(interviewId: number): Promise<Substrat> {
+  return request<Substrat>(`/interviews/${interviewId}/substrat`);
+}
+
 export async function getActiveInterview(): Promise<Interview | null> {
   return request<Interview | null>("/interviews/active");
 }

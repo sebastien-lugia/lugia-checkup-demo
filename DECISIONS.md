@@ -6,6 +6,184 @@ Toute évolution de l'une de ces décisions doit être discutée et journalisée
 
 ---
 
+## D-055 — Socle de placement des objets sur les axes (2026-06-09)
+
+Le placement objet→axe ne se fait plus « au jugé » : il suit un **socle écrit**, `resources/methode/
+lugia_placement_objets_axes.md`, **fondé sur la capability map v8**. Règle : un objet s'attache au
+**thème capmap dont la définition décrit sa fonction** (le thème fixe le domaine et l'axe) ; **facette =
+nature ontologique** (indépendante de l'axe) ; **multi-axe** via 1 thème d'attache + `référencé_dans`.
+
+**Pourquoi** : les affectations intuitives étaient incohérentes (prise de RDV mise en Parcours au lieu de
+Processus & Admin, continuité en Admin au lieu d'Équipe). Un socle dérivé du référentiel élimine
+l'approximation et rend l'extraction reproductible. **Placements de référence** (validés Sébastien) :
+prise de RDV → Processus & Admin ; continuité → Équipe & RH ; suivi chroniques → Activité clinique ;
+tri des résultats → Activité clinique **+** Gestion admin ; téléconsultation → Activité clinique.
+
+**Portée** : socle **générique** = défaut ; **personnalisable par cabinet a posteriori** (repondération du
+thème d'attache, `référencé_dans` ajoutés, thèmes manuels), sans modifier le socle. Implémenté dans
+`demo/extract_questionnaire.py` (table EXTRACT). Le `node_type` du questionnaire (qui tague la réponse,
+pas l'objet) est réinterprété par fonction, pas repris tel quel.
+
+## D-052 — Posture face aux plateformes d'orchestration (Apple, Microsoft, Google) (2026-06-08)
+
+Apple ouvre Apple Intelligence comme couche d'orchestration agentique grand public (Siri arbitre
+entre LLM, mobilise le contexte iPhone, exécute dans les apps). Microsoft pousse Copilot for M365
+vers la cartographie organisationnelle déduite des artefacts (SharePoint, Outlook, Teams, Graph).
+Google emboîte côté Workspace. Question stratégique : où joue Lugia, et que refuse-t-il ?
+
+**Décision** : Lugia adopte la posture **« interface principale + lecture exposée »** et refuse
+explicitement la posture **« source de contexte consommée »**.
+
+- **Interface principale** = la carte vivante reste l'écran de pilotage du dirigeant, organe de
+  direction où il décide des chantiers, valide les livrables, regarde l'état du système de travail.
+  Les LLM sont des outils mobilisés depuis la carte, jamais l'inverse.
+- **Lecture exposée** = Lugia accepte d'exposer une lecture cadrée de la matrice de fonctionnement
+  aux agents personnels (Siri, Copilot, Gemini) pour répondre aux questions ponctuelles posées par
+  les collaborateurs via leur agent. C'est-à-dire : pilotage côté dirigeant, exécution côté
+  collaborateur — deux usages, deux postures compatibles.
+
+**Pourquoi (trois raisons structurelles).**
+1. **Business model.** Pro 149 € et Option Max +200 € (audit terrain, 8 h opérateur, audit DPO) n'ont
+   aucun équivalent en mode API. Devenir source de contexte fait s'effondrer tout le haut de la
+   grille tarifaire et la marge.
+2. **Méthode non consommable.** Schéma N0–N8, 9 axes client, WSF moteur, 22 lentilles, zones
+   intermédiaires : ce n'est pas un graph qu'on requête, c'est un point de vue qu'on habite. Exposer
+   en API à Copilot = céder le vocabulaire et perdre la grammaire (révélation, calme, liaisons,
+   zones intermédiaires — précisément ce que personne d'autre ne voit).
+3. **Réversibilité incompatible.** Lugia promet au client qu'il peut partir avec sa carte. Branché à
+   Copilot, la sortie devient impossible sans détruire la valeur du client. Contradiction avec un
+   parti pris doctrinal central.
+
+**Implications opérationnelles.**
+- **Roadmap** : pas de SDK « Lugia inside » ni de connecteurs entrants depuis Copilot/Siri avant 2027.
+- **Pricing** : pas de tarif « par appel API » ni de licence source de contexte. Grille restera
+  construite autour de l'usage humain direct (Acteur 49 / Lecture 19 / Max +200).
+- **Pitch investisseur** : anticiper la question « et si Microsoft fait pareil ? » — réponse :
+  Microsoft fait de la déduction depuis artefacts, Lugia fait de l'interview structurée + WSF, deux
+  méthodes incomparables, deux niveaux de richesse différents.
+- **Lecture exposée — quand ?** Pas avant que les plateformes ouvrent un protocole stable d'agents
+  tiers en lecture. Quand le moment viendra, Lugia exposera une API de lecture cadrée — sans céder
+  l'interface de pilotage.
+
+**Signaux à surveiller** (révisés trimestriellement dans la Veille concurrentielle) :
+- Apple : ouverture d'App Intents agentiques aux verticaux santé/juridique/gestion.
+- Microsoft : extension de Copilot vers cartographie organisationnelle structurée au-delà de la
+  déduction artefacts.
+- Foaster.ai ou autres concurrents directs sur l'étage méthode : signature d'un partenariat de
+  distribution avec une plateforme d'orchestration — signal de bascule majeur, analyse sous deux
+  semaines.
+
+**Alternatives écartées** :
+- Source de contexte consommée par Copilot/Siri (volume × 10, ARPU ÷ 5, dépendance plateforme,
+  perte de la réversibilité, contradiction doctrinale — refus structurel).
+- Hybride mou (API + interface en parallèle, même grille tarifaire) — incohérent, dilution garantie.
+
+**Référence** : nouvelle section 4.8 du Document maître INTERNE ; mémoire
+`project_posture_agents_personnels`. Cf aussi D-051 (vision long terme strictement interne — la
+posture face aux plateformes en fait partie).
+
+---
+
+## D-054 — Règle R02 figée en formule de centralité locale (2026-06-08)
+
+La règle R02 (point unique de défaillance) avait une `condition` écrite en **dénominateur global**
+(part de l'objet sur tout le graphe), incohérente avec le calcul **local** de l'exemple (« 68 % »).
+
+**Décision** : R02 = **ratio de centralité locale** = somme des poids des liens incidents critiques
+(poids ≥ 4, entrants ou bidirectionnels) / somme des poids de tous les liens incidents à l'objet,
+avec **garde de degré ≥ 3** (évite qu'un objet à 2 liens sorte à 100 %). Seuil **0,60 marqué provisoire**.
+
+**Pourquoi** : le dénominateur global ne passe pas à l'échelle — dans un gros cabinet, aucun objet ne
+dépasse 60 % du flux global, R02 ne se déclencherait jamais. Le local mesure ce qu'on veut (« de tout
+ce qui touche X, quelle part est critique et dépend de X »). La mesure d'**impact** (simuler la
+disparition de X) est plus fidèle mais réservée à une version « experte » (justesse sans complexité en V1).
+
+**À faire** : recaler le seuil 0,60 sur données (il a été déduit d'un calcul bespoke, calibré sur rien) —
+gel honnête en attendant, cf `calibration_roadmap`. **Alternatives écartées** : garder le global (cassé à
+l'échelle) ; passer direct à l'impact (trop lourd pour la V1).
+
+---
+
+## D-053 — Complétude = deux métriques distinctes (2026-06-08)
+
+La complétude d'un thème était une seule mesure, ce qui produisait un faux signal : « Consultation 25 %,
+incomplet ! » alors que la consultation est parfaitement équipée (un médecin, un acte, un dossier, un
+logiciel) — mais ces pièces sont rangées dans *d'autres* thèmes (leur thème d'attache selon leur nature).
+
+**Décision** : séparer deux métriques au lieu d'en fusionner une.
+- **Complétude documentaire** (rattachement strict : objets dont `thème_id` = ce thème) → mesure
+  « combien a-t-on documenté ici » → **pilote les relances d'interview**.
+- **Complétude fonctionnelle** (rattachement + `référencé_dans`) → mesure « cette fonction a-t-elle ses
+  4 pièces fondamentales, où qu'elles soient rangées » → **santé structurelle** (esprit WSF).
+
+**Pourquoi** : les deux lectures s'opposent sur le comportement. En strict seul, le système crie à
+l'incomplétude sur des thèmes équipés (faux positif). En large seul, on perd le signal « pose plus de
+questions ». Les garder séparées résout les deux. Cohérent avec la distinction santé structurelle /
+fonctionnelle déjà actée (complément Alter).
+
+**Conséquence porteuse** : compter en large via `référencé_dans` **rend l'extracteur responsable de
+peupler les références** (option curée, pas de dérivation relationnelle automatique — trop floue à
+l'échelle). Lié au backlog « axe primaire / référencé_dans ». **Alternatives écartées** : métrique unique
+stricte (faux signaux) ; dérivation par voisinage relationnel (complétude devient mécaniquement ~100 %
+partout, vidée de sens).
+
+## D-052 — Les 10 axes figés comme base du paramétrage de production (2026-06-08)
+
+Le compte d'axes, conceptuellement tranché à **10** (carte de capacité v8, D-049) mais resté incohérent
+dans le corpus écrit (schema_spec disait 8, capability v7 disait 9), est **figé à 10** et propagé aux
+specs sources avant tout paramétrage de prod. `lugia_schema_spec_v0.6.md` devient la source de vérité du
+schéma.
+
+**Pourquoi** : les seeds, la grille 10×9 et tous les paramètres de production se construisent sur le
+nombre d'axes. Paramétrer sur une base instable (8/9/10 selon le fichier) aurait propagé l'incohérence
+dans la prod. C'était le seul point bloquant identifié avant de lancer le paramétrage.
+
+**Portée** : axes 9 (Développement commercial) et 10 (R&D & Innovation) **optionnels par secteur**.
+Aucune règle R01–R15 ni seuil n'est indexé sur le nombre d'axes → calibration inchangée. Specs v0.2/v0.4
+conservées en historique. **Alternatives écartées** : rester à 8 (renoncer aux axes commercial/R&D
+pourtant présents dans la v8) ; tout réécrire d'un coup (préféré : patcher les sources actives + générique,
+laisser l'historique tel quel).
+
+## D-051 — Place lecture 19 € à côté du siège plein 49 € (2026-06-05)
+
+Sur le palier Pro, deux types de sièges additionnels : **plein 49 €** (qui agit) et **lecture 19 €**
+(qui consulte). Distinction par **capacité** (lance des chantiers / gère les accès vs consulte + actions
+légères), pas par métier.
+
+**Pourquoi** : le siège unique à 49 € taxait la valeur collective et poussait au **partage de login**,
+ce qui contredit l'argument RGPD de traçabilité (cœur de l'axe Conformité). Une place lecture bon marché
+rend abordable « chacun son login » → conformité réelle + captation de sièges autrement perdus. Effet
+quasi nul sur les petits cabinets de praticiens (−30 €), fort sur les structures à support nombreux
+(−150 à −210 €). Le « manque à gagner » sur gros comptes est en partie illusoire (sinon login partagé =
+0 €). Lancement à 19 € (adoption) ; marge de montée à 25 €. Garde-fou : 19 € agressif, surveiller la
+marge ; le plein reste le chemin d'upgrade.
+
+**Alternatives écartées** : siège unique 49 € (taxe le collectif, pousse au partage) ; gratuité des
+viewers (dévalorise + perte de traçabilité facturée).
+
+---
+
+## D-050 - Refonte du site web en one-pager Next.js, charte v3 (2026-06-05)
+
+Le site existant (`uploads/index.html`, bundle) est remplace par un nouveau front dans `site/`. Stack :
+Next.js (App Router, TS) + Tailwind v3 + Framer Motion, coherent avec le questionnaire et apte aux rendus
+haut de gamme.
+
+**Partis pris** :
+- Charte v3 ivoire-dominante (65/25/5/5) : navy en moments, argent en signature, ambre semantique.
+  L'ancien hero navy + accents Lora italiques etait off-brand.
+- Hero fusion : la maison parle + le Firmament (Carte Vivante) vit en fond.
+- Climats : Soiree (hero) -> Nuit (instrument) -> Jour (lecture).
+- FR seul en V1 ; toggle EN reporte (ROADMAP).
+- CTA primaire = Diagnostic gratuit ; contact en bas (Calendly integre + mail).
+- Craft = taste-skill reconcilie avec la charte -> `resources/site/taste_rules_lugia.md`.
+- Section login retiree (prematuree -> ROADMAP).
+
+**Alternatives ecartees** : repartir du bundle existant (effet document) ; statique multi-pages (moins
+fluide) ; garder le hero navy (off-brand v3).
+
+---
+
 ## D-046 — Pipeline HTML/CSS + WeasyPrint comme standard PDF Lugia (2026-05-28)
 
 La génération des documents PDF Lugia (études, business plans, rapports investisseurs, notes exécutives) passe par un **pipeline HTML/CSS + WeasyPrint**, en remplacement de pandoc → docx → soffice utilisé jusqu'ici.
@@ -1182,3 +1360,59 @@ Enfin, **Vercel + Render plutôt que VPS OVH dédié** parce que l'hébergement 
 ---
 
 *Modèle d'entrée à respecter pour les futures décisions : identifiant D-NNN, titre court, date, décision, pourquoi, alternatives écartées.*
+
+---
+
+## D-047 — WSF comme moteur de calcul, interface à un seul axe visible (parcours-first)
+*2026-06-02*
+
+**Décision :** Le Work System Framework devient un **moteur de calcul en arrière-plan**, jamais une interface. Le substrat unique = un graphe d'objets typés WSF (modèle d'écriture). Toutes les représentations (capability map, pyramide WSF, flux de valeur, RACI, BPMN, carte des systèmes, matrice, lentilles) sont des **vues dérivées** (modèles de lecture), à la manière d'une base relationnelle : on stocke les faits élémentaires une fois, chaque représentation est une requête.
+
+La spécification se réorganise en trois couches co-conçues :
+1. **Grammaire des objets** (facettes, types, liens autorisés — largement existante dans la spec moteur).
+2. **Algèbre de dérivation** : ~5 opérateurs composables — filtrer, traverser, croiser, agréger en remontant, recolorer (+ vérification de cohérence R1–R5, + propagation d'incertitude CONFIRMÉ/INFÉRÉ/SUPPOSÉ). On spécifie les opérateurs + une recette par représentation, pas N représentations.
+3. **Protocole de saisie** (le maillon critique) : théorème de friction — l'utilisateur ne fournit que le minimum, le reste est inféré/dérivé/défauté. Démarrage à froid par échafaudage sectoriel pré-rempli en INFÉRÉ (appris sur la population de clients → volant d'inertie), puis enrichissement continu par l'usage.
+
+Côté UX : **moteur à deux axes (fonction × facette), mais interface à un seul axe visible.** L'axe d'entrée par défaut est le **parcours / flux de valeur** (un récit, plus lisible qu'une taxonomie), les fonctions en étant les chapitres. Le second axe (facettes WSF) et la **matrice Fonction × Facette** restent calculés mais réservés aux vues expertes / offres avancées (DPO, repreneur, institution) — jamais l'écran d'accueil.
+
+**Pourquoi :** Une fois le WSF en moteur, le nombre d'axes n'est plus un choix d'architecture mais d'UX ; le facteur limitant est l'adoption et la lisibilité (promesse « 5 secondes », posture anti-consulting), pas la complétude. La matrice est l'objet le plus « slide de consultant » du système et viole le positionnement si on l'expose par défaut. Rien n'est perdu : le moteur calcule le second axe, accessible d'un clic.
+
+**Alternatives écartées :**
+- *Modèle à deux axes visibles co-égaux* : élégant et complet, mais conçu pour l'architecte d'entreprise, pas pour le professionnel ; expose la matrice (consulting) et alourdit la navigation.
+- *WSF colonne vertébrale unique visible* : garde la pyramide d'Alter comme entrée — plus académique et moins intuitive qu'un parcours pour un non-technicien.
+- *Capability map comme axe d'entrée* : retenue comme structure, mais en second derrière le parcours, car une décomposition fonctionnelle reste une taxonomie (froide) là où un parcours est un récit (chaleureux, concret).
+
+---
+
+## D-048 — Couche de mise en page : la grammaire positionnelle (forme « ruban / cellule »)
+*2026-06-02*
+
+**Décision :** La couche de mise en page (entre l'algèbre de dérivation et les pixels) repose sur une **grammaire positionnelle** : les relations sont encodées par la **position**, pas par des traits. Une disposition régulière et constante porte la majorité des liaisons ; on ne dessine un trait que pour l'exception (INTERFACE qui sort) et le désalignement. Résultat : très peu de lignes, donc les rares lignes ressortent.
+
+Quatre canaux visuels, un canal = une variable : **forme** = type d'objet ; **position** = relations + facette ; **couleur** = état/lentille ; **opacité** = maturité. (Reprend l'opérateur `mapper`.) Règle d'or : la couleur étant réservée à l'état, le type passe par la forme, jamais par la couleur.
+
+Forme de base : le **ruban** (le parcours = la seule longue ligne), des **étapes** (points sur le ruban), une **cellule** par étape (anatomie fixe des 9 facettes : bande haute = Environnement/Stratégie, gauche = Participant, centre = Techno/Info puis Processus, droite = Produit→Client, socle = Infrastructure). Lecture gauche→droite = chaîne de valeur.
+
+Double lecture **humain + agent IA** : la représentation est générée d'un modèle de layout déterministe et bijectif (coordonnées sémantiques, pas pixels) ; un agent lit/écrit la même structure.
+
+**Pourquoi :** node-link et BPMN saturent parce qu'ils dessinent toutes les relations et exposent le contrôle de flux. En supprimant les arêtes redondantes (→ position), le contrôle de flux (→ moteur) et la couleur décorative (→ état), il ne reste que l'essentiel — lisible, « luxe », et qui fait paraître les alternatives techniques.
+
+**Livrables :** `resources/vision/lugia_regles_representation.md` (règles + bibliothèques symboles/relations) + `lugia_proto_representation_ruban.html` (planche : symboles, anatomie de cellule, relations, ruban échantillon).
+
+**Alternatives écartées :** node-link libre (le proto `lugia_proto_cartographie.html` — jugé trop peu lisible) ; BPMN/flowchart (techniques) ; métro/anatomie comme forme littérale (gardés comme inspiration, pas comme rendu).
+
+---
+
+## D-049 — Méthode canonique d'intelligence organisationnelle (schéma N0–N8) — supersede D-047/D-048
+*2026-06-04*
+
+**Décision :** Adoption de la méthode arbitrée par Sébastien (docs dans `resources/methode/`), qui **annule et remplace** les modélisations d'organisation explorées en session (notamment la grammaire positionnelle ruban/cellule de D-048 et le « moteur un axe visible » de D-047, désormais superseded comme *modélisations*). Ce qui persiste : substrat unique → vues calculées, WSF comme grille de lecture, capability map, interview IA alimentant le substrat, lentilles.
+
+**La méthode :** un schéma à **9 niveaux (N0→N8)** — Organisation, Axes(8), Domaines, Thèmes, Objets (cœur du substrat, typés par facette WSF), Relations, Signaux, Actions, Règles de détection. Croisement **8 axes organisationnels Lugia × 9 facettes WSF** → une grille (matrice) qui montre, pour chaque organisation, comment le travail est fait, vu sous différentes facettes, avec processus et zones de risque. Substrat alimenté par **interview IA** (extraction d'objets typés + confiance + validation humaine), utilisable dès le **dialogue gratuit** (20 échanges, 4 phases) pour capter des insights. Deux représentations d'interface : la **carte de capacité** (capability map, axes×domaines×thèmes, s'allume en temps réel) et le **schéma** (vue relationnelle objets/relations/signaux, révélation finale).
+
+**Décisions d'archi déjà arbitrées (03/06)** : Postgres+JSONB, multi-tenant RLS, snapshots post-interview, extraction hybride arrière-plan, Claude Sonnet V1, écran de révision, 3 couches UX (insights→radar→grille), HDS pour tout, opt-in agrégation, rétention transcriptions 30j.
+
+**Livrables archivés :** `resources/methode/` — `lugia_schema_spec.md`, `lugia_schema_exemple.md` (cas Dr Martin N0→N8), `lugia_coaching_dialog_spec.md`, `capability_map_generique_v7.html`, `wsf_matrix_v7.html`.
+
+**Conséquence :** les protos de session dans `resources/vision/` (parcours/chaîne/frise/ruban, etc.) sont des explorations visuelles antérieures ; la représentation d'interface sera refaite selon cette méthode (phase à venir).
+

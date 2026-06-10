@@ -4,6 +4,42 @@ Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court
 
 ---
 
+## Substrat de démo — arbitrages révélés (2026-06-08)
+
+Le moteur `resources/methode/demo/engine.py` valide le seed et reproduit les 3 signaux, mais a révélé 2 points de calibration :
+
+- ~~**Complétude par thème — périmètre**~~ ✅ **Tranché D-053** : deux métriques (documentaire stricte + fonctionnelle via `référencé_dans`). Implémenté dans `engine.py`. Reste : que l'extracteur peuple `référencé_dans` de façon fiable (lié au backlog « axe primaire / référencé_dans »).
+- ~~**Règle R02 — formule**~~ ✅ **Tranché D-054** : centralité locale + garde degré ≥ 3, figée dans `schema_exemple.md` et `engine.py`. **Reste ouvert** : recaler le seuil 0,60 sur données (gel honnête en attendant, cf `calibration_roadmap`).
+
+
+## Paramétrage de production — méthode (ouvert le 2026-06-08)
+
+**Préalable fait** : 10 axes figés dans les specs sources (D-052, `schema_spec_v0.6` source de vérité).
+
+Coutures à régler en backlog (non bloquantes pour démarrer la prod) :
+
+- **Réconciliation questionnaire ↔ substrat** : règle de priorité quand saisie structurée et extraction IA se contredisent.
+- **Priorisation des chantiers cross-axe** : règle d'ordonnancement des actions issues d'axes différents.
+- **Propagation v0.5/v0.6** des ajouts Alter (R14 workaround, R15, complétude fonctionnelle) dans `interview_protocol` + `calibration_v1` (vérifier qu'ils y sont bien) et dans le jeu générique.
+- **Règle « axe primaire / re-pondération »** d'un objet multi-axes (par fréquence d'usage / situations) — éviter qu'un objet saute d'axe à chaque session ; paramétrage par défaut + co-construit avec le médecin.
+- **Règle « scinder ou pas »** un objet (module à part = objet distinct + regroupement par tag/relation ; sinon `situations`). À ajouter au protocole d'extraction.
+- **Vocabulaire céleste interne vs end-user** (arbitrage interface — non urgent côté prod).
+- **Régénérer** `capability_map_generique` et `wsf_matrix` en **10 axes** (HTML v7 périmé ; v8 PDF fait foi).
+
+Backlog règles sectorielles : règles propres aux axes 9 (ex. « développement sans canal d'acquisition ») et 10 (ex. « aucune veille sur marché en évolution rapide »).
+
+---
+
+## Site web V1 (`site/`) - a valider
+
+- Lancer en local et relire : `cd site && npm install && npm run dev`.
+- ~~Confirmer le slug Calendly~~ Fait (`sebastien-lugia/30min`). Reste : confirmer l'URL diagnostic definitive.
+- Valider la copy (hero, prix 49/149/499/devis, comparatif).
+- Verifier le responsive / l'overlay de nav sur mobile.
+- Deployer quand valide (Vercel) ; favicon + OpenGraph.
+
+---
+
 ## Business plan — suivi (28 mai 2026, v1.1)
 
 Le BP v1.1 est livré (`etudes/Lugia_Business_Plan_2026-05.html` + `.pdf`, 45 pages, charte Lugia appliquée, doctrine 10-partis intégrée). Points à instruire :
@@ -548,3 +584,17 @@ python scripts/dump_report.py --id <N>
 Documentation complète d'usage : `docs/seed_persona_usage.md`.
 
 Convention `+test` pour distinguer tests prospects de vraies données en prod.
+
+
+## Modélisations graphiques — suivi (2 juin 2026)
+
+Architecture posée (D-047, spec `resources/vision/lugia_systeme_modelisations_graphiques.md`). Chantiers ouverts :
+
+- ✅ **Protocole de saisie — démarrage à froid** : spécifié (`resources/vision/lugia_protocole_saisie.md` + proto `lugia_proto_demarrage_froid.html`). Restent ouverts : boucles de correction LLM, amorçage de la 1re verticale (échafaudage initial à la main), mesure de la qualité d'inférence, sondes non suggestives.
+- **Règle d'agrégation de santé** (politique maillon-faible + pondération criticité) : à figer, conditionne l'honnêteté des vues macro.
+- **Exigences de grammaire du BPMN** (gateways, événements, flux de messages) : éprouver les TypeObjet/TypeLiaison sans casser généricité ni élicitabilité.
+- ✅ **Couche de mise en page** : parti pris posé (D-048, grammaire positionnelle, forme ruban/cellule) — `lugia_regles_representation.md` + proto `lugia_proto_representation_ruban.html`. Restent ouverts : algorithme de placement auto (graphe → layout), règle des branches du parcours, cellules denses (>8 objets), nommage de la forme.
+- **Design des représentations** : itérer le ruban/cellule en session design (densifier, brancher, animer).
+- **Réaligner `lugia_proto_capability_map.html`** sur la charte produit v2 (états bg/bd/couleur, angles vifs, Onest 500) — laissé en l'état pour l'instant.
+- **Implémentation** : couche `web/lib/wsf/derive/*` (opérateurs) au-dessus de `types.ts` ; `render-mermaid.ts` devient un export figé parmi les vues.
+

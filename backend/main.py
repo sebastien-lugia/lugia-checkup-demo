@@ -975,6 +975,23 @@ async def post_chat_message(
             detail="L'assistant Lugia est indisponible pour le moment. Réessayez dans un instant.",
         )
 
+    # ── Garde-fou structure de conversation (2026-06-09) ──
+    # Les petits modèles (SLM) clôturent souvent (END + plan + schéma) bien avant
+    # le 10e tour. On impose un déroulé en 10 échanges max : on n'honore une
+    # clôture que (a) au 10e tour, ou (b) si le médecin l'a explicitement demandée.
+    _conclure_kw = ("synthèse", "synthese", "conclu", "le plan", "fais-moi le plan",
+                    "termine", "récap", "recap", "bilan", "resume", "résume")
+    _asked_conclure = any(k in (user_message or "").lower() for k in _conclure_kw)
+    _is_final_turn = turn_number >= MAX_USER_MESSAGES
+    if parsed.get("ended") and not _is_final_turn and not _asked_conclure:
+        # clôture prématurée → on poursuit l'exploration, on jette les artefacts de synthèse
+        parsed["ended"] = False
+        parsed["plan"] = None
+        parsed["mermaid_graph"] = None
+    elif _is_final_turn and not parsed.get("ended"):
+        # au 10e tour on ferme quoi qu'il arrive (le SLM oublie parfois END_CONVERSATION)
+        parsed["ended"] = True
+
     # Persiste la réponse assistant — on stocke le TEXTE NETTOYÉ + un suffixe
     # JSON pour préserver suggestions/plan/ended dans l'historique. Le frontend
     # re-parsera à l'affichage.
@@ -991,6 +1008,22 @@ async def post_chat_message(
         interview_id, module_id, email, "assistant", persisted_content,
         provider=provider,
     )
+
+    # Hook fin de conversation : dérive le substrat (capability map + carte vivante)
+    # depuis le graphe WSF émis par l'agent, et le persiste. Non bloquant.
+    if meta_payload.get("ended") and meta_payload.get("mermaid_graph"):
+        try:
+            from src import placement
+            _graphe = meta_payload["mermaid_graph"]
+            db.upsert_substrat(
+                interview_id, module_id, email,
+                graphe_json=_json.dumps(_graphe, ensure_ascii=False),
+                derive_json=_json.dumps(placement.derive(_graphe), ensure_ascii=False),
+                source="chat-mermaid",
+            )
+        except Exception:
+            import logging
+            logging.exception("Substrat non dérivé (interview=%s module=%s)", interview_id, module_id)
 
     new_count = current_count + 1
     return ChatMessageResponse(
@@ -1209,6 +1242,45 @@ async def get_scores(
         user_profile = db.get_user_profile(email) or {}
         return v2_scoring.compute_all_scores(answers, user_profile, pv)
     return scoring.compute_all_facet_scores(interview_id)
+
+
+@app.get("/interviews/{interview_id}/substrat", tags=["report"])
+async def get_substrat_endpoint(
+    interview_id: int,
+    email: str = Depends(get_current_user_email),
+) -> dict[str, Any]:
+    """Substrat (capability map + carte vivante) dérivé des chantiers explorés.
+
+    Agrège les substrats de tous les modules d'une interview : un graphe WSF par
+    chantier (+ dérivation footprint / chaîne de valeur / signaux) et une
+    empreinte globale (capability map du cabinet) fusionnant les footprints.
+    """
+    _assert_user_owns_interview(email, interview_id)
+    import json as _json
+    from src import placement
+    rows = db.list_substrats(interview_id, email)
+    chantiers = []
+    objets_all: list[Any] = []
+    liaisons_all: list[Any] = []
+    for r in rows:
+        graphe = _json.loads(r["graphe_json"]) if r["graphe_json"] else {}
+        chantiers.append({
+            "module_id": r["module_id"],
+            "graphe": graphe,
+            "derive": _json.loads(r["derive_json"]) if r.get("derive_json") else None,
+            "generated_at": r["generated_at"],
+        })
+        objets_all += graphe.get("objets", [])
+        liaisons_all += graphe.get("liaisons", [])
+    footprint_global = (
+        placement.footprint({"objets": objets_all, "liaisons": liaisons_all})
+        if objets_all else {}
+    )
+    return {
+        "interview_id": interview_id,
+        "chantiers": chantiers,
+        "footprint_global": footprint_global,
+    }
 
 
 @app.get("/interviews/{interview_id}/report", tags=["report"])

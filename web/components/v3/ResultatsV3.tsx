@@ -23,6 +23,7 @@ import { useState, useRef } from "react";
 import { BlocBadge } from "@/components/v3/atoms";
 import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
 import { LeadConseilForm } from "@/components/v3/LeadConseilForm";
+import { CapabilityMapSection } from "@/components/v3/CapabilityMapSection";
 
 /* ───────────────────────────────────────────────────────────
  * Types
@@ -454,6 +455,7 @@ export function ResultatsV3({
             <LeadConseilForm theme={theme} interviewId={interviewId} />
           </div>
         )}
+        {interviewId && <CapabilityMapSection interviewId={interviewId} />}
       </div>
     </main>
   );

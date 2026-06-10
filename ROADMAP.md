@@ -9,6 +9,27 @@ Trajectoire du projet articulée autour de **deux produits distincts** (cf D-041
 
 ---
 
+## Extraction progressive du substrat (carte qui s'allume en direct) — repoussé 2026-06-09
+
+Le spec `lugia_coaching_dialog_spec.md` prévoit que la carte de capacité **se remplisse au fil de la
+conversation** (extraction silencieuse à chaque échange, phase « Révélation »). En V1/démo, on a tranché
+plus simple : le graphe WSF n'est **dérivé qu'à la fin** (synthèse, tour 10) — assumé pour la démo.
+À reprendre pour le produit : émettre/dériver un substrat **partiel à chaque tour** + réintroduire une
+phase de révélation dans le prompt. Cf `lugia_coherence_prompt_vs_spec_interview.md` (écarts #3 et #4).
+
+## Site web - V1 (juin 2026) - reports
+
+One-pager Next.js V1 construit (`site/`, cf D-050). Reportes apres V1 :
+
+- Toggle FR / EN (copy EN a produire).
+- Section « Votre espace » (login / apercu app) - a reintroduire a l'ouverture T4.
+- Scrollytelling epingle avance sur la Methode (firmament qui se recompose au scroll).
+- Captures produit reelles de la Carte Vivante.
+- Deploiement (Vercel) + vrai slug Calendly + URL diagnostic definitive.
+- Favicon / image OpenGraph dedies (pictogramme-sommet).
+
+---
+
 ## CAP LONG TERME — Lugia Work System
 
 Plateforme payante avec plusieurs offres d'abonnement (Starter / Pro / Institution, paliers à figer). Étend la valeur du Checkup Demo sur sept axes, sans le remplacer.

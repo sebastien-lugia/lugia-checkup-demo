@@ -27,9 +27,19 @@ try:
 except ImportError:
     ollama = None  # type: ignore
 
-# Limite produit : 20 questions max par conversation (sécurité au cas où
-# le modèle ne ferme pas en phase 5).
+# Limite produit : 10 ECHANGES (messages user) max par conversation.
+# La synthese (plan + schema + cloture) tombe au 10e tour (SYNTHESE_TOUR).
 MAX_USER_MESSAGES = 10
+
+# Renfort spécifique aux petits modèles locaux (SLM) — ajouté au prompt quand
+# provider=ollama. Les SLM suivent mal les consignes : on martèle les 3 règles
+# qui cassent le plus (questions multiples, SUGG manquant, clôture prématurée).
+SLM_REINFORCEMENT = """
+
+RAPPEL STRICT (tu es un petit modèle, applique ces 3 regles a la lettre) :
+1. UNE SEULE question par message. Jamais deux, jamais une liste de questions.
+2. Termine TOUJOURS ton message par un bloc SUGG_JSON avec EXACTEMENT 3 items courts (sauf au message de synthese finale).
+3. N'ecris JAMAIS END_CONVERSATION, ni PLAN_JSON, ni MERMAID_JSON tant que ce n'est pas le tour de synthese (tour 10) OU que le medecin ne demande pas explicitement de conclure. Avant cela, tu te contentes d'explorer avec UNE question."""
 
 # Identifiants modèles par provider
 ANTHROPIC_MODEL_ID = "claude-haiku-4-5-20251001"
@@ -104,7 +114,7 @@ def _build_system_prompt(
         if parts:
             scores_txt = "SCORES DU CHECK-UP :\n" + "\n".join(parts) + "\n"
 
-    # Mecanique longue (~20 tours) : exploration WSF approfondie puis synthese.
+    # Mecanique en ~10 tours : exploration WSF approfondie puis synthese.
     # 4 phases basees sur le numero de tour. La synthese (plan + schema + cloture)
     # n'arrive qu'a la fin (tour >= SYNTHESE_TOUR) OU si le medecin demande
     # explicitement a conclure (le LLM le detecte et passe en synthese).
@@ -238,11 +248,13 @@ FORMAT TECHNIQUE (extremement important) :
   PLAN_JSON:{{"steps":[{{"num":"01","title":"...","body":"...","tag":"quick"}},{{"num":"02","title":"...","body":"...","tag":"medium"}}]}}
 - Tags valides pour les steps : "quick" / "medium" / "invest"
 - Le bloc MERMAID_JSON (SYNTHESE finale uniquement) doit etre sur UNE SEULE LIGNE et representer le systeme de travail (graphe WSF). 6 a 8 noeuds maximum.
-  Format STRICT : MERMAID_JSON:{{"titre":"...","nodes":[{{"id":"x","composante":"PARTICIPANT","type":"ACTEUR","label":"...","etat":"FONCTIONNEL","criticite":"IMPORTANT"}}],"edges":[{{"id":"e1","source":"x","cible":"y","type":"UTILISE","force":0.7,"delai":"IMMEDIAT"}}]}}
+  Format STRICT : MERMAID_JSON:{{"titre":"...","nodes":[{{"id":"x","composante":"PARTICIPANT","type":"ACTEUR","label":"...","etat":"FONCTIONNEL","criticite":"IMPORTANT","axe":"equipe_rh"}}],"edges":[{{"id":"e1","source":"x","cible":"y","type":"UTILISE","force":0.7,"delai":"IMMEDIAT"}}]}}
   - composante (obligatoire) : PARTICIPANT | INFORMATION | TECHNOLOGIE | PROCESSUS | INFRASTRUCTURE | STRATEGIE | ENVIRONNEMENT | PRODUIT | CLIENT
   - type (obligatoire) : ACTEUR | ENTITE | STOCK | ACTION | DECISION | FLUX | CONTRAINTE | FRONTIERE
   - etat (obligatoire) : OPTIMAL | FONCTIONNEL | DEGRADE | A_RISQUE | BLOQUE | NON_DOCUMENTE | EN_TRANSFORMATION | INACTIF
   - criticite (obligatoire) : CRITIQUE | IMPORTANT | STANDARD | PERIPHERIQUE
+  - axe (obligatoire) : axe de la carte de capacite auquel l'objet contribue — coeur_metier | parcours_client | processus_admin | equipe_rh | outils_data_infra | finance | conformite | strategie | developpement_commercial | rd_innovation
+    Socle de placement : prise de RDV / agenda / demandes entrantes -> processus_admin ; secretaire / medecin / equipe / remplacant -> equipe_rh ; logiciel / outil / IA / agenda en ligne -> outils_data_infra ; acte clinique / suivi chronique / teleconsultation / resultats d'examens -> coeur_metier ; experience patient / accueil -> parcours_client ; facturation / cotation / FSE -> finance ; RGPD / HDS / secret medical -> conformite
   - type de liaison : UTILISE | PRODUIT | CONSOMME | TRANSFORME | CONTRAINT | SUPPORTE | ALIMENTE | DELIVRE | ORIENTE
   - force : nombre entre 0.0 et 1.0
   - delai : IMMEDIAT | COURT_TERME | MOYEN_TERME | LONG_TERME
@@ -489,6 +501,8 @@ def send_message(
         )
 
     system_prompt = _build_system_prompt(module, profile, scores, turn_number)
+    if provider == PROVIDER_OLLAMA:
+        system_prompt = system_prompt + SLM_REINFORCEMENT
 
     if provider == PROVIDER_OLLAMA:
         raw = _send_ollama(user_message, history, system_prompt)

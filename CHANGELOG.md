@@ -4,6 +4,803 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-06-09 — Discipline conversation SLM + garde-fou 10 échanges + layout carte petits graphes
+
+Retours test local (SLM qwen) : clôture prématurée au tour 3, questions multiples, suggestions manquantes,
+carte pauvre. Corrigé (prompt cloud/local confirmé **identique** — l'écart venait de la capacité du modèle) :
+- **`backend/main.py`** — garde-fou : on n'honore une clôture (`ended` + plan + schéma) que **au 10e tour**
+  ou si le médecin **demande** explicitement de conclure ; sinon on poursuit l'exploration. Au 10e tour,
+  clôture forcée. Garantit le déroulé en 10 échanges quel que soit le modèle.
+- **`src/chat_assistant.py`** — `SLM_REINFORCEMENT` ajouté au prompt **uniquement pour ollama** : martèle
+  les 3 règles que le SLM casse (une seule question, SUGG_JSON obligatoire, pas de END/PLAN/MERMAID avant
+  la synthèse). Le SLM reste une option (confidentialité), mais discipliné.
+- **`web/components/v3/CarteVivanteV3.tsx`** — layout des petits graphes : ruban à pas fixe centré (plus
+  d'étirement), anneau resserré selon le nombre de points (1 point centré, 2 côte à côte). À valider visuellement.
+
+## 2026-06-09 — Premier pied d'entrée prod : seed de substrat + R03 resserré
+
+Pour rendre l'intégration méthode + visualisation **visible en prod sans dépendre d'une conversation
+LLM parfaite** :
+- **`scripts/seed_substrat.py`** (nouveau) — injecte un graphe WSF de démo (chantier RDV/synchro, avec
+  axes) dans la table `substrat` pour une interview donnée → la page de résultats affiche la capability
+  map + la carte vivante (vrais composants prod). Découple la validation de la **visu** (maintenant) de
+  celle de l'**émission de l'axe par l'agent** (ensuite). Testé sqlite.
+- **`src/placement.py`** — règle **R03 resserrée** : désalignement = liaison **outil↔outil** (TECHNOLOGIE
+  des deux côtés), supprime un faux positif (médecin→outil dégradé). 5 tests toujours verts.
+
+## 2026-06-09 — Mise en prod restitution : code complet (backend testé + front livré)
+
+Branchement de la capability map + carte vivante en sortie de la discussion LLM, bout en bout.
+
+**Backend (testé ici) :**
+- `src/placement.py` + `tests/test_placement.py` (5 tests verts) — placement socle + dérivation.
+- `src/db.py` — table `substrat` + helpers `upsert_substrat/get_substrat/list_substrats` (testés sqlite).
+- `backend/main.py` — hook fin de conversation dans `post_chat_message` (dérive + stocke sur `ended`) +
+  endpoint `GET /interviews/{id}/substrat` (chantiers + footprint global).
+- `src/chat_assistant.py` — l'agent émet désormais l'`axe` par nœud dans `MERMAID_JSON` (socle en référence).
+
+**Front (livré, à lancer dans l'env Next.js — non vérifié ici) :**
+- `web/lib/api.ts` — types `Substrat`/`FootprintAxe` + `getSubstrat()`.
+- `web/components/v3/CarteVivanteV3.tsx` — **remplace** `MermaidDiagram` : ruban de symboles + carte de
+  points, charte V3, calculé côté client depuis le graphe WSF.
+- `web/components/v3/CapabilityMapV3.tsx` + `CapabilityMapSection.tsx` — empreinte sur les 10 axes + carte
+  vivante par chantier, alimentés par `getSubstrat`.
+- `ChatChantierModal.tsx` (Mermaid → CarteVivanteV3) et `ResultatsV3.tsx` (section branchée).
+
+**À vérifier dans l'env de dev** : `npm run dev` + une vraie conversation (l'agent doit émettre l'`axe`),
+puis la restitution. `MermaidDiagram.tsx` devient mort (supprimable une fois validé).
+
+## 2026-06-09 — Mise en prod restitution : cadrage + cœur backend (placement/dérivation)
+
+Chantier « brancher la capability map + carte vivante en sortie de la discussion LLM ». Constat clé :
+le substrat existe déjà (graphe WSF `MERMAID_JSON`, `web/lib/wsf/types.ts` — 8 types = symboles, 8 états
+= patine). Décisions : ruban dérivé des liaisons · axe primaire émis + références dérivées · la carte
+vivante **remplace** Mermaid.
+
+- **`resources/methode/lugia_restitution_prod_impl_spec.md`** (nouveau) — spec d'implémentation : points de
+  branchement (backend `post_chat_message`, table `substrat`, endpoint `/interviews/{id}/substrat`,
+  composants React), contrats, étapes, vigilances.
+- **`src/placement.py`** (nouveau) — placement objet→axe fondé sur le socle (D-055 : axe émis > socle
+  mot-clé > fallback composante) + dérivation : `footprint` (empreinte capability map, état agrégé,
+  références dérivées), `chaine_de_valeur` (ruban, tri topologique sur liaisons de flux), `signaux`
+  (R02 point unique, R03 désalignement).
+- **`tests/test_placement.py`** (nouveau) — 5 tests, tous verts (placement/fallback, footprint, ordre du
+  ruban, signaux).
+
+Reste : table `substrat` + helpers (DB), hook fin de conversation, endpoint API, émission de l'`axe` par
+l'agent, composants React (carte vivante remplaçant Mermaid), intégration ResultatsV3 + test E2E.
+
+## 2026-06-09 — Sortie de la discussion LLM : capability map + carte vivante (chantier)
+
+Chaîne complète discussion → substrat → vues, conforme au socle de placement (D-055) :
+- **`demo/extract_chantier.py`** — extrait un substrat de chantier depuis la conversation (objets placés
+  par socle : Doctolib/Crossway → Outils ref Process&Admin/Parcours ; Secrétaire/Médecin → Équipe),
+  chaîne de valeur (symboles), relations, signaux R02/R03 → `chantier_substrat.json`.
+- **`demo/restitution_chantier_view.py`** → `restitution_chantier.html` (charte V3 sombre) : la
+  **capability map** = empreinte du chantier sur les axes (objets placés par socle + état + référencés),
+  et la **carte vivante** = ruban de **symboles** (chaîne de valeur) + carte de **points** + liaisons + signaux.
+
+## 2026-06-09 — Socle de placement objets→axes + extraction questionnaire conforme (D-055)
+
+- **`resources/methode/lugia_placement_objets_axes.md`** (nouveau) — spec du socle : règle de placement
+  fondée sur la capability map v8 (objet → thème capmap → domaine/axe), facette = nature, multi-axe via
+  `référencé_dans`, personnalisable a posteriori. Table de placement pour les objets du diagnostic gratuit.
+- **`demo/extract_questionnaire.py`** — extracteur questionnaire → substrat général, **mis en conformité
+  avec le socle** : axes corrigés (RDV→Processus&Admin, continuité→Équipe, tri résultats→Cœur+Admin,
+  téléconsult→Cœur), `référencé_dans` multi-axe, santé/état depuis `health_score`, symptômes/risques →
+  signaux. Sort `substrat_questionnaire.json`.
+
+## 2026-06-05 (suite) — Bascule : déploiement des fichiers v3 EXACTS (statique)
+
+Décision : le site = les fichiers HTML v3 du user, tels quels (l'app Next reconstruite divergeait trop).
+- `site/` (repo `lugia-site`) sert désormais en **statique** les pages v3 : `index.html` (= « Lugia - Site v3 »),
+  `methode.html`, `offre.html`, `cabinet.html`, `connexion.html`, `carte-anim.html`.
+- `vercel.json` : `builds @vercel/static` sur `*.html` → Vercel ne build plus le Next, sert les HTML.
+- Pages légales ajoutées à côté (autonomes, légères) : `mentions-legales.html`, `confidentialite.html`.
+- Limite assumée : les bundles v3 reconstruisent le DOM au chargement → impossible d'y injecter le bandeau
+  cookies ni un lien footer légal sans régénérer le bundle depuis l'outil de design du user.
+- L'app Next (design alternatif) reste dans le repo/historique (commit 7e4f5c6) si besoin un jour.
+
+À faire par Sébastien : `git add . && git commit && git push` depuis `site/`. Si Vercel tente encore un
+build Next : Settings → Framework Preset = « Other », Build Command vide.
+
+---
+
+## 2026-06-05 (suite) — Alignement design v3 (carte vivante animée + sommaire)
+
+Le déployé portait le CONTENU v3 mais dans le design Next, sans les éléments de mise en page v3. Ajout :
+- **Section « La carte vivante » animée** (`carte/CarteAnim` + `sections/Carte`) : une carte de travail qui
+  **se construit** (nœuds + liens qui apparaissent, état par couleur, « Construction… » → « Carte à jour »),
+  dans un panneau-device navy. Placée en 02, entre « Ce que Lugia vous donne » et « Une journée ».
+- **Sommaire flottant** (`layout/Sommaire`) : rail vertical droit, chapitres 00→08 avec libellé au survol et
+  chapitre actif au scroll.
+- Nav / suivi de section mis à jour (ajout du chapitre `carte`).
+
+Reste pour coller à 100 % à la v3 : le traitement **hero-stripe** (intro plein-cadre « Lugia agit » avant le
+hero — aujourd'hui la séquence vit dans le panneau du hero). Build OK, 8 routes.
+
+Pour voir en ligne : pousser sur le repo `lugia-site` → Vercel redéploie `demo.lugia.fr`.
+
+---
+
+## 2026-06-09 — Carto de la restitution gratuite alignée sur la grammaire (ruban=symboles / carte=points)
+
+Réf. de style passée à la **V3** (`Lugia - Site v3.html`, remplace la V2 sur le contenu ; gardes-fous
+maintenus, autres pages valides). `diagnostic_gratuit_restitution.html` corrigé :
+- **Chaîne de valeur = ruban de symboles** : étapes = glyphes de la bibliothèque de 8 symboles
+  (tracés exacts charte éditoriale §25/p.38 ; forme=type, couleur=état, opacité=maturité) — Flux pour
+  les entrées/sorties, Action (chevron) pour les étapes de travail.
+- **Carte = points** : objets en points lumineux colorés par état (façon Carte Vivante), regroupés par
+  axe (niveau 1) ; seul le désalignement (R03) est tracé en trait chaud, Crossway en point critique (R02).
+- Fond `--void #0B0F19` + halos radiaux + champ d'étoiles ; tokens V3 (`--calme`, `--on-7`).
+Règle gravée en mémoire pour ne plus inverser ruban/carte.
+
+## 2026-06-05 (suite) — og:image + légal provisoire
+
+- **og:image** générée (`public/og.png`, 1200×630) : pictogramme + wordmark + accroche v3 sur fond navy
+  avec lueur ambre. Balises OpenGraph + Twitter Card ajoutées au layout (`metadataBase` lugia.fr).
+- **Légal provisoire** : SIREN fictif 900 123 456 + siège « Paris 11ᵉ » dans mentions légales et
+  confidentialité — à remplacer par les valeurs réelles + relecture juriste/DPO avant public.
+
+Build OK, 7 routes. Le site est prêt pour un déploiement de préprod (Vercel) — restent les vraies infos
+légales.
+
+---
+
+## 2026-06-05 (suite) — Accueil aligné v3 (annule/remplace v2)
+
+La v3 reprend la v2 + deux nouveautés, désormais portées :
+- **Hero v3** : eyebrow « Experts en organisation du travail », titre « Votre compagnon de travail,
+  toujours avec vous. », sous-titre « Anticiper vos risques organisationnels. Sécuriser vos urgences
+  opérationnelles. » (tranche la question du hero).
+- **Séquence d'ouverture « Lugia agit »** (`hero/LugiaAgit`) à la place de la checklist : une demande
+  utilisateur → « Lugia lit votre organisation » → 3 actions concrètes qui s'exécutent (équipe prévenue,
+  rendu transféré, compta notifiée) + bouton « Rejouer ». Montre l'agent en action.
+
+Le reste de la v3 (atouts, ce que Lugia donne, journée, leviers, outils, offre, partenaire, contact) était
+déjà en place. Pages méthode/offre/cabinet/connexion + garde-fous (légal, cookies) inchangés.
+
+Build OK, 7 routes. Avant déploiement, reste : og:image + SIREN/adresse pour le légal.
+
+---
+
+## 2026-06-05 (suite) — Accueil aligné sur la v2 + correction fondateur
+
+- Accueil restructuré : Hero → **Atouts** (4 cartes : image fidèle / chiffré avant d'agir / données
+  souveraines / plateforme collaborative) → **Ce que Lugia vous donne** (6 items + lien Méthode) →
+  **Une journée avec Lugia** (timeline app.lugia.fr, temps rendu) → Leviers (10 axes) → Métiers → Outils
+  → Offre → Cabinet → Contact.
+- **Déduplication** : sections Contexte et Méthode inline retirées de l'accueil (couvertes par `/methode`
+  et la section « Ce que Lugia vous donne »).
+- **Correction factuelle** : fondateur = **Sébastien Boncoeur**, « Fondateur — Conseil multi-sectoriel ».
+- Nav alignée (suivi de section MAJ).
+
+Build OK, 7 routes. Avant déploiement : og:image, compléter SIREN/adresse, et **valider le hero** — j'ai
+gardé celui qu'on a co-écrit (« Votre compagnon de travail, pas un outil. »), ta v2 HTML en proposait un
+autre (« …toujours avec vous » / « Anticiper vos risques organisationnels »).
+
+---
+
+## 2026-06-08 — Restitution adaptée à la nouvelle charte (Charte Éditoriale / Carte Vivante v2)
+
+Nouvelles réfs charte fournies (`Charte-Editoriale-Lugia-2.html`, `Carte-Vivante-Lugia-2.html`).
+Évolutions intégrées dans `diagnostic_gratuit_restitution.html` : **coins arrondis** (cartes 14px,
+tags & chips en **pilules** 100px, barres arrondies), fond carte jour **`--ivory-light` #faf7f1**,
+états patine `--p-*`, **mode nuit en navy profond #0F1420** (façon Carte Vivante). Polices, palette
+patine et règle pas-d'italique inchangées. (Mémoire charte mise à jour : « angles vifs » périmé.)
+Reste à aligner si souhaité : `cabinet_dr_martin_vue.html` (radar + matrice).
+
+## 2026-06-05 (suite) — Portage v2 en multi-pages Next
+
+Passage de l'accueil one-pager à un site **multi-pages** (base de mise en ligne).
+
+- **`/methode`** : portage de la page Méthode v2 (Voir/fluidifier/maintenir) + section gains **en estimations
+  explicites** (« ≈ 2 sem », « ≈ 9 j », « ≈ −30 % », « En continu » au lieu de « 100 % conformité »),
+  avec mention « pas de garantie de résultat ».
+- **`/cabinet`** : maison de conseil, mission (L'espoir / La méthode), 3 engagements (faire-ensemble,
+  sobriété, souveraineté), bande photos.
+- **`/connexion`** : espace T4 2026 (features + carte de connexion, boutons → diagnostic.lugia.fr/login).
+- **Nav** reliée aux pages (Méthode / Offre / Le cabinet / Contact + Connexion → `/connexion`).
+- **Mentions légales** complétées : micro-entreprise (Sébastien Lugia), hébergeur OVHcloud + Vercel ;
+  SIREN/adresse encore à fournir.
+
+Build OK, 7 routes. Reste : restructurer l'accueil en page « Le produit » (sections v2 « Ce que Lugia
+vous donne » + « Une journée avec Lugia », dédupliquer les sections désormais sur leurs pages), og:image,
+compléter SIREN/adresse, puis déploiement (Vercel + DNS lugia.fr).
+
+---
+
+## 2026-06-08 — Carte de capacité de la restitution en mise en page capability map v8
+
+L'écran de restitution du diagnostic gratuit reprend la **mise en page de la capability map v8** :
+cartes d'axe avec **icône**, « Axe 0N », nom, question, et le détail **domaines → thèmes → objets captés**,
+chaque thème portant son **tag de maturité de la pratique** (Essentiel / Courant / Optionnel / Émergent).
+Le tagging maturité est ajouté aux thèmes du seed (tagging v8). Rendu **rhabillé à la charte Lugia**
+(Onest/Lora/mono, angles vifs, pas de pastel ni d'italique) plutôt que le style pastel du PDF v8 —
+bascule possible si le look pastel exact est souhaité. `build_seed.py` + `diagnostic_gratuit_view.py` maj.
+
+
+## 2026-06-05 (suite) — Garde-fous mise en ligne : légal + cookies + cadrage santé
+
+Préparation du passage en public (base retenue : app Next.js, portage de la v2 à suivre).
+
+- **Pages légales** : `/mentions-legales` et `/confidentialite` (RGPD : responsable, finalités, base légale,
+  sous-traitants dont Calendly/US, droits, CNIL). **Champs entre crochets à compléter** (SIREN, forme
+  juridique, siège, hébergeur, durées) — idéalement relus par un juriste/DPO. `LegalShell` réutilisable.
+- **Bandeau cookies** (`legal/CookieConsent`) + **Calendly conditionné au consentement** (`legal/CalendlyEmbed`) :
+  le calendrier ne charge qu'après accord ; sinon, bouton « Activer » ou ouverture dans un onglet. Liens
+  footer ajoutés.
+- **Cadrage santé ↔ multi-secteurs** tranché : compagnon multi-secteurs en tête, offre cadrée « première
+  offre, pensée pour la santé et le libéral » (landing + /offre).
+
+Reste avant public : **porter la v2** (page Méthode avec chiffres en estimations explicites + retrait du
+« 100 % conformité », pages Cabinet/Connexion, nouvelles sections accueil, nav multi-pages), compléter les
+infos légales, og:image, vérifier diagnostic.lugia.fr + login Google, et déployer (Vercel + DNS lugia.fr).
+Build OK (5 routes).
+
+---
+
+## 2026-06-08 — Écran de restitution du diagnostic gratuit (capability map qui s'allume)
+
+`resources/methode/demo/diagnostic_gratuit_view.py` génère l'écran de fin du diagnostic gratuit, calculé
+depuis un sous-substrat capté (chantier « Prise de RDV & synchronisation agenda », 5 objets, 5 axes
+effleurés sur 10). Sortie `diagnostic_gratuit_restitution.html` (charté, jour/instrument) :
+- **carte de capacité qui s'allume** : domaines → thèmes → objets captés, par axe ;
+- **% d'avancement par axe** (couverture des 4 facettes fondamentales par le capté) ;
+- **carto réduite au chantier** avec ses liaisons (relations) + les 2 signaux détectés (R03 désynchro,
+  R02 point unique) — montre les LIAISONS, pas une liste (cf doctrine diagnostic = canal de saisie).
+À valider visuellement.
+
+## 2026-06-08 — Premières vues calculées du substrat (radar + matrice 10×9)
+
+`resources/methode/demo/view.py` lit le seed et **calcule** deux vues (rien posé à la main) :
+- **radar de complétude** des 10 axes (lecture fonctionnelle) ;
+- **matrice 10 × 9** (axes × facettes WSF) avec les objets par case et les zones vides.
+Rendu `cabinet_dr_martin_vue.html` charté (Onest/Lora/IBM Plex Mono, échelle d'états patine
+optimal→critique, argent = structure, angles vifs, jour/instrument, pas d'italique) + export
+`views_data.json`. À valider visuellement.
+
+## 2026-06-05 (suite) — Site V2 · refonte qualité (critique site-v1)
+
+Réponse aux gros points noirs (slides → site, vague → gains, trop de variations typo, produit pas évident).
+
+- **Hero produit** (`hero/ProductHero`) : panneau « fenêtre logiciel » avec **checklist d'irritants qui se
+  cochent + gains** animée (RGPD tenu, AI Act conforme, doublons −6 h/mois…). Titre **produit-first** plus
+  petit : « Lugia rend votre cabinet lisible — et tient votre conformité. » Transition navy→ivoire adoucie.
+- **Discipline typo** : une taille de titre par niveau, fin du tic « 2e bout de titre en gris », moins de
+  couleurs. **Tout aligné à gauche** (fini le centrage Problème/Métiers/Cabinet).
+- **Copy orientée gain** partout ; les grandes phrases poétiques qui n'expliquaient rien sont remplacées
+  par des titres qui disent le contenu.
+- **Fusion Contexte + Problème** : chiffres rattachés à leur sens + la réponse Lugia (plus de gros chiffres
+  orphelins).
+- **Section 3** : schéma radial → **bulles à icônes orientées valeur** (10 axes, ex. Parcours client →
+  « améliorer l'expérience de vos clients ») ; plus de lentilles ici.
+- **Métiers** : ~15 **bulles icône + titre** autour du texte (non centré).
+- **Section Positionnement (Ni ERP ni BPM) supprimée** (on ne nomme pas d'acteurs).
+- **Outils** : **vrais logos** fournis (Doctolib, Maiia, MSSanté, Dragon, Gmail, Workspace, Excel, Stripe),
+  une ligne, et « stack/déménager » retirés (« se branche sur vos logiciels »).
+- **Offre** : prix moins gros + 3 inclus par palier.
+- **Cabinet** plus soigné + bande photo (« au service de celles et ceux qui font le travail »).
+- **Contact** : « au programme » du créneau introduit. **Logo officiel** déjà en place ; LinkedIn câblé.
+
+Build OK (/ = 7.0 kB, /offre = 7.8 kB). Sections `Probleme`/`Positionnement` désormais inutilisées.
+
+---
+
+## 2026-06-08 (suite) — D-052 : posture face aux plateformes d'orchestration
+
+Formalisation d'une décision implicite qui conditionnait déjà la grille tarifaire et la doctrine
+mais n'était pas écrite : Lugia adopte la posture **« interface principale + lecture exposée »** et
+refuse explicitement la posture **« source de contexte consommée »** face aux plateformes
+d'orchestration agentique (Apple Intelligence, Microsoft Copilot for M365, Google Gemini Workspace).
+
+**Trois interventions.**
+
+- **`DECISIONS.md`** — ajout de la **décision D-052** avec motivation en trois raisons structurelles
+  (business model exige l'interface, méthode canonique non consommable, réversibilité incompatible
+  avec dépendance plateforme), implications opérationnelles (roadmap, pricing, pitch investisseur,
+  conditions d'ouverture de la lecture exposée), signaux à surveiller, alternatives écartées.
+- **`etudes/Lugia_Document_Maitre.html`** — nouvelle section **4.8 « Posture face aux plateformes
+  d'orchestration »** dans le chapitre Concurrence & positionnement, marquée `strict-interne` (donc
+  absente de la version CLIENT). Pose le marché en trois étages (modèle / orchestration / méthode),
+  nomme le vrai concurrent sur l'étage méthode (Microsoft Copilot, pas Apple), explique la décision,
+  liste les implications. PDFs régénérés : **INTERNE 144 p** (+3) et **CLIENT 127 p** (inchangé).
+- **Mémoire** `project_posture_agents_personnels` — pour confrontation systématique avant tout
+  livrable touchant au positionnement.
+
+**À intégrer à la prochaine révision trimestrielle de la Veille concurrentielle T3 2026.** Ajouter
+Apple Intelligence et Microsoft Copilot for M365 dans le scoreboard avec leurs signaux de bascule
+(App Intents agentiques verticaux santé/juridique/gestion côté Apple ; extension de Copilot vers
+cartographie organisationnelle structurée au-delà de la déduction artefacts côté Microsoft).
+Surveiller aussi : signature d'un partenariat de distribution entre Foaster.ai (ou autre concurrent
+direct étage méthode) et une plateforme d'orchestration = signal de bascule majeur, analyse sous
+deux semaines.
+
+**Pas d'impact sur les projections chiffrées du BP.** Les hypothèses actuelles (ARPU 900/1350/1750,
+grille Acteur 49 / Lecture 19 + Max +200) correspondent déjà implicitement à la posture interface
+principale — ce qui les rend cohérentes. Formaliser la posture rend cette cohérence assumée et
+défendable, plutôt qu'implicite et fragile.
+
+**Pas de modification BP, plaquette, site, page tarifs ou autre support commercial.** La posture
+face aux plateformes appartient au socle interne (D-051 : vision long terme strictement interne).
+
+---
+
+## 2026-06-08 — Arbitrages substrat tranchés : complétude duale + R02 figée (D-053, D-054)
+
+Suite aux 2 écarts spec↔exemple révélés par le moteur de démo, décidés et implémentés.
+
+- **D-053 — complétude duale** : `engine.py` calcule désormais complétude **documentaire** (rattachement
+  strict, pilote les relances) ET **fonctionnelle** (+ `référencé_dans`, santé structurelle).
+  `build_seed.py` peuple un `référencé_dans` curé (Consultation servie par Médecin/Dossier/Crossway).
+  Démo : Consultation documentaire 0,25 vs fonctionnelle 1,00.
+- **D-054 — R02 figée** : formule de **centralité locale** (flux critiques incidents / flux incidents,
+  garde degré ≥ 3) écrite dans `schema_exemple.md` (`condition`) et `engine.py` ; seuil 0,60 **marqué
+  provisoire** (à recalibrer). Réconcilie le texte du spec avec l'exemple (le « 68 % » bespoke devient
+  ~74 % exécutable).
+- Moteur re-vérifié : 0 erreur, 3 signaux dérivés, `EXIT=0`. `DECISIONS.md`, `TODO.md`, README démo à jour.
+
+## 2026-06-08 — Substrat de démo Dr Martin (seed v0.6 + moteur de dérivation)
+
+Première brique du paramétrage de prod (D-052). Transcription du cas validé
+`schema_exemple.md` en substrat machine-lisible + moteur qui dérive les vues.
+
+### Ajouté (`resources/methode/demo/`)
+- **`cabinet_dr_martin.seed.json`** — substrat brut conforme v0.6 : N0 orga, N1 **10 axes**
+  (9/10 actifs mais sans objet pour ce cabinet solo), N2 9 domaines, N3 9 thèmes, N4 **15 objets**
+  typés, N5 11 relations, N8 règles R02/R03/R10. **Sans** N6/N7 (dérivés).
+- **`build_seed.py`** — reconstruit le seed en extrayant les fragments JSON de l'exemple (fidélité).
+- **`engine.py`** — valide (intégrité référentielle, facette∈9, axe∈10, unicité label, complétude,
+  gaps) puis dérive signaux + actions ; écrit `derived_views.json`. **Reproduit les 3 signaux
+  attendus** (Crossway/R02 ratio 0.737, Doctolib↔Crossway/R03, HDS/R10) — `EXIT=0`.
+- **`README.md`** — mode d'emploi + 2 écarts révélés à arbitrer (voir TODO).
+
+### Révélé par le moteur (arbitrages calibration, non bloquants)
+- **Complétude par thème** : périmètre à définir (rattachement seul vs + `référencé_dans` + relations) —
+  explique l'écart calculé (0.25) vs stocké (0.89).
+- **R02** : formule sous-spécifiée (centralité locale vs dénominateur global) — figer + recaler le seuil.
+
+## 2026-06-08 — Figement des 10 axes dans les specs sources (méthode)
+
+Application du patch `resources/methode/lugia_reference_axes_fonctionnels.md` (réf. D-049 / carte de
+capacité v8) : passage de **8/9 axes → 10 axes** comme préalable au paramétrage de production.
+
+### Modifié
+- **`resources/methode/lugia_schema_spec_v0.6.md`** — *nouvelle source de vérité du schéma*, dérivée de
+  v0.5 : grille 10×9 (90 cellules), table des axes et §13 complétées des **axe 9 Développement commercial**
+  (`developpement_commercial`) et **axe 10 R&D & Innovation** (`rd_innovation`), tous deux optionnels par
+  secteur ; radar 8→10 branches. Aucun seuil de calibration modifié.
+- **`lugia_schema_exemple.md`**, **`lugia_coaching_dialog_spec.md`** (« 7 autres axes », « les 10 axes »),
+  **`lugia_calibration_v1.md`** (« sur 10 axes ») — fix des compteurs.
+- **Générique** : `lugia_schema_spec_generique.md` (10×9=90, table + §13 axe 9/10, note « axes 9 et 10
+  optionnels »), `lugia_coaching_dialog_generique.md`, `lugia_interview_protocol_generique.md` (compteurs « 4 axes sur 10 » + relances d'interview ajoutées pour les axes 9 Développement et 10 R&D).
+- **`lugia_complement_alter.md`** / **`lugia_alter_backlog.md`** — correspondance RAVC « 10 axes ».
+- **`lugia_reference_axes_fonctionnels.md`** — marqué ✅ APPLIQUÉ (2026-06-08).
+
+### Conservé volontairement
+- `9 facettes` WSF inchangé (la grille reste 10 axes × **9** facettes).
+- Specs `lugia_schema_spec.md` (v0.2) et `_v0.4.md` laissées en **historique** (superseded par v0.6).
+- HTML `capability_map_generique_v7` / `wsf_matrix_v7` **non régénérés** → backlog (la v8 PDF fait foi).
+
+## 2026-06-08 — Propagation de la place Lecture 19 € dans toute la documentation
+
+Suite à la décision **D-051** (place lecture introduite le 2026-06-05), propagation systématique dans
+tous les supports — BP, Document maître, pages web (HTML + Next.js), plaquette médecin.
+
+### Documents mis à jour
+
+- **`etudes/Lugia_Business_Plan_2026-05.pdf`** (v1.5, 52 pages) — §3.2 Pro : ligne « 149 €/mois +
+  49 €/Acteur additionnel + 19 €/Lecture » ; tableau exemples configurations refait avec colonnes
+  Acteurs/Lecture séparées ; ARPU mix révisé (900 € An1 / 1350 € An2 / 1750 € An3) ; note règles
+  (ratio Lecture ≤ Acteur, comptage total dans la limite de 15).
+- **`etudes/Lugia_Document_Maitre_INTERNE.pdf`** (v1.3, 141 pages) et **`Lugia_Document_Maitre_CLIENT.pdf`**
+  (127 pages) — §5.3 enrichie : tableau « Actions par type de siège » détaillé (Consulter, Envoyer
+  courrier validé, Démarrer chantier, Valider/signer, Créer protocole…) ; règles d'application ;
+  §5.7 enrichie : principe 3 réécrit pour intégrer Acteur/Lecture ; nouveau paragraphe
+  « Pourquoi 19 €/Lecture additionnel ? » qui justifie la place par la conformité RGPD
+  (logins individuels nominatifs vs partage de session).
+- **`etudes/Lugia_Tarifs.html`** — card Pro : « + 49 €/Acteur additionnel · + 19 €/Lecture
+  (secrétaire, assistant) » ; liste inclusions étendue ; tableau « Composer votre offre » avec 9
+  exemples (Médecin solo, Médecin + secrétaire 168 €, MSP 8 utilisateurs 632 €, PME B2B 12 utilisateurs
+  768 €, Cabinet expert-comptable 15 utilisateurs 745 €, etc.) ; note de bas de section avec règles.
+- **`etudes/Lugia_Offres_Detail.html`** — section Pro narrative : paragraphe Acteur/Lecture intégré ;
+  inclusions étendues ; tableau exemples refait (8 cards) ; **FAQ enrichie de 3 entrées** : « Quelle
+  différence entre Acteur et Lecture ? », « Pourquoi cette distinction ? », « Y a-t-il une limite au
+  nombre de places Lecture ? ».
+- **`etudes/Lugia_Landing_Tarifs_Bloc.html`** — mini-card Pro mise à jour : « + 49 €/Acteur ·
+  + 19 €/Lecture ».
+- **`web/app/tarifs/page.tsx`** (Next.js) — card Pro et tableau Composer mis à jour dans la même
+  logique, avec 9 lignes alignées sur le HTML standalone.
+- **`etudes/Lugia_Plaquette_Medecin.html` + `.pdf`** (2 pages, tri-fold) — étape 03 du verso :
+  « 49 € solo, 149 €/mois en Pro, +49 €/Acteur ou +19 €/Lecture pour les cabinets de groupe ».
+
+### Chiffres clés mis à jour
+
+| Configuration | Avant (Pro × N) | Après (Acteur + Lecture) |
+|---|---|---|
+| Médecin installé + 1 secrétaire | 149 € (secrétaire non comptée, RGPD bancal) | **168 €** (1 Acteur + 1 Lecture) |
+| Cabinet 3 praticiens + 1 secrétaire | 247 € (4 utilisateurs Pro) | **266 €** (3 Acteur + 1 Lecture) |
+| MSP 8 utilisateurs (6 médecins + 2 secrétaires) | 492 € puis +200 Max = 692 € | **432 € puis +200 Max = 632 €** |
+| PME B2B 12 utilisateurs (8 acteurs + 4 lecture) | 688 € puis +200 Max = 888 € | **568 € puis +200 Max = 768 €** |
+| Cabinet expert-comptable 15 (12 acteurs + 3 lecture) | 835 € | **745 €** |
+
+### Règles d'application (rappel)
+
+1. Le siège **Acteur** (49 €) ouvre les droits de création, validation, signature.
+2. Le siège **Lecture** (19 €) ouvre les droits de consultation et d'actions sur contenu validé.
+3. **Le nombre de places Lecture ne peut pas excéder le nombre de places Acteur** (garde-fou
+   contre l'usage détourné).
+4. Acteurs et Lectures comptent tous deux dans la **limite de 15 utilisateurs sur Pro** ; au-delà,
+   c'est l'offre **Au-delà sur devis**.
+5. Chaque utilisateur (Acteur ou Lecture) dispose d'un **login individuel nominatif** — c'est ce qui
+   rend la conformité RGPD réelle (vs partage de session).
+
+---
+
+## 2026-06-05 (suite) — Offre : place lecture 19 € (siège dégressif)
+
+Ajout d'un **second type de siège** sur Pro, dans `/offre` : **siège plein 49 €** (acteur : chantiers,
+livrables, accès) vs **place lecture 19 €** (consultation + actions légères ; chacun son login → la
+traçabilité RGPD tient vraiment). Distinction **par capacité, pas par métier**. Bloc « Deux types de
+sièges », exemples « composer votre offre » recalculés (ex. PME 15 logins : 835 € → 625 €), FAQ dédiée.
+Landing inchangé (volontairement simple). Cf D-051. Build OK.
+
+---
+
+## 2026-06-06 — Étude de marché v5 + Veille concurrentielle T2 2026
+
+Deux livrables ajoutés dans `etudes/` pour clore le travail de veille rivalité directe et de vision long terme.
+
+**Étude de marché v5** (`Lugia_Etude_de_marche_v5_2026-05.pdf`, 50 pages) — ajoute :
+- §1.6 « Lugia n'est ni un ERP ni un BPM » avec schéma trois couches.
+- §3.2 cartographie concurrentielle complète (adjacents / directs / hors-zone) — Foaster, BlackFig, Sia, Wavestone, Skan/Soroco/KYP/Celonis, The Ready/ON THE MARK/NOBL/Kanso, Doctolib/Weda, OneTrust/CoreStream/Diligent…
+- §5.3 dix leviers de défense face aux concurrents directs.
+- §5.4 vision long terme (interne uniquement) : trajectoire trois horizons aujourd'hui→3 ans, 3→7 ans, 7→15 ans (absorber les couches ERP/BPM).
+
+**Veille concurrentielle T2 2026** (`Lugia_Veille_concurrentielle_2026-05.pdf`) — document court vivant, à actualiser trimestriellement :
+- Scoreboard 7 acteurs (Foaster, BlackFig, Sia, Wavestone, Accenture×Workhelix, plateformes Work Intelligence, GRC enterprise) avec proximité / capacité / menace 18 mois.
+- Fiches détaillées avec signaux de bascule à surveiller (financement Foaster, effectifs BlackFig, produitisation Sia/Wavestone, etc.).
+- Nouveaux entrants YC à surveiller (Netter, Hessian, Wato).
+- Cadence de revue : trimestrielle (scoreboard), mensuelle (signaux), revue d'urgence à chaque levée annoncée.
+
+### Décidé
+
+- **D-050** Veille concurrentielle = document vivant trimestriel, séparé de l'étude de marché.
+- **D-051** Vision long terme (absorber ERP/BPM) reste strictement interne — jamais sur site, pitch ou marketing.
+
+---
+
+## 2026-05-28 (suite 12) — BP v1.4 + Document maître v1.2 : Pro progressif + Option Max ajoutable
+
+Refonte structurelle de la grille tarifaire suite à l'identification de deux problèmes (confusion Pro Groupe / Max Forfait + incohérence économique du forfait fixe sur structures variables). Max devient une **option ajoutable à Pro** à +200 €/mois, accessible quelle que soit la taille de la structure — du libéral seul ambitieux à la PME 15 utilisateurs.
+
+**Nouvelle structure tarifaire** :
+- Diagnostic gratuit (inchangé)
+- Socle 49 €/mois — libéral solo
+- Pro 149 €/mois + 49 €/utilisateur additionnel — jusqu'à 15 utilisateurs
+- **Option Max +200 €/mois ajoutable à Pro** — transformation profonde (audit terrain annuel, 8 h opérateur, audit DPO externe, modules add-on inclus, Cercle Lugia, label, accompagnement contrôle, reporting institutionnel)
+- Au-delà sur devis pour ETI/multi-sites/16+ utilisateurs
+
+**Exemples de configurations explicites dans les deux documents** :
+- Médecin solo démarrage : Socle 49 €
+- Médecin installé seul : Pro 149 €
+- Médecin solo ambitieux : Pro + Option Max 349 €
+- Cabinet groupe 3 praticiens : Pro × 3 = 247 €
+- MSP 8 utilisateurs + Option Max : 692 €
+- PME 12 utilisateurs + Option Max : 888 €
+- PME 15 utilisateurs : 835 € (+ Option Max possible : 1 035 €)
+
+**Avantages de la nouvelle structure** :
+1. **Pas de confusion Pro/Max** : Pro grandit linéairement, Option Max est un add-on universel.
+2. **Cohérence économique préservée** : chaque utilisateur additionnel paie son coût marginal (LLM + infra) à 49 €/mois.
+3. **Solo ambitieux capté** : Pro + Option Max à 349 € rend la dimension transformation accessible au libéral seul.
+4. **Marge contrôlée** : marge brute Option Max estimée 65-75 % (vs 92 % Pro pur) — plus tendue mais soutenant la rétention long terme.
+
+**BP v1.4 — sections mises à jour** :
+- Section 3.2 — paliers révisés avec exemples de configurations + tableau de valeur économique
+- Section 6.6 — encart explicatif sur la migration v1.3 → v1.4 (Max forfait → Option Max ajoutable)
+- ARPU mix révisé : An 1 ~900 €/an, An 2 ~1 400 €/an, An 3 ~1 900 €/an avec maturation et pénétration Option Max 10-15 %
+
+**Document maître v1.2 — sections mises à jour** :
+- Section 5.3 — paliers révisés + exemples de configurations + disponibilité phasée + tableau d'engagement réglementaire en 3 niveaux (Socle / Pro / Pro+Max)
+- Section 5.7 — logique de prix enrichie (6 principes au lieu de 5), justification de chaque palier détaillée, **tableau de décomposition de la valeur économique apportée par l'Option Max** (ratio valeur/prix 4× à 5,5×)
+
+**Décisions à formaliser** :
+- **D-050** — Option Max est ajoutable à Pro (pas un palier séparé), tarif uniforme +200 €/mois quelle que soit la taille
+- **D-051** — Engagement opérateur 8 h fixes/an dans Option Max + facturation horaire au-delà (75 €/h hors site, 600 €/jour sur site)
+- **D-052** — Partenariat DPO externe forfaitaire à structurer en S2 2026 pour audits conformité annuels inclus dans Option Max
+
+**Pages web tarifs/offres déjà à jour** : `web/app/tarifs/page.tsx` + `etudes/Lugia_Tarifs.html` + `etudes/Lugia_Landing_Tarifs_Bloc.html` + `etudes/Lugia_Offres_Detail.html`.
+
+Fichiers : `etudes/Lugia_Business_Plan_2026-05.html` (v1.4) + `.pdf` (52 pages), `etudes/Lugia_Document_Maitre.html` (v1.2) + `_INTERNE.pdf` (139 pages) + `_CLIENT.pdf` (126 pages).
+
+---
+
+## 2026-06-05 (suite) — Site V1 · offres réalignées (docs Landing_Tarifs + Offres_Detail)
+
+Correction majeure de la logique d'offre d'apres les deux documents fournis :
+- **Max n'est plus un palier a 499 €** : c'est une **option a +200 €/mois qui s'ajoute a Pro**, accessible
+  quelle que soit la taille (« la transformation »). Fin du « liste d'attente ».
+- Structure : **Socle 49 € · Pro 149 € (+49 €/utilisateur) · Option Max +200 € · Au-dela (>15 users,
+  multi-sites) sur devis**.
+- **Landing** (`sections/Offre`) : bloc tarifs simple — 3 cartes + ligne sur-mesure + lien « composer
+  votre offre » + diagnostic gratuit. Bloc « Ce qui nous distingue » conserve.
+- **Page `/offre`** reecrite : intro, « Pourquoi cette structure / vous payez ce qui vous sert », porte
+  diagnostic gratuit, 3 paliers detailles (promesse + inclus + une scene), section **« Composer votre
+  offre »** (8 cas concrets chiffres), FAQ (definition utilisateur, montee en gamme).
+- Reco appliquee : on garde les **exemples chiffres client** (transparence, self-qualification) mais
+  **aucune logique de couts/marges** exposee.
+
+Note : l'offre est formulee secteur **liberal/sante** (cible payante pilote) ; le reste du site reste
+multi-secteurs. Build OK (/ = 6.3 kB, /offre = 7.8 kB).
+
+---
+
+## 2026-06-05 (suite) — Site V1 · retours #4 : 10 axes, offre par assistance, photos pro
+
+1. **Carte de capacité = 10 axes** (réf `resources/methode/lugia_reference_axes_fonctionnels.md`, alignée
+   Capability Map v8) : cœur de métier au centre + 9 axes autour (parcours client, processus, équipe,
+   outils, finance, conformité, stratégie, développement commercial, **R&D & Innovation**).
+2. **Offre revue** (réf Document Maître interne) : 3 modes **Socle / Pro / Max**, gradation par **niveau
+   d'assistance & de garantie** — pas par taille d'équipe (coquille corrigée : même un solo peut vouloir
+   le mode le plus accompagné). Socle produit les livrables · Pro les maintient à jour · Max accompagne
+   (4 h sous 48 h en cas de contrôle, reporting institutionnel). **Max en liste d'attente** ; « Au-delà »
+   sur devis (HDS dédié, success management). Page `/offre` détaillée mise à jour (features par mode).
+3. **Photos** : section Métiers refondue en **cartes-photos de professionnels** (style Weda, blocs
+   flottants, pastille libellé + flèche). Slots dans `site/public/images/metiers/` ; fond teinté + icône
+   en filigrane tant que la photo n'est pas déposée (jamais d'image cassée). Touches de couleur renforcées.
+
+Build OK (route / = 6.3 kB, /offre = 7.8 kB). À fournir : photos métiers, SVG outils officiels, comptes
+sociaux, confirmer `LOGIN_URL` + prix Max définitif.
+
+---
+
+## 2026-06-05 (suite) — Site V1 · retours Sebastien #3 (10 points)
+
+1. **Logo officiel** integre (nav, footer, favicon `app/icon.svg`) via `LugiaMark` (pictogramme sommet,
+   `currentColor`). Faux chevron supprime.
+2. **Hero lisible** : decor `Ambiance` fortement calme (poussiere fine + une seule lueur douce hors champ
+   de lecture, plus de grosses bulles).
+3. **Carte retiree** de la Methode (section 2) → 3 temps en cartes colorees.
+4. **Carte de capacite** en section 3 (`carte/CapabilityMap`) : 9 axes, **cœur de metier au centre**
+   (axe 01), 8 axes autour (parcours client, processus, equipe, outils, finance, conformite, strategie,
+   developpement commercial). Remplace le graphe abstrait.
+5. **Metiers** refondus facon « monde d'outils » : icones-metier **sans texte** qui flottent autour d'un
+   **message central + CTA**. Repli mobile en rangee.
+6. **Positionnement sans nommer de concurrent** : comparatif marche supprime → bloc « Ce qui nous
+   distingue » (sans engagement, au plus pres du metier, actif qui reste, donnees souveraines, impact chiffre).
+7. **Outils** : une **seule ligne** de pastilles aux couleurs des solutions (sante/liberal : Doctolib, Mon
+   espace sante, Ameli, Vidal, Microsoft 365, Outlook, Excel, Google Workspace, Sage, Stripe). Reperes
+   couleur generiques — SVG officiels a deposer dans `public/`.
+8. **Offre** : vision courte sur le landing + **page detail `/offre`** (diagnostic gratuit + Socle/Pro/Max/
+   Institution, fonctionnalites par niveau) d'apres le Document Maitre + ancien comparatif.
+9. **Mobile** : barre CTA fixe en bas (`MobileCta`), tuiles metiers repliees, sections responsive.
+10. **Reseaux sociaux** : LinkedIn / X / e-mail dans le footer (`LINKEDIN_URL`, `X_URL` placeholders a confirmer).
++ **Plus de couleur** : accents ambre/sapin/navy sur eyebrows, methode, lentilles, carte de capacite, metiers.
+
+Build OK (route / = 6.3 kB, /offre = 7.8 kB). Reste a fournir : handles sociaux, SVG outils officiels,
+confirmer `LOGIN_URL`.
+
+---
+
+## 2026-06-05 (suite) — Site V1 · toggle jour/nuit global
+
+Lecture jour/nuit bascule tout le **contenu** du site. Les sections de contenu ont ete refactorisees en
+**variables de theme** (`--surface/--card/--fg/--fg-soft/--fg-mute/--fg-faint/--line/--signal-fg/--accent`)
++ classes semantiques (`t-fg`, `t-card`, `t-line`, `t-accent`...). Toggle sun/moon dans la nav (desktop +
+overlay mobile), persiste en `localStorage`, script anti-flash dans le `<head>`. La patine des sections de
+contenu suit le theme. Hero, Contact et panneaux-instrument restent atmospheriques (inchanges). Carte de
+prix « Pro » passee en accent thematique. Build OK (route / = 45 kB / 132 kB).
+
+Etat site V1 : hero contemplatif (Lora, decor Ambiance, sans carte) → Contexte → Probleme → Methode →
+Carte vivante → Metiers → Positionnement → Outils → Offre → Cabinet → Contact (Calendly propre) → footer
+minimal. **Logo Lugia toujours attendu** (wordmark texte en attendant).
+
+---
+
+## 2026-06-05 (suite) — Site V1 · sections Metiers & Outils + hero Lora
+
+- **Hero** : titre passe en **Lora** (unique moment serif, choix « le plus beau » pour l'arrivee
+  contemplative, esprit slide charte).
+- **Section « Metiers concernes »** (apres Carte vivante) : 8 blocs flottants (icones trait, flottement
+  sobre, hover lift) — affirme le multi-secteurs (« la sante est notre premier terrain, pas notre limite »).
+  Inspiree du composant 21st.dev « Blocs flottants metiers ».
+- **Section « Outils connectes »** (apres Positionnement) : 3 rangees marquee (bureautique, collaboratif,
+  ERP/metier) — « Lugia se pose au-dessus de votre stack et s'y connecte ». Inspiree de « Lien outils ».
+- Icones metier ajoutees (sante, commerce, industrie, logistique, artisanat, education, services, plug).
+  Suivi de section nav mis a jour.
+
+Build OK (route / = 44.6 kB / 132 kB). Reste : **toggle jour/nuit global** (passe dediee — refactor des
+couleurs de toutes les sections en variables de theme). Logo Lugia toujours attendu.
+
+---
+
+## 2026-06-05 (suite) — Site V1 · retours Sebastien #2 : logo, decor contemplatif, footer/Calendly
+
+1. **Logo** : le pictogramme-sommet inventé n'est PAS le logo Lugia → retiré de la nav, du footer et de
+   la carte. Wordmark texte « Lugia & Co » (Onest) en attendant le vrai fichier logo (a fournir).
+2. **Plus de carte en fond** a l'arrivee ni en pied de page : nouveau composant `decor/Ambiance`
+   (degrade profond + lueurs lentes + poussiere discrete, AUCUN noeud) pour un **temps de contemplation**
+   du decor avant le contenu (entree en cascade lente). La carte (CarteViz) ne vit plus que dans les
+   panneaux-device de Methode et Carte Vivante.
+3. **Hero** repense contemplatif (Ambiance + reveals retardes). **Contact** epure : map retiree, Calendly
+   propre sur **panneau clair** avec parametres (hide_gdpr_banner, couleurs Lugia), en 2 colonnes.
+4. **Footer minimal** : une ligne legale (© + lugia.fr + mentions), plus de bloc marque redondant.
+
+Build OK (route / = 44.6 kB / 132 kB). A venir (arbitrage en cours) : page « metiers concernes » (blocs
+flottants) + page « outils qui se connectent » (marquee), inspirees de composants 21st.dev.
+
+---
+
+## 2026-06-05 (suite) — Site V1 · retours Sebastien : de-cosmisation, continuite, connexion
+
+Trois ajustements demandes apres relecture :
+
+1. **De-cosmisation** : les libelles metaphoriques celestes (Firmament / Constellation / Univers /
+   Voie lactee / etoile filante) entrent en tension avec la doctrine « langage naturel, pas de poemes ».
+   Libelles passes en direct (« L'ensemble / Un domaine / Un objet » ; objets deja nommes Accueil,
+   Dossiers...). Visuel allege (Voie lactee + etoile filante retirees, ambiance lumineuse sobre, le ciel
+   reste comme esthetique subjective). Composant renomme `components/carte/CarteViz` (l'ancien
+   `components/firmament/` est neutralise + gitignore : suppression impossible, mount EPERM).
+
+2. **Continuite de lecture** : reduction des bascules sombre/clair — hero sombre, **corps entier en
+   clair**, l'instrument loge dans des **panneaux sombres encadres** (plateau ivoire + ecran navy),
+   contact + footer sombres en cloture. Titres **uniformises en Onest** (accents Lora retires des
+   titres) ; Lora reserve a l'unique phrase-statement (section Probleme).
+
+3. **Connexion en haut a droite** (`LOGIN_URL`) a la place du diagnostic ; le CTA Diagnostic gratuit
+   reste en hero, en contact et dans l'overlay mobile.
+
+Build : next build OK (route / = 44.3 kB / 131 kB), zero reference celeste dans le rendu. Calendly
+branche (`sebastien-lugia/30min`).
+
+---
+
+## 2026-06-05 (suite) — Site web V1 · Phases 2-4 : Firmament + sections + build
+
+Construction complète du one-pager dans `site/`.
+
+**Phase 2 - Firmament** (`components/firmament/`) : SVG client de la Carte Vivante. Starfield seede
+deterministe (3 couches parallax), Voie lactee + etoile filante (soiree), noeuds en patine + magnitude,
+liens argent droits non-traversants, halo qui respire (foyer = desalignement RGPD), pictogramme-sommet
+lumineux, parallax curseur. Variants hero/instrument, climats soiree/nuit, prefers-reduced-motion.
+
+**Phase 3 - Sections** : Nav ile-flottante (progress, section active, overlay mobile hamburger morph),
+Hero (Soiree + firmament), Contexte (stats animees 67/55/57 %, divide-y non-tableur), Probleme
+(statement Lora), Methode (Nuit, 3 temps), Carte Vivante (firmament labellise + legende patine 6 paliers
++ lentilles), Positionnement (schema 3 couches), Offre (4 niveaux + comparatif marche), Cabinet
+(Sebastien + 3 convictions), Contact (Nuit + firmament, CTA Diagnostic gratuit + Calendly + mail), Footer.
+Voix v3, CTA magnetique button-in-button, reveal whileInView, perf transform/opacity.
+
+**Phase 4 - Verif** : next build OK (route / = 44.4 kB / 131 kB), HTML prerendu controle (9 sections,
+patine vars OK, zero erreur). Ref craft : `resources/site/taste_rules_lugia.md`. Decision D-050.
+
+**Tester :** `cd site && npm install && npm run dev` -> http://localhost:3000. A confirmer : slug Calendly
+(`lib/config.ts`), deploiement.
+
+---
+
+## 2026-06-05 (suite) — Site web V1 · Phase 1 : socle Next.js (scaffold + design system)
+
+Démarrage de la refonte du site dans `site/` (séparé du démonstrateur Streamlit). Stack : Next.js (App
+Router, TS) + Tailwind v3 + Framer Motion.
+
+**Livrables (`site/`) :**
+- Scaffold complet : `package.json`, `next.config.mjs`, `tailwind.config.ts`, `postcss`, `tsconfig`.
+- `lib/tokens.ts` — source de vérité : palette marque, 3 climats (nuit/soirée/jour), patine 6 paliers ×2,
+  échelle typo.
+- `app/globals.css` — climats, patine pilotée par `data-mode`, verre (voile/givre/plaque), signal ambre
+  (bordure 32 % + surface 10 %), reveal scroll, `prefers-reduced-motion`.
+- Polices **auto-hébergées** en `next/font/local` (Onest 300–600, Lora 400–600 **normal only**, IBM Plex
+  Mono) — Google Fonts inaccessible en build sandbox ; TTF repris de `assets/fonts/`.
+- Primitives : `Cta` (pilule button-in-button + magnétique), `Eyebrow`, `Glass`, `Section` (climat +
+  data-mode), `Reveal` (IntersectionObserver).
+- `app/page.tsx` — page de démo des tokens (3 climats, patine jour/nuit, échelle typo, primitives).
+
+**Vérif :** `tsc --noEmit` OK ; `next build` ✓ Compiled successfully (route / = 39.6 kB / 127 kB). Next
+épinglé en 14.2.33 (patch sécurité). Lancer en local : `cd site && npm install && npm run dev`.
+
+À venir — Phase 2 : le composant **Firmament** (Soirée + Nuit, patine, liens argent, halo qui respire).
+
+---
+
+## 2026-06-05 — Note de référence « Taste Rules × Charte Lugia » (chantier site web)
+
+Préparation de la refonte du site (one-pager Next.js). Skill externe **taste-skill**
+(`design-taste-frontend`, `high-end-visual-design`) lu et **réconcilié** avec la charte Lugia v3
+et la charte produit Carte Vivante. Non installable en session Cowork → déposé comme **doc de référence**.
+
+**Livrable :**
+- `resources/site/taste_rules_lugia.md` — dials retenus (variance 7 / motion 5–6 / densité 3),
+  règles de craft prises telles quelles (motion ressort, layout split/bento, perf transform/opacity,
+  anti-slop tells), **table d'overrides** où la charte Lugia prime (Onest/Lora/IBM Plex Mono,
+  palette navy/ivoire/argent/ambre, firmament au lieu d'images stock), garde-fous charte, checklist de pré-vol.
+
+À venir : architecture du one-pager validée (hero fusion maison+firmament, climat Soirée→Nuit, FR seul V1) →
+Phase 1 (scaffold Next.js + tokens + fonts).
+
+---
+
+## 2026-06-04 — Méthode canonique reçue & archivée (supersede les modélisations de session)
+
+Sébastien a fourni la méthode aboutie d'intelligence organisationnelle Lugia. Elle **annule et remplace** les modélisations d'organisation explorées dans la session (cf D-049). Documents archivés dans `resources/methode/` :
+- `lugia_schema_spec.md` — schéma N0→N8 (Organisation, 8 Axes, Domaines, Thèmes, Objets, Relations, Signaux, Actions, Règles), 9 facettes WSF × 8 axes, protocole d'extraction IA, catalogue de règles, décisions d'architecture arbitrées.
+- `lugia_schema_exemple.md` — exemple complet bout en bout (Cabinet Dr Martin, N0→N8).
+- `lugia_coaching_dialog_spec.md` — dialogue IA gratuit (20 échanges, 4 phases) qui capte des insights et construit la carte.
+- `capability_map_generique_v7.html` — carte de capacité générique (8 axes × domaines).
+- `wsf_matrix_v7.html` — matrice WSF × Lugia (8 axes × 9 facettes, processus & zones de risque).
+
+Prochaine phase : méthodologie + représentation dans l'interface (carte de capacité & schéma).
+
+---
+
+## 2026-06-02 (suite) — Couche de mise en page : grammaire positionnelle (forme ruban/cellule)
+
+Chantier de la couche manquante entre l'algèbre et les pixels (cf D-048).
+
+**Livrables (resources/vision/) :**
+- `lugia_regles_representation.md` — règles de représentation + bibliothèques : grammaire positionnelle (relations par la position, pas des traits), 4 canaux visuels (forme/position/couleur/opacité), forme « ruban + cellules », bibliothèque de symboles (8 types), bibliothèque de relations (11 liaisons : positionnel vs dessiné), règles de mise en page (anti-spaghetti), encodage lisible par agent IA (JSON), comparaison avec BPMN.
+- `lugia_proto_representation_ruban.html` — planche chartée : symboles monoline, anatomie d'une cellule, styles de relations, ruban échantillon avec cellule ouverte (le seul trait « chaud » = le désalignement RGPD).
+
+---
+
+## 2026-06-02 (suite) — Protocole de saisie (démarrage à froid)
+
+Côté **écriture** du substrat (l'algèbre de dérivation en était le côté lecture). Maillon désigné comme critique.
+
+**Livrables (resources/vision/) :**
+- `lugia_protocole_saisie.md` — spec : théorème de friction, échafaudage sectoriel pré-rempli en INFÉRÉ, interview de confirmation + grammaire d'élicitation (réponse → patch, TS), opérateur vérifier(κ) réutilisé en garde-fou d'écriture, table demandé/inféré/défauté par attribut, budget de démarrage (substrat minimum viable = une chaîne de valeur complète + données sensibles), maturité/révélation, représentation comme surface de saisie, volant d'inertie (échafaudage appris sur la population), contraintes (aucune donnée patient), amorçage + questions ouvertes.
+- `lugia_proto_demarrage_froid.html` — proto interactif : interview de confirmation qui révèle la carte (brume → confirmé), jauge de complétude, désalignement RGPD révélé, bénéfice débloqué. Charté.
+- `lugia_proto_cartographie.html` — premier rendu cartographique : graphe WSF d'un cabinet (objets typés + **liaisons** typées, force→épaisseur), disposé par facette (chaîne de valeur), lentille Santé/Conformité, désalignement RGPD émergeant d'un chemin (Notes sensibles → Assistant IA → service externe). Note : le diagnostic gratuit est un canal de saisie qui alimente le substrat, pas un score jetable.
+
+---
+
+## 2026-06-02 — Architecture des modélisations graphiques (WSF moteur)
+
+Conversation de conception (cf décision D-047). Le WSF passe du statut de représentation visible à celui de **moteur de calcul** : substrat unique, vues dérivées.
+
+**Livrables (resources/vision/) :**
+- `lugia_systeme_modelisations_graphiques.md` — spec d'architecture : substrat + algèbre de dérivation (7 opérateurs : filtrer/traverser/croiser/agréger/mapper/reconnaître/comparer + vérifier + ordonner + propagation d'incertitude ; mapper généralise « recolorer » aux canaux visuels), signatures TS, une recette par représentation, pile de zoom du parcours en opérateurs, vues calculées vs matérialisées, grammaire en étau (BPMN = cas dur), découpage démo/Work System/expert.
+- `lugia_schema_algebre_derivation.html` — schéma interactif charté : substrat → opérateurs → représentations, recette par vue.
+- `lugia_proto_parcours_zoom.html` — proto de la pile de zoom (niveaux 0→4), réaligné sur la charte produit v2.
+- `lugia_exploration_capability_map.md` + `lugia_proto_capability_map.html` — exploration capability map / binding (proto non encore réaligné charte).
+
+**Décisions :** interface à un seul axe visible (parcours-first) ; capability map et matrice Fonction × Facette = vues dérivées, la matrice réservée aux experts.
+
+---
+
+## 2026-05-28 (suite 11) — BP v1.3 : impact Max sur l'ARR à 3 ans + projections révisées
+
+Correction d'hypothèse importante après échange avec Sébastien : la conversion Institution sur devis en pré-seed est en réalité bien plus basse que ce que j'avais modélisé (la friction du devis caché tue 70-80 % de la conversion, pas seulement 50 %). Recalcul de l'impact Max sur l'ARR à 3 ans avec hypothèses honnêtes.
+
+**Nouvelle section 6.6 — Impact du palier Max sur l'ARR à 3 ans** :
+- Décomposition en deux effets opposés : effet prix négatif (Max 5 988 €/an < Institution sur devis 9 600 €/an) et effet volume positif (×3 à ×4 sur la capture du segment 6-15 utilisateurs).
+- Comparaison chiffrée fin An 3 : sans Max ARR = 2,386 M€ (1 450 clients, 50 Institution sur devis), avec Max ARR = 3,227 M€ (1 535 clients, 180 Max + 25 ETI sur devis).
+- **Delta net : +841 k€/an d'ARR à fin An 3, soit +35 %.** Sur 24 mois de présence du palier : +1,3 à 1,5 M€ de cash cumulé.
+- Bénéfices secondaires non capturés par l'ARR : vitesse de cash (+30-40 % grâce au cycle court vs devis 3-6 mois), CAC réduit (~1 200 heures fondateur libérées par an), signal de légitimité affichée dès le lancement.
+- Sensibilité au timing de lancement Max : retard 6 mois = perte ~340 k€ d'ARR à fin An 3, retard 12 mois = perte ~590 k€. Chantier WS.2 + WS.4 = ROI direct le plus élevé.
+
+**Section 7.2 révisée — scénarios** :
+- ARR pré-seed fin An 3 monte de 1,1-1,6 M€ à **2,2-3,2 M€** (révision par effet ARPU mix, volume client inchangé).
+- ARR seed fin An 3 monte de 2,3-3,6 M€ à **4,5-7,2 M€**.
+- Hypothèses ARPU mix par année explicitées : An 1 = 828 €/an (mix solo dominant, Max non disponible), An 2 = 1 450 €/an (Max lancé S1 2027 en cours d'An 2), An 3 = 1 800-2 100 €/an (Max stabilisé).
+- Encart « scénario sans Max pour mémoire » : delta +800-900 k€/an d'ARR.
+
+**Section 7.3 — P&L pré-seed révisé** :
+- Revenus SaaS An 2 : 450 → 650 k€. An 3 : 1 350 → 2 500 k€.
+- Total revenus An 3 : 1 580 → 2 730 k€.
+- **EBITDA fin An 3 : +615 k€ → +1 650 k€**.
+- Point mort accéléré : fin An 2 → mi-An 2 (350-450 clients au lieu de 400-600).
+- Cumul cash fin An 3 : 760 k€ → ~2 M€.
+
+**Posture maintenue** : la révision ne modifie pas les hypothèses de volume client (1 200-1 800 clients fin An 3 en pré-seed) ni la prudence sur l'acquisition. Seul l'ARPU mix est corrigé pour refléter la maturation réelle avec Max packagé. Anti-hockey-stick maintenu.
+
+**Conséquence stratégique** : la décision D-049 (phasage Pro multi T4 2026 puis Max S1 2027) devient critique. Le calendrier de livraison du chantier WS.2 + WS.4 est le facteur clé de ROI à 3 ans.
+
+Fichiers : `etudes/Lugia_Business_Plan_2026-05.html` (v1.3), `etudes/Lugia_Business_Plan_2026-05.pdf` (50 pages, +3 pages par rapport à v1.2).
+
+---
+
 ## 2026-05-28 (suite 10) — Grille tarifaire révisée Socle / Pro progressif / Max + engagement réglementaire
 
 Mise à jour structurante de la grille tarifaire Lugia, en quatre livrables coordonnés. Ouvre le marché des petits MSP (Pro progressif accessible) tout en préparant le lancement Max (S1 2027) qui captera les structures établies.

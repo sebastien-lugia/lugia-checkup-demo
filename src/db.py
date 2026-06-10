@@ -166,6 +166,27 @@ workstream_table = Table(
     Column("generated_at", String, nullable=False),
 )
 
+# ---- Table substrat (restitution capability map + carte vivante) ----
+# Clé logique : (interview_id, module_id, email). Stocke le graphe WSF brut
+# émis par la conversation + sa dérivation (footprint, chaîne de valeur, signaux).
+substrat_table = Table(
+    "substrat",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column(
+        "interview_id",
+        Integer,
+        ForeignKey("interview.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("module_id", String, nullable=False),
+    Column("email", String, nullable=False),
+    Column("graphe_json", Text, nullable=False),
+    Column("derive_json", Text, nullable=True),
+    Column("source", String, nullable=True),
+    Column("generated_at", String, nullable=False),
+)
+
 # ---- Tables auth (V1-5a) ----
 
 auth_token_table = Table(
@@ -940,6 +961,68 @@ def add_chat_message(
             )
         )
         return int(result.inserted_primary_key[0])
+
+
+def upsert_substrat(
+    interview_id: int,
+    module_id: str,
+    email: str,
+    graphe_json: str,
+    derive_json: Optional[str] = None,
+    source: Optional[str] = None,
+) -> int:
+    """Insère ou remplace le substrat d'un chantier (clé (interview, module, email))."""
+    engine = get_engine()
+    now = datetime.utcnow().isoformat() + "Z"
+    with engine.begin() as conn:
+        conn.execute(
+            substrat_table.delete().where(
+                (substrat_table.c.interview_id == interview_id)
+                & (substrat_table.c.module_id == module_id)
+                & (substrat_table.c.email == email)
+            )
+        )
+        result = conn.execute(
+            substrat_table.insert().values(
+                interview_id=interview_id, module_id=module_id, email=email,
+                graphe_json=graphe_json, derive_json=derive_json, source=source,
+                generated_at=now,
+            )
+        )
+        return int(result.inserted_primary_key[0])
+
+
+def get_substrat(interview_id: int, module_id: str, email: str) -> Optional[dict[str, Any]]:
+    """Retourne le substrat d'un chantier, ou None."""
+    engine = get_engine()
+    with engine.begin() as conn:
+        r = conn.execute(
+            select(substrat_table).where(
+                (substrat_table.c.interview_id == interview_id)
+                & (substrat_table.c.module_id == module_id)
+                & (substrat_table.c.email == email)
+            )
+        ).fetchone()
+    if not r:
+        return None
+    return {"interview_id": r.interview_id, "module_id": r.module_id,
+            "graphe_json": r.graphe_json, "derive_json": r.derive_json,
+            "source": r.source, "generated_at": r.generated_at}
+
+
+def list_substrats(interview_id: int, email: str) -> list[dict[str, Any]]:
+    """Tous les substrats (un par chantier exploré) d'une interview."""
+    engine = get_engine()
+    with engine.begin() as conn:
+        rows = conn.execute(
+            select(substrat_table).where(
+                (substrat_table.c.interview_id == interview_id)
+                & (substrat_table.c.email == email)
+            ).order_by(substrat_table.c.generated_at)
+        ).fetchall()
+    return [{"module_id": r.module_id, "graphe_json": r.graphe_json,
+             "derive_json": r.derive_json, "source": r.source,
+             "generated_at": r.generated_at} for r in rows]
 
 
 def add_lead(

@@ -18,7 +18,7 @@
 import * as React from "react";
 import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
 import { V3_TAG_LABELS, type V3Module, type V3ModuleTag } from "@/lib/v3/modules_data";
-import { MermaidDiagram } from "@/components/v3/MermaidDiagram";
+import { CarteVivanteV3 } from "@/components/v3/CarteVivanteV3";
 import { getChantierGraphe } from "@/lib/wsf/chantier-graphes";
 import { LeadConseilForm } from "@/components/v3/LeadConseilForm";
 import {
@@ -163,7 +163,7 @@ export function ModuleV3({
             assistant produit ensuite une version enrichie au tour 4. */}
         {getChantierGraphe(mod.id) && (
           <div style={{ marginBottom: 48 }}>
-            <MermaidDiagram graph={getChantierGraphe(mod.id)!} theme={theme} />
+            <CarteVivanteV3 graph={getChantierGraphe(mod.id)! as never} theme={theme} />
           </div>
         )}
 
