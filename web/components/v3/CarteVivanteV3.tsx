@@ -79,6 +79,11 @@ export function CarteVivanteV3({ graph, theme = "night" }: { graph: AnyGraph; th
     const a = -Math.PI / 2 + (i * 2 * Math.PI) / points.length;
     pos[p.id] = [cx + R * Math.cos(a), cyc + R * Math.sin(a)];
   });
+  // Étapes du ruban : on mémorise aussi leur position (haut), pour pouvoir dessiner
+  // les liaisons objet↔étape (sinon elles seraient perdues). Les liaisons étape↔étape
+  // ne sont PAS redessinées : le ruban (ordre gauche→droite) les porte déjà.
+  const stepIds = new Set(steps.map((s) => s.id));
+  steps.forEach((s, i) => { pos[s.id] = [xs[i], 78]; });
 
   const sym = (kind: string, x: number, y: number, color: string) =>
     `<g transform="translate(${x},${y}) scale(0.9) translate(-16,-16)" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${SYM[kind] || SYM.ENTITE}</g>`;
@@ -93,6 +98,7 @@ export function CarteVivanteV3({ graph, theme = "night" }: { graph: AnyGraph; th
   ].join("");
 
   const liens = edges.map((e) => {
+    if (stepIds.has(e.source) && stepIds.has(e.cible)) return ""; // flux = porté par le ruban
     const a = pos[e.source], b = pos[e.cible]; if (!a || !b) return "";
     const prob = ALERTE.has(etatById[e.source]) || ALERTE.has(etatById[e.cible]);
     return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${prob ? "#C4A055" : "#8E8E91"}" stroke-width="${prob ? 2 : 1.1}" ${prob ? 'stroke-dasharray="6 4"' : ""} opacity="${prob ? 1 : 0.45}"/>`;

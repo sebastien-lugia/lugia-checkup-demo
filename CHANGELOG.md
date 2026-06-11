@@ -4,6 +4,46 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-06-10 — Capability map : OBJETS par axe depuis le questionnaire V3 (V1 legacy)
+
+Le questionnaire prod = **V3 uniquement** (acté). V1 + extracteur démo = legacy (mémoire à jour).
+- **`src/extract_questionnaire_v3.py`** (nouveau) — socle de placement V3 : table `EXTRACT_V3`
+  (18 questions a1-a6/b1-b7/c1-c6 → objet + axe + référencé_dans, par fonction selon
+  `lugia_placement_objets_axes.md`) ; état dérivé du score `s` (4→OPTIMAL … 1→A_RISQUE). Produit un
+  footprint avec **objets** (8 axes potentiels), pas seulement des scores. b8/b9/b10 non mappés (libellés
+  absents du front) → comptent dans le score, pas en objets.
+- **`backend/main.py`** (`/substrat`) : remplace l'empreinte « score seul » par l'extraction objets V3 ;
+  fusion questionnaire + chantiers ; état/santé recalculés par axe sur les objets fusionnés.
+- Testé : `get_answers` → footprint objets (5 axes allumés sur jeu de réponses simulé).
+- À arbitrer (placements discutables, table éditable) : b6 → R&D/Innovation (conduite du changement),
+  b7 → Stratégie (pilotage). Finance & Développement non couverts par le questionnaire (normal).
+
+## 2026-06-10 — Capability map allumée dès le questionnaire (scores A/B/C)
+
+La capability map n'était nourrie que par les chantiers. Désormais elle s'allume **dès le questionnaire** :
+- **`backend/main.py`** (`/substrat`) : calcule les scores du questionnaire (`v2_scoring`) et fusionne une
+  empreinte sur 3 axes — A→`parcours_client`, B→`equipe_rh`, C→`outils_data_infra` — avec état (niveau) +
+  santé (pct). Fusionnée dans `footprint_global` (questionnaire + chantiers).
+- **`web/components/v3/CapabilityMapV3.tsx`** : un axe s'allume aussi s'il a un score (sante), pas
+  seulement des objets.
+- **`web/components/v3/CapabilityMapSection.tsx`** : la section s'affiche dès qu'il y a une empreinte
+  (questionnaire **ou** chantier), sans exiger un chantier exploré.
+- Limite assumée : les 3 axes du questionnaire sont allumés par **score** (état + %), **sans objets** — le
+  questionnaire v3 ne type pas ses options. L'extraction d'objets depuis le questionnaire est au backlog.
+
+## 2026-06-10 — Fix capability map éteinte + liens objet↔étape (retours test local)
+
+Retours test SLM en local :
+- **Capability map éteinte** (tous axes « hors périmètre ») alors que la carte vivante affichait le seed :
+  bug dans `backend/main.py` — `footprint_global` lisait `graphe.get("objets")` mais le graphe (seed +
+  agent) utilise les clés `nodes`/`edges`. Corrigé (lecture tolérante `nodes||objets`, `edges||liaisons`).
+- **Liens absents** dans la carte : `CarteVivanteV3` ne dessinait les liaisons qu'entre objets et **jetait
+  toute liaison touchant une étape du ruban** (ACTION/FLUX). Corrigé : les étapes ont désormais une
+  position, on dessine les liaisons objet↔étape ; on ne redessine pas les liaisons étape↔étape (le ruban
+  les porte). Limite résiduelle : si le SLM n'émet aucune liaison, rien à dessiner (capacité du modèle).
+- Diagnostic associé : avec qwen, la conversation ne stocke souvent pas de substrat (clôture précoce /
+  graphe non exploitable) → la page résultats retombe sur le seed. Le pipeline complet se valide en **cloud**.
+
 ## 2026-06-09 — Discipline conversation SLM + garde-fou 10 échanges + layout carte petits graphes
 
 Retours test local (SLM qwen) : clôture prématurée au tour 3, questions multiples, suggestions manquantes,

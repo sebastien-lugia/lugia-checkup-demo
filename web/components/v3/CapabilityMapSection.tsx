@@ -29,7 +29,9 @@ export function CapabilityMapSection({ interviewId }: { interviewId: number }) {
     getSubstrat(interviewId).then(setSub).catch(() => setErr(true));
   }, [interviewId]);
 
-  if (err || !sub || !sub.chantiers.length) return null; // rien tant qu'aucun chantier n'a été exploré
+  if (err || !sub) return null;
+  const hasFootprint = sub.footprint_global && Object.keys(sub.footprint_global).length > 0;
+  if (!hasFootprint && !sub.chantiers.length) return null; // rien à montrer
 
   return (
     <section style={{ marginTop: 54 }}>

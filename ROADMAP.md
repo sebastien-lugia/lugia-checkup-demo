@@ -9,6 +9,14 @@ Trajectoire du projet articulée autour de **deux produits distincts** (cf D-041
 
 ---
 
+## ~~Extraction d'OBJETS depuis le questionnaire~~ ✅ FAIT 2026-06-10 (src/extract_questionnaire_v3.py)
+
+La capability map s'allume désormais dès le questionnaire, mais **par score uniquement** (3 axes A/B/C,
+état + %, sans objets). Raison : le questionnaire prod v3 (`interview_protocol_v3.json`) ne porte pas de
+typage sur ses options (juste `id`/`label`), contrairement au v1 (`node_type`/`health_score`). Pour
+afficher des **objets** par axe issus du questionnaire (comme dans la démo), il faudrait **autoriser une
+table de mapping** question/option → objet+axe pour le questionnaire v3, puis réutiliser `src/placement.py`.
+
 ## Extraction progressive du substrat (carte qui s'allume en direct) — repoussé 2026-06-09
 
 Le spec `lugia_coaching_dialog_spec.md` prévoit que la carte de capacité **se remplisse au fil de la

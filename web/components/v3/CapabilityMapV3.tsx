@@ -30,7 +30,7 @@ export function CapabilityMapV3({ footprint }: { footprint: Record<string, Footp
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))", gap: 14 }}>
       {AXES.map(([code, label, icon]) => {
         const f = footprint[code];
-        const lit = f && (f.objets?.length || f.references_in?.length);
+        const lit = f && (f.objets?.length || f.references_in?.length || f.sante != null);
         if (!lit) {
           return (
             <div key={code} style={card(true)}>

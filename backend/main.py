@@ -1255,7 +1255,7 @@ async def get_substrat_endpoint(
     chantier (+ dérivation footprint / chaîne de valeur / signaux) et une
     empreinte globale (capability map du cabinet) fusionnant les footprints.
     """
-    _assert_user_owns_interview(email, interview_id)
+    interview = _assert_user_owns_interview(email, interview_id)
     import json as _json
     from src import placement
     rows = db.list_substrats(interview_id, email)
@@ -1270,12 +1270,35 @@ async def get_substrat_endpoint(
             "derive": _json.loads(r["derive_json"]) if r.get("derive_json") else None,
             "generated_at": r["generated_at"],
         })
-        objets_all += graphe.get("objets", [])
-        liaisons_all += graphe.get("liaisons", [])
+        objets_all += graphe.get("objets") or graphe.get("nodes") or []
+        liaisons_all += graphe.get("liaisons") or graphe.get("edges") or []
     footprint_global = (
         placement.footprint({"objets": objets_all, "liaisons": liaisons_all})
         if objets_all else {}
     )
+
+    # Empreinte du QUESTIONNAIRE V3 : OBJETS par axe (socle extract_questionnaire_v3),
+    # état dérivé du score s. Fusionnée dans footprint_global ; état/santé recalculés
+    # par axe sur les objets fusionnés (questionnaire + chantiers).
+    try:
+        from src import extract_questionnaire_v3 as _eqv3
+        from src.placement import ETAT_SCORE as _ES
+        foot_q = _eqv3.footprint(db.get_answers(interview_id))
+        for axe, d in foot_q.items():
+            tgt = footprint_global.setdefault(axe, {"objets": [], "references_in": []})
+            tgt.setdefault("objets", []).extend(d.get("objets", []))
+            tgt.setdefault("references_in", []).extend(d.get("references_in", []))
+        _ORDER = ["OPTIMAL", "FONCTIONNEL", "EN_TRANSFORMATION", "INACTIF",
+                  "DEGRADE", "NON_DOCUMENTE", "A_RISQUE", "BLOQUE"]
+        for axe, d in footprint_global.items():
+            ets = [o.get("etat") for o in d.get("objets", []) if o.get("etat")]
+            if ets:
+                d["etat"] = max(ets, key=lambda e: _ORDER.index(e) if e in _ORDER else 0)
+                d["sante"] = round(100 * sum(_ES.get(e, 0.4) for e in ets) / len(ets))
+    except Exception:
+        import logging
+        logging.exception("footprint questionnaire V3 non calculé (interview=%s)", interview_id)
+
     return {
         "interview_id": interview_id,
         "chantiers": chantiers,
