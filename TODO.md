@@ -33,7 +33,10 @@ Après spec uniquement (ne pas coder avant) :
 - ✅ Démotion : liste de chantiers directs retirée, parcours en sortie principale (2026-06-15).
 - ✅ Export PDF du parcours modélisé (3 vues) livré (2026-06-15).
 - ✅ Catalogues avocat/kiné amorcés (2026-06-15) ; reste à les rendre modélisables (backend + flow sectoriel) et à brancher un flux résultats par secteur.
-- Coder la dérivation des chantiers À PARTIR du parcours modélisé (le « 3e temps » promis dans la copy) — fonctionnalité produit, payante.
+- ✅ Chantiers dérivés du parcours + verrou abonnement livrés (2026-06-15) : `deriveChantiers` + bloc « Chantiers proposés » dans `ParcoursViews` (teaser gratuit, lancement payant → /tarifs).
+- Brancher le verrou sur la vraie logique d'abonnement (état du compte) plutôt qu'un simple lien /tarifs.
+- Affiner la dérivation via `κ` vérifier (R1–R5) quand le moteur sera complet (au-delà des seuls états d'objets).
+- Générer le plan d'action détaillé du chantier dérivé (réutiliser le chat chantier existant, ancré sur le parcours) — côté payant.
 - ✅ Dialogue IA de modélisation (C.E) livré (incréments 1+2, 2026-06-15) : moteur backend mode « parcours » + `ParcoursDialogModal` (cloud) + validation → `ParcoursViews`, câblé page résultats sur le pilote.
 - ✅ Mode navigateur (web-llm) ajouté à `ParcoursDialogModal` (2026-06-15).
 - ✅ Les 10 micro-parcours ouverts (backend + catalogue) (2026-06-15).

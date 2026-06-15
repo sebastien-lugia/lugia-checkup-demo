@@ -4,6 +4,12 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-06-15 — Chantiers dérivés du parcours + verrou abonnement (C.E, le « 3e temps »)
+
+`web/lib/wsf/derive-chantiers.ts` : `deriveChantiers(graph)` dérive 2-3 chantiers **ancrés** dans le parcours à partir de ses zones de fragilité (objets en état A_RISQUE / BLOQUE / DEGRADE / NON_DOCUMENTE), triés par sévérité puis criticité, avec intitulé (Fiabiliser/Débloquer/Fluidifier/Formaliser) et observation. Dérivation déterministe (pas d'appel LLM).
+
+`ParcoursViews` affiche un bloc **« Chantiers proposés »** sous les 3 vues (teaser : intitulé + observation), chaque chantier portant un **CTA verrouillé** « Lancer ce chantier » (icône cadenas → `/tarifs`) + un CTA « Passer à l'abonnement ». Le plan d'action détaillé et le lancement sont réservés au payant. Visible partout où le parcours est rendu (modale post-validation + page résultats). Vérifié : `tsc --noEmit` = 0 erreur ; dérivation testée sur le pilote (3 chantiers cohérents).
+
 ## 2026-06-15 — Parcours : démotion chantiers + export PDF + catalogues avocat/kiné (C.E)
 
 - **Démotion (décision produit)** : sur `app/resultats/page.tsx`, la section « Trois opportunités d'action » (chantiers issus directement du questionnaire) est **retirée**. « Modéliser un parcours » devient la sortie principale (Section III), « Prochaine étape » en IV. Copy réorientée : les chantiers dédiés au parcours arrivent dans un 3e temps (avec Lugia). Réversible (composant `ChantierCard` conservé, non monté).
