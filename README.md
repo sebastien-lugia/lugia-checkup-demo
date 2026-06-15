@@ -101,3 +101,4 @@ Démonstrateur local, single-user, exécuté sur la machine du développeur ou d
 - Aucune notation des personnes — les scores portent sur le système de travail.
 - Le scoring est déclaratif et présenté comme une première lecture, pas comme une vérité.
 test
+# lugia-app-demo
