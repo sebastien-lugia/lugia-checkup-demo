@@ -4,6 +4,63 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-06-15 — Parcours : démotion chantiers + export PDF + catalogues avocat/kiné (C.E)
+
+- **Démotion (décision produit)** : sur `app/resultats/page.tsx`, la section « Trois opportunités d'action » (chantiers issus directement du questionnaire) est **retirée**. « Modéliser un parcours » devient la sortie principale (Section III), « Prochaine étape » en IV. Copy réorientée : les chantiers dédiés au parcours arrivent dans un 3e temps (avec Lugia). Réversible (composant `ChantierCard` conservé, non monté).
+- **Export PDF du parcours** : `build_parcours_pdf` (pdf_exporter) assemble les 3 vues reportlab (logigramme + ruban + carto) à la charte ; route `GET /interviews/{id}/modules/{module_id}/parcours-pdf` (graphe lu depuis le substrat persisté) ; `downloadParcoursPdf` (api.ts) ; bouton « Télécharger en PDF » dans la phase « vues » de `ParcoursDialogModal`. Vérifié : PDF 3 vues généré sans erreur.
+- **Catalogues avocat & kiné (amorce)** : `CATALOGUE_AVOCAT` (5) + `CATALOGUE_KINE` (4) dans `catalogue.ts`, enregistrés dans `CATALOGUES` par secteur (modélisation par dialogue à venir). La grammaire des 3 vues est identique ; seul le catalogue est sectoriel.
+
+Vérifié : `tsc --noEmit` = 0 erreur sur les fichiers du chantier ; imports backend OK ; 3 secteurs au catalogue. Le pivot D-056 (chantier C.E) est complet sur le périmètre prévu.
+
+## 2026-06-15 — Parcours : 4 extensions (web-llm, 10 parcours, PDF, suggestion) (C.E)
+
+- **Mode navigateur (web-llm)** dans `ParcoursDialogModal` : toggle Cloud / Navigateur, runtime qwen chargé à la volée, system prompt par tour + inférence locale + persistance, fallback GPU — miroir de `ChatChantierModal`. (V1 était cloud-only.)
+- **Les 10 micro-parcours ouverts** : enregistrés en `_MODULES_FALLBACK` (`kind:"parcours"`), `disponible:true` + `moduleId` au catalogue, copy de section ajustée (modélisé vs exemple vs « cliquez pour modéliser »).
+- **Portage reportlab (PDF)** : `build_ruban_drawing` + `build_carto_drawing` dans `src/wsf_render.py` (symboles au trait par zone / points colorés par état, palette charte, maturité→opacité, désalignement tracé). Vérifié : rendu des 3 vues dans un PDF sans erreur.
+- **Suggestion IA du parcours** (spec §13.1) : `suggestParcours(facetLevels)` mappe parcours→facette et propose le parcours rattaché à la facette la plus faible ; pré-sélection + note + marqueur « suggéré » dans la page résultats. Vérifié offline.
+
+Vérifié : `tsc --noEmit` = 0 erreur sur les fichiers du chantier ; backend AST OK ; logique suggestion testée. Le chantier C.E (pivot D-056) est fonctionnel de bout en bout, sur les 10 parcours, cloud + navigateur, web + PDF.
+
+## 2026-06-15 — Dialogue IA de modélisation : modale frontend + validation (C.E, incrément 2/2)
+
+`web/components/v3/ParcoursDialogModal.tsx` : modale de dialogue (V1 **cloud/Claude**) réutilisant l'API chat existante (`getChatHistory`/`postChatMessage`/`resetChatConversation`). Déroulé : amorce auto du tour 1 → échanges avec suggestions cliquables → à la fin (`ended` + graphe), écran **synthèse → validation** (la synthèse écrite du LLM, avec « C'est bien mon cabinet » / « Reprendre le dialogue ») → affichage des **3 vues** (`ParcoursViews`) sur le graphe validé. Chrome charte (surface Jour, `fontStyle:"normal"`).
+
+Câblage dans `app/resultats/page.tsx` : `moduleId` ajouté au catalogue (pilote → `parcours_charge_admin`), bouton « Modéliser ce parcours avec Lugia » (affiché si parcours dispo + interview connue), le graphe modélisé par dialogue remplace l'exemple pré-modélisé. Vérifié : `tsc --noEmit` = 0 erreur sur les fichiers du chantier. Reste : mode navigateur (web-llm) dans la modale parcours (V1 cloud-only), et ouverture des 9 autres parcours.
+
+## 2026-06-15 — Dialogue IA de modélisation : moteur backend (C.E, incrément 1/2)
+
+Mode « parcours » ajouté au moteur de chat existant (réutilisation maximale) :
+- `src/chat_assistant.py` — `_build_parcours_system_prompt` (mécanique §11 : 4 moments ancrage / objets / frictions / bornes, puis SYNTHÈSE ÉCRITE + `MERMAID_JSON` → `GrapheWSF` 10-15 nœuds, **sans `PLAN_JSON`** car le plan détaillé reste payant). `_build_system_prompt` déroute vers ce prompt quand `module.kind == "parcours"`. Le parsing et le contrat `MERMAID_JSON` sont inchangés.
+- `src/pdf_exporter.py` — pilote enregistré dans `_MODULES_FALLBACK` (`parcours_charge_admin`, `kind:"parcours"`). Les routes chat (`POST/GET/DELETE /chat`, `chat/system-prompt`, `chat/persist`) et la persistance BDD fonctionnent sans modification (clé par `module_id`). Le hook de fin de conversation dérive et persiste déjà le substrat depuis le graphe émis — satisfait la persistance « graphe WSF » de la spec §13.2.
+
+Vérifié hors-ligne : prompts corrects par tour ; extraction d'une synthèse → `GrapheWSF` avec enums tous valides contre `types.ts`, `ended=true`, `plan` absent. Cloud (Claude) et local (qwen/web-llm) couverts via le pipeline existant. Reste l'incrément 2 : modale de dialogue frontend + écran synthèse/validation → `ParcoursViews`.
+
+## 2026-06-15 — Câblage page résultats : section « Modéliser un parcours » (C.E)
+
+`web/lib/wsf/parcours/catalogue.ts` (catalogue v1 : 10 micro-parcours médecin + index des fixtures) et nouvelle
+**Section IV « Modéliser un parcours »** dans `app/resultats/page.tsx` (la page de prod du flux questionnaire →
+résultats). Sélecteur des 10 micro-parcours en chips charte (navy actif, pas le bleu SaaS) ; le pilote
+« Charge administrative d'une consultation » rend `ParcoursViews` (3 vues), les autres sont marqués « bientôt »
+(modélisation par dialogue à venir). « Prochaine étape » devient Section V. Posture respectée : on regarde le
+fonctionnement du travail, pas les personnes. Ajout non destructif et réversible : les sections chantiers
+existantes sont conservées en V1. Vérifié : `tsc --noEmit` = 0 erreur sur les fichiers du chantier. Reste :
+démotion éditoriale de « explorer un chantier » au profit du parcours (décision produit), dialogue IA de
+modélisation pour les 9 autres parcours, portage reportlab PDF.
+
+## 2026-06-15 — Composant React ParcoursViews (3 vues, C.E)
+
+`web/components/v3/ParcoursViews.tsx` : visualisation d'un parcours modélisé sous ses trois représentations, en onglets, dérivées du même `GrapheWSF` — logigramme (lib mermaid, lazy, direction LR), ruban et mini-carto (chaînes SVG pures de `render-ruban`/`render-carto`, injectées). Chrome charte (segmented Onest, eyebrow mono, `fontStyle:"normal"` partout), surface de lecture en climat Jour (D-050). Chaque onglet porte sa question. Composant autonome (props `graph`), prêt à câbler dans la page résultats. Vérifié : `tsc --noEmit` projet = 0 erreur sur les fichiers du chantier (seules subsistent des erreurs préexistantes de cache `.next/types`). Reste : câblage page résultats + sélecteur de micro-parcours, portage reportlab PDF.
+
+## 2026-06-15 — Renderers des 3 représentations de parcours (code, C.E)
+
+Première tranche de code du pivot D-056, dans `web/lib/wsf/` :
+- `palette.ts` — palette de marque + mapping 8 `EtatObjet` → 6 états d'affichage charte + opacité de maturité (partagé, destiné à converger avec `render-mermaid.ts`).
+- `parcours/charge-admin.ts` — substrat WSF du pilote « Charge administrative d'une consultation » (fixture, 15 objets / 15 liaisons, format `chantier-graphes.ts`).
+- `render-ruban.ts` — `renderRubanSVG(GrapheWSF)` : ruban de chaîne de valeur, 8 symboles = 8 `TypeObjet` au trait, zones par composante, ordre g→d par layering des liaisons de flux, maturité→opacité, un seul désalignement tracé.
+- `render-carto.ts` — `renderCartoSVG(GrapheWSF)` : mini-carto, points colorés par état, clusters par composante, liens argent (épaisseur ∝ force), maturité→opacité.
+
+Le logigramme réutilise `graphToMermaid` existant. Renderers purs (chaîne SVG, zéro DOM), tolérants aux valeurs hors enum. Vérifié : `tsc --noEmitOnError` exit 0, SVG valides émis depuis la fixture, aucune couleur SaaS. Maquettes `resources/methode/maquettes_parcours/maquette_2_ruban.svg` et `maquette_3_minicarto.svg` régénérées depuis le code. Reste : portage reportlab (PDF), composant React de visualisation, câblage page résultats.
+
 ## 2026-06-15 — Spec modélisations graphiques livrée (conv C.E, préalable D-056)
 
 Sortie de la conv « modélisations graphiques » : note de spec `resources/methode/lugia_modelisations_graphiques_spec.md`

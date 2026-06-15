@@ -25,6 +25,23 @@ Points à valider sur la spec :
 
 Après spec uniquement (ne pas coder avant) :
 
+✅ **Renderers web des 3 représentations livrés (2026-06-15)** — `web/lib/wsf/palette.ts`, `parcours/charge-admin.ts`, `render-ruban.ts`, `render-carto.ts` (logigramme via `graphToMermaid`). Suite renderers :
+- Porter ruban + mini-carto en reportlab natif (`src/wsf_render.py`) pour le PDF.
+- ✅ Composant `ParcoursViews.tsx` + câblage page résultats livrés (2026-06-15) : section « Modéliser un parcours » avec sélecteur (`lib/wsf/parcours/catalogue.ts`), pilote rendu, autres « bientôt ».
+- ✅ Portage reportlab des vues parcours (ruban + carto) livré (2026-06-15).
+- ✅ Suggestion IA du parcours à creuser livrée (heuristique footprint, 2026-06-15).
+- ✅ Démotion : liste de chantiers directs retirée, parcours en sortie principale (2026-06-15).
+- ✅ Export PDF du parcours modélisé (3 vues) livré (2026-06-15).
+- ✅ Catalogues avocat/kiné amorcés (2026-06-15) ; reste à les rendre modélisables (backend + flow sectoriel) et à brancher un flux résultats par secteur.
+- Coder la dérivation des chantiers À PARTIR du parcours modélisé (le « 3e temps » promis dans la copy) — fonctionnalité produit, payante.
+- ✅ Dialogue IA de modélisation (C.E) livré (incréments 1+2, 2026-06-15) : moteur backend mode « parcours » + `ParcoursDialogModal` (cloud) + validation → `ParcoursViews`, câblé page résultats sur le pilote.
+- ✅ Mode navigateur (web-llm) ajouté à `ParcoursDialogModal` (2026-06-15).
+- ✅ Les 10 micro-parcours ouverts (backend + catalogue) (2026-06-15).
+- Rendre modélisables les 9 autres micro-parcours (les enregistrer en `_MODULES_FALLBACK` + passer `disponible:true` au catalogue, une fois la modale validée).
+- Optionnel : ajuster `MAX_USER_MESSAGES` spécifique parcours (actuellement 10 partagé).
+- Compléter le catalogue avocat / kiné dans `catalogue.ts`.
+- Faire converger `render-mermaid.ts` sur `palette.ts` (suppression du double mapping d'états).
+
 - Refondre la page résultats V3 : nouvelle sortie principale « modéliser un parcours » remplaçant « explorer un chantier ».
 - Construire l'écran de dialogue IA de modélisation (mécanique distincte du chat chantier).
 - Construire l'écran de synthèse + validation par le médecin.

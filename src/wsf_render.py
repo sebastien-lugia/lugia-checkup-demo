@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon, Group
+from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon, Group, Circle, Ellipse
 from reportlab.lib.colors import HexColor, Color
 
 # ─────────────────────────────────────────────────────────────────────
@@ -366,3 +366,235 @@ def etats_presents(graphe: dict[str, Any]) -> list[str]:
         if e not in seen:
             seen.append(e)
     return seen
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Parcours (pivot D-056) : ruban de chaîne de valeur + mini-carto.
+# Pendants reportlab des renderers web web/lib/wsf/render-ruban.ts et
+# render-carto.ts. Mêmes règles : ruban = symboles au trait (la forme dit
+# le type), carto = points colorés par état. Spec §5-6.
+# ─────────────────────────────────────────────────────────────────────
+
+_NAVY = "#1A2333"
+_ARGENT = "#B5B5B8"
+_INK600 = "#3A4360"
+_INK400 = "#6E7795"
+_TERRA = "#7A3320"
+_PAPER = "#FBFAF6"
+_IVORY = "#F4EFE5"
+
+# Ordre canonique des zones (composantes) du ruban, haut → bas.
+_ZONE_ORDER = [
+    "ENVIRONNEMENT", "STRATEGIE", "PARTICIPANT", "TECHNOLOGIE",
+    "INFORMATION", "PROCESSUS", "PRODUIT", "CLIENT", "INFRASTRUCTURE",
+]
+_ZONE_LABEL = {
+    "ENVIRONNEMENT": "Environnement", "STRATEGIE": "Stratégie",
+    "PARTICIPANT": "Participant", "TECHNOLOGIE": "Technologie",
+    "INFORMATION": "Information", "PROCESSUS": "Processus",
+    "PRODUIT": "Produit", "CLIENT": "Client", "INFRASTRUCTURE": "Infrastructure",
+}
+_FLOW_TYPES = {"PRODUIT", "ALIMENTE", "TRANSFORME", "INTERFACE", "DELIVRE", "CONSOMME", "CONTRAINT"}
+_ETAT_SEVERITE = {
+    "BLOQUE": 5, "A_RISQUE": 4, "DEGRADE": 3, "NON_DOCUMENTE": 2,
+    "INACTIF": 2, "EN_TRANSFORMATION": 1, "FONCTIONNEL": 0, "OPTIMAL": 0,
+}
+
+
+def _maturite_opacite(node: dict) -> float:
+    m = str((node.get("metadata") or {}).get("maturite", "")).upper()
+    if m in ("INFERE", "INFÉRÉ"):
+        return 0.42
+    if m in ("SUPPOSE", "SUPPOSÉ"):
+        return 0.28
+    return 1.0
+
+
+def _col(hex_str: str, alpha: float = 1.0) -> Color:
+    c = HexColor(hex_str)
+    return Color(c.red, c.green, c.blue, alpha)
+
+
+def _symbole(d: Drawing, type_obj: str, cx: float, cy: float, op: float) -> None:
+    """Ajoute le symbole au trait du TypeObjet (forme = type)."""
+    stroke = _col(_NAVY, op)
+    none = None
+    t = type_obj
+    if t == "ACTEUR":
+        d.add(Circle(cx, cy + 5, 5, strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+        d.add(Polygon([cx - 9, cy - 8, cx + 9, cy - 8, cx + 6, cy - 1, cx - 6, cy - 1],
+                      strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+    elif t == "ENTITE":
+        d.add(Rect(cx - 13, cy - 9, 26, 18, strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+    elif t == "STOCK":
+        d.add(Ellipse(cx, cy + 8, 12, 4, strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+        d.add(Rect(cx - 12, cy - 8, 24, 16, strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+    elif t == "ACTION":
+        d.add(Rect(cx - 15, cy - 9, 30, 18, rx=9, ry=9, strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+    elif t == "DECISION":
+        d.add(Polygon([cx, cy + 11, cx + 14, cy, cx, cy - 11, cx - 14, cy],
+                      strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+    elif t == "FLUX":
+        d.add(Polygon([cx - 10, cy - 9, cx + 15, cy - 9, cx + 10, cy + 9, cx - 15, cy + 9],
+                      strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+    elif t == "CONTRAINTE":
+        d.add(Polygon([cx - 9, cy + 9, cx + 9, cy + 9, cx + 14, cy - 9, cx - 14, cy - 9],
+                      strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+    elif t == "FRONTIERE":
+        d.add(Circle(cx, cy, 12, strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+    else:
+        d.add(Rect(cx - 13, cy - 9, 26, 18, strokeColor=stroke, strokeWidth=1.3, fillColor=none))
+
+
+def build_ruban_drawing(graphe: dict[str, Any], max_width: float = 470.0) -> Optional[Drawing]:
+    """Ruban de chaîne de valeur : symboles au trait par zone, lecture g→d.
+
+    Pendant reportlab de render-ruban.ts. Trait sobre navy ; la couleur
+    d'état n'est PAS le canal porteur ici (c'est la mini-carto).
+    """
+    nodes = graphe.get("nodes") or []
+    edges = graphe.get("edges") or []
+    if not nodes:
+        return None
+
+    present = {n["composante"] for n in nodes}
+    zones = [z for z in _ZONE_ORDER if z in present]
+
+    # Ordre de lecture g→d par layering sur les liaisons de flux.
+    flow = [e for e in edges if e.get("type") in _FLOW_TYPES]
+    layer = _compute_layers(nodes, flow)
+    max_layer = max(layer.values()) if layer else 0
+
+    lbl_w = 78.0
+    x0 = lbl_w + 18.0
+    col_w = 78.0
+    band_h = 46.0
+    pad = 8.0
+    width = max(x0 + (max_layer + 1) * col_w + pad, 360.0)
+    height = pad * 2 + len(zones) * band_h
+
+    d = Drawing(width, height)
+
+    def zone_cy(z: str) -> float:
+        i = zones.index(z)
+        return height - pad - i * band_h - band_h / 2.0
+
+    def col_x(l: int) -> float:
+        return x0 + l * col_w
+
+    # Bandes de zones.
+    for i, z in enumerate(zones):
+        yy = height - pad - (i + 1) * band_h
+        d.add(Rect(pad, yy, width - 2 * pad, band_h,
+                   fillColor=HexColor(_PAPER if i % 2 else _IVORY),
+                   strokeColor=_col(_NAVY, 0.10), strokeWidth=0.8))
+        d.add(String(pad + 4, yy + band_h / 2 - 3, _ZONE_LABEL[z].upper(),
+                     fontName="Helvetica", fontSize=6, fillColor=HexColor(_INK400)))
+
+    # Désalignement à tracer : objet le plus sévère.
+    worst = sorted(nodes, key=lambda n: (_ETAT_SEVERITE.get(n.get("etat", ""), 0),
+                                         1 if n.get("criticite") == "CRITIQUE" else 0),
+                   reverse=True)
+    worst_id = worst[0]["id"] if worst else None
+
+    # Symboles, avec décalage horizontal si collision (zone, colonne).
+    offset: dict[str, int] = {}
+    for n in nodes:
+        if n["composante"] not in zones:
+            continue
+        l = layer.get(n["id"], 0)
+        key = f'{n["composante"]}:{l}'
+        o = offset.get(key, 0)
+        offset[key] = o + 1
+        cx = col_x(l) + o * 20
+        cy = zone_cy(n["composante"])
+        op = _maturite_opacite(n)
+        _symbole(d, n.get("type", ""), cx, cy, op)
+        lab = str(n.get("label", ""))[:16]
+        d.add(String(cx, cy - 20, lab, fontName="Helvetica", fontSize=5.5,
+                     fillColor=_col(_INK600, op), textAnchor="middle"))
+        if worst_id and n["id"] == worst_id:
+            d.add(Circle(cx, cy, 18, strokeColor=HexColor(_TERRA), strokeWidth=1.1,
+                         fillColor=None, strokeDashArray=[3, 2]))
+
+    if width > max_width:
+        scale = max_width / width
+        d.transform = (scale, 0, 0, scale, 0, 0)
+        d.width = width * scale
+        d.height = height * scale
+    return d
+
+
+# Ancrage souple d'un cluster par composante (coords normalisées [0,1]).
+_CARTO_ANCHOR = {
+    "PARTICIPANT": (0.21, 0.74), "TECHNOLOGIE": (0.45, 0.80),
+    "STRATEGIE": (0.20, 0.36), "INFORMATION": (0.72, 0.70),
+    "PROCESSUS": (0.49, 0.42), "PRODUIT": (0.71, 0.22),
+    "ENVIRONNEMENT": (0.88, 0.52), "CLIENT": (0.88, 0.24),
+    "INFRASTRUCTURE": (0.21, 0.14),
+}
+
+
+def build_carto_drawing(graphe: dict[str, Any], max_width: float = 470.0) -> Optional[Drawing]:
+    """Mini-carto des objets : points colorés par état, liens argent fins.
+
+    Pendant reportlab de render-carto.ts. La couleur d'état est ici le canal
+    porteur (seul endroit du triptyque).
+    """
+    import math
+    nodes = graphe.get("nodes") or []
+    edges = graphe.get("edges") or []
+    if not nodes:
+        return None
+
+    width = max_width
+    height = max_width * 0.62
+    pad = 12.0
+
+    by_comp: dict[str, list[str]] = {}
+    for n in nodes:
+        by_comp.setdefault(n["composante"], []).append(n["id"])
+
+    pos: dict[str, tuple[float, float]] = {}
+    for comp, ids in by_comp.items():
+        ax, ay = _CARTO_ANCHOR.get(comp, (0.5, 0.5))
+        cx0 = pad + ax * (width - 2 * pad)
+        cy0 = pad + ay * (height - 2 * pad)
+        k = len(ids)
+        for i, nid in enumerate(ids):
+            if k == 1:
+                pos[nid] = (cx0, cy0)
+            else:
+                r = 16 + k * 3
+                a = (i / k) * 2 * math.pi - math.pi / 2
+                pos[nid] = (cx0 + r * math.cos(a), cy0 + r * math.sin(a))
+
+    d = Drawing(width, height)
+    node_by_id = {n["id"]: n for n in nodes}
+
+    # Liens (traits fins argent, épaisseur ∝ force).
+    for e in edges:
+        a = pos.get(e.get("source"))
+        b = pos.get(e.get("cible"))
+        if not a or not b:
+            continue
+        so = node_by_id.get(e.get("source"))
+        ci = node_by_id.get(e.get("cible"))
+        op = min(_maturite_opacite(so) if so else 1.0,
+                 _maturite_opacite(ci) if ci else 1.0) * 0.55
+        sw = 0.6 + float(e.get("force", 0.5)) * 1.2
+        d.add(Line(a[0], a[1], b[0], b[1], strokeColor=_col(_ARGENT, op), strokeWidth=sw))
+
+    # Points (couleur = état).
+    for n in nodes:
+        p = pos.get(n["id"])
+        if not p:
+            continue
+        cols = _etat_colors(n.get("etat", _ETAT_DEFAULT))
+        op = _maturite_opacite(n)
+        d.add(Circle(p[0], p[1], 7, fillColor=_col(cols["stroke"], op),
+                     strokeColor=_col(_IVORY, op), strokeWidth=1.5))
+        d.add(String(p[0] + 11, p[1] - 3, str(n.get("label", ""))[:22],
+                     fontName="Helvetica", fontSize=6, fillColor=_col(_INK600, op)))
+
+    return d

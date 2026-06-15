@@ -697,6 +697,38 @@ async def export_module_pdf(
     )
 
 
+@app.get("/interviews/{interview_id}/modules/{module_id}/parcours-pdf", tags=["interview"])
+async def export_parcours_pdf(
+    interview_id: int,
+    module_id: str,
+    email: str = Depends(get_current_user_email),
+):
+    """PDF d'un parcours modélisé : les 3 représentations (pivot D-056, C.E).
+
+    Le graphe vient du substrat persisté à la fin du dialogue de modélisation
+    (hook de fin de conversation, upsert_substrat).
+    """
+    from fastapi.responses import Response
+    from src.pdf_exporter import build_parcours_pdf, _MODULES_FALLBACK
+    import json as _json
+
+    _assert_user_owns_interview(email, interview_id)
+    sub = db.get_substrat(interview_id, module_id, email)
+    if not sub or not sub.get("graphe_json"):
+        raise HTTPException(status_code=404, detail="Aucun parcours modélisé pour ce module.")
+    try:
+        graphe = _json.loads(sub["graphe_json"])
+    except Exception:
+        raise HTTPException(status_code=422, detail="Parcours illisible.")
+    mod = _MODULES_FALLBACK.get(module_id) or {}
+    titre = mod.get("label") or graphe.get("titre")
+    pdf_bytes = build_parcours_pdf(graphe, titre)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="parcours-{module_id}.pdf"'},
+    )
+
 # ---- Réponses ----
 
 class SaveAnswerBody(BaseModel):

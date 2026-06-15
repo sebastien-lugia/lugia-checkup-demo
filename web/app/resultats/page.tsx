@@ -6,6 +6,10 @@ import { Suspense, useEffect, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { getReport, type Report, type Workstream } from "@/lib/api";
 import { useRequireAuth } from "@/lib/auth";
+import { ParcoursViews } from "@/components/v3/ParcoursViews";
+import { CATALOGUE_MEDECIN, PARCOURS_FIXTURES, suggestParcours } from "@/lib/wsf/parcours/catalogue";
+import { ParcoursDialogModal } from "@/components/v3/ParcoursDialogModal";
+import type { GrapheWSF } from "@/lib/wsf/types";
 
 const FACET_ORDER = ["processes", "participants", "information"] as const;
 
@@ -17,14 +21,14 @@ const NEXT_STEPS: Record<
 > = {
   autonomie: {
     badge: "Pour explorer",
-    title: "Approfondir un chantier, en autonomie",
-    desc: "Un questionnaire ciblé sur l'opportunité de votre choix. Environ 15 minutes, gratuit, sans rendez-vous — à votre rythme.",
-    cta: "Choisir un chantier",
+    title: "Modéliser un autre parcours",
+    desc: "Reprenez la section ci-dessus pour modéliser un autre moment de votre cabinet. Gratuit, sans rendez-vous — à votre rythme.",
+    cta: "Modéliser un parcours",
   },
   lugia: {
     badge: "Recommandé",
     title: "Avancer avec Lugia, en réel",
-    desc: "Vous choisissez une opportunité, on la traite ensemble dans votre cabinet. Pas un appel d'identification — le chantier lui-même, structuré à partir de dispositifs éprouvés chez d'autres confrères.",
+    desc: "À partir d'un parcours que vous avez modélisé, on identifie ensemble les chantiers prioritaires et leur plan d'action, dans votre cabinet — pas un appel d'identification.",
     cta: "En parler avec Lugia",
   },
 };
@@ -264,6 +268,120 @@ function NextStepCard({
  * Composant principal — orchestration des sections
  * ========================================================================== */
 
+/* ============================================================================
+ * C.E (D-056) : ParcoursModelisationSection — nouvelle sortie « modéliser un
+ *   parcours ». Sélecteur de micro-parcours ; le pilote rend les 3 vues, les
+ *   autres passeront par le dialogue IA de modélisation (à venir).
+ * ========================================================================== */
+
+function ParcoursModelisationSection({ interviewId, suggestedId }: { interviewId: number | null; suggestedId?: string }) {
+  const premierDispo =
+    CATALOGUE_MEDECIN.find((p) => p.disponible)?.id ?? CATALOGUE_MEDECIN[0].id;
+  const [selected, setSelected] = useState<string>(suggestedId ?? premierDispo);
+  const suggestedEntry = CATALOGUE_MEDECIN.find((p) => p.id === suggestedId);
+  // Graphe modélisé par dialogue (prioritaire), sinon exemple pré-modélisé.
+  const [modeled, setModeled] = useState<Record<string, GrapheWSF>>({});
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const selectedEntry = CATALOGUE_MEDECIN.find((p) => p.id === selected);
+  const graph = modeled[selected] ?? PARCOURS_FIXTURES[selected];
+
+  return (
+    <section className="lugia-section mb-20 max-md:mb-14">
+      <SectionHeader num="III" label="Modéliser un parcours" className="mb-8" />
+      <p className="text-[15.5px] leading-[1.65] text-[#555] max-w-[720px] mb-7">
+        Le check-up a donné la vue d&apos;ensemble. Pour aller plus loin, choisissez un
+        moment précis de votre cabinet : Lugia le modélise avec vous, puis vous le
+        rend sous trois angles. On regarde le fonctionnement du travail, jamais les
+        personnes.
+      </p>
+
+      {suggestedEntry && (
+        <p className="text-[13.5px] leading-[1.55] text-[#3a4360] bg-[#f1efe7] border-l-2 border-[#1a2333] pl-4 py-2.5 mb-6 max-w-[720px]">
+          D&apos;après votre check-up, Lugia vous suggère de commencer par&nbsp;:{" "}
+          <strong className="font-semibold">{suggestedEntry.label}</strong>. À vous de trancher.
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-2 mb-7">
+        {CATALOGUE_MEDECIN.map((p) => {
+          const actif = p.id === selected;
+          const base =
+            "text-[13px] leading-[1.3] px-3.5 py-2 rounded-lg border transition text-left max-w-[280px]";
+          const cls = !p.disponible
+            ? "bg-[#f7f5ee] text-[#b0ada3] border-[#ece9e0] cursor-not-allowed"
+            : actif
+              ? "bg-[#1a2333] text-white border-[#1a2333]"
+              : "bg-white text-[#555] border-[#e5e5e5] hover:border-[#888780] hover:text-[#111]";
+          return (
+            <button
+              key={p.id}
+              type="button"
+              disabled={!p.disponible}
+              onClick={() => p.disponible && setSelected(p.id)}
+              title={p.disponible ? p.coeur : "Modélisation par dialogue — bientôt"}
+              className={`${base} ${cls}`}
+            >
+              {p.label}
+              {p.id === suggestedId && p.disponible && (
+                <span className="block text-[10px] uppercase tracking-[0.1em] mt-0.5 opacity-80">
+                  suggéré
+                </span>
+              )}
+              {!p.disponible && (
+                <span className="block text-[10px] uppercase tracking-[0.1em] mt-0.5 opacity-70">
+                  bientôt
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedEntry?.disponible && selectedEntry.moduleId && interviewId != null && (
+        <div className="mb-5">
+          <button
+            type="button"
+            onClick={() => setDialogOpen(true)}
+            className="text-[13.5px] px-4 py-2.5 rounded-lg border border-[#1a2333] bg-[#1a2333] text-white hover:bg-[#11192a] transition"
+          >
+            Modéliser ce parcours avec Lugia
+          </button>
+          <span className="text-[12.5px] text-[#888780] ml-3">
+            Un court dialogue, puis vous validez avant de voir les vues.
+          </span>
+        </div>
+      )}
+
+      {dialogOpen && selectedEntry?.moduleId && interviewId != null && (
+        <ParcoursDialogModal
+          interviewId={interviewId}
+          moduleId={selectedEntry.moduleId}
+          parcoursLabel={selectedEntry.label}
+          onClose={() => setDialogOpen(false)}
+          onValidated={(g) => setModeled((prev) => ({ ...prev, [selected]: g }))}
+        />
+      )}
+
+      {graph ? (
+        <>
+          <ParcoursViews graph={graph} />
+          <p className="text-[12.5px] leading-[1.6] text-[#888780] mt-4 max-w-[720px]">
+            {modeled[selected]
+              ? "Voici votre parcours, tel que vous l'avez validé avec Lugia."
+              : "Exemple pré-modélisé. Lancez « Modéliser ce parcours » pour construire le vôtre."}
+          </p>
+        </>
+      ) : (
+        <div className="text-[13.5px] leading-[1.6] text-[#888780] bg-[#f7f5ee] rounded-xl px-6 py-5">
+          {selectedEntry?.disponible
+            ? "Cliquez sur « Modéliser ce parcours avec Lugia » pour le construire en quelques minutes."
+            : "Ce parcours se modélise par un court dialogue avec Lugia — bientôt disponible."}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function ResultatsContent() {
   const router = useRouter();
   const isAuthReady = useRequireAuth();
@@ -435,27 +553,23 @@ function ResultatsContent() {
           </section>
         )}
 
-        {/* ===== SECTION III — Trois opportunités d'action ===== */}
-        <section className="lugia-section mb-20 max-md:mb-14">
-          <SectionHeader num="III" label="Trois opportunités d'action" className="mb-8" />
-          <p className="text-[15.5px] leading-[1.65] text-[#555] max-w-[720px] mb-9">
-            Chacune répond aux points de vigilance relevés plus haut, en
-            s&apos;appuyant sur les forces déjà en place. À vous d&apos;arbitrer ce
-            qui vaut la peine d&apos;être engagé en premier.
-          </p>
-          <div>
-            {report.workstreams.map((ch) => (
-              <ChantierCard key={ch.key} chantier={ch} />
-            ))}
-          </div>
-        </section>
+        {/* ===== SECTION III — Modéliser un parcours (pivot D-056) ===== */}
+        <ParcoursModelisationSection
+          interviewId={interviewId}
+          suggestedId={suggestParcours({
+            processes: report.facets["processes"]?.level,
+            participants: report.facets["participants"]?.level,
+            information: report.facets["information"]?.level,
+          })}
+        />
 
         {/* ===== SECTION IV — Prochaine étape ===== */}
         <section className="lugia-section mb-12">
           <SectionHeader num="IV" label="Prochaine étape ?" className="mb-8" />
           <p className="text-[15.5px] leading-[1.65] text-[#555] max-w-[720px] mb-7">
-            Vous avez vu les opportunités. Voici deux façons de les transformer
-            en chantiers concrets — à votre rythme, ou avec Lugia.
+            Une fois un parcours modélisé, voici deux façons d&apos;aller plus loin —
+            à votre rythme, ou avec Lugia qui en tire les chantiers prioritaires
+            et leur plan d&apos;action.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lugia-next-grid">
             {(["autonomie", "lugia"] as const).map((key) => (

@@ -746,6 +746,30 @@ export async function downloadChantierPdf(
   window.URL.revokeObjectURL(blobUrl);
 }
 
+export async function downloadParcoursPdf(
+  interviewId: number,
+  moduleId: string,
+): Promise<void> {
+  const url = `${API_URL}/interviews/${interviewId}/modules/${moduleId}/parcours-pdf`;
+  const token = getSessionToken();
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error(`PDF non disponible (${res.status})`);
+  }
+  const blob = await res.blob();
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = `parcours-${moduleId}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
 // ─── A.2 — Chat assistant chantier (v2 — 4 phases structurées) ────────────
 
 export type ChatPlanStep = {

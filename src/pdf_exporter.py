@@ -60,6 +60,70 @@ def _load_modules() -> dict[str, Any]:
 # Fallback : copie minimale du catalogue modules pour ne pas dépendre du TS.
 # Aligné avec lib/v3/modules_data.ts au 2026-05-22.
 _MODULES_FALLBACK: dict[str, Any] = {
+    # ─── Parcours métier modélisés (pivot D-056) ───
+    # Un parcours "ressemble" à un module pour le pipeline de chat (routes +
+    # persistance keyed par module_id), mais kind="parcours" bascule le
+    # system prompt sur la mécanique de modélisation (chat_assistant).
+    "parcours_charge_admin": {
+        "kind": "parcours",
+        "label": "Charge administrative d'une consultation",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_accueil_avant_rdv": {
+        "kind": "parcours",
+        "label": "Accueil des patients avant un rendez-vous programmé",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_suivi_chronique": {
+        "kind": "parcours",
+        "label": "Suivi d'un patient chronique entre deux consultations",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_urgence_jour": {
+        "kind": "parcours",
+        "label": "Gestion des demandes d'urgence non programmées du jour",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_resultats_examens": {
+        "kind": "parcours",
+        "label": "Traitement des résultats d'examens reçus",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_renouvellement_ordo": {
+        "kind": "parcours",
+        "label": "Renouvellement d'ordonnance hors consultation",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_coordination_correspondant": {
+        "kind": "parcours",
+        "label": "Coordination avec un correspondant (adressage, retour)",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_appels_entrants": {
+        "kind": "parcours",
+        "label": "Gestion des appels téléphoniques entrants en journée",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_cloture_jour": {
+        "kind": "parcours",
+        "label": "Clôture financière de fin de journée",
+        "effort": 1,
+        "etapes": [],
+    },
+    "parcours_integration_remplacant": {
+        "kind": "parcours",
+        "label": "Intégration d'un remplaçant ou d'un nouvel associé",
+        "effort": 1,
+        "etapes": [],
+    },
     "urgences": {
         "label": "Organiser les urgences du jour",
         "effort": 2,
@@ -472,5 +536,59 @@ def build_chantier_pdf(
 
     template = PageTemplate(id="main", frames=[frame], onPage=_footer)
     doc.addPageTemplates([template])
+    doc.build(story)
+    return buffer.getvalue()
+
+
+def build_parcours_pdf(graphe: dict, titre: Optional[str] = None) -> bytes:
+    """PDF d'un parcours modélisé : les 3 représentations (pivot D-056).
+
+    Logigramme (build_wsf_drawing) + ruban (build_ruban_drawing) + mini-carto
+    (build_carto_drawing), assemblés en un document à la charte Lugia.
+    """
+    import io as _io
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate, Paragraph, Spacer
+    from src.wsf_render import (
+        build_wsf_drawing, build_ruban_drawing, build_carto_drawing,
+    )
+
+    styles = _make_styles()
+    w = 165 * mm
+    story = []
+    story.append(Paragraph("LUGIA & CO &nbsp; · &nbsp; PARCOURS MODÉLISÉ", styles["eyebrow"]))
+    story.append(Paragraph((titre or graphe.get("titre") or "Parcours") + ".", styles["h1"]))
+
+    vues = [
+        ("LOGIGRAMME DE PROCESS", "Comment ça s'enchaîne, avec quels choix.", build_wsf_drawing),
+        ("CHAÎNE DE VALEUR", "Les grandes étapes, d'un coup d'œil.", build_ruban_drawing),
+        ("CARTE DES OBJETS", "Ce qui est en jeu, et dans quel état.", build_carto_drawing),
+    ]
+    for i, (label, sub, builder) in enumerate(vues):
+        story.append(Paragraph(label, styles["eyebrow"]))
+        story.append(Paragraph(sub, styles["small"]))
+        d = builder(graphe, max_width=w)
+        if d is not None:
+            story.append(d)
+        if i < len(vues) - 1:
+            story.append(Spacer(1, 9 * mm))
+
+    buffer = _io.BytesIO()
+    doc = BaseDocTemplate(
+        buffer, pagesize=A4,
+        leftMargin=22 * mm, rightMargin=22 * mm, topMargin=22 * mm, bottomMargin=22 * mm,
+    )
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
+
+    def _footer(canvas, doc):
+        canvas.saveState()
+        canvas.setFont("Helvetica", 7.5)
+        canvas.setFillColor(NAVY_400)
+        canvas.drawString(22 * mm, 12 * mm, "lugia.fr  ·  sebastien@lugia.fr")
+        canvas.drawRightString(A4[0] - 22 * mm, 12 * mm, f"page {doc.page}")
+        canvas.restoreState()
+
+    doc.addPageTemplates([PageTemplate(id="main", frames=[frame], onPage=_footer)])
     doc.build(story)
     return buffer.getvalue()
