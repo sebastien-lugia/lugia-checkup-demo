@@ -112,7 +112,14 @@ Codes promo / tarifs réduits sur les missions de conseil Lugia & Co pour les ab
 
 ## CAP COURT TERME — Lugia Checkup Demo
 
-Quatre chantiers identifiés pour rendre la démo robuste, prête pour des tests prospects et pour répondre à des offres de conseil.
+> **Pivot du 2026-06-15 (D-056).** Le Demo ne s'arrête plus à la cartographie + choix d'un chantier.
+> La nouvelle sortie est la **modélisation gratuite d'un parcours métier précis** choisi par le médecin,
+> conduite via dialogue IA, validée, puis rendue en trois représentations (logigramme, ruban chaîne de
+> valeur, mini-carto d'objets). Les chantiers sont **dérivés du parcours modélisé**, plus directement
+> du questionnaire. C.A/C.B/C.C/C.D ci-dessous restent acquis (ils servent toujours, en aval du
+> parcours). Le nouveau chantier **C.E** porte la modélisation de parcours.
+
+Quatre chantiers identifiés (livrés) pour rendre la démo robuste, prête pour des tests prospects et pour répondre à des offres de conseil. Un cinquième (C.E) cadre le pivot post-questionnaire.
 
 **C.A — Schéma Mermaid simplifié du chantier (✅ livré 2026-05-27)**
 
@@ -129,6 +136,26 @@ Le bouton « En parler avec Lugia » via Calendly est déjà en place. Formalise
 **C.D — Répondre à une offre de conseil depuis la démo (✅ livré 2026-05-27)**
 
 Permettre au médecin de **répondre à une offre de conseil** dès la version démo (pas seulement prendre RDV via Calendly). Formulaire structuré à la fin du diagnostic ou en pied de chantier : « Je voudrais qu'un consultant Lugia me contacte pour : » + champ libre + contexte automatique (profil cabinet + chantier prioritaire + scores). Lead envoyé par email à Sébastien (Resend ou similaire, déjà câblé pour magic links). Bénéfice : transforme le médecin tiède en lead qualifié sans dépendre de Calendly.
+
+**C.E — Modélisation gratuite d'un parcours métier (pivot D-056, à spécifier)**
+
+Nouveau livrable principal du Demo après le questionnaire. Le médecin :
+1. Choisit un **micro-parcours précis** dans un catalogue (ex. « accueil avant RDV programmé »).
+2. Engage un **dialogue IA** distinct du questionnaire, qui creuse le parcours pas à pas.
+3. Reçoit une **synthèse écrite** qu'il peut corriger.
+4. Visualise le parcours sous **trois représentations** : logigramme de process, chaîne de valeur en ruban, mini-carto des objets identifiés.
+5. Reçoit ensuite l'**identification des chantiers** dérivés du parcours, avec 2-3 zones de fragilité teasées (plan d'action détaillé = payant).
+
+Préalable méthodo bloquant : conv **modélisations graphiques** (`resources/briefs/brief_modelisations_graphiques.md`) à mener d'abord pour produire la grammaire des trois représentations alignée sur la charte, le catalogue de micro-parcours par métier, la mécanique du chat de modélisation, et la spec de la boucle synthèse → validation → graphes → chantiers.
+
+Conséquences code (post-spec) :
+- Page résultats : nouvelle sortie « modéliser un parcours » au lieu de « explorer un chantier ».
+- Écran de dialogue IA dédié (mécanique adaptée, distincte du chat chantier).
+- Écran de synthèse + validation.
+- Écran de visualisation des trois représentations.
+- Génération des chantiers déplacée en aval du parcours modélisé (les C.A/C.B existants sont réemployés).
+- Catalogue de micro-parcours par métier à construire (médecin d'abord).
+
 
 ---
 

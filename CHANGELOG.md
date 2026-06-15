@@ -4,6 +4,16 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-06-15 — Pivot Demo : du chantier au parcours métier modélisé (D-056)
+
+Décision actée : le Demo ne propose plus directement un chantier en sortie de questionnaire, mais la
+modélisation gratuite d'un **parcours métier précis** (choisi par le médecin, dialogue IA, validation),
+puis dérive les chantiers de ce parcours. Trois représentations cibles : logigramme, ruban chaîne de
+valeur, mini-carto d'objets. Préalable : conv « modélisations graphiques » à mener pour produire la
+grammaire des trois représentations + le catalogue de micro-parcours par métier + la mécanique du chat
+de modélisation. Pas de code avant cette spec. Voir D-056 dans `DECISIONS.md`, brief mis à jour dans
+`resources/briefs/brief_modelisations_graphiques.md`, et nouveaux chantiers `C.E` dans `ROADMAP.md`.
+
 ## 2026-06-10 — Capability map : OBJETS par axe depuis le questionnaire V3 (V1 legacy)
 
 Le questionnaire prod = **V3 uniquement** (acté). V1 + extracteur démo = legacy (mémoire à jour).

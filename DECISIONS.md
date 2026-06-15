@@ -1416,3 +1416,43 @@ Double lecture **humain + agent IA** : la représentation est générée d'un mo
 
 **Conséquence :** les protos de session dans `resources/vision/` (parcours/chaîne/frise/ruban, etc.) sont des explorations visuelles antérieures ; la représentation d'interface sera refaite selon cette méthode (phase à venir).
 
+## D-056 — Pivot du Demo : du « chantier » au « parcours métier modélisé » comme livrable gratuit (2026-06-15)
+
+**Décision :** À la sortie du questionnaire, le Demo ne propose plus directement un chantier. Il propose la **modélisation gratuite d'un parcours métier précis** choisi par le médecin, conduite dans un **dialogue avec l'IA**, puis **validée** par le médecin avant génération des représentations graphiques. À partir de cette modélisation, l'IA identifie ensuite les chantiers — ancrés dans le parcours spécifique du cabinet, pas dans la grille générique du questionnaire.
+
+Le flux passe donc de :
+
+> *questionnaire → cartographie → choix d'un chantier → plan d'action*
+
+à :
+
+> *questionnaire → cartographie + premières hypothèses → choix d'un **parcours précis** par le médecin → dialogue IA → synthèse + validation → trois représentations (logigramme, ruban de chaîne de valeur, mini-carto d'objets) → **identification des chantiers** dérivés du parcours modélisé → plan d'action*
+
+**Cadrage du parcours.** Le médecin choisit dans un catalogue de **micro-parcours finement libellés** (ex. « accueil des patients au cabinet avant rendez-vous programmé », pas « parcours patient »). La précision du libellé conditionne la qualité de la modélisation — un libellé large produit des questions abstraites, le médecin répond en généralités, on n'attrape pas les objets fins. L'IA peut suggérer lequel commencer à partir des réponses du questionnaire ; le médecin tranche.
+
+**Mécanique de capture.** Le dialogue IA est une **seconde phase distincte** du questionnaire, lancée depuis la page résultats, non comprise dans les 20-30 min du check-up. Le médecin peut le faire plus tard. À la fin du dialogue, **synthèse écrite** + **validation explicite** ; le médecin peut corriger avant que les graphes ne soient générés.
+
+**Représentations.** Trois vues complémentaires du même parcours : (1) **logigramme de process** — comment ça s'enchaîne avec décisions et bifurcations ; (2) **chaîne de valeur en ruban** — les grandes étapes en symboles, conforme à la grammaire de marque (ruban = symboles, pas points) ; (3) **mini-carto d'objets identifiés** — points colorés par état, vue d'inventaire. Pas de sequence diagram (sa valeur unique — l'ordre temporel des échanges — est déjà couverte par le logigramme, et il n'a aucune familiarité en cabinet médical).
+
+**Profondeur du livrable gratuit.** Le parcours modélisé est précis sur les *étapes* et les *objets en jeu*, et pointe 2-3 zones de fragilité ; **l'identification détaillée des chantiers et le plan d'action restent payants**. C'est cette ligne qui détermine la conversion : trop donner = le médecin s'en va satisfait ; trop peu = il ne reconnaît pas son cabinet et part frustré.
+
+**Pourquoi :** La pertinence d'un chantier dérivé directement d'un questionnaire à grille est structurellement faible. Le médecin reçoit une recommandation qu'il pouvait formuler lui-même (« suivre mes chroniques », « déléguer plus »). En passant par un parcours qu'il reconnaît comme le sien, le chantier qui en sort hérite d'une crédibilité d'un autre ordre : il est ancré dans son quotidien, pas dans une typologie. Cohérent avec deux doctrines déjà actées : *« diagnostic gratuit = canal de saisie, pas score jetable »* (le parcours enrichit le substrat de manière qualitativement supérieure au questionnaire seul) et la posture anti-consulting (on raconte un fonctionnement, on ne classe pas dans un référentiel).
+
+**Conséquences sur le code/produit :**
+- Page résultats : nouvelle sortie principale « modéliser un parcours » au lieu de « explorer un chantier ».
+- Nouvel écran de dialogue IA (mécanique adaptée à la modélisation, distincte du chat chantier).
+- Nouvel écran de synthèse + validation.
+- Écran de visualisation des trois représentations.
+- Génération des chantiers déplacée en **aval** du parcours modélisé.
+- Catalogue de micro-parcours par métier à construire (médecin d'abord, structure prête pour avocat/kiné).
+- Le moteur WSF actuel et la cartographie en sortie de questionnaire restent — comme **entrée** du parcours, pas comme sortie finale.
+
+**Préalable méthodo :** la conv **modélisations graphiques** (`resources/briefs/brief_modelisations_graphiques.md`) doit être resserrée et menée d'abord, pour produire (a) la grammaire des trois représentations alignée sur la charte produit, (b) le catalogue de micro-parcours par métier, (c) la mécanique du chat IA, (d) la spec de la boucle synthèse → validation → graphes → chantiers. Pas de code avant cette spec.
+
+**Alternatives écartées :**
+- *Maintien du chantier en sortie directe du questionnaire* : c'est l'état actuel, dont la limite est précisément celle qui motive ce pivot.
+- *IA choisit le parcours à modéliser* : trop opaque, le médecin doit garder la main sur l'angle qu'il veut creuser ; l'IA suggère, le médecin tranche.
+- *Modélisation sans validation* : risque élevé de produire un parcours « plausible mais pas le sien », perte de confiance immédiate.
+- *Sequence diagram dans les représentations* : doublon fonctionnel avec le logigramme pour ce cas d'usage, et aucune familiarité dans la cible.
+- *Parcours générique unique (« parcours patient ») pour la V1* : trop large, ne permet pas la finesse d'objets qui fait toute la différence.
+

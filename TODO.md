@@ -4,6 +4,32 @@ Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court
 
 ---
 
+
+## Pivot Demo — parcours métier modélisé (ouvert le 2026-06-15, D-056)
+
+Préalable méthodo (à mener AVANT tout code) :
+
+- Réécrire `resources/briefs/brief_modelisations_graphiques.md` autour du pivot : grammaire des 3 représentations (logigramme / ruban chaîne de valeur / mini-carto objets), catalogue de micro-parcours par métier, mécanique du chat IA de modélisation, boucle synthèse → validation → graphes → chantiers.
+- Démarrer la conv « modélisations graphiques » avec ce brief. Sortie attendue : spec produit du pivot + maquettes des 3 représentations + premier catalogue de micro-parcours pour le médecin généraliste.
+
+Après spec uniquement (ne pas coder avant) :
+
+- Refondre la page résultats V3 : nouvelle sortie principale « modéliser un parcours » remplaçant « explorer un chantier ».
+- Construire l'écran de dialogue IA de modélisation (mécanique distincte du chat chantier).
+- Construire l'écran de synthèse + validation par le médecin.
+- Construire l'écran de visualisation des trois représentations.
+- Déplacer la génération des chantiers en aval du parcours modélisé (réemploi des composants C.A/C.B).
+- Brancher le catalogue de micro-parcours côté backend (table de parcours par métier).
+
+Points à arbitrer pendant la spec :
+
+- Suggestion du parcours par l'IA à partir des réponses du questionnaire : algorithme ? heuristique simple ou dérivation depuis le footprint ?
+- Profondeur exacte du teaser de chantiers en sortie gratuite (combien de zones de fragilité pointées, à quel niveau de détail).
+- Persistance : le parcours modélisé est-il stocké comme graphe WSF (nœuds objets + liaisons typées) pour réutilisation par les chantiers ? Si oui, format/schema.
+- Stack IA : Cloud (Claude) vs Navigateur (qwen 7B + fallback 3B) — comportement en mode local pour un chat de modélisation potentiellement plus long que les 4 phases actuelles.
+- Quand le médecin a-t-il droit à un second parcours ? (gratuit toujours, gratuit une fois, payant ?)
+
+
 ## Substrat de démo — arbitrages révélés (2026-06-08)
 
 Le moteur `resources/methode/demo/engine.py` valide le seed et reproduit les 3 signaux, mais a révélé 2 points de calibration :
