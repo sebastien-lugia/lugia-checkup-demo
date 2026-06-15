@@ -1,0 +1,31 @@
+%% Logigramme — Charge administrative d'une consultation (pilote D-056)
+%% Source de référence pour le rendu web (graphToMermaid). Couleurs = états charte.
+flowchart LR
+  cloture("Clôture de l'acte"):::etat_FONCTIONNEL
+  cotation("Cotation de l'acte"):::etat_A_RISQUE
+  fse["Feuille de soins (FSE)"]:::etat_FONCTIONNEL
+  teletrans("Télétransmission"):::etat_FONCTIONNEL
+  rejet{"Retour payeur ?"}:::etat_A_RISQUE
+  suivi("Reprise du rejet"):::etat_DEGRADE
+  encaiss("Encaissement / part patient"):::etat_FONCTIONNEL
+  docs[/"Documents associés"/]:::etat_DEGRADE
+  maj("Mise à jour du dossier"):::etat_NON_DOCUMENTE
+  dossier[("Dossier patient")]:::etat_FONCTIONNEL
+
+  cloture -->|produit| cotation
+  cotation -->|produit| fse
+  fse ==>|alimente| teletrans
+  teletrans -->|interface| rejet
+  rejet -->|accepté| encaiss
+  rejet -->|rejeté| suivi
+  suivi -.->|reprise| teletrans
+  cloture -->|produit| docs
+  cloture -->|produit| maj
+  maj -->|transforme| dossier
+  docs -->|délivre| dossier
+
+  classDef etat_OPTIMAL fill:#F4F3F0,stroke:#1A2333,stroke-width:1.5px,color:#1A2333
+  classDef etat_FONCTIONNEL fill:#EFEFEC,stroke:#8E8E91,stroke-width:1.5px,color:#3A4360
+  classDef etat_DEGRADE fill:#EAE8DE,stroke:#6B6630,stroke-width:1.5px,color:#6B6630
+  classDef etat_A_RISQUE fill:#E9E4DA,stroke:#7A6030,stroke-width:1.5px,color:#7A6030
+  classDef etat_NON_DOCUMENTE fill:#F3F3EF,stroke:#B5B5B8,stroke-width:1.5px,color:#6E7795

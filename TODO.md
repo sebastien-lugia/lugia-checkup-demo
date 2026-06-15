@@ -12,6 +12,17 @@ Préalable méthodo (à mener AVANT tout code) :
 - Réécrire `resources/briefs/brief_modelisations_graphiques.md` autour du pivot : grammaire des 3 représentations (logigramme / ruban chaîne de valeur / mini-carto objets), catalogue de micro-parcours par métier, mécanique du chat IA de modélisation, boucle synthèse → validation → graphes → chantiers.
 - Démarrer la conv « modélisations graphiques » avec ce brief. Sortie attendue : spec produit du pivot + maquettes des 3 représentations + premier catalogue de micro-parcours pour le médecin généraliste.
 
+✅ **Préalable méthodo levé (2026-06-15)** — spec + maquettes livrées : `resources/methode/lugia_modelisations_graphiques_spec.md` et `resources/methode/maquettes_parcours/`. Voir CHANGELOG.
+
+Points à valider sur la spec :
+
+- Valider le découpage démo vs Work System du catalogue (10 micro-parcours médecin) avec un usage réel.
+- Trancher : logigramme en swimlanes vs annotation (Q ouverte 1) ; nb de zones du ruban (Q ouverte 2).
+- Caler la règle de suffisance du chat sur les premiers parcours réels (Q ouverte 3).
+- Figer la convention visuelle du « désalignement tracé » dans le ruban avec la charte éditoriale (Q ouverte 5).
+- Compléter les catalogues avocat / kiné (conv dédiée).
+- Nettoyer les scripts scratch `resources/methode/maquettes_parcours/_gen*.py` (suppression bloquée côté agent).
+
 Après spec uniquement (ne pas coder avant) :
 
 - Refondre la page résultats V3 : nouvelle sortie principale « modéliser un parcours » remplaçant « explorer un chantier ».

@@ -4,6 +4,18 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-06-15 — Spec modélisations graphiques livrée (conv C.E, préalable D-056)
+
+Sortie de la conv « modélisations graphiques » : note de spec `resources/methode/lugia_modelisations_graphiques_spec.md`
++ maquettes dans `resources/methode/maquettes_parcours/` (logigramme Mermaid+SVG, ruban SVG, mini-carto SVG),
+sur le pilote **« Charge administrative d'une consultation »**. Produit : (a) grammaire des 3 représentations
+alignée charte — mapping 8 `EtatObjet` moteur → 6 états d'affichage, règle ruban=symboles (8 = les 8 `TypeObjet`)
+/ carte=points, maturité→opacité ; (b) catalogue v1 de 10 micro-parcours médecin + amorce avocat/kiné ;
+(c) mécanique légère du chat de modélisation (distinct du chat chantier, infra réutilisée) ; (d) boucle
+synthèse → validation → 3 vues → chantiers dérivés. Notes de cadrage : suggestion IA (heuristique footprint
+questionnaire) et persistance (graphe WSF, schéma figé plus tard). Aucune dépendance nouvelle (Mermaid web /
+reportlab PDF). Lève le préalable méthodo bloquant de C.E ; reste l'implémentation code.
+
 ## 2026-06-15 — Pivot Demo : du chantier au parcours métier modélisé (D-056)
 
 Décision actée : le Demo ne propose plus directement un chantier en sortie de questionnaire, mais la
