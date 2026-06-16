@@ -4,6 +4,16 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-06-10 — Capability map : % = complétude d'exploration (plus de 100% trompeurs)
+
+Retour prod : des axes à 100% alors qu'on n'a exploré qu'une infime partie. Cause : le % était une
+**santé** (moyenne d'état des 1-3 objets captés) qui sature vite. Corrigé : le % de l'axe est désormais
+une **complétude d'exploration** = objets captés / cible de l'axe (capmap v8), volontairement basse pour
+montrer que compléter la carte est un travail de long terme. Label « exploré ». La santé reste lisible
+via les points colorés de chaque objet.
+- `backend/main.py` : `completion` par axe (objets / cible `_EXPECTED`, cible approximative éditable).
+- `web/lib/api.ts` : `FootprintAxe.completion`. `CapabilityMapV3.tsx` : affiche `completion%` + « exploré ».
+
 ## 2026-06-15 — Correctif : pivot porté sur la VRAIE page résultats (v3-charte)
 
 Le pivot D-056 avait d'abord été appliqué à `app/resultats/page.tsx` (page V1.1 hors du flux actuel). Le flux live passe par `/profession` → `/checkup/v3-charte` → `components/v3/ResultatsV3.tsx`. Correctif :

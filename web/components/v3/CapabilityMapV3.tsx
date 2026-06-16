@@ -30,7 +30,7 @@ export function CapabilityMapV3({ footprint }: { footprint: Record<string, Footp
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))", gap: 14 }}>
       {AXES.map(([code, label, icon]) => {
         const f = footprint[code];
-        const lit = f && (f.objets?.length || f.references_in?.length || f.sante != null);
+        const lit = f && (f.objets?.length || f.references_in?.length || f.completion != null);
         if (!lit) {
           return (
             <div key={code} style={card(true)}>
@@ -40,14 +40,16 @@ export function CapabilityMapV3({ footprint }: { footprint: Record<string, Footp
             </div>
           );
         }
-        const couleur = ETAT_COULEUR[f.etat] || "#C9C9CC";
         return (
           <div key={code} style={card(false)}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <span style={{ fontSize: 18 }}>{icon}</span>
               <span style={{ fontFamily: "Lora,serif", fontSize: 18, color: "#F4EFE5", flex: 1 }}>{label}</span>
-              {f.sante != null && (
-                <span style={{ fontFamily: "Lora,serif", fontSize: 18, color: couleur }}>{f.sante}%</span>
+              {f.completion != null && (
+                <span style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                  <span style={{ fontFamily: "Lora,serif", fontSize: 18, color: "#F4EFE5" }}>{f.completion}%</span>
+                  <span style={{ fontFamily: "IBM Plex Mono,monospace", fontSize: 8.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(244,239,229,0.46)" }}>exploré</span>
+                </span>
               )}
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>

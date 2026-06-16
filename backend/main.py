@@ -1331,6 +1331,15 @@ async def get_substrat_endpoint(
         import logging
         logging.exception("footprint questionnaire V3 non calculé (interview=%s)", interview_id)
 
+    # Complétude d'EXPLORATION par axe : objets captés / cible (capmap v8). Volontairement
+    # basse — la carte se complète dans le temps (≠ santé). Cible approximative, éditable.
+    _EXPECTED = {"coeur_metier": 11, "parcours_client": 10, "processus_admin": 11,
+                 "equipe_rh": 16, "outils_data_infra": 16, "finance": 16, "conformite": 10,
+                 "strategie": 8, "developpement_commercial": 8, "rd_innovation": 6}
+    for _axe, _d in footprint_global.items():
+        _n = len(_d.get("objets", []))
+        _d["completion"] = round(100 * min(1.0, _n / _EXPECTED.get(_axe, 12)))
+
     return {
         "interview_id": interview_id,
         "chantiers": chantiers,

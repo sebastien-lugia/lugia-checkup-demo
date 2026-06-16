@@ -285,6 +285,7 @@ export type FootprintAxe = {
   references_in: Array<{ label: string; depuis: string }>;
   etat: string;
   sante: number | null;
+  completion?: number;
 };
 export type SubstratChantier = {
   module_id: string;
