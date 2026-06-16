@@ -4,6 +4,15 @@ Historique des modifications structurantes du projet, ordonnées par date décro
 
 ---
 
+## 2026-06-15 — Correctif : pivot porté sur la VRAIE page résultats (v3-charte)
+
+Le pivot D-056 avait d'abord été appliqué à `app/resultats/page.tsx` (page V1.1 hors du flux actuel). Le flux live passe par `/profession` → `/checkup/v3-charte` → `components/v3/ResultatsV3.tsx`. Correctif :
+- Nouveau `components/v3/ParcoursSectionV3.tsx` (section « Modéliser un parcours », chrome thémé jour/nuit ; les 3 vues restent une surface de lecture claire, D-050).
+- `ResultatsV3.tsx` : la section « Chantiers prioritaires / Par où commencer » (chantiers directs du questionnaire) est **remplacée** par `<ParcoursSectionV3>`. Réutilise `interviewId` (déjà en props) et `radarScores` pour la suggestion (axe au score le plus bas = parcours suggéré).
+- `app/resultats/page.tsx` reste pivoté mais hors flux (page ancienne) — sans impact sur la démo.
+
+Vérifié : `tsc --noEmit` = 0 erreur sur les fichiers du chantier.
+
 ## 2026-06-15 — Chantiers dérivés du parcours + verrou abonnement (C.E, le « 3e temps »)
 
 `web/lib/wsf/derive-chantiers.ts` : `deriveChantiers(graph)` dérive 2-3 chantiers **ancrés** dans le parcours à partir de ses zones de fragilité (objets en état A_RISQUE / BLOQUE / DEGRADE / NON_DOCUMENTE), triés par sévérité puis criticité, avec intitulé (Fiabiliser/Débloquer/Fluidifier/Formaliser) et observation. Dérivation déterministe (pas d'appel LLM).

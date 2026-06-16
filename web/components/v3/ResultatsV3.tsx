@@ -24,6 +24,7 @@ import { BlocBadge } from "@/components/v3/atoms";
 import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
 import { LeadConseilForm } from "@/components/v3/LeadConseilForm";
 import { CapabilityMapSection } from "@/components/v3/CapabilityMapSection";
+import { ParcoursSectionV3 } from "@/components/v3/ParcoursSectionV3";
 
 /* ───────────────────────────────────────────────────────────
  * Types
@@ -351,76 +352,12 @@ export function ResultatsV3({
           <AxisCard theme={theme} axis="C" title="Outils & dossiers" level={axisCLevel} detail={axisCDetail} />
         </div>
 
-        {/* ── 5. Chantiers prioritaires ── */}
-        <Eyebrow theme={theme}>Chantiers prioritaires</Eyebrow>
-        <h2
-          style={{
-            fontFamily: fonts.serif,
-            fontSize: "clamp(22px, 2.5vw, 28px)",
-            fontWeight: 400,
-            lineHeight: 1.2,
-            letterSpacing: "-0.015em",
-            margin: "0 0 8px",
-            color: palette.navy,
-            fontStyle: "normal",
-          }}
-        >
-          Par où commencer
-        </h2>
-        <p
-          style={{
-            fontFamily: fonts.sans,
-            fontSize: 13,
-            lineHeight: 1.6,
-            color: palette.navy600,
-            margin: "0 0 20px",
-            fontStyle: "normal",
-          }}
-        >
-          Ces chantiers ont été sélectionnés pour leur effet de levier sur votre
-          profil — accessibles à court terme, sans ressource supplémentaire.
-        </p>
-
-        <div style={{ display: "grid", gap: 8, marginBottom: 16 }}>
-          {opps.map((opp) => (
-            <OppCard
-              key={opp.id}
-              theme={theme}
-              opp={opp}
-              onOpen={onOpenModule}
-            />
-          ))}
-        </div>
-
-        <div style={{ margin: "16px 0 56px" }}>
-          <button
-            type="button"
-            onClick={() => onOpenAll?.()}
-            style={{
-              background: "transparent",
-              color: palette.navy,
-              border: `1px solid ${palette.lineStrong}`,
-              padding: "10px 22px",
-              fontFamily: fonts.mono,
-              fontSize: 10,
-              letterSpacing: "0.10em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-              transition: "border-color 180ms ease-out, background 180ms ease-out",
-              fontStyle: "normal",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = palette.navy;
-              e.currentTarget.style.background = palette.ivory;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = palette.lineStrong;
-              e.currentTarget.style.background = "transparent";
-            }}
-          >
-            Voir tous les chantiers →
-          </button>
-        </div>
+        {/* ── 5. Modéliser un parcours (pivot D-056) — remplace les chantiers directs ── */}
+        <ParcoursSectionV3
+          theme={theme}
+          interviewId={interviewId}
+          axisScores={radarScores}
+        />
 
         {/* ── 6. Prochaine étape ── */}
         {/* Eyebrow petit trait à gauche (cohérent avec « Diagnostic complet »). */}

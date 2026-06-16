@@ -4,6 +4,8 @@ Tâches restantes, bugs et points à valider. Tient lieu de carnet de bord court
 
 ---
 
+- ⚠️ `app/resultats/page.tsx` (page V1.1 hors flux) a été pivotée par erreur au départ ; le vrai pivot est dans `components/v3/ResultatsV3.tsx` via `ParcoursSectionV3`. Décider si on revert l'ancienne page ou si on la laisse telle quelle.
+
 
 ## Pivot Demo — parcours métier modélisé (ouvert le 2026-06-15, D-056)
 
