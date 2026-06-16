@@ -25,22 +25,26 @@ export interface MicroParcours {
   disponible: boolean;
   /** id du « module » côté backend chat (mode parcours), si modélisable. */
   moduleId?: string;
-  /** Facette du check-up à laquelle ce parcours se rattache (pour la suggestion). */
+  /** Facette (legacy app/resultats) — conservée pour compat. */
   facet?: "processes" | "participants" | "information";
+  /** Axe A/B/C de la page résultats v3 : A=Parcours patient, B=Équipe, C=Outils. */
+  axis?: AxisId;
 }
+
+export type AxisId = "A" | "B" | "C";
 
 /** Catalogue médecin généraliste — 10 micro-parcours (spec §10.1). */
 export const CATALOGUE_MEDECIN: MicroParcours[] = [
-  { id: "accueil_avant_rdv", label: "Accueil des patients avant un rendez-vous programmé", coeur: "Participant · Processus", facet: "participants", palier: "demo", disponible: true, moduleId: "parcours_accueil_avant_rdv" },
-  { id: "charge_admin", label: "Charge administrative d'une consultation", coeur: "Processus · Technologie · Information", facet: "processes", palier: "demo", disponible: true, moduleId: "parcours_charge_admin" },
-  { id: "suivi_chronique", label: "Suivi d'un patient chronique entre deux consultations", coeur: "Information · Processus", facet: "information", palier: "demo", disponible: true, moduleId: "parcours_suivi_chronique" },
-  { id: "urgence_jour", label: "Gestion des demandes d'urgence non programmées du jour", coeur: "Processus · Décision", facet: "processes", palier: "demo", disponible: true, moduleId: "parcours_urgence_jour" },
-  { id: "resultats_examens", label: "Traitement des résultats d'examens reçus", coeur: "Information · Flux", facet: "information", palier: "demo", disponible: true, moduleId: "parcours_resultats_examens" },
-  { id: "renouvellement_ordo", label: "Renouvellement d'ordonnance hors consultation", coeur: "Processus · Contrainte", facet: "processes", palier: "demo", disponible: true, moduleId: "parcours_renouvellement_ordo" },
-  { id: "coordination_correspondant", label: "Coordination avec un correspondant (adressage, retour)", coeur: "Interface · Information", facet: "information", palier: "work_system", disponible: true, moduleId: "parcours_coordination_correspondant" },
-  { id: "appels_entrants", label: "Gestion des appels téléphoniques entrants en journée", coeur: "Participant · Flux", facet: "participants", palier: "demo", disponible: true, moduleId: "parcours_appels_entrants" },
-  { id: "cloture_jour", label: "Clôture financière de fin de journée", coeur: "Processus · Information", facet: "processes", palier: "work_system", disponible: true, moduleId: "parcours_cloture_jour" },
-  { id: "integration_remplacant", label: "Intégration d'un remplaçant ou d'un nouvel associé", coeur: "Participant · Stratégie", facet: "participants", palier: "work_system", disponible: true, moduleId: "parcours_integration_remplacant" },
+  { id: "accueil_avant_rdv", label: "Accueil des patients avant un rendez-vous programmé", coeur: "Participant · Processus", axis: "A", facet: "participants", palier: "demo", disponible: true, moduleId: "parcours_accueil_avant_rdv" },
+  { id: "charge_admin", label: "Charge administrative d'une consultation", coeur: "Processus · Technologie · Information", axis: "C", facet: "processes", palier: "demo", disponible: true, moduleId: "parcours_charge_admin" },
+  { id: "suivi_chronique", label: "Suivi d'un patient chronique entre deux consultations", coeur: "Information · Processus", axis: "A", facet: "information", palier: "demo", disponible: true, moduleId: "parcours_suivi_chronique" },
+  { id: "urgence_jour", label: "Gestion des demandes d'urgence non programmées du jour", coeur: "Processus · Décision", axis: "A", facet: "processes", palier: "demo", disponible: true, moduleId: "parcours_urgence_jour" },
+  { id: "resultats_examens", label: "Traitement des résultats d'examens reçus", coeur: "Information · Flux", axis: "C", facet: "information", palier: "demo", disponible: true, moduleId: "parcours_resultats_examens" },
+  { id: "renouvellement_ordo", label: "Renouvellement d'ordonnance hors consultation", coeur: "Processus · Contrainte", axis: "C", facet: "processes", palier: "demo", disponible: true, moduleId: "parcours_renouvellement_ordo" },
+  { id: "coordination_correspondant", label: "Coordination avec un correspondant (adressage, retour)", coeur: "Interface · Information", axis: "A", facet: "information", palier: "work_system", disponible: true, moduleId: "parcours_coordination_correspondant" },
+  { id: "appels_entrants", label: "Gestion des appels téléphoniques entrants en journée", coeur: "Participant · Flux", axis: "B", facet: "participants", palier: "demo", disponible: true, moduleId: "parcours_appels_entrants" },
+  { id: "cloture_jour", label: "Clôture financière de fin de journée", coeur: "Processus · Information", axis: "C", facet: "processes", palier: "work_system", disponible: true, moduleId: "parcours_cloture_jour" },
+  { id: "integration_remplacant", label: "Intégration d'un remplaçant ou d'un nouvel associé", coeur: "Participant · Stratégie", axis: "B", facet: "participants", palier: "work_system", disponible: true, moduleId: "parcours_integration_remplacant" },
 ];
 
 /** Substrats disponibles (fixtures) indexés par id de micro-parcours. */

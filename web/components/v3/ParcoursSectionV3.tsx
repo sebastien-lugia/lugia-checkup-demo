@@ -17,8 +17,9 @@ import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
 import {
   CATALOGUE_MEDECIN,
   PARCOURS_FIXTURES,
-  suggestParcours,
+  type AxisId,
 } from "@/lib/wsf/parcours/catalogue";
+import { BlocBadge } from "@/components/v3/atoms";
 import { ParcoursViews } from "@/components/v3/ParcoursViews";
 import { ParcoursDialogModal } from "@/components/v3/ParcoursDialogModal";
 import type { GrapheWSF } from "@/lib/wsf/types";
@@ -37,15 +38,27 @@ export function ParcoursSectionV3({
   const palette = paletteFor(theme);
   const cardBg = theme === "day" ? palette.ivoryLight : palette.ivory;
 
-  const suggestedId = useMemo(
-    () =>
-      suggestParcours({
-        processes: axisScores ? -axisScores.A : undefined,
-        participants: axisScores ? -axisScores.B : undefined,
-        information: axisScores ? -axisScores.C : undefined,
-      }),
-    [axisScores],
-  );
+  // Axe le plus fragile = score radar le plus bas.
+  const worstAxis: AxisId | null = useMemo(() => {
+    if (!axisScores) return null;
+    const ranked = (
+      [
+        ["A", axisScores.A],
+        ["B", axisScores.B],
+        ["C", axisScores.C],
+      ] as [AxisId, number][]
+    ).sort((a, b) => a[1] - b[1]);
+    return ranked[0][0];
+  }, [axisScores]);
+
+  const suggestedId = useMemo(() => {
+    const avail = CATALOGUE_MEDECIN.filter((p) => p.disponible);
+    if (worstAxis) {
+      const match = avail.find((p) => p.axis === worstAxis);
+      if (match) return match.id;
+    }
+    return avail[0]?.id ?? CATALOGUE_MEDECIN[0].id;
+  }, [worstAxis]);
 
   const [selected, setSelected] = useState<string>(suggestedId);
   const [modeled, setModeled] = useState<Record<string, GrapheWSF>>({});
@@ -149,8 +162,8 @@ export function ParcoursSectionV3({
               title={p.disponible ? p.coeur : "Modélisation par dialogue — bientôt"}
               style={{
                 display: "flex",
-                flexDirection: "column",
-                gap: 5,
+                alignItems: "flex-start",
+                gap: 12,
                 padding: "13px 15px",
                 background: cardBg,
                 borderTop: `1px solid ${palette.line}`,
@@ -176,22 +189,27 @@ export function ParcoursSectionV3({
                 e.currentTarget.style.transform = "translateX(0)";
               }}
             >
-              {(suggere || !p.disponible) && (
-                <span style={{ ...microLabel, color: palette.argent }}>
-                  {!p.disponible ? "Bientôt" : "★ Suggéré"}
-                </span>
+              {p.axis && (
+                <BlocBadge id={p.axis} theme={theme} size="sm" style={{ marginTop: 1, flexShrink: 0 }} />
               )}
-              <span
-                style={{
-                  fontFamily: fonts.serif,
-                  fontSize: 15,
-                  lineHeight: 1.3,
-                  letterSpacing: "-0.005em",
-                  color: palette.navy,
-                  fontStyle: "normal",
-                }}
-              >
-                {p.label}
+              <span style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
+                {(suggere || !p.disponible) && (
+                  <span style={{ ...microLabel, color: palette.argent }}>
+                    {!p.disponible ? "Bientôt" : "★ Suggéré"}
+                  </span>
+                )}
+                <span
+                  style={{
+                    fontFamily: fonts.serif,
+                    fontSize: 15,
+                    lineHeight: 1.3,
+                    letterSpacing: "-0.005em",
+                    color: palette.navy,
+                    fontStyle: "normal",
+                  }}
+                >
+                  {p.label}
+                </span>
               </span>
             </button>
           );
