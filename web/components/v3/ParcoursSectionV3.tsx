@@ -2,11 +2,13 @@
 
 /**
  * ParcoursSectionV3 — section « Modéliser un parcours » de la page résultats
- * (composant v3-charte, thème sombre). Remplace la liste de chantiers directs
- * (pivot D-056) : le parcours modélisé devient la sortie principale.
+ * (composant v3-charte). Remplace la liste de chantiers directs (pivot D-056).
  *
- * Chrome thémé (jour/nuit) ; les 3 vues (ParcoursViews) restent une surface de
- * lecture claire posée sur la page (climat « Jour = lecture », D-050).
+ * Style aligné sur la page : cartes type OppCard (surface + bordure, accent
+ * à gauche pour le parcours sélectionné, badge mono « suggéré »), boutons
+ * outline-mono. Règle charte : `palette.navy` = couleur de TEXTE, jamais un
+ * fond (sinon aplat clair sur la page nuit). Les 3 vues restent une surface
+ * de lecture claire (climat « Jour = lecture », D-050).
  */
 
 import { useMemo, useState } from "react";
@@ -28,14 +30,13 @@ export function ParcoursSectionV3({
 }: {
   theme?: V3Theme;
   interviewId: number | null;
-  /** Scores radar par axe : A = Parcours patient, B = Équipe, C = Outils.
-   *  Le score le plus BAS = l'axe le plus fragile → parcours suggéré. */
+  /** Scores radar : A = Parcours patient, B = Équipe, C = Outils.
+   *  Score le plus BAS = axe le plus fragile → parcours suggéré. */
   axisScores?: { A: number; B: number; C: number };
 }) {
   const palette = paletteFor(theme);
+  const cardBg = theme === "day" ? palette.ivoryLight : palette.ivory;
 
-  // suggestParcours veut « plus haut = plus fragile » ; on passe -score pour
-  // que l'axe au score le plus bas ressorte comme le plus fragile (échelle-agnostique).
   const suggestedId = useMemo(
     () =>
       suggestParcours({
@@ -53,6 +54,16 @@ export function ParcoursSectionV3({
   const selectedEntry = CATALOGUE_MEDECIN.find((p) => p.id === selected);
   const suggestedEntry = CATALOGUE_MEDECIN.find((p) => p.id === suggestedId);
   const graph = modeled[selected] ?? PARCOURS_FIXTURES[selected];
+
+  const microLabel: React.CSSProperties = {
+    display: "inline-block",
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    fontWeight: 600,
+    letterSpacing: "0.14em",
+    textTransform: "uppercase",
+    fontStyle: "normal",
+  };
 
   return (
     <section style={{ marginBottom: 56 }}>
@@ -90,12 +101,13 @@ export function ParcoursSectionV3({
         Par où commencer
       </h2>
 
-      <p style={{ fontFamily: fonts.sans, fontSize: 13, lineHeight: 1.6, color: palette.navy600, margin: "0 0 16px", fontStyle: "normal", maxWidth: 640 }}>
+      <p style={{ fontFamily: fonts.sans, fontSize: 13, lineHeight: 1.6, color: palette.navy600, margin: "0 0 18px", fontStyle: "normal", maxWidth: 640 }}>
         Choisissez un moment précis de votre cabinet : Lugia le modélise avec vous,
         puis vous le rend sous trois angles. On regarde le fonctionnement du travail,
         jamais les personnes.
       </p>
 
+      {/* Note de suggestion */}
       {suggestedEntry && (
         <p
           style={{
@@ -103,9 +115,9 @@ export function ParcoursSectionV3({
             fontSize: 13,
             lineHeight: 1.55,
             color: palette.navy600,
-            background: palette.ivory,
-            borderLeft: `2px solid ${palette.navy}`,
-            padding: "10px 14px",
+            background: cardBg,
+            borderLeft: `2px solid ${palette.argent}`,
+            padding: "11px 15px",
             margin: "0 0 18px",
             fontStyle: "normal",
             maxWidth: 640,
@@ -116,50 +128,107 @@ export function ParcoursSectionV3({
         </p>
       )}
 
-      {/* Sélecteur de micro-parcours */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 18 }}>
+      {/* Sélecteur — cartes type OppCard, grille régulière */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: 8,
+          marginBottom: 20,
+        }}
+      >
         {CATALOGUE_MEDECIN.map((p) => {
           const actif = p.id === selected;
-          const base: React.CSSProperties = {
-            fontFamily: fonts.sans,
-            fontSize: 12.5,
-            lineHeight: 1.3,
-            fontStyle: "normal",
-            padding: "7px 12px",
-            textAlign: "left",
-            maxWidth: 280,
-            cursor: p.disponible ? "pointer" : "not-allowed",
-          };
-          const style: React.CSSProperties = !p.disponible
-            ? { ...base, background: "transparent", color: palette.navy400, border: `1px solid ${palette.line}` }
-            : actif
-              ? { ...base, background: palette.navy, color: palette.paper, border: `1px solid ${palette.navy}` }
-              : { ...base, background: "transparent", color: palette.navy600, border: `1px solid ${palette.lineStrong}` };
+          const suggere = p.id === suggestedId;
           return (
-            <button key={p.id} type="button" disabled={!p.disponible} onClick={() => p.disponible && setSelected(p.id)} style={style} title={p.disponible ? p.coeur : "Modélisation par dialogue — bientôt"}>
-              {p.label}
-              {p.id === suggestedId && p.disponible && (
-                <span style={{ display: "block", fontFamily: fonts.mono, fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.85, marginTop: 2 }}>suggéré</span>
+            <button
+              key={p.id}
+              type="button"
+              disabled={!p.disponible}
+              onClick={() => p.disponible && setSelected(p.id)}
+              title={p.disponible ? p.coeur : "Modélisation par dialogue — bientôt"}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 5,
+                padding: "13px 15px",
+                background: cardBg,
+                borderTop: `1px solid ${palette.line}`,
+                borderRight: `1px solid ${palette.line}`,
+                borderBottom: `1px solid ${palette.line}`,
+                borderLeft: actif ? `3px solid ${palette.navy400}` : `1px solid ${palette.line}`,
+                textAlign: "left",
+                cursor: p.disponible ? "pointer" : "not-allowed",
+                opacity: p.disponible ? 1 : 0.5,
+                fontFamily: fonts.sans,
+                fontStyle: "normal",
+                transition: "border-color 180ms ease-out, transform 180ms ease-out",
+              }}
+              onMouseEnter={(e) => {
+                if (!p.disponible) return;
+                e.currentTarget.style.borderColor = palette.navy400;
+                if (actif) e.currentTarget.style.borderLeftColor = palette.navy400;
+                e.currentTarget.style.transform = "translateX(2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = palette.line;
+                if (actif) e.currentTarget.style.borderLeftColor = palette.navy400;
+                e.currentTarget.style.transform = "translateX(0)";
+              }}
+            >
+              {(suggere || !p.disponible) && (
+                <span style={{ ...microLabel, color: palette.argent }}>
+                  {!p.disponible ? "Bientôt" : "★ Suggéré"}
+                </span>
               )}
-              {!p.disponible && (
-                <span style={{ display: "block", fontFamily: fonts.mono, fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.7, marginTop: 2 }}>bientôt</span>
-              )}
+              <span
+                style={{
+                  fontFamily: fonts.serif,
+                  fontSize: 15,
+                  lineHeight: 1.3,
+                  letterSpacing: "-0.005em",
+                  color: palette.navy,
+                  fontStyle: "normal",
+                }}
+              >
+                {p.label}
+              </span>
             </button>
           );
         })}
       </div>
 
-      {/* CTA dialogue */}
+      {/* CTA dialogue — bouton outline-mono (idiome de la page) */}
       {selectedEntry?.disponible && selectedEntry.moduleId && interviewId != null && (
-        <div style={{ marginBottom: 18 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 14, marginBottom: 20 }}>
           <button
             type="button"
             onClick={() => setDialogOpen(true)}
-            style={{ fontFamily: fonts.sans, fontSize: 13.5, fontStyle: "normal", padding: "10px 18px", border: "none", background: palette.navy, color: palette.paper, cursor: "pointer" }}
+            style={{
+              background: "transparent",
+              color: palette.navy,
+              border: `1px solid ${palette.lineStrong}`,
+              padding: "12px 24px",
+              fontFamily: fonts.mono,
+              fontSize: 10,
+              letterSpacing: "0.10em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              fontStyle: "normal",
+              transition: "border-color 180ms ease-out, background 180ms ease-out",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = palette.navy;
+              e.currentTarget.style.background = cardBg;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = palette.lineStrong;
+              e.currentTarget.style.background = "transparent";
+            }}
           >
-            Modéliser ce parcours avec Lugia
+            Modéliser ce parcours avec Lugia →
           </button>
-          <span style={{ fontFamily: fonts.sans, fontSize: 12.5, color: palette.navy400, marginLeft: 12, fontStyle: "normal" }}>
+          <span style={{ fontFamily: fonts.sans, fontSize: 12.5, color: palette.navy400, fontStyle: "normal" }}>
             Un court dialogue, puis vous validez avant de voir les vues.
           </span>
         </div>
@@ -176,7 +245,7 @@ export function ParcoursSectionV3({
           </p>
         </>
       ) : (
-        <div style={{ fontFamily: fonts.sans, fontSize: 13.5, lineHeight: 1.6, color: palette.navy600, background: palette.ivory, padding: "16px 18px", fontStyle: "normal", maxWidth: 640 }}>
+        <div style={{ fontFamily: fonts.sans, fontSize: 13.5, lineHeight: 1.6, color: palette.navy600, background: cardBg, border: `1px solid ${palette.line}`, padding: "16px 18px", fontStyle: "normal", maxWidth: 640 }}>
           {selectedEntry?.disponible
             ? "Cliquez sur « Modéliser ce parcours avec Lugia » pour le construire en quelques minutes."
             : "Ce parcours se modélise par un court dialogue avec Lugia — bientôt disponible."}
