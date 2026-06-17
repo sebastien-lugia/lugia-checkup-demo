@@ -19,7 +19,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { fonts, paletteFor } from "@/lib/v3/tokens";
+import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
 import {
   getChatHistory,
   postChatMessage,
@@ -62,16 +62,18 @@ export function ParcoursDialogModal({
   interviewId,
   moduleId,
   parcoursLabel,
+  theme = "night",
   onClose,
   onValidated,
 }: {
   interviewId: number;
   moduleId: string;
   parcoursLabel: string;
+  theme?: V3Theme;
   onClose: () => void;
   onValidated?: (graph: GrapheWSF) => void;
 }) {
-  const palette = paletteFor("day");
+  const palette = paletteFor(theme);
   const [messages, setMessages] = useState<ChatMessageItem[]>([]);
   const [userMessageCount, setUserMessageCount] = useState(0);
   const [draft, setDraft] = useState("");
@@ -392,7 +394,7 @@ export function ParcoursDialogModal({
                   Télécharger en PDF
                 </button>
               </div>
-              <ParcoursViews graph={graph} />
+              <ParcoursViews graph={graph} theme={theme} />
             </div>
           )}
         </div>

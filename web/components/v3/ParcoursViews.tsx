@@ -8,18 +8,17 @@
  *   2. Ruban de chaîne de valeur — « Quelles grandes étapes, d'un coup d'œil ? »
  *   3. Mini-carto des objets    — « Qu'est-ce qui est en jeu, et dans quel état ? »
  *
- * Les trois vues sont dérivées du MÊME GrapheWSF (substrat). Le logigramme
- * passe par la lib mermaid (lazy) ; le ruban et la mini-carto sont des chaînes
- * SVG pures (`render-ruban`, `render-carto`) injectées telles quelles.
+ * Les trois vues sont dérivées du MÊME GrapheWSF (substrat) et rendues en SVG
+ * pur (charte Carte Vivante) — logigramme, ruban, mini-carto.
  *
  * Surface de lecture en climat Jour (D-050) — moment de lecture, pas d'action.
  * Spec : `resources/methode/lugia_modelisations_graphiques_spec.md`.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { fonts, paletteFor } from "@/lib/v3/tokens";
-import { graphToMermaid } from "@/lib/wsf/render-mermaid";
+import { fonts, paletteFor, type V3Theme } from "@/lib/v3/tokens";
+import { renderLogigrammeSVG } from "@/lib/wsf/render-logigramme";
 import { renderRubanSVG } from "@/lib/wsf/render-ruban";
 import { renderCartoSVG } from "@/lib/wsf/render-carto";
 import type { GrapheWSF } from "@/lib/wsf/types";
@@ -33,8 +32,6 @@ const ONGLETS: { id: Vue; label: string; question: string }[] = [
   { id: "carto", label: "Carte des objets", question: "Qu'est-ce qui est en jeu, et dans quel état ?" },
 ];
 
-let mermaidInitialized = false;
-
 /** Rend la chaîne SVG responsive (largeur 100 %). */
 function svgResponsive(svg: string): string {
   return svg.replace(
@@ -43,50 +40,15 @@ function svgResponsive(svg: string): string {
   );
 }
 
-export function ParcoursViews({ graph, showChantiers = true }: { graph: GrapheWSF; showChantiers?: boolean }) {
-  // Surface de lecture = Jour, indépendamment du thème ambiant.
-  const palette = paletteFor("day");
+export function ParcoursViews({ graph, theme = "night", showChantiers = true }: { graph: GrapheWSF; theme?: V3Theme; showChantiers?: boolean }) {
+  const palette = paletteFor(theme);
   const [vue, setVue] = useState<Vue>("logigramme");
-  const [mermaidSvg, setMermaidSvg] = useState<string | null>(null);
-  const [mermaidErr, setMermaidErr] = useState<string | null>(null);
 
-  const rubanSvg = useMemo(() => svgResponsive(renderRubanSVG(graph)), [graph]);
-  const cartoSvg = useMemo(() => svgResponsive(renderCartoSVG(graph)), [graph]);
+  const logiSvg = useMemo(() => svgResponsive(renderLogigrammeSVG(graph, theme)), [graph, theme]);
+  const rubanSvg = useMemo(() => svgResponsive(renderRubanSVG(graph, theme)), [graph, theme]);
+  const cartoSvg = useMemo(() => svgResponsive(renderCartoSVG(graph, theme)), [graph, theme]);
   const chantiers = useMemo(() => deriveChantiers(graph), [graph]);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const mermaid = (await import("mermaid")).default;
-        if (!mermaidInitialized) {
-          mermaid.initialize({
-            startOnLoad: false,
-            theme: "neutral",
-            securityLevel: "loose",
-            fontFamily: "Onest, system-ui, sans-serif",
-            themeVariables: { fontSize: "13px" },
-          });
-          mermaidInitialized = true;
-        }
-        const code = graphToMermaid(graph, { direction: "LR" });
-        const id = `parcours-mermaid-${Math.random().toString(36).slice(2, 9)}`;
-        const result = await mermaid.render(id, code);
-        if (cancelled) return;
-        setMermaidSvg(svgResponsive(result.svg));
-        setMermaidErr(null);
-      } catch (err) {
-        if (cancelled) return;
-        const msg = err instanceof Error ? err.message : "Erreur inconnue";
-        // eslint-disable-next-line no-console
-        console.warn("[ParcoursViews] mermaid render error:", err);
-        setMermaidErr(`Impossible d'afficher le logigramme : ${msg}`);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [graph]);
 
   const onglet = ONGLETS.find((o) => o.id === vue)!;
 
@@ -166,15 +128,10 @@ export function ParcoursViews({ graph, showChantiers = true }: { graph: GrapheWS
 
       {/* Zone de rendu */}
       <div style={{ overflowX: "auto", padding: "4px 0" }}>
-        {vue === "logigramme" &&
-          (mermaidErr ? (
-            <div style={{ ...eyebrow, color: palette.signalWarn.default }}>{mermaidErr}</div>
-          ) : mermaidSvg ? (
-            // eslint-disable-next-line react/no-danger
-            <div dangerouslySetInnerHTML={{ __html: mermaidSvg }} />
-          ) : (
-            <div style={{ ...eyebrow, opacity: 0.6 }}>Génération du logigramme…</div>
-          ))}
+        {vue === "logigramme" && (
+          // eslint-disable-next-line react/no-danger
+          <div dangerouslySetInnerHTML={{ __html: logiSvg }} />
+        )}
 
         {vue === "ruban" && (
           // eslint-disable-next-line react/no-danger

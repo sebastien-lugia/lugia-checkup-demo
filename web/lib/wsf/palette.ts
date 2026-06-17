@@ -97,3 +97,57 @@ export function escapeXml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Palette de RENDU des vues parcours — jour (ivoire) / nuit (navy).
+ * Les couleurs d'état nuit viennent de la charte (--etat-*-night).
+ * ───────────────────────────────────────────────────────────────────── */
+
+export type RenderTheme = "day" | "night";
+
+/** Couleur de trait d'état en mode nuit (fond navy). */
+export const ETAT_TRAIT_NIGHT: Record<EtatAffichage, string> = {
+  optimal: "#F4EFE5",
+  fonct: "#C9C9CC",
+  vigilance: "#C4B870",
+  risque: "#C4A055",
+  critique: "#C46850",
+  nondoc: "rgba(244,239,229,0.42)",
+};
+
+export interface RenderPalette {
+  bg: string;       // fond de la vue
+  ink: string;      // titre / encre forte
+  ink2: string;     // texte secondaire (labels)
+  ink3: string;     // eyebrow / discret
+  line: string;     // filets fins
+  argent: string;   // liens / ruban
+  hot: string;      // désalignement « chaud »
+  trait: (etat: string) => string; // couleur d'état (canal couleur)
+}
+
+export function renderPalette(theme: RenderTheme): RenderPalette {
+  if (theme === "night") {
+    return {
+      bg: "#1A2333",
+      ink: "#F4EFE5",
+      ink2: "#A8B2C8",
+      ink3: "#6E7A95",
+      line: "rgba(244,239,229,0.12)",
+      argent: "#8E8E91",
+      hot: "#C46850",
+      trait: (etat) => ETAT_TRAIT_NIGHT[ETAT_TO_AFFICHAGE[etat as EtatObjet] ?? "fonct"],
+    };
+  }
+  return {
+    bg: PALETTE.ivory,
+    ink: PALETTE.navy,
+    ink2: PALETTE.ink600,
+    ink3: PALETTE.ink400,
+    line: PALETTE.line,
+    argent: PALETTE.argent,
+    hot: "#7A3320",
+    trait: (etat) => couleurEtat(etat).trait,
+  };
+}

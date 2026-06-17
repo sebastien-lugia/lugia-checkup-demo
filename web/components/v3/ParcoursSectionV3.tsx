@@ -255,7 +255,7 @@ export function ParcoursSectionV3({
       {/* Rendu : graphe modélisé / exemple / invite */}
       {graph ? (
         <>
-          <ParcoursViews graph={graph} />
+          <ParcoursViews graph={graph} theme={theme} />
           <p style={{ fontFamily: fonts.sans, fontSize: 12.5, lineHeight: 1.6, color: palette.navy400, marginTop: 12, fontStyle: "normal", maxWidth: 640 }}>
             {modeled[selected]
               ? "Voici votre parcours, tel que vous l'avez validé avec Lugia."
@@ -275,6 +275,7 @@ export function ParcoursSectionV3({
           interviewId={interviewId}
           moduleId={selectedEntry.moduleId}
           parcoursLabel={selectedEntry.label}
+          theme={theme}
           onClose={() => setDialogOpen(false)}
           onValidated={(g) => setModeled((prev) => ({ ...prev, [selected]: g }))}
         />
